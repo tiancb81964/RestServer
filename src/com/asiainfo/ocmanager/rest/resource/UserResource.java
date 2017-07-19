@@ -26,9 +26,9 @@ import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.utils.TenantTree;
-import com.asiainfo.ocmanager.rest.utils.TenantTree.TenantTreeNode;
-import com.asiainfo.ocmanager.rest.utils.TenantTreeUtil;
+import com.asiainfo.ocmanager.utils.TenantTree;
+import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 /**
