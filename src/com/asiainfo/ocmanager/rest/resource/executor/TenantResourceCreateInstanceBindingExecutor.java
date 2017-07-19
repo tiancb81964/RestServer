@@ -66,7 +66,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 				// only the has service permission users
 				// can be assign
 				if (!(permission == null)) {
-					String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId, serviceName);
+					String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
 					JsonElement OCDPServiceInstanceJson = new JsonParser().parse(getInstanceResBody);
 					JsonObject provisioning = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("provisioning");
