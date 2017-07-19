@@ -26,6 +26,9 @@ import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.utils.TenantTree;
+import com.asiainfo.ocmanager.rest.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.rest.utils.TenantTreeUtil;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 /**
@@ -290,59 +293,16 @@ public class UserResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getTenantsByName(@PathParam("name") String userName) {
 		try {
-			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
-
 			List<Tenant> tenantList = new ArrayList<Tenant>();
+			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
 			for (UserRoleView tur : turs) {
-				Tenant tenant = TenantPersistenceWrapper.getTenantById(tur.getTenantId());
-				if (tenant.getLevel() == 1) {
-					// level 1 mean it can see all the tenants, because only one
-					// root tenant
-					tenantList.clear();
-					tenantList = TenantPersistenceWrapper.getAllTenants();
-					break;
-				} else if (tenant.getLevel() == 2) {
-					// level 2 add its children, itself and its parent
-					List<Tenant> list = TenantPersistenceWrapper.getChildrenTenants(tenant.getId());
-					tenantList.addAll(list);
-					tenantList.add(tenant);
-					Tenant level1 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
-					if (level1 != null) {
-						tenantList.add(level1);
-					} else {
-						logger.debug("getTenantsByName level1 -> orphan tenant");
-					}
-				} else {
-					// level 3 add itself, its parent and its parents parent
-					tenantList.add(tenant);
-					Tenant level2 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
-					if (level2 != null) {
-						tenantList.add(level2);
-						Tenant level1 = TenantPersistenceWrapper.getTenantById(level2.getParentId());
-						if (level1 != null) {
-							tenantList.add(level1);
-						} else {
-							logger.debug("getTenantsByName  level2 level1 -> orphan tenant");
-						}
-					} else {
-						logger.debug("getTenantsByName level2 -> orphan tenant");
-					}
-				}
+				TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
+				List<TenantTreeNode> allNodes = tree.listAllNodes();
+				tenantList.addAll(TenantTreeUtil.transform(allNodes));
 			}
-
-			ArrayList<String> tenantIdList = new ArrayList<String>();
-			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
-			for (Tenant ten : tenantList) {
-				if (!tenantIdList.contains(ten.getId())) {
-					tenantIdList.add(ten.getId());
-					tenants.add(ten);
-				}
-			}
-
-			return Response.ok().entity(tenants).build();
+			return Response.ok().entity(tenantList).build();
 		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("getTenantsByName -> " + e.getMessage());
+			logger.info("Error while getting Tenants by user: " + e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}

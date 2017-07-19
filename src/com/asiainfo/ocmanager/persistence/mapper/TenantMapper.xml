@@ -42,4 +42,8 @@
 	<select id="selectTenantsByLevel" resultType="com.asiainfo.ocmanager.persistence.model.Tenant">
 		select * from tenants where level=#{level}
 	</select>
+	<select id="getParent" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.Tenant">
+		select * from tenants where id = (select parentId from tenants where id = #{id});
+	</select>
 </mapper>

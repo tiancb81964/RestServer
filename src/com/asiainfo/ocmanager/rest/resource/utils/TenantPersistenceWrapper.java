@@ -70,6 +70,27 @@ public class TenantPersistenceWrapper {
 	}
 
 	/**
+	 * Get parent of tenant by the specified tenantID.
+	 * @param tenantID
+	 * @return
+	 */
+	public static Tenant getParent(String tenantID){
+		SqlSession session = DBConnectorFactory.getSession();
+		Tenant tenant = null;
+		try {
+			TenantMapper mapper = session.getMapper(TenantMapper.class);
+			tenant = mapper.getParent(tenantID);
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return tenant;
+	}
+	
+	/**
 	 *
 	 * @param tenantId
 	 * @return
