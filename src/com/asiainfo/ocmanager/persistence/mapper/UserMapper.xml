@@ -15,8 +15,8 @@
 	<!-- create user -->
 	<insert id="insertUser" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.User">
-		insert into users (id, username, password, email, phone, description)
-		values (#{id}, #{username}, #{password}, #{email}, #{phone}, #{description})
+		insert into users (id, username, password, email, phone, description, createdUser)
+		values (#{id}, #{username}, #{password}, #{email}, #{phone}, #{description}, #{createdUser})
 	</insert>
 	<!-- update user -->
 	<update id="updateUser"

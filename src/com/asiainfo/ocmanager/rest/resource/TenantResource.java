@@ -36,19 +36,18 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
-import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
+import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
+import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUpdateRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstancePersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceRolePermissionWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
@@ -368,7 +367,6 @@ public class TenantResource {
 
 						JsonElement resBodyJson = new JsonParser().parse(bodyStr);
 						JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
-//						serviceInstance.setId(resBodyJsonObj.getAsJsonObject("metadata").get("uid").getAsString());
 						serviceInstance
 								.setInstanceName(resBodyJsonObj.getAsJsonObject("metadata").get("name").getAsString());
 						serviceInstance.setTenantId(tenantId);
@@ -422,7 +420,8 @@ public class TenantResource {
 						}
 						serviceInstance.setStatus(phase);
 						// set instance id, the id generated after Provisioning
-						serviceInstance.setId(serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec").get("instance_id").getAsString());
+						serviceInstance.setId(serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
+								.get("instance_id").getAsString());
 
 						// insert the service instance into the adapter DB
 						ServiceInstancePersistenceWrapper.createServiceInstance(serviceInstance);
@@ -437,75 +436,10 @@ public class TenantResource {
 						// permission
 						if (Constant.list.contains(serviceName.toLowerCase())) {
 
-							List<UserRoleView> users = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
-
-							List<String> userNameList = new ArrayList<String>();
-							for (UserRoleView u : users) {
-								ServiceRolePermission permission = ServiceRolePermissionWrapper
-										.getServicePermissionByRoleId(serviceName, u.getRoleId());
-								// only the has service permission users
-								// can be assign
-								if (!(permission == null)) {
-									userNameList.add(u.getUserName());
-								}
-							}
-							if (!(userNameList.size() == 0)) {
-
-								getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId,
-										serviceInstance.getInstanceName());
-
-								JsonElement OCDPServiceInstanceJson = new JsonParser().parse(getInstanceResBody);
-
-								JsonObject provisioning = OCDPServiceInstanceJson.getAsJsonObject()
-										.getAsJsonObject("spec").getAsJsonObject("provisioning");
-
-								String userNameListStr = "";
-								for (String u : userNameList) {
-									userNameListStr = userNameListStr + "," + u;
-								}
-								// remove first comma
-								userNameListStr = userNameListStr.substring(1, userNameListStr.length());
-								logger.debug("createServiceInstanceInTenant -> userNameListStr: " + userNameListStr);
-								provisioning.getAsJsonObject("parameters").addProperty("user_name", userNameListStr);
-
-								// hard code the role id here
-								// because now only pm and team member
-								// can access the service instance
-								// and they have the same permission
-								ServiceRolePermission permission = ServiceRolePermissionWrapper
-										.getServicePermissionByRoleId(serviceName, Constant.PROJECTMANAGERROLE);
-
-								provisioning.getAsJsonObject("parameters").addProperty("accesses",
-										permission.getServicePermission());
-								logger.debug("createServiceInstanceInTenant -> permission.getServicePermission(): "
-										+ permission.getServicePermission());
-								JsonObject status = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("status");
-								status.addProperty("patch", Constant.UPDATE);
-
-								logger.info("createServiceInstanceInTenant -> begin update service instance");
-								AdapterResponseBean updateRes = TenantResource.updateTenantServiceInstanceInDf(tenantId,
-										instanceName, OCDPServiceInstanceJson.toString());
-
-								if (updateRes.getResCodel() == 200) {
-
-									logger.info("createServiceInstanceInTenant -> wait update complete");
-									TenantResource.watiInstanceUpdateComplete(updateRes, tenantId, instanceName);
-									logger.info("createServiceInstanceInTenant -> update complete");
-
-									logger.info("createServiceInstanceInTenant -> begin to binding");
-									for (int i = 0; i < userNameList.size(); i++) {
-										AdapterResponseBean bindingRes = TenantResource.generateOCDPServiceCredentials(
-												tenantId, instanceName, userNameList.get(i));
-
-										if (bindingRes.getResCodel() == 201) {
-											logger.info("createServiceInstanceInTenant -> wait binding complete");
-											TenantResource.watiInstanceBindingComplete(bindingRes, tenantId,
-													instanceName);
-											logger.info("createServiceInstanceInTenant -> binding complete");
-										}
-									}
-								}
-							}
+							TenantResourceCreateInstanceBindingExecutor runnable = new TenantResourceCreateInstanceBindingExecutor(
+									tenantId, serviceName, instanceName);
+							Thread thread = new Thread(runnable);
+							thread.start();
 						}
 					}
 
@@ -648,7 +582,7 @@ public class TenantResource {
 					.get("backingservice_name").getAsString();
 			// get status phase
 			String phase = instance.getAsJsonObject("status").get("phase").getAsString();
-			
+
 			if (phase.equals(Constant.PROVISIONING)) {
 				logger.info(
 						"deleteServiceInstanceInTenant -> The instance can not be deleted when it is Provisioning!");
@@ -888,30 +822,10 @@ public class TenantResource {
 
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
 			for (int i = 0; i < allServiceInstancesArray.size(); i++) {
-				JsonObject instance = allServiceInstancesArray.get(i).getAsJsonObject();
-				// get service name
-				String serviceName = instance.getAsJsonObject("spec").getAsJsonObject("provisioning")
-						.get("backingservice_name").getAsString();
-				String phase = instance.getAsJsonObject("status").get("phase").getAsString();
-
-				if (!phase.equals(Constant.PROVISIONING) && !phase.equals(Constant.FAILURE)) {
-					if (Constant.list.contains(serviceName.toLowerCase())) {
-						// get service instance name
-						String instanceName = instance.getAsJsonObject("metadata").get("name").getAsString();
-
-						// the unassign df and service broker only use the
-						// unbinding
-						// to do
-						// so here not need to call update
-						logger.info("unassignRoleFromUserInTenant -> begin to unbinding");
-						AdapterResponseBean bindingRes = TenantResource.removeOCDPServiceCredentials(tenantId,
-								instanceName, UserPersistenceWrapper.getUserById(userId).getUsername());
-
-						if (bindingRes.getResCodel() == 201) {
-							logger.info("unassignRoleFromUserInTenant -> unbinding successfully");
-						}
-					}
-				}
+				TenantResourceUnAssignRoleExecutor runnable = new TenantResourceUnAssignRoleExecutor(tenantId,
+						allServiceInstancesArray, userId, i);
+				Thread thread = new Thread(runnable);
+				thread.start();
 			}
 
 			TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenantId, userId);
@@ -949,9 +863,9 @@ public class TenantResource {
 
 	}
 
-	public static void watiInstanceBindingComplete(AdapterResponseBean bindingRes, String tenantId,
-			String instanceName) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
-			IOException, InterruptedException {
+	public static void watiInstanceBindingComplete(AdapterResponseBean bindingRes, String tenantId, String instanceName)
+			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException,
+			InterruptedException {
 
 		String bindingResStr = bindingRes.getMessage();
 		JsonElement bindingResJson = new JsonParser().parse(bindingResStr);

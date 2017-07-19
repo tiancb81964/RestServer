@@ -3,6 +3,7 @@ package com.asiainfo.ocmanager.rest.resource;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -11,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -27,6 +29,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper
 import com.asiainfo.ocmanager.rest.utils.TenantTree;
 import com.asiainfo.ocmanager.rest.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.rest.utils.TenantTreeUtil;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 /**
  *
@@ -88,8 +91,10 @@ public class UserResource {
 	@POST
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createUser(User user) {
+	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
+			String createdUser = request.getHeader("username");
+			user.setCreatedUser(createdUser);
 			user = UserPersistenceWrapper.createUser(user);
 			return Response.ok().entity(user).build();
 		} catch (Exception e) {
@@ -129,14 +134,52 @@ public class UserResource {
 	@DELETE
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
-	public Response deleteUser(@PathParam("id") String userId) {
+	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
+		String userName = null;
 		try {
-			UserPersistenceWrapper.deleteUser(userId);
+			String createdUser = request.getHeader("username");
+			User user = UserPersistenceWrapper.getUserById(userId);
+
+			if (user == null) {
+				return Response.status(Status.NOT_FOUND).entity("The user " + user + "can not find.").build();
+			}
+
+			userName = user.getUsername();
+
+			if (user.getCreatedUser().equals(createdUser)) {
+				UserPersistenceWrapper.deleteUser(userId);
+			} else {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(new AdapterResponseBean("delete failed",
+								"Can not delete the user: " + user.getUsername() + ", it is created by user: "
+										+ user.getCreatedUser() + ". please use the created user to delete.",
+								4001))
+						.build();
+			}
 			return Response.ok().entity(new AdapterResponseBean("delete success", userId, 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("deleteUser -> " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+
+			if (e.getCause() instanceof MySQLIntegrityConstraintViolationException) {
+
+				List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
+
+				String tenants = "";
+				for (UserRoleView t : urvs) {
+					tenants = tenants + t.getTenantName() + ",";
+				}
+				tenants = tenants.substring(0, tenants.length() - 1);
+				return Response
+						.status(Status.BAD_REQUEST).entity(
+								new AdapterResponseBean("delete failed",
+										"The user is assign with the tenants: [" + tenants
+												+ "], please unassign the user, then try to delete it again.",
+										4002))
+						.build();
+			} else {
+				return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			}
 		}
 	}
 
