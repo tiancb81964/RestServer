@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.service.broker.ResourceBroker;
+import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.Resource;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Multimap;
@@ -18,15 +18,15 @@ import com.google.common.collect.Table;
  * @author EthanWang
  *
  */
-public abstract class BaseResourceBroker implements ResourceBroker{
-	protected static Logger LOG = Logger.getLogger(BaseResourceBroker.class);
+public abstract class BaseResourcePeeker implements ResourcePeeker{
+	protected static Logger LOG = Logger.getLogger(BaseResourcePeeker.class);
 	protected Resource resources;
 	
-	public BaseResourceBroker(){
+	public BaseResourcePeeker(){
 		init();
 	}
 	
-	public BaseResourceBroker peekOn(Multimap<String, String> resources) {
+	public BaseResourcePeeker peekOn(Multimap<String, String> resources) {
 		if (resources == null || resources.isEmpty()) {
 			LOG.error("Resources must be added into broker to do surveillance.");
 			throw new RuntimeException("Resources must be added into broker to do surveillance.");
@@ -41,7 +41,9 @@ public abstract class BaseResourceBroker implements ResourceBroker{
 	}
 	
 	/**
-	 * Will only be called once when first time create a instance.
+	 * Will only be called once when first time create a instance. 
+	 * Heavy operations like opening and closing connections should be
+	 * init and cached in this section.
 	 */
 	protected abstract void init();
 	
@@ -87,14 +89,18 @@ public abstract class BaseResourceBroker implements ResourceBroker{
 	}
 	
 	/**
-	 * Fetch the total quota by the specified resource type and resource name from server.
+	 * Called repeatedly to fetch the total quota of each 
+	 * resource. Server connection should be cached to 
+	 * avoid frequent net IO.
 	 * @param type
 	 * @return
 	 */
 	protected abstract Long fetchTotalQuota(String resourceType, String resourceName);
 	
 	/**
-	 * Fetch the used quota by the specified resource type and resource name from server.
+	 * Called repeatedly to fetch the used quota of each 
+	 * resource. Server connection should be cached to 
+	 * avoid frequent net IO.	 
 	 * @param type
 	 * @return
 	 */
@@ -121,7 +127,7 @@ public abstract class BaseResourceBroker implements ResourceBroker{
 	}
 	
 	@Override
-	public Long getFree(String key, String name) throws Exception {
+	public Long getFreeQuota(String key, String name) throws Exception {
 		if (inited()) {
 			long t = this.resources.getTotal(key, name);
 			long u = this.resources.getUsed(key, name);
