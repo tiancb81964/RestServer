@@ -1,10 +1,10 @@
-package com.asiainfo.ocmanager.rest.utils;
+package com.asiainfo.ocmanager.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
-import com.asiainfo.ocmanager.rest.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 
 /**
  * Providing commonly used methods for {@link TenantTree}
