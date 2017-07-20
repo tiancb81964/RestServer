@@ -236,7 +236,7 @@ public class UserResource {
 
 			return Response.ok().entity(tenantList).build();
 		} catch (Exception e) {
-			logger.error("Error while getting Tenants by user id: " + userId + e);
+			logger.error("Error while getting Tenants by user id: " + userId, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -260,7 +260,7 @@ public class UserResource {
 			}
 			return Response.ok().entity(tenantList).build();
 		} catch (Exception e) {
-			logger.error("Error while getting Tenants by user name: " + userName + e);
+			logger.error("Error while getting Tenants by user name: " + userName, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
