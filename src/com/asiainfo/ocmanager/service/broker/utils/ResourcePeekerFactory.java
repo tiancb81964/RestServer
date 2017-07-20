@@ -2,16 +2,16 @@ package com.asiainfo.ocmanager.service.broker.utils;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.service.broker.ResourceBroker;
-import com.asiainfo.ocmanager.service.broker.imp.BaseResourceBroker;
+import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
+import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 
 /**
  * Factory to create service resource broker.
  * @author EthanWang
  *
  */
-public class ResourceBrokerFactory {
-	private static final Logger LOG = Logger.getLogger(ResourceBrokerFactory.class);
+public class ResourcePeekerFactory {
+	private static final Logger LOG = Logger.getLogger(ResourcePeekerFactory.class);
 	
 	/**
 	 * totalQuota is a table of < resourceType, resourceName, value >
@@ -20,9 +20,9 @@ public class ResourceBrokerFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ResourceBroker getQuotaBroker(Class<? extends BaseResourceBroker> clz){
+	public static ResourcePeeker getQuotaBroker(Class<? extends BaseResourcePeeker> clz){
 		try {
-			BaseResourceBroker broker = clz.newInstance();
+			BaseResourcePeeker broker = clz.newInstance();
 			return broker;
 		} catch (Exception e) {
 			LOG.error("Create broker failed: " + clz.getName(), e);

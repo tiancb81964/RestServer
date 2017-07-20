@@ -7,14 +7,14 @@ import com.google.common.collect.Multimap;
  * @author EthanWang
  *
  */
-public interface ResourceBroker extends Broker{
+public interface ResourcePeeker extends Broker{
 	
 	/**
 	 * Have a peek at the specified resources.
 	 * @param resources
 	 * @return
 	 */
-	public ResourceBroker peekOn(Multimap<String, String> resources);
+	public ResourcePeeker peekOn(Multimap<String, String> resources);
 	
 	/**
 	 * Fetch total quota.
@@ -37,5 +37,5 @@ public interface ResourceBroker extends Broker{
 	 * @return
 	 * @throws Exception 
 	 */
-	public Long getFree(String key, String name) throws Exception;
+	public Long getFreeQuota(String key, String name) throws Exception;
 }

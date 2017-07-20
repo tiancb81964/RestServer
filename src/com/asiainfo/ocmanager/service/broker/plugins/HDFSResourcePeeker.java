@@ -5,11 +5,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.service.broker.imp.BaseResourceBroker;
+import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.HDFSClient;
 
-public class HDFSResourceBroker extends BaseResourceBroker {
-	private static final Logger LOG = Logger.getLogger(HDFSResourceBroker.class);
+public class HDFSResourcePeeker extends BaseResourcePeeker {
+	private static final Logger LOG = Logger.getLogger(HDFSResourcePeeker.class);
 	private static final String NAMESPACE_QUOTA = "nameSpaceQuota";
 	private static final String STORAGESPACE_QUOTA = "storageSpaceQuota";
 	private FileSystem fs ;
