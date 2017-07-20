@@ -33,5 +33,14 @@ public class Constant {
 	/*****************************************************************/
 	// ocdp service name list
 	public static final List<String> list = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark", "kafka");
+	public static final List<String> serviceQuotaParam = Arrays.asList("volumeSize","nameSpaceQuota","storageSpaceQuota",
+			"maximumTablesQuota","maximumRegionsQuota","yarnQueueQuota");
+
+	/*****************************************************************/
+	/******************* authentication const ************************/
+	/*****************************************************************/
+	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
+	public static final Long AUTHTOKENTTL = new Long(10*60*1000);
+
 
 }
