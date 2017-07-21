@@ -20,7 +20,10 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 
 	public TenantResourceUnAssignRoleExecutor(String tenantId, JsonArray allServiceInstancesArray, String userId,
 			int instnaceNum) {
-		// TODO Auto-generated constructor stub
+		this.tenantId = tenantId;
+		this.instnaceNum = instnaceNum;
+		this.allServiceInstancesArray = allServiceInstancesArray;
+		this.userId = userId;
 	}
 
 	public String getTenantId() {

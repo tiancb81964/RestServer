@@ -90,7 +90,7 @@ public class TenantResourceAssignRoleExecutor implements Runnable {
 					// get the service permission based on the service name
 					// and role
 					ServiceRolePermission permission = ServiceRolePermissionWrapper
-							.getServicePermissionByRoleId(serviceName, assignment.getRoleId());
+							.getServicePermissionByRoleId(serviceName.toLowerCase(), assignment.getRoleId());
 
 					// only the has service permission users
 					// can be assign

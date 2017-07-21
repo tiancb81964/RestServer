@@ -62,7 +62,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 
 			for (UserRoleView u : users) {
 				ServiceRolePermission permission = ServiceRolePermissionWrapper
-						.getServicePermissionByRoleId(serviceName, u.getRoleId());
+						.getServicePermissionByRoleId(serviceName.toLowerCase(), u.getRoleId());
 				// only the has service permission users
 				// can be assign
 				if (!(permission == null)) {
