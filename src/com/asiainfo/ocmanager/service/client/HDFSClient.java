@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.utils.HadoopConfiguration;
+
 /**
  * HDFS client.
  * @author EthanWang

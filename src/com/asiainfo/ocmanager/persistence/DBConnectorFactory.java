@@ -36,7 +36,7 @@ public class DBConnectorFactory {
 			// remove classes/
 			// the path will be <tomcat home>/webapps/ocmanager/
 			String propertiesFilePath = currentClassPath.substring(0, currentClassPath.length() - 8)
-					+ "conf/config.properties";
+					+ "conf/mysql.properties";
 
 			InputStream propInputStream = new FileInputStream(new File(propertiesFilePath));
 			Properties prop = new Properties();

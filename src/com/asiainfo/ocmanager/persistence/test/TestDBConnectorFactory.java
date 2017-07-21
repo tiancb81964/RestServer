@@ -31,7 +31,7 @@ public class TestDBConnectorFactory {
 
 			String currentClassPath = new DFPropertiesFoundry().getClass().getResource("/").getPath();
 			String propertiesFilePath = currentClassPath.substring(0, currentClassPath.length() - 4)
-					+ "conf/config.properties";
+					+ "conf/mysql.properties";
 
 			InputStream propInputStream = new FileInputStream(new File(propertiesFilePath));
 			Properties prop = new Properties();

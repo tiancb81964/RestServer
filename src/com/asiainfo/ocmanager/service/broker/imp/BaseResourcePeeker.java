@@ -23,7 +23,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	protected Resource resources;
 	
 	public BaseResourcePeeker(){
-		init();
+		setup();
 	}
 	
 	public BaseResourcePeeker peekOn(Multimap<String, String> resources) {
@@ -37,6 +37,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 		}
 		setupResources(resources);
 		findUsage();
+		cleanup();
 		return this;
 	}
 	
@@ -45,7 +46,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	 * Heavy operations like opening and closing connections should be
 	 * init and cached in this section.
 	 */
-	protected abstract void init();
+	protected abstract void setup();
 	
 	/**
 	 * Find the usage of current resources.
@@ -54,6 +55,12 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 		fetchTotal();
 		fetchUsed();		
 	}
+	
+	/**
+	 * Will be called only once at the end of peeker lifetime to
+	 * do cleanup work.
+	 */
+	protected abstract void cleanup();
 
 	private void setupResources(Multimap<String, String> resources) {
 		Table<String, String, Long> targetResources = HashBasedTable.create();
@@ -61,7 +68,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 			targetResources.put(resource.getKey(), resource.getValue(), -1l);
 		}
 		this.resources = new Resource(targetResources);		
-		LOG.info("Service broker spying on: " + resources);
+		LOG.info("Service broker peeking on: " + resources);
 	}
 
 	/**
@@ -130,6 +137,9 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	public Long getFreeQuota(String key, String name) throws Exception {
 		if (inited()) {
 			long t = this.resources.getTotal(key, name);
+			if (t < 0) {
+				return -1l; // free quota return -1 if total quota being -1(unlimited). 
+			}
 			long u = this.resources.getUsed(key, name);
 			return (t - u);
 		}

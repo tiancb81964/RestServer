@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.service.broker.plugins;
+package com.asiainfo.ocmanager.service.broker.plugin;
 
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
@@ -15,7 +15,7 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 	private FileSystem fs ;
 
 	@Override
-	protected void init() {
+	protected void setup() {
 		this.fs = HDFSClient.getFileSystem();
 	}
 	
@@ -85,9 +85,14 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 			ContentSummary summary = this.fs.getContentSummary(new Path(resourceName));
 			return summary.getQuota();
 		} catch (Exception e) {
-			LOG.error("Error while get namespace quota by : " + resourceName);
+			LOG.error("Error while get namespace quota by : " + resourceName, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	protected void cleanup() {
+		
 	}
 
 }
