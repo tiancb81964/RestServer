@@ -20,13 +20,13 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 	private static final Logger LOG = Logger.getLogger(MapRedResourcePeeker.class);
 	private static final String TYPE = "yarnQueueQuota";
 	private YarnClient client;
-	private String resourceInfo;
+	private String queuesInfo;
 	
 	@Override
 	protected void setup() {
 		this.client = YarnClient.getInstance();
 		try {
-			this.resourceInfo = client.fetchQueueInfo();
+			this.queuesInfo = client.fetchQueuesInfo();
 		} catch (Exception e) {
 			LOG.error("Error while fetching queue info from RM: ", e);
 			throw new RuntimeException("Error while fetching queue info from RM: ", e);
@@ -39,7 +39,7 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
-		JsonObject jsonObj = new JsonParser().parse(this.resourceInfo).getAsJsonObject();
+		JsonObject jsonObj = new JsonParser().parse(this.queuesInfo).getAsJsonObject();
 		JsonObject queue = findQueueByName(jsonObj, queueName);
 		//TODO: total memory can not be retrieved from rm.
 		queue.getAsJsonObject("");
@@ -73,7 +73,7 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
-		JsonObject jsonObj = new JsonParser().parse(this.resourceInfo).getAsJsonObject();
+		JsonObject jsonObj = new JsonParser().parse(this.queuesInfo).getAsJsonObject();
 		JsonObject queue = findQueueByName(jsonObj, queueName);
 		long used = queue.getAsJsonObject("resourcesUsed").getAsJsonPrimitive("memory").getAsLong();
 		//TODO: if need to change to "usedCapacity"(percentage) instead of "resourcesUsed/memory"

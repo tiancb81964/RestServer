@@ -12,8 +12,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 /**
- * Implements Broker interface and provide quota-relative operations. 
- * Any other service quota broker should extends this class to query 
+ * Implementing Broker interface and providing quota-relative operations. 
+ * Any other service resource monitor should extends this class to query 
  * for <code>total quota</code> and <code> used quota</code>.
  * @author EthanWang
  *
@@ -52,8 +52,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	 * Find the usage of current resources.
 	 */
 	private void findUsage() {
-		fetchTotal();
-		fetchUsed();		
+		fetchAction();
 	}
 	
 	/**
@@ -74,27 +73,17 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	/**
 	 * Init service broker with total quota.
 	 */
-	private void fetchTotal(){
+	private void fetchAction(){
 		for(Entry<String, Map<String, Long>> typeResources : this.resources.peekTotals().rowMap().entrySet()){
 			for (Entry<String, Long> resource : typeResources.getValue().entrySet()) {
 				Long total = fetchTotalQuota(typeResources.getKey(), resource.getKey());
+				Long used = fetchUsedQuota(typeResources.getKey(), resource.getKey());
 				this.resources.updateTotal(typeResources.getKey(), resource.getKey(), total);
+				this.resources.updateUsed(typeResources.getKey(), resource.getKey(), used);
 			}
 		}
 	}
 
-	/**
-	 * Update used quotas.
-	 */
-	private void fetchUsed(){
-		for(Entry<String, Map<String, Long>> typeResources : this.resources.peekUsed().rowMap().entrySet()){
-			for (Entry<String, Long> resource : typeResources.getValue().entrySet()) {
-				Long total = fetchUsedQuota(typeResources.getKey(), resource.getKey());
-				this.resources.updateUsed(typeResources.getKey(), resource.getKey(), total);
-			}
-		}
-	}
-	
 	/**
 	 * Called repeatedly to fetch the total quota of each 
 	 * resource. Server connection should be cached to 

@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.service.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Iterator;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -10,6 +11,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Yarn client.
@@ -67,11 +72,11 @@ public class YarnClient {
 	}
 	
 	/**
-	 * Fetch queues info from RM.
+	 * Fetch all queues info from RM with returned String in json.
 	 * @return
 	 * @throws Exception
 	 */
-	public String fetchQueueInfo() throws Exception{
+	public String fetchQueuesInfo() throws Exception{
 		CloseableHttpResponse rsp = null;
 		try {
 			String url = activeRM() + "/ws/v1/cluster/scheduler";
@@ -90,6 +95,33 @@ public class YarnClient {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Fetch queue info by specified queueName
+	 * @param queueName
+	 * @return
+	 * @throws Exception
+	 */
+	public JsonObject fetchQueueInfoByName(String queueName) throws Exception{
+		JsonObject jsonObj = new JsonParser().parse(fetchQueuesInfo()).getAsJsonObject();
+		JsonObject queue = findQueueByName(jsonObj, queueName);
+		return queue;
+	}
+	
+	private JsonObject findQueueByName(JsonObject json, String queueName) {
+		JsonArray queues = json.getAsJsonObject("scheduler").getAsJsonObject("schedulerInfo").getAsJsonObject("queues").getAsJsonArray("queue");
+		Iterator<JsonElement> it = queues.iterator();
+		String name = "";
+		while (it.hasNext()) {
+			JsonObject queue = it.next().getAsJsonObject();
+			name = queue.getAsJsonPrimitive("queueName").getAsString();
+			if (name.equals(queueName)) {
+				return queue;
+			}
+		}
+		System.out.println("Queue not exist: " + queueName);
+		throw new RuntimeException("Queue not exist: " + queueName);
 	}
 	
 	private YarnClient(){
