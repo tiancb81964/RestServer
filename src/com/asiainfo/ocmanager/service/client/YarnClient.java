@@ -18,7 +18,7 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  */
 public class YarnClient {
 	private static YarnClient instance;
-	private static final String CONF_YARN = "yarn.resourcemanager.http.url";
+	private static final String CONF_YARN = "oc.yarn.resourcemanager.http.url";
 	private CloseableHttpClient httpClient;
 	private String[] baseUrls; // active/standby rm.
 	
