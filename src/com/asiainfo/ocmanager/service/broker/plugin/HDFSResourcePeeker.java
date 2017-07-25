@@ -30,7 +30,7 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 
 		default:
 			LOG.error("Unknown key: " + resourceType + "=" + path);
-			throw new RuntimeException("Unknown key: " + "=" + path);
+			throw new RuntimeException("Unknown key: " + resourceType + "=" + path);
 		}
 	}
 	
