@@ -101,7 +101,30 @@ public class YarnClient {
 	}
 	
 	/**
-	 * Get yarn metrics.
+	 * Get yarn metrics. Returned mapping consist of:     
+	 *  "appsSubmitted"
+        "appsCompleted"
+        "appsPending"
+        "appsRunning"
+        "appsFailed"
+        "appsKilled"
+        "reservedMB"
+        "availableMB"
+        "allocatedMB"
+        "reservedVirtualCores"
+        "availableVirtualCores"
+        "allocatedVirtualCores"
+        "containersAllocated"
+        "containersReserved"
+        "containersPending"
+        "totalMB"
+        "totalVirtualCores"
+        "totalNodes"
+        "lostNodes"
+        "unhealthyNodes"
+        "decommissionedNodes"
+        "rebootedNodes"
+        "activeNodes"
 	 * @return
 	 * @throws Exception 
 	 */
@@ -136,7 +159,8 @@ public class YarnClient {
 	}
 
 	/**
-	 * Fetch queue info by specified queueName
+	 * Fetch queue info by specified queueName. Specified queue
+	 * should be child of <code>root</code> queue, such as <code>default</code> queue.
 	 * @param queueName
 	 * @return
 	 * @throws Exception
