@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-	<properties resource="com/asiainfo/ocmanager/persistence/conf/config.properties"></properties>
+	<properties resource="com/asiainfo/ocmanager/persistence/conf/mysql.properties"></properties>
 	<environments default="development">
 		<environment id="development">
 			<transactionManager type="JDBC" />

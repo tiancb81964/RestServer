@@ -20,12 +20,12 @@ public class ResourcePeekerFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ResourcePeeker getQuotaBroker(Class<? extends BaseResourcePeeker> clz){
+	public static ResourcePeeker getPeeker(Class<? extends BaseResourcePeeker> clz){
 		try {
 			BaseResourcePeeker broker = clz.newInstance();
 			return broker;
 		} catch (Exception e) {
-			LOG.error("Create broker failed: " + clz.getName(), e);
+			LOG.error("Create peeker failed: " + clz.getName(), e);
 			throw new RuntimeException(e);
 		}
 	}

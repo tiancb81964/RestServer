@@ -12,8 +12,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 /**
- * Implements Broker interface and provide quota-relative operations. 
- * Any other service quota broker should extends this class to query 
+ * Implementing Broker interface and providing quota-relative operations. 
+ * Any other service resource monitor should extends this class to query 
  * for <code>total quota</code> and <code> used quota</code>.
  * @author EthanWang
  *
@@ -23,7 +23,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	protected Resource resources;
 	
 	public BaseResourcePeeker(){
-		init();
+		setup();
 	}
 	
 	public BaseResourcePeeker peekOn(Multimap<String, String> resources) {
@@ -37,6 +37,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 		}
 		setupResources(resources);
 		findUsage();
+		cleanup();
 		return this;
 	}
 	
@@ -45,15 +46,20 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	 * Heavy operations like opening and closing connections should be
 	 * init and cached in this section.
 	 */
-	protected abstract void init();
+	protected abstract void setup();
 	
 	/**
 	 * Find the usage of current resources.
 	 */
 	private void findUsage() {
-		fetchTotal();
-		fetchUsed();		
+		fetchAction();
 	}
+	
+	/**
+	 * Will be called only once at the end of peeker lifetime to
+	 * do cleanup work.
+	 */
+	protected abstract void cleanup();
 
 	private void setupResources(Multimap<String, String> resources) {
 		Table<String, String, Long> targetResources = HashBasedTable.create();
@@ -61,33 +67,23 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 			targetResources.put(resource.getKey(), resource.getValue(), -1l);
 		}
 		this.resources = new Resource(targetResources);		
-		LOG.info("Service broker spying on: " + resources);
+		LOG.info("Service broker peeking on: " + resources);
 	}
 
 	/**
 	 * Init service broker with total quota.
 	 */
-	private void fetchTotal(){
+	private void fetchAction(){
 		for(Entry<String, Map<String, Long>> typeResources : this.resources.peekTotals().rowMap().entrySet()){
 			for (Entry<String, Long> resource : typeResources.getValue().entrySet()) {
 				Long total = fetchTotalQuota(typeResources.getKey(), resource.getKey());
+				Long used = fetchUsedQuota(typeResources.getKey(), resource.getKey());
 				this.resources.updateTotal(typeResources.getKey(), resource.getKey(), total);
+				this.resources.updateUsed(typeResources.getKey(), resource.getKey(), used);
 			}
 		}
 	}
 
-	/**
-	 * Update used quotas.
-	 */
-	private void fetchUsed(){
-		for(Entry<String, Map<String, Long>> typeResources : this.resources.peekUsed().rowMap().entrySet()){
-			for (Entry<String, Long> resource : typeResources.getValue().entrySet()) {
-				Long total = fetchUsedQuota(typeResources.getKey(), resource.getKey());
-				this.resources.updateUsed(typeResources.getKey(), resource.getKey(), total);
-			}
-		}
-	}
-	
 	/**
 	 * Called repeatedly to fetch the total quota of each 
 	 * resource. Server connection should be cached to 
@@ -130,6 +126,9 @@ public abstract class BaseResourcePeeker implements ResourcePeeker{
 	public Long getFreeQuota(String key, String name) throws Exception {
 		if (inited()) {
 			long t = this.resources.getTotal(key, name);
+			if (t < 0) {
+				return -1l; // free quota return -1 if total quota being -1(unlimited). 
+			}
 			long u = this.resources.getUsed(key, name);
 			return (t - u);
 		}

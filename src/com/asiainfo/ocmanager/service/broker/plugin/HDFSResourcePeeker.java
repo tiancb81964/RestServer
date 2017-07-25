@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.service.broker.plugins;
+package com.asiainfo.ocmanager.service.broker.plugin;
 
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
@@ -15,37 +15,37 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 	private FileSystem fs ;
 
 	@Override
-	protected void init() {
+	protected void setup() {
 		this.fs = HDFSClient.getFileSystem();
 	}
 	
 	@Override
-	protected Long fetchTotalQuota(String resourceType, String resourceName) {
+	protected Long fetchTotalQuota(String resourceType, String path) {
 		switch (resourceType) {
 		case NAMESPACE_QUOTA:
-			return totalNamespace(resourceName);
+			return totalNamespace(path);
 			
 		case STORAGESPACE_QUOTA:
-			return totalStoragespace(resourceName);
+			return totalStoragespace(path);
 
 		default:
-			LOG.error("Unknown key: " + resourceType + "=" + resourceName);
-			throw new RuntimeException("Unknown key: " + "=" + resourceName);
+			LOG.error("Unknown key: " + resourceType + "=" + path);
+			throw new RuntimeException("Unknown key: " + resourceType + "=" + path);
 		}
 	}
 	
 	@Override
-	protected Long fetchUsedQuota(String resourceType, String resourceName) {
+	protected Long fetchUsedQuota(String resourceType, String pathName) {
 		switch (resourceType) {
 		case NAMESPACE_QUOTA:
-			return usedNamespace(resourceName);
+			return usedNamespace(pathName);
 			
 		case STORAGESPACE_QUOTA:
-			return usedStoragespace(resourceName);
+			return usedStoragespace(pathName);
 
 		default:
-			LOG.error("Unknown key: " + resourceType + "=" + resourceName);
-			throw new RuntimeException("Unknown key: " + "=" + resourceName);
+			LOG.error("Unknown key: " + resourceType + "=" + pathName);
+			throw new RuntimeException("Unknown key: " + "=" + pathName);
 		}
 
 	}
@@ -85,9 +85,14 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 			ContentSummary summary = this.fs.getContentSummary(new Path(resourceName));
 			return summary.getQuota();
 		} catch (Exception e) {
-			LOG.error("Error while get namespace quota by : " + resourceName);
+			LOG.error("Error while get namespace quota by : " + resourceName, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	protected void cleanup() {
+		
 	}
 
 }

@@ -40,7 +40,7 @@ mysql> source <TOMCAT_HOME>/webapps/ocmanager/WEB-INF/database/mysql/initOCManag
 ```
 
 
-9. Congifure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit the config.properties
+9. Congifure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit the mysql.properties
 ```
 jdbc.driver=com.mysql.jdbc.Driver
 jdbc.encoding=useUnicode=true&characterEncoding=utf8

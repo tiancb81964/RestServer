@@ -33,5 +33,10 @@ public class Constant {
 	/*****************************************************************/
 	// ocdp service name list
 	public static final List<String> list = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark", "kafka");
+	
+	public static final String KRB_ENABLED = "oc.hadoop.krb.enabled";
+	public static final String KRB_KEYTAB = "oc.hadoop.krb.keytab";
+	public static final String KRB_PRINCIPAL = "oc.hadoop.krb.pricipal";
+	public static final String KRB_CONF = "oc.hadoop.krb.conf";
 
 }

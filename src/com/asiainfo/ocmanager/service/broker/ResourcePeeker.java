@@ -17,7 +17,7 @@ public interface ResourcePeeker extends Broker{
 	public ResourcePeeker peekOn(Multimap<String, String> resources);
 	
 	/**
-	 * Fetch total quota.
+	 * Get total quota.
 	 * @return
 	 * @throws Exception 
 	 */
