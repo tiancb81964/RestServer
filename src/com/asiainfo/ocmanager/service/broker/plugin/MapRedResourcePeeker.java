@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * Resource peeker for Mapreduce. 
+ * Resource monitor for Mapreduce. 
  * @author EthanWang
  *
  */
@@ -41,9 +41,22 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 		}
 		JsonObject jsonObj = new JsonParser().parse(this.queuesInfo).getAsJsonObject();
 		JsonObject queue = findQueueByName(jsonObj, queueName);
-		//TODO: total memory can not be retrieved from rm.
-		queue.getAsJsonObject("");
-		return -999l;
+		double capacity = queue.get("absoluteCapacity").getAsDouble()/100;
+		return new Double(capacity * totalMB()).longValue();
+	}
+
+	/**
+	 * Total memory of yarn.
+	 * @return
+	 */
+	private double totalMB() {
+		try {
+			String mb = YarnClient.getInstance().fetchMetircs().get("totalMB");
+			return Double.valueOf(mb);
+		} catch (Exception e) {
+			LOG.error("Error while fetch yarn metrics: ", e);
+			throw new RuntimeException("Error while fetch yarn metrics: ", e);
+		}
 	}
 
 	/**
@@ -76,8 +89,6 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 		JsonObject jsonObj = new JsonParser().parse(this.queuesInfo).getAsJsonObject();
 		JsonObject queue = findQueueByName(jsonObj, queueName);
 		long used = queue.getAsJsonObject("resourcesUsed").getAsJsonPrimitive("memory").getAsLong();
-		//TODO: if need to change to "usedCapacity"(percentage) instead of "resourcesUsed/memory"
-		// if so, neeed to transform value unit to GB.
 		return used;
 	}
 

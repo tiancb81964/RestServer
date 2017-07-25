@@ -29,12 +29,25 @@ public class SparkResourcePeeker extends BaseResourcePeeker{
 		}
 		try {
 			JsonObject queue = client.fetchQueueInfoByName(queueName);
-			//TODO: total memory can not be retrieved from rm.
-			queue.getAsJsonObject("");
-			return -999l;
+			double capacity = queue.get("absoluteCapacity").getAsDouble()/100;
+			return new Double(capacity * totalMB()).longValue();
 		} catch (Exception e) {
 			LOG.error("Error while fetching queue infos: ", e);
 			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Total memory of yarn.
+	 * @return
+	 */
+	private double totalMB() {
+		try {
+			String mb = YarnClient.getInstance().fetchMetircs().get("totalMB");
+			return Double.valueOf(mb);
+		} catch (Exception e) {
+			LOG.error("Error while fetch yarn metrics: ", e);
+			throw new RuntimeException("Error while fetch yarn metrics: ", e);
 		}
 	}
 
@@ -47,8 +60,6 @@ public class SparkResourcePeeker extends BaseResourcePeeker{
 		try {
 			JsonObject queue = client.fetchQueueInfoByName(queueName);
 			long used = queue.getAsJsonObject("resourcesUsed").getAsJsonPrimitive("memory").getAsLong();
-			//TODO: if need to change to "usedCapacity"(percentage) instead of "resourcesUsed/memory"
-			// if so, neeed to transform value unit to GB.
 			return used;
 		} catch (Exception e) {
 			LOG.error("Error while fetching queue infos: ", e);

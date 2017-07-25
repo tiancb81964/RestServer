@@ -2,7 +2,10 @@ package com.asiainfo.ocmanager.service.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -97,6 +100,41 @@ public class YarnClient {
 		}
 	}
 	
+	/**
+	 * Get yarn metrics.
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String, String> fetchMetircs() throws Exception{
+		Map<String, String> metrics = new HashMap<>();
+		JsonObject jsonObj = new JsonParser().parse(fetchMetrics()).getAsJsonObject();
+		for(Entry<String, JsonElement> element : jsonObj.getAsJsonObject("clusterMetrics").entrySet()){
+			metrics.put(element.getKey(), element.getValue().getAsString());
+		}
+		return metrics;
+	}
+	
+	private String fetchMetrics() throws Exception {
+		CloseableHttpResponse rsp = null;
+		try {
+			String url = activeRM() + "/ws/v1/cluster/metrics";
+			rsp = httpClient.execute(new HttpGet(URI.create(url)));
+			return EntityUtils.toString(rsp.getEntity());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		finally {
+			if (rsp != null) {
+				try {
+					rsp.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	/**
 	 * Fetch queue info by specified queueName
 	 * @param queueName
