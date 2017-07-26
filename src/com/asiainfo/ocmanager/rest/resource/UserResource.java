@@ -19,15 +19,23 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.User;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.AssignmentInfoBean;
+import com.asiainfo.ocmanager.rest.bean.UserRoleViewBean;
+import com.asiainfo.ocmanager.rest.bean.UserWithTURBean;
+import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstancePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.utils.TenantTree;
-import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
-import com.asiainfo.ocmanager.utils.TenantTreeUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 /**
@@ -40,6 +48,90 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 public class UserResource {
 
 	private static Logger logger = Logger.getLogger(TenantResource.class);
+
+	/**
+	 * Get All OCManager users with tenants
+	 *
+	 * @return user list
+	 */
+	@GET
+	@Path("/with/tenants")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getUsersWithTenants() {
+		try {
+			List<User> users = UserPersistenceWrapper.getUsers();
+			List<UserWithTURBean> usersWithTenants = new ArrayList<UserWithTURBean>();
+			for (User u : users) {
+
+				List<UserRoleViewBean> urvbs = new ArrayList<UserRoleViewBean>();
+				List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(u.getId());
+
+				for (UserRoleView urv : urvs) {
+					UserRoleViewBean urvb = new UserRoleViewBean(urv);
+					String parentTenantName = UserResource.getParentTenantName(urv.getTenantId());
+					urvb.setParentTenantName(parentTenantName);
+					urvbs.add(urvb);
+				}
+
+				UserWithTURBean userBean = new UserWithTURBean(u);
+				userBean.setUrv(urvbs);
+				usersWithTenants.add(userBean);
+			}
+
+			return Response.ok().entity(usersWithTenants).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getUsersWithTenants -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	/**
+	 * Get the specific user with tenants by id
+	 *
+	 * @param userId
+	 *            user id
+	 * @return user
+	 */
+	@GET
+	@Path("{id}/with/tenants")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getUserWithTenantsById(@PathParam("id") String userId) {
+		try {
+			User user = UserPersistenceWrapper.getUserById(userId);
+
+			if (user == null) {
+				return Response.status(Status.NOT_FOUND).entity("The user " + userId + "can not find.").build();
+			}
+			List<UserRoleViewBean> urvbs = new ArrayList<UserRoleViewBean>();
+			List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
+
+			for (UserRoleView urv : urvs) {
+				UserRoleViewBean urvb = new UserRoleViewBean(urv);
+				String parentTenantName = UserResource.getParentTenantName(urv.getTenantId());
+				urvb.setParentTenantName(parentTenantName);
+				urvbs.add(urvb);
+			}
+
+			UserWithTURBean userBean = new UserWithTURBean(user);
+			userBean.setUrv(urvbs);
+			return Response.ok().entity(userBean).build();
+
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getUserWithTenantsById -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	private static String getParentTenantName(String tenantId) {
+		Tenant ct = TenantPersistenceWrapper.getTenantById(tenantId);
+		if (ct != null) {
+			Tenant pt = TenantPersistenceWrapper.getTenantById(ct.getParentId());
+			return pt == null ? null : pt.getName();
+		}
+		return null;
+	}
 
 	/**
 	 * Get All OCManager users
@@ -93,9 +185,32 @@ public class UserResource {
 	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
 			String createdUser = request.getHeader("username");
-			user.setCreatedUser(createdUser);
-			user = UserPersistenceWrapper.createUser(user);
-			return Response.ok().entity(user).build();
+			if (createdUser == null) {
+				return Response.status(Status.NOT_FOUND)
+						.entity("Can not get the login user, please make sure the login user is pass to adapter.")
+						.build();
+			}
+
+			List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(createdUser);
+			boolean canCreateUser = false;
+			for (UserRoleView urv : urvs) {
+				if (Constant.canCreateUserList.contains(urv.getRoleName())) {
+					canCreateUser = true;
+					break;
+				}
+			}
+
+			if (canCreateUser) {
+				user.setCreatedUser(createdUser);
+				user = UserPersistenceWrapper.createUser(user);
+				return Response.ok().entity(user).build();
+			} else {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(new AdapterResponseBean("create failed",
+								"The user " + createdUser + " can not add user, because it is team member role.", 4003))
+						.build();
+			}
+
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("createUser -> " + e.getMessage());
@@ -113,10 +228,26 @@ public class UserResource {
 	@PUT
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateUser(User user) {
+	public Response updateUser(User user, @Context HttpServletRequest request) {
 		try {
-			user = UserPersistenceWrapper.updateUser(user);
-			return Response.ok().entity(user).build();
+			String loginUser = request.getHeader("username");
+			User updateUser = UserPersistenceWrapper.getUserById(user.getId());
+
+			if (updateUser == null) {
+				return Response.status(Status.NOT_FOUND).entity("The user " + user.getUsername() + "can not find.")
+						.build();
+			}
+
+			if (updateUser.getCreatedUser().equals(loginUser)) {
+				user = UserPersistenceWrapper.updateUser(user);
+				return Response.ok().entity(user).build();
+			} else {
+				return Response.status(Status.BAD_REQUEST).entity(new AdapterResponseBean("update failed",
+						"Can not update the user: " + updateUser.getUsername() + ", it is created by user: "
+								+ updateUser.getCreatedUser() + ". please use the created user to update.",
+						4004)).build();
+			}
+
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("updateUser -> " + e.getMessage());
@@ -136,16 +267,16 @@ public class UserResource {
 	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
 		String userName = null;
 		try {
-			String createdUser = request.getHeader("username");
+			String loginUser = request.getHeader("username");
 			User user = UserPersistenceWrapper.getUserById(userId);
 
 			if (user == null) {
-				return Response.status(Status.NOT_FOUND).entity("The user " + user + "can not find.").build();
+				return Response.status(Status.NOT_FOUND).entity("The user " + userId + "can not find.").build();
 			}
 
 			userName = user.getUsername();
 
-			if (user.getCreatedUser().equals(createdUser)) {
+			if (user.getCreatedUser().equals(loginUser)) {
 				UserPersistenceWrapper.deleteUser(userId);
 			} else {
 				return Response.status(Status.BAD_REQUEST)
@@ -227,16 +358,21 @@ public class UserResource {
 		try {
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
 
-			List<Tenant> tenantList = new ArrayList<Tenant>();
-			for (UserRoleView tur : turs) {
-				TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
-				List<TenantTreeNode> nodes = tree.listAllNodes();
-				tenantList.addAll(TenantTreeUtil.transform(nodes));
+			List<Tenant> tenantList = UserResource.getTenantsList(turs);
+
+			ArrayList<String> tenantIdList = new ArrayList<String>();
+			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
+			for (Tenant ten : tenantList) {
+				if (!tenantIdList.contains(ten.getId())) {
+					tenantIdList.add(ten.getId());
+					tenants.add(ten);
+				}
 			}
 
-			return Response.ok().entity(tenantList).build();
+			return Response.ok().entity(tenants).build();
 		} catch (Exception e) {
-			logger.error("Error while getting Tenants by user id: " + userId, e);
+			// system out the exception into the console log
+			logger.info("getTenantsById -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -251,16 +387,246 @@ public class UserResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getTenantsByName(@PathParam("name") String userName) {
 		try {
-			List<Tenant> tenantList = new ArrayList<Tenant>();
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
-			for (UserRoleView tur : turs) {
-				TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
-				List<TenantTreeNode> allNodes = tree.listAllNodes();
-				tenantList.addAll(TenantTreeUtil.transform(allNodes));
+
+			List<Tenant> tenantList = UserResource.getTenantsList(turs);
+
+			ArrayList<String> tenantIdList = new ArrayList<String>();
+			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
+			for (Tenant ten : tenantList) {
+				if (!tenantIdList.contains(ten.getId())) {
+					tenantIdList.add(ten.getId());
+					tenants.add(ten);
+				}
 			}
-			return Response.ok().entity(tenantList).build();
+
+			return Response.ok().entity(tenants).build();
 		} catch (Exception e) {
-			logger.error("Error while getting Tenants by user name: " + userName, e);
+			// system out the exception into the console log
+			logger.info("getTenantsByName -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	@GET
+	@Path("id/{id}/tenant/{tenantId}/children/tenants")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getChildrenTenantsByUserIdTenantId(@PathParam("id") String userId,
+			@PathParam("tenantId") String tenantId) {
+		try {
+			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
+
+			List<Tenant> tenantList = UserResource.getTenantsList(turs);
+
+			ArrayList<String> tenantIdList = new ArrayList<String>();
+			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
+			for (Tenant ten : tenantList) {
+				if (!tenantIdList.contains(ten.getId())) {
+					tenantIdList.add(ten.getId());
+					tenants.add(ten);
+				}
+			}
+
+			ArrayList<Tenant> children = new ArrayList<Tenant>();
+			for (Tenant t : tenants) {
+				if (t.getParentId() != null) {
+					if (t.getParentId().equals(tenantId)) {
+						children.add(t);
+					}
+				}
+			}
+
+			return Response.ok().entity(children).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getChildrenTenantsByUserIdTenantId -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	@GET
+	@Path("name/{name}/tenant/{tenantId}/children/tenants")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getChildrenTenantsByUserNameTenantId(@PathParam("name") String userName,
+			@PathParam("tenantId") String tenantId) {
+		try {
+			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
+
+			List<Tenant> tenantList = UserResource.getTenantsList(turs);
+
+			ArrayList<String> tenantIdList = new ArrayList<String>();
+			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
+			for (Tenant ten : tenantList) {
+				if (!tenantIdList.contains(ten.getId())) {
+					tenantIdList.add(ten.getId());
+					tenants.add(ten);
+				}
+			}
+
+			ArrayList<Tenant> children = new ArrayList<Tenant>();
+			for (Tenant t : tenants) {
+				if (t.getParentId() != null) {
+					if (t.getParentId().equals(tenantId)) {
+						children.add(t);
+					}
+				}
+			}
+
+			return Response.ok().entity(children).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getChildrenTenantsByUserNameTenantId -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	private static List<Tenant> getTenantsList(List<UserRoleView> turs) {
+		List<Tenant> tenantList = new ArrayList<Tenant>();
+		for (UserRoleView tur : turs) {
+			Tenant tenant = TenantPersistenceWrapper.getTenantById(tur.getTenantId());
+			if (tenant.getLevel() == 1) {
+				// level 1 mean it can see all the tenants, because only one
+				// root tenant
+				tenantList.clear();
+				tenantList = TenantPersistenceWrapper.getAllTenants();
+				break;
+			} else if (tenant.getLevel() == 2) {
+				// level 2 add its children, itself and its parent
+				List<Tenant> list = TenantPersistenceWrapper.getChildrenTenants(tenant.getId());
+				tenantList.addAll(list);
+				tenantList.add(tenant);
+				Tenant level1 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
+				if (level1 != null) {
+					tenantList.add(level1);
+				} else {
+					logger.debug("getTenantsList level1 -> orphan tenant");
+				}
+			} else {
+				// level 3 add itself, its parent and its parents parent
+				tenantList.add(tenant);
+				Tenant level2 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
+				if (level2 != null) {
+					tenantList.add(level2);
+					Tenant level1 = TenantPersistenceWrapper.getTenantById(level2.getParentId());
+					if (level1 != null) {
+						tenantList.add(level1);
+					} else {
+						logger.debug("getTenantsList  level2 level1 -> orphan tenant");
+					}
+				} else {
+					logger.debug("getTenantsList level2 -> orphan tenant");
+				}
+			}
+		}
+		return tenantList;
+	}
+
+	@GET
+	@Path("name/{userName}/tenant/{tenantId}/assignments/info")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getAssignmentsInfoForUser(@PathParam("userName") String userName,
+			@PathParam("tenantId") String tenantId) {
+		try {
+			List<AssignmentInfoBean> assignmentInfoBeans = new ArrayList<AssignmentInfoBean>();
+			List<ServiceInstance> instaces = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
+
+			for (ServiceInstance instace : instaces) {
+				String instanceStr = TenantResource.getTenantServiceInstancesFromDf(tenantId,
+						instace.getInstanceName());
+				JsonElement instanceJE = new JsonParser().parse(instanceStr);
+				JsonObject instanceJson = instanceJE.getAsJsonObject();
+				JsonObject spec = instanceJson.getAsJsonObject("spec");
+				String phase = instanceJson.getAsJsonObject("status").get("phase").getAsString();
+				JsonElement binding = spec.get("binding");
+				String serviceName = spec.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
+
+				JsonElement action = instanceJson.getAsJsonObject("status").get("action");
+				JsonElement patch = instanceJson.getAsJsonObject("status").get("patch");
+
+				if (!phase.equals(Constant.FAILURE)) {
+					if (Constant.list.contains(serviceName.toLowerCase())) {
+						if (!binding.isJsonNull()) {
+							JsonArray bindingArray = spec.getAsJsonArray("binding");
+							List<String> bindingedUserNames = new ArrayList<String>();
+							for (JsonElement je : bindingArray) {
+								String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
+								bindingedUserNames.add(bindingUserName);
+							}
+							if (bindingedUserNames.contains(userName)) {
+								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+										"Authorization Success");
+								assignmentInfoBeans.add(AIB);
+							} else {
+								if (action == null && patch == null) {
+									AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+											"Failure OR Not Begin");
+									assignmentInfoBeans.add(AIB);
+								} else {
+									if (patch != null) {
+										if (patch.getAsString().equals(Constant.FAILURE)) {
+											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+													"Failure OR Not Begin");
+											assignmentInfoBeans.add(AIB);
+										} else {
+											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+													"Authorization Running");
+											assignmentInfoBeans.add(AIB);
+										}
+									} else {
+										if (action.getAsString().equals(Constant._TOBIND)
+												|| action.getAsString().equals(Constant._TOUNBIND)) {
+											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+													"Authorization Running");
+											assignmentInfoBeans.add(AIB);
+										} else {
+											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+													"Failure OR Not Begin");
+											assignmentInfoBeans.add(AIB);
+										}
+									}
+								}
+							}
+						} else {
+							if (action == null && patch == null) {
+								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+										"Failure OR Not Begin");
+								assignmentInfoBeans.add(AIB);
+							} else {
+								if (patch != null) {
+									if (patch.getAsString().equals(Constant.FAILURE)) {
+										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+												"Failure OR Not Begin");
+										assignmentInfoBeans.add(AIB);
+									} else {
+										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+												"Authorization Running");
+										assignmentInfoBeans.add(AIB);
+									}
+								} else {
+									if (action.getAsString().equals(Constant._TOBIND)
+											|| action.getAsString().equals(Constant._TOUNBIND)) {
+										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+												"Authorization Running");
+										assignmentInfoBeans.add(AIB);
+									} else {
+										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+												"Failure OR Not Begin");
+										assignmentInfoBeans.add(AIB);
+									}
+								}
+							}
+						}
+					} else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Success");
+						assignmentInfoBeans.add(AIB);
+					}
+				}
+			}
+
+			return Response.ok().entity(assignmentInfoBeans).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getAssignmentsInfoForUser -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
