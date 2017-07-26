@@ -9,14 +9,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.security.module.plugin.KrbModule;
 
 public class HadoopConfiguration {
 	private static Configuration conf;
 	private static final String CONF_NAMESERVICE = "oc.hdfs.dfs.nameservices";
 	private static final String CONF_NNS = "oc.hdfs.dfs.ha.namenodes";
 	private static final String PROXY = "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
-	private static final String CONF_ZK = "oc.hbase.zookeeper.quorum";
-	private static final String CONF_ZK_PORT = "oc.hbase.zookeeper.port";
 	private static final String CONF_HBASE_MASTER_PRINCIPAL = "oc.hbase.master.krb.principal";
 	private static final String CONF_HBASE_RS_PRINCIPAL = "oc.hbase.regionserver.krb.principal";
 
@@ -48,8 +47,8 @@ public class HadoopConfiguration {
 	}
 
 	private static void initHbaseCommon() {
-		conf.set(HConstants.ZOOKEEPER_QUORUM, ServerConfiguration.getConf().getProperty(CONF_ZK));
-		conf.set(HConstants.ZOOKEEPER_CLIENT_PORT, ServerConfiguration.getConf().getProperty(CONF_ZK_PORT));
+		conf.set(HConstants.ZOOKEEPER_QUORUM, ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER));
+		conf.set(HConstants.ZOOKEEPER_CLIENT_PORT, ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER_PORT));
 	}
 
 	private static void initHDFSCommon() {
@@ -98,8 +97,8 @@ public class HadoopConfiguration {
 	}
 
 	private static boolean secure() {
-		String enable = ServerConfiguration.getConf().getProperty(Constant.KRB_ENABLED);
-		return Boolean.valueOf(enable);
+		String module = ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE).trim();
+		return module.equals(KrbModule.class.getName());
 	}
 
 }
