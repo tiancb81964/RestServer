@@ -5,6 +5,7 @@ import com.asiainfo.ocmanager.auth.Authenticator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,12 +13,20 @@ import org.junit.Test;
  * Created by gq on 17/7/19.
  */
 public class TestAuthenticator {
-    Authenticator authenticator = new Authenticator();
+    Authenticator authenticator = Authenticator.getInstance();
 
     @Test
     public void testLoginWithUsernamePassword() {
-        Authenticator authenticator = new Authenticator();
-        Assert.assertTrue(authenticator.loginWithUsernamePassword("u1","passw0rd","shiroJdbc.ini"));
+        Assert.assertTrue(authenticator.loginWithUsernamePassword("u1","passw0rd"));
+    }
+    @Test
+    public void testCacheLogin() {
+        UsernamePasswordToken token = new UsernamePasswordToken("u3", "passw0rd");
+        try {
+            System.out.println(authenticator.cacheLogin(token));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
@@ -25,8 +34,22 @@ public class TestAuthenticator {
     public void testGenerateTokenWithTTL() {
         String token = authenticator.generateTokenWithTTL("u1","passw0rd").toString();
         System.out.println(token);
+        UsernamePasswordToken uptoken;
         try {
-            authenticator.parseTokenWithTTl(token);
+            uptoken = authenticator.parseTokenWithTTl(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testLoginWithTokenWithTTL() {
+        String token = authenticator.generateTokenWithTTL("u1","passw0rd").toString();
+        System.out.println(token);
+        try {
+            authenticator.loginWithToken(token);
+            authenticator.loginWithToken(token);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,7 +64,7 @@ public class TestAuthenticator {
         String username = obj.get("username").getAsString();
         String password = obj.get("password").getAsString();
         System.out.println(username + password);
-        String token = new Authenticator().generateToken(username,password);
+        String token = authenticator.generateToken(username,password);
         System.out.println(token);
         String[] tokenArgs = token.split("_");
         username = tokenArgs[0];

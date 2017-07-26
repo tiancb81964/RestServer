@@ -35,8 +35,10 @@ public class DBConnectorFactory {
 			String currentClassPath = new DFPropertiesFoundry().getClass().getResource("/").getPath();
 			// remove classes/
 			// the path will be <tomcat home>/webapps/ocmanager/
-			String propertiesFilePath = currentClassPath.substring(0, currentClassPath.length() - 8)
-					+ "conf/config.properties";
+//			String propertiesFilePath = currentClassPath
+//					+ "../ocmanager/WEB-INF/conf/config.properties";
+			String propertiesFilePath = currentClassPath
+					+ "../conf/config.properties";
 
 			InputStream propInputStream = new FileInputStream(new File(propertiesFilePath));
 			Properties prop = new Properties();

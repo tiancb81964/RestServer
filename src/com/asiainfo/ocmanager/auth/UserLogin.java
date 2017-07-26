@@ -1,6 +1,5 @@
 package com.asiainfo.ocmanager.auth;
 
-import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,10 +23,10 @@ public class UserLogin {
         try {
             JsonElement req = new JsonParser().parse(requestBody);
             JsonObject obj = req.getAsJsonObject();
-            Authenticator authenticator = new Authenticator();
+            Authenticator authenticator = Authenticator.getInstance();
             String username = obj.get("username").getAsString();
             String password = obj.get("password").getAsString();
-            if (authenticator.loginWithUsernamePassword(username,password, Constant.SHIROINIPATH)) {
+            if (authenticator.loginWithUsernamePassword(username,password)) {
                 String token = authenticator.generateTokenWithTTL(username,password);
                 logger.info("login success. Token: "+ token);
                 return Response.ok().entity("login success. Token: " + token).build();

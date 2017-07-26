@@ -53,11 +53,8 @@ public class AuthFilter implements Filter {
     }
 
     public boolean authenticate(String token) {
-        String shiroConfig = Constant.SHIROINIPATH;
-        boolean isAuthcSuccess;
-        Authenticator authenticator = new Authenticator();
-        isAuthcSuccess = authenticator.loginWithToken(token,shiroConfig);
-        return isAuthcSuccess;
+        Authenticator authenticator = Authenticator.getInstance();
+        return authenticator.loginWithToken(token);
     }
 
 }

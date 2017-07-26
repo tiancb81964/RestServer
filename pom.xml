@@ -24,6 +24,16 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
+      <artifactId>ehcache-core</artifactId>
+      <groupId>net.sf.ehcache</groupId>
+      <version>2.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-ehcache</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
       <version>0.2.23</version>

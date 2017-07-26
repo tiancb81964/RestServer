@@ -40,7 +40,7 @@ public class Constant {
 	/******************* authentication const ************************/
 	/*****************************************************************/
 	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
-	public static final Long AUTHTOKENTTL = new Long(10*60*1000);
+	public static final Long AUTHTOKENTTL = new Long(60*60*1000);
 
 
 }

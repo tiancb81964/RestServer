@@ -20,7 +20,7 @@ public class TestShiroRealm {
     public void testIniRealm() {
         try {
         //1、获取SecurityManager工厂，此处使用Ini配置文件初始化SecurityManager
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory("shiro.inig");
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("shiro.ini");
         //2、得到SecurityManager实例 并绑定给SecurityUtils
         org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);

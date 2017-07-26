@@ -4,6 +4,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
@@ -18,15 +19,56 @@ import java.util.Date;
 public class Authenticator {
     static Logger logger = LoggerFactory.getLogger(Authenticator.class.getName());
     private static boolean isAuthcSuccess = false;
+    private static Subject subject;
+    private static SecurityManager securityManager;
 
-    public boolean loginWithUsernamePassword(String username, String password, String config) {
-        //1、获取SecurityManager工厂，此处使用Ini配置文件初始化SecurityManager
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory(config);
-        //2、得到SecurityManager实例 并绑定给SecurityUtils
-        org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
+    private static class SingletonHolder {
+        private static final Authenticator INSTANCE = new Authenticator();
+    }
+
+    private Authenticator (){
+        String shiroConfig = "classpath:shiroJdbc.ini";
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory(shiroConfig);
+        securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
-        //3、得到Subject及创建用户名/密码身份验证Token（即用户身份/凭证）
-        Subject subject = SecurityUtils.getSubject();
+        subject = SecurityUtils.getSubject();
+    }
+
+    public static final Authenticator getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    public static boolean cacheLogin(UsernamePasswordToken token) throws Exception{
+        try {
+            logger.info("Start login in cache file.");
+            subject.login(token);
+        }catch (AuthenticationException e){
+            logger.info(e.toString());
+            return false;
+        }
+        if(subject.isAuthenticated()) {
+            logger.info("Cache file login success");
+            System.out.println("Authenticated Success from "+subject.getPrincipals().getRealmNames());
+            subject.logout();
+            return true;
+        }
+        return false;
+    }
+
+    public static void updateCacheFile(String username,String password,String realm) {
+        Date date = new Date();
+        CacheUserInfo userInfo = new CacheUserInfo(username,password,date,realm);
+        CacheFileUtil.updateByUser(userInfo);
+    }
+
+    public void clearCache() {
+        RealmSecurityManager securityManager =
+                (RealmSecurityManager) SecurityUtils.getSecurityManager();
+        JdbcEnhancedRealm jdbcRealm = (JdbcEnhancedRealm) securityManager.getRealms().iterator().next();
+        jdbcRealm.clearCachedInfoWhenPasswordChanged(subject.getPrincipals());
+    }
+
+    public boolean loginWithUsernamePassword(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         logger.info("Try to login with Username Password: " + token.toString());
         try {
@@ -35,15 +77,22 @@ public class Authenticator {
         } catch (AuthenticationException e) {
             //5、身份验证失败
             logger.warn("Auth failed!"+ e.getMessage());
+//            e.printStackTrace();
             return false;
         }
-        return subject.isAuthenticated(); //断言用户已经登录
+        if (subject.isAuthenticated()){
+            logger.info("Authentication success from "+ subject.getPrincipals().getRealmNames());
+            isAuthcSuccess = true;
+        }else {
+            logger.info("Authenticated Failed");
+            isAuthcSuccess = false;
+        }
+//        subject.logout();
+        return isAuthcSuccess; //断言用户已经登录
     }
 
-
-    public static boolean loginWithToken(String Dtoken, String Dconfig) {
+    public static boolean loginWithToken(String Dtoken) {
         String token = Dtoken;
-        String shiroConfig = Dconfig;
         UsernamePasswordToken usernamePasswordToken;
         logger.info("Token: " + token);
 
@@ -56,12 +105,14 @@ public class Authenticator {
         }
         boolean cacheLoginsuccess = false;
 
+//        try {
+//            cacheLoginsuccess = cacheLogin(usernamePasswordToken);
+//            isAuthcSuccess = cacheLoginsuccess;
+//        } catch (Exception e) {
+//            logger.warn("Cache login error:" + e.getMessage());
+//        }
+
         if(!cacheLoginsuccess) {
-            Factory<SecurityManager> factory =
-                    new IniSecurityManagerFactory(shiroConfig);
-            org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
-            SecurityUtils.setSecurityManager(securityManager);
-            Subject subject = SecurityUtils.getSubject();
             try {
                 logger.info("Starting login authenticate...");
                 subject.login(usernamePasswordToken);
@@ -75,7 +126,7 @@ public class Authenticator {
                 logger.info("Authenticated Failed");
                 isAuthcSuccess = false;
             }
-            subject.logout();
+//            subject.logout();
         }
         return isAuthcSuccess;
     }
@@ -120,7 +171,5 @@ public class Authenticator {
         logger.info("Password:" + password);
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,password);
         return usernamePasswordToken;
-
     }
-
 }
