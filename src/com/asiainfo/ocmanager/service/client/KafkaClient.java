@@ -67,6 +67,10 @@ public class KafkaClient {
 	public int getPartitionCount(String topic){
 		TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topic, zookeeper);
 		int number = meta.partitionsMetadata().size();
+		if (number <= 0) {
+			LOG.error("Partition number is negtive: " + topic);
+			throw new RuntimeException("Partition number is negtive: " + topic);
+		}
 		return number;
 	}
 	
@@ -76,7 +80,7 @@ public class KafkaClient {
 	 */
 	public long getRetensionSize(String topic){
 		Properties map = AdminUtils.fetchEntityConfig(zookeeper, "topics", topic);
-		String retention = map.getProperty("retention.ms");
+		String retention = map.getProperty("retention.bytes");
 		if (retention == null) {
 			return -1;
 		}
@@ -165,7 +169,7 @@ public class KafkaClient {
 			System.setProperty("java.security.auth.login.config", jaas);
 		}
 		boolean isSecure = JaasUtils.isZkSecurityEnabled();
-		LOG.info("Zookeeper isZkSecurityEnabled : " + secure());
+		LOG.info("Zookeeper isZkSecurityEnabled : " + isSecure);
 		Tuple2<ZkClient, ZkConnection> tuple = ZkUtils.createZkClientAndConnection(assembleZKStr(), 30000, 30000);
 		zookeeper = new ZkUtils(tuple._1, tuple._2, isSecure);		
 	}
@@ -186,7 +190,9 @@ public class KafkaClient {
 			.append(",");
 		}
 		String zkStr = sb.toString();
-		return zkStr.substring(0, zkStr.length() -1);
+		String finalString = zkStr.substring(0, zkStr.length() -1);
+		LOG.info("Zookeeper connection string for KafkaClient: " + finalString);
+		return finalString;
 	}
 
 	/**
