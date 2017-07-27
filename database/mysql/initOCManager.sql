@@ -13,9 +13,22 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`tenants` (
   `description` MEDIUMTEXT NULL,
   `parentId` VARCHAR(64) NULL,
   `level` INT NOT NULL,
-  `dacpTeamCode` INT NOT NULL AUTO_INCREMENT,
+  `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ocmanager`.`platform_roles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`platform_roles` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(64) NOT NULL,
+  `description` MEDIUMTEXT NULL,
+  `permission` MEDIUMTEXT NULL,
+  `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `dacpTeamCode_UNIQUE` (`dacpTeamCode` ASC))
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC))
 ENGINE = InnoDB;
 
 
@@ -30,8 +43,16 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`users` (
   `phone` VARCHAR(64) NULL,
   `description` MEDIUMTEXT NULL,
   `createdUser` VARCHAR(64) NULL,
+  `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `platformRoleId` INT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `username_UNIQUE` (`username` ASC))
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC),
+  INDEX `fk_users_platform_roles1_idx` (`platformRoleId` ASC),
+  CONSTRAINT `fk_users_platform_roles1`
+    FOREIGN KEY (`platformRoleId`)
+    REFERENCES `ocmanager`.`platform_roles` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
 ENGINE = InnoDB;
 
 
@@ -194,32 +215,28 @@ INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_i
 INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_id, ServicePermission) VALUES("spark", "a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "submit-app,admin-queue");
 INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_id, ServicePermission) VALUES("kafka", "a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "publish,consume,configure,describe,create,delete,kafka_admin");
 
+
+
+
+
+-- -----------------------------------------------------
+-- Init platform roles in table `ocmanager`.`platform_roles`
+-- -----------------------------------------------------
+INSERT INTO `ocmanager`.`platform_roles` (id, name, description, permission) VALUES(1, "platform.admin", "multi-tenants platform admin, has all the platform authorities.", "all");
+INSERT INTO `ocmanager`.`platform_roles` (id, name, description, permission) VALUES(2, "platform.user", "multi-tenants platform user, only has the platform view authority.", "read");
+
 -- -----------------------------------------------------
 -- Init the admin user into the table `ocmanager`.`users`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`users` (id, username, password, email, description) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", "admin", "admin@admin.com", "System Admin User");
+INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, description, platformRoleId) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", PASSWORD("admin"), "admin@admin.com", "admin phone number", "System Admin User", 1);
 
 -- -----------------------------------------------------
 -- Init the root tenant into `ocmanager`.`tenants`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`tenants`(id, name, level, description) VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","中信集团", 1, "中信集团租户根目录");
 
 
 -- -----------------------------------------------------
 -- Init the admin user for root tenant into `ocmanager`.`tenants_users_roles_assignment`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`tenants_users_roles_assignment`(tenant_id, user_id, role_id) VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","2ef26018-003d-4b2b-b786-0481d4ee9fa8", "a10170cb-524a-11e7-9dbb-fa163ed7d0ae");
-
-
--- -----------------------------------------------------
--- Init the services type into the table `ocmanager`.`services`
--- -----------------------------------------------------
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES("ae67d4ba-5c4e-4937-a68b-5b47cfe356d8", "HDFS", "Provide HDFS service");
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES("d9845ade-9410-4c7f-8689-4e032c1a8450", "HBase", "Provide HBase service");
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES( "2ef26018-003d-4b2b-b786-0481d4ee9fa3", "Hive", "Provide Hive service");
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES("ae0f2324-27a8-415b-9c7f-64ab6cd88d40", "MapReduce", "Provide MapReduce service");
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES("d3b9a485-f038-4605-9b9b-29792f5c61d1", "Spark", "Provide Spark service");
--- INSERT INTO `ocmanager`.`services`(id, servicename, description) VALUES("7b738c78-d412-422b-ac3e-43a9fc72a4a7", "Kafka", "Provide Kafka service");
-
 
 

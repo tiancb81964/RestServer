@@ -13,7 +13,10 @@ public class User {
 	private String phone;
 	private String description;
 	private String createdUser;
+	private String createTime;
+	private int platformRoleId;
 
+	// TODO should use builder designer
 	public User() {
 
 	}
@@ -36,6 +39,31 @@ public class User {
 		this.phone = phone;
 		this.description = description;
 		this.createdUser = createdUser;
+	}
+
+	// update user
+	public User(String id, String username, String email, String phone, String description, String createdUser,
+			int platformRoleId) {
+		this.id = id;
+		this.username = username;
+		this.email = email;
+		this.phone = phone;
+		this.description = description;
+		this.createdUser = createdUser;
+		this.platformRoleId = platformRoleId;
+	}
+
+	// create user
+	public User(String id, String username, String password, String email, String phone, String description,
+			String createdUser, int platformRoleId) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.phone = phone;
+		this.description = description;
+		this.createdUser = createdUser;
+		this.platformRoleId = platformRoleId;
 	}
 
 	public String getId() {
@@ -92,6 +120,28 @@ public class User {
 
 	public void setCreatedUser(String createdUser) {
 		this.createdUser = createdUser;
+	}
+
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public int getPlatformRoleId() {
+		return platformRoleId;
+	}
+
+	public void setPlatformRoleId(int platformRoleId) {
+		this.platformRoleId = platformRoleId;
+	}
+
+	public String toString() {
+		return "id:" + id + " username:" + username + " password:" + password + " email:" + email + " phone:" + phone
+				+ " description:" + description + " createdUser:" + createdUser + " createTime:" + createTime
+				+ " platformRoleId:" + platformRoleId;
 	}
 
 }

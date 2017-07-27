@@ -3,13 +3,11 @@ package com.asiainfo.ocmanager.rest.resource.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.PathParam;
-
 import org.apache.ibatis.session.SqlSession;
 
+import com.asiainfo.ocmanager.persistence.DBConnectorFactory;
 import com.asiainfo.ocmanager.persistence.mapper.UserMapper;
 import com.asiainfo.ocmanager.persistence.model.User;
-import com.asiainfo.ocmanager.persistence.DBConnectorFactory;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
 
 /**
@@ -47,12 +45,36 @@ public class UserPersistenceWrapper {
 	 * @param userId
 	 * @return
 	 */
-	public static User getUserById(@PathParam("id") String userId) {
+	public static User getUserById(String userId) {
 		SqlSession session = DBConnectorFactory.getSession();
 		User user = null;
 		try {
 			UserMapper mapper = session.getMapper(UserMapper.class);
 			user = mapper.selectUserById(userId);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+
+		return user;
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	public static User getUserByName(String userName) {
+		SqlSession session = DBConnectorFactory.getSession();
+		User user = null;
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			user = mapper.selectUserByName(userName);
 
 			session.commit();
 
@@ -119,8 +141,50 @@ public class UserPersistenceWrapper {
 	/**
 	 * 
 	 * @param userId
+	 * @param password
 	 */
-	public static void deleteUser(@PathParam("id") String userId) {
+	public static void updateUserPasswordById(String userId, String password) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			mapper.updateUserPassword(userId, password);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 * @param password
+	 */
+	public static void updateUserPasswordByName(String userName, String password) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			mapper.updateUserPasswordByName(userName, password);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * 
+	 * @param userId
+	 */
+	public static void deleteUser(String userId) {
 		SqlSession session = DBConnectorFactory.getSession();
 		try {
 			UserMapper mapper = session.getMapper(UserMapper.class);
@@ -135,6 +199,76 @@ public class UserPersistenceWrapper {
 			session.close();
 		}
 
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 */
+	public static void deleteUserByName(String userName) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			mapper.deleteUserByName(userName);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	public static User getUserByNameAndPwd(String userName, String password) {
+		SqlSession session = DBConnectorFactory.getSession();
+		User user = null;
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			user = mapper.selectUserByNameAndPwd(userName, password);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+
+		return user;
+	}
+
+	/**
+	 * 
+	 * @param userId
+	 * @param password
+	 * @return
+	 */
+	public static User getUserByIdAndPwd(String userId, String password) {
+		SqlSession session = DBConnectorFactory.getSession();
+		User user = null;
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			user = mapper.selectUserByIdAndPwd(userId, password);
+
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+
+		return user;
 	}
 
 }

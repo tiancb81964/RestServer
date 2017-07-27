@@ -19,43 +19,67 @@ public class TestUser {
 			UserMapper mapper = session.getMapper(UserMapper.class);
 
 			System.out.println("=== Insert user ===");
-			mapper.insertUser(new User("id3", "username", "password", "email", "123", "description", "aaa"));
+			mapper.insertUser(new User("user001", "username001", "password001", "email001", "phone001",
+					"description001", null, 2));
 			session.commit();
-			System.out.println("=== Update user ===");
-			mapper.updateUser(new User("id3", "username4", "password4", "email4", "1234", "description4"));
+
+			System.out.println("=== Insert user again ===");
+			mapper.insertUser(new User("user201", "username201", "password201", "email201", "phone201",
+					"description201", null, 2));
 			session.commit();
-			List<User> users = mapper.selectAllUsers();
 
 			System.out.println("=== All users ===");
+			List<User> users = mapper.selectAllUsers();
 			for (User u : users) {
-				System.out.println(u.getId());
-				System.out.println(u.getUsername());
-				System.out.println(u.getEmail());
-				System.out.println(u.getDescription());
+				System.out.println(u.toString());
 			}
 
-			System.out.println("=== User by id ===");
-			User user = mapper.selectUserById("id3");
-			System.out.println(user.getId());
-			System.out.println(user.getUsername());
-			System.out.println(user.getEmail());
-			System.out.println(user.getDescription());
+			System.out.println("=== Get User by id ===");
+			User user1 = mapper.selectUserById("user001");
+			System.out.println(user1.toString());
 
-			System.out.println("=== Delete user ===");
-			mapper.deleteUser("id3");
-
-			List<User> usersAfterD = mapper.selectAllUsers();
-
-			System.out.println("=== All users after delete ===");
-			for (User u : usersAfterD) {
-				System.out.println(u.getId());
-				System.out.println(u.getUsername());
-				System.out.println(u.getEmail());
-				System.out.println(u.getDescription());
-			}
-
+			System.out.println("=== Update user ===");
+			mapper.updateUser(new User("user001", "username002", "email002", "phone002", "description002", null, 1));
 			session.commit();
 
+			System.out.println("=== Get User by id ===");
+			User user2 = mapper.selectUserById("user001");
+			System.out.println(user2.toString());
+
+			System.out.println("=== Update user password by id ===");
+			mapper.updateUserPassword("user001", "123");
+			session.commit();
+
+			System.out.println("=== Get User by name ===");
+			User user3 = mapper.selectUserByName("username002");
+			System.out.println(user3.toString());
+
+			System.out.println("=== Update user password by name ===");
+			mapper.updateUserPasswordByName("username201", "123");
+			session.commit();
+
+			System.out.println("=== Get User by name ===");
+			User user4 = mapper.selectUserByName("username201");
+			System.out.println(user4.toString());
+
+			System.out.println("=== Delete user ===");
+			mapper.deleteUser("user001");
+			session.commit();
+
+			System.out.println("=== Delete user ===");
+			mapper.deleteUserByName("username201");
+			session.commit();
+			
+			System.out.println("=== check user by id and password ===");
+			User user5 = mapper.selectUserByIdAndPwd("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin");
+			System.out.println(user5.toString());
+			
+			System.out.println("=== check user by name and password ===");
+			User user6 = mapper.selectUserByNameAndPwd("admin", "admin");
+			System.out.println(user6.toString());
+			
+			session.commit();
+			
 		} catch (Exception e) {
 			session.rollback();
 		} finally {
