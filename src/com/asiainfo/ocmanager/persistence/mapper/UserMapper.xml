@@ -5,32 +5,69 @@
 <mapper namespace="com.asiainfo.ocmanager.persistence.mapper.UserMapper">
 	<!-- get all users -->
 	<select id="selectAllUsers" resultType="com.asiainfo.ocmanager.persistence.model.User">
-		select * from users order by username
+		select * from users order
+		by username
 	</select>
 	<!-- get user by id -->
 	<select id="selectUserById" parameterType="java.lang.String"
 		resultType="com.asiainfo.ocmanager.persistence.model.User">
 		select * from users where id=#{id}
 	</select>
+	<!-- get user by name -->
+	<select id="selectUserByName" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.User">
+		select * from users where username=#{username}
+	</select>
 	<!-- create user -->
 	<insert id="insertUser" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.User">
-		insert into users (id, username, password, email, phone, description, createdUser)
-		values (#{id}, #{username}, #{password}, #{email}, #{phone}, #{description}, #{createdUser})
+		insert into users (id, username, password, email, phone,
+		description, createdUser, platformRoleId)
+		values (#{id}, #{username},
+		PASSWORD(#{password}), #{email}, #{phone}, #{description},
+		#{createdUser}, #{platformRoleId})
 	</insert>
 	<!-- update user -->
-	<update id="updateUser"
-		parameterType="com.asiainfo.ocmanager.persistence.model.User">
+	<update id="updateUser" parameterType="com.asiainfo.ocmanager.persistence.model.User">
 		update users set
-			username = #{username},
-			password = #{password},
-			email = #{email},
-			phone = #{phone},
-			description = #{description}
+		username = #{username},
+		email = #{email},
+		phone = #{phone},
+		description = #{description},
+		createdUser = #{createdUser},
+		platformRoleId = #{platformRoleId}
 		where id = #{id}
 	</update>
-	<!-- delete user -->
+	<!-- update user password by id-->
+	<update id="updateUserPassword" parameterType="java.lang.String">
+		update users set
+		password = PASSWORD(#{password})
+		where id = #{id}
+	</update>
+	<!-- update user password by name -->
+	<update id="updateUserPasswordByName" parameterType="java.lang.String">
+		update users set
+		password = PASSWORD(#{password})
+		where username = #{username}
+	</update>
+	<!-- delete user by id-->
 	<delete id="deleteUser">
 		delete from users where id = #{id}
 	</delete>
+	<!-- delete user by name -->
+	<delete id="deleteUserByName">
+		delete from users where username = #{username}
+	</delete>
+	<!-- get user by id and password for validate password -->
+	<select id="selectUserByIdAndPwd" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.User">
+		select * from users where id=#{id} and
+		password=PASSWORD(#{password})
+	</select>
+	<!-- get user by name and password for validate password -->
+	<select id="selectUserByNameAndPwd" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.User">
+		select * from users where username=#{username} and
+		password=PASSWORD(#{password})
+	</select>
 </mapper>
