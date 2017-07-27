@@ -74,13 +74,6 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	}
 
 	/**
-	 * Return specific resource type names.
-	 * 
-	 * @return
-	 */
-	protected abstract List<String> resourceTypes();
-
-	/**
 	 * Init service broker with total quota.
 	 */
 	private void fetchAction() {

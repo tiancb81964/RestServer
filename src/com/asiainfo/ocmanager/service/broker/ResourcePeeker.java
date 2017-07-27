@@ -43,4 +43,11 @@ public interface ResourcePeeker extends Broker {
 	 * @throws Exception
 	 */
 	public Long getFreeQuota(String key, String name);
+
+	/**
+	 * Return specific resource type names.
+	 * 
+	 * @return
+	 */
+	public List<String> resourceTypes();
 }

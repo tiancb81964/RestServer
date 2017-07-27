@@ -70,7 +70,7 @@ public class SparkResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	protected List<String> resourceTypes() {
+	public List<String> resourceTypes() {
 		return Arrays.asList("yarnQueueQuota");
 	}
 
