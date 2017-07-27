@@ -35,6 +35,20 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
+	protected boolean isMapping(String type, String resource) {
+		if (isHDFSPath(resource)) {
+			// resource is HDFS path
+			return type.equals("storageSpaceQuota");
+		}
+		// otherwise, resource is queueName
+		return type.equals("yarnQueueQuota");
+	}
+
+	private boolean isHDFSPath(String resource) {
+		return resource.startsWith("/apps/hive/warehouse") && resource.endsWith(".db");
+	}
+
+	@Override
 	protected Long fetchTotalQuota(String resourceType, String resourceName) {
 		try {
 			if (resourceType.equals("storageSpaceQuota")) {

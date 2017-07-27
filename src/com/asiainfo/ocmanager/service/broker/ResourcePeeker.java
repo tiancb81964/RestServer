@@ -50,4 +50,12 @@ public interface ResourcePeeker extends Broker {
 	 * @return
 	 */
 	public List<String> resourceTypes();
+
+	/**
+	 * Get the corresponding resources of specified resourceType.
+	 * 
+	 * @param resourceType
+	 * @return
+	 */
+	public List<String> getResourcesByType(String resourceType);
 }

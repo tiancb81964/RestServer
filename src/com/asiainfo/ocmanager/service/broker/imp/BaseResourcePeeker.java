@@ -21,12 +21,24 @@ import com.google.common.collect.Table;
  */
 public abstract class BaseResourcePeeker implements ResourcePeeker {
 	protected static Logger LOG = Logger.getLogger(BaseResourcePeeker.class);
-	protected Resource resources;
+	private Resource resources;
 
 	public BaseResourcePeeker() {
 		setup();
 	}
 
+	@Override
+	public List<String> getResourcesByType(String resourceType) {
+		return this.resources.getResources(resourceType);
+	}
+
+	/**
+	 * Peeks on the specified resources. The types of which we going to peek for
+	 * is defined by {@link #resourceTypes()}. By default, all types are
+	 * assigned to each resources. If you need to mapping different types to
+	 * different resources, you can override {@link #isMapping(String, String)}
+	 * to achieve.
+	 */
 	public BaseResourcePeeker peekOn(List<String> resources) {
 		if (resources == null || resources.isEmpty()) {
 			LOG.error("Resources must be added into broker to do surveillance.");
@@ -64,13 +76,31 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 
 	private void setupResources(List<String> resources) {
 		Table<String, String, Long> targetResources = HashBasedTable.create();
-		for (String type : resourceTypes()) {
-			for (String resource : resources) {
-				targetResources.put(type, resource, -1l);
+		for (String resource : resources) {
+			for (String type : resourceTypes()) {
+				if (isMapping(type, resource)) {
+					targetResources.put(type, resource, -1l);
+				}
 			}
 		}
 		this.resources = new Resource(targetResources);
 		LOG.info("Service broker peeking on: " + resources);
+	}
+
+	/**
+	 * If mapping specified type to specified resource. If <code>true</code>,
+	 * the type of resource will be monitored later. If <code>false</code>, the
+	 * type of resource won't be monitored.By default, all types are assigned to
+	 * each resource in peeker. If your types are not supposed to assigned to
+	 * every resource, you need to override this method to decide which type to
+	 * mapping which resource.
+	 * 
+	 * @param type
+	 * @param resource
+	 * @return
+	 */
+	protected boolean isMapping(String type, String resource) {
+		return true;
 	}
 
 	/**
@@ -89,7 +119,10 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 
 	/**
 	 * Called repeatedly to fetch the total quota of each resource. Server
-	 * connection should be cached to avoid frequent net IO.
+	 * connection should be cached to avoid frequent net IO. In addition, By
+	 * default, all types are assigned to each resources. If you need to mapping
+	 * different types to different resources, you can override
+	 * {@link #isMapping(String, String)} to achieve.
 	 * 
 	 * @param type
 	 * @return
@@ -98,7 +131,10 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 
 	/**
 	 * Called repeatedly to fetch the used quota of each resource. Server
-	 * connection should be cached to avoid frequent net IO.
+	 * connection should be cached to avoid frequent net IO. In addition, By
+	 * default, all types are assigned to each resources. If you need to mapping
+	 * different types to different resources, you can override
+	 * {@link #isMapping(String, String)} to achieve.
 	 * 
 	 * @param type
 	 * @return
