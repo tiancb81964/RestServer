@@ -2,6 +2,8 @@ package com.asiainfo.ocmanager.service.broker.plugin;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -11,7 +13,6 @@ import com.asiainfo.ocmanager.service.client.GPClient;
 public class GPResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(GPResourcePeeker.class);
 	private GPClient client;
-	private static final String RESOURCE_TYPE = "volumeSize";
 
 	@Override
 	protected void setup() {
@@ -29,7 +30,7 @@ public class GPResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String dbName) {
-		if (!resourceType.equals(RESOURCE_TYPE)) {
+		if (!resourceTypes().contains(resourceType)) {
 			LOG.error("ResourceType not defined: " + resourceType);
 			throw new RuntimeException("ResourceType not defined: " + resourceType);
 		}
@@ -45,4 +46,10 @@ public class GPResourcePeeker extends BaseResourcePeeker {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	protected List<String> resourceTypes() {
+		return Arrays.asList("volumeSize");
+	}
+
 }

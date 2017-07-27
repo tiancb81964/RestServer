@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.bson.Document;
 
@@ -17,7 +20,6 @@ import com.mongodb.client.MongoDatabase;
 public class MongoResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(MongoResourcePeeker.class);
 	private MongoDBClient client;
-	private static final String RESOURCE_TYPE = "volumeSize";
 
 	@Override
 	protected void setup() {
@@ -35,7 +37,7 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String dbName) {
-		if (!resourceType.equals(RESOURCE_TYPE)) {
+		if (!resourceType.equals("volumeSize")) {
 			LOG.error("ResourceType not defined: " + resourceType);
 			throw new RuntimeException("ResourceType not defined: " + resourceType);
 		}
@@ -47,6 +49,11 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 			size = size + doc.toJson().getBytes().length;
 		}
 		return size;
+	}
+
+	@Override
+	protected List<String> resourceTypes() {
+		return Arrays.asList("volumeSize");
 	}
 
 }

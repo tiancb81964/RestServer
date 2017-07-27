@@ -1,6 +1,8 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -12,16 +14,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * Resource monitor for Mapreduce. 
+ * Resource monitor for Mapreduce.
+ * 
  * @author EthanWang
  *
  */
-public class MapRedResourcePeeker extends BaseResourcePeeker{
+public class MapRedResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(MapRedResourcePeeker.class);
-	private static final String TYPE = "yarnQueueQuota";
 	private YarnClient client;
 	private String queuesInfo;
-	
+
 	@Override
 	protected void setup() {
 		this.client = YarnClient.getInstance();
@@ -32,21 +34,22 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 			throw new RuntimeException("Error while fetching queue info from RM: ", e);
 		}
 	}
-	
+
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String queueName) {
-		if (!resourceType.equals(TYPE)) {
+		if (!resourceType.equals("yarnQueueQuota")) {
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
 		JsonObject jsonObj = new JsonParser().parse(this.queuesInfo).getAsJsonObject();
 		JsonObject queue = findQueueByName(jsonObj, queueName);
-		double capacity = queue.get("absoluteCapacity").getAsDouble()/100;
+		double capacity = queue.get("absoluteCapacity").getAsDouble() / 100;
 		return new Double(capacity * totalMB()).longValue();
 	}
 
 	/**
 	 * Total memory of yarn.
+	 * 
 	 * @return
 	 */
 	private double totalMB() {
@@ -61,12 +64,14 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 
 	/**
 	 * Get specified queue by the given name.
+	 * 
 	 * @param json
 	 * @param queueName
 	 * @return
 	 */
 	private JsonObject findQueueByName(JsonObject json, String queueName) {
-		JsonArray queues = json.getAsJsonObject("scheduler").getAsJsonObject("schedulerInfo").getAsJsonObject("queues").getAsJsonArray("queue");
+		JsonArray queues = json.getAsJsonObject("scheduler").getAsJsonObject("schedulerInfo").getAsJsonObject("queues")
+				.getAsJsonArray("queue");
 		Iterator<JsonElement> it = queues.iterator();
 		String name = "";
 		while (it.hasNext()) {
@@ -82,7 +87,7 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String queueName) {
-		if (!resourceType.equals(TYPE)) {
+		if (!resourceType.equals("yarnQueueQuota")) {
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
@@ -94,5 +99,10 @@ public class MapRedResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected void cleanup() {
+	}
+
+	@Override
+	protected List<String> resourceTypes() {
+		return Arrays.asList("yarnQueueQuota");
 	}
 }
