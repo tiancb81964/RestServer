@@ -38,5 +38,13 @@ public class Constant {
 	public static final String KRB_KEYTAB = "oc.hadoop.krb.keytab";
 	public static final String KRB_PRINCIPAL = "oc.hadoop.krb.pricipal";
 	public static final String KRB_CONF = "oc.hadoop.krb.conf";
+	public static final List<String> serviceQuotaParam = Arrays.asList("volumeSize","nameSpaceQuota","storageSpaceQuota",
+			"maximumTablesQuota","maximumRegionsQuota","yarnQueueQuota");
+
+	/*****************************************************************/
+	/******************* authentication const ************************/
+	/*****************************************************************/
+	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
+	public static final Long AUTHTOKENTTL = new Long(60*60*1000);
 
 }
