@@ -508,14 +508,11 @@ public class TenantResource {
 				for (Map.Entry<String, JsonElement> entry : parameterObj.entrySet()) {
 					String key = entry.getKey();
 					JsonElement value = entry.getValue();
-					if (value.isJsonPrimitive()) {
+					//only check quota
+					if (Constant.serviceQuotaParam.contains(key)) {
 						// if value is not int, will throw Exception
 						value.getAsInt();
 						logger.info("parameters" + key + ":" + value.toString());
-					} else {
-						Response.status(Status.BAD_REQUEST)
-								.entity("BadRequest: the parameter value format is illegal! Error:" + value.toString())
-								.build();
 					}
 				}
 			} catch (Exception e) {
