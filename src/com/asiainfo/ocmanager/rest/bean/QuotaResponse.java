@@ -21,4 +21,8 @@ public class QuotaResponse {
 		return this;
 	}
 
+	public List<QuotaBean> getQuotaBeans() {
+		return items;
+	}
+
 }

@@ -30,7 +30,7 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String topic) {
-		if (resourceType.equals("yarnQueueQuota")) {
+		if (resourceType.equals("topicQuota")) {
 			return Long.valueOf(client.getPartitionCount(topic));
 		} else if (resourceType.equals("partitionSize")) {
 			return client.getRetensionSize(topic);
@@ -42,7 +42,7 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String topic) {
-		if (resourceType.equals("yarnQueueQuota")) {
+		if (resourceType.equals("topicQuota")) {
 			return Long.valueOf(client.getPartitionCount(topic));
 		} else if (resourceType.equals("partitionSize")) {
 			long sizeBytes = client.fetchTopicSize(topic);
@@ -55,7 +55,7 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	public List<String> resourceTypes() {
-		return Arrays.asList("yarnQueueQuota", "partitionSize");
+		return Arrays.asList("topicQuota", "partitionSize");
 	}
 
 }
