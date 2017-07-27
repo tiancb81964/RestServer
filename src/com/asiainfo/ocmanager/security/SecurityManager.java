@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.security;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.security.module.SecurityModule;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
@@ -14,7 +15,6 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  */
 public class SecurityManager {
 	private static final Logger LOG = Logger.getLogger(SecurityManager.class);
-	private static final String MODULE = "server.security.mudule.class";
 	private static SecurityManager instance;
 	private SecurityModule module;
 	
@@ -61,12 +61,12 @@ public class SecurityManager {
 	
 	private void initModule() {
 		try {
-			String clz = ServerConfiguration.getConf().getProperty(MODULE).trim();
+			String clz = ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE).trim();
 			Class<?> clazz = Class.forName(clz);
 			module = (SecurityModule) clazz.newInstance();
 		} catch (Exception e) {
-			LOG.error("Error init security module: " + ServerConfiguration.getConf().getProperty(MODULE), e);
-			throw new RuntimeException("Error init security module: " + ServerConfiguration.getConf().getProperty(MODULE), e);
+			LOG.error("Error init security module: " + ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE), e);
+			throw new RuntimeException("Error init security module: " + ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE), e);
 		}
 	}
 }

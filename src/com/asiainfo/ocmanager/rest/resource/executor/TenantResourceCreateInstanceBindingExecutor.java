@@ -1,6 +1,5 @@
 package com.asiainfo.ocmanager.rest.resource.executor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
