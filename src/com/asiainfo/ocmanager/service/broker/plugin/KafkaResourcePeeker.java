@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
@@ -7,13 +10,12 @@ import com.asiainfo.ocmanager.service.client.KafkaClient;
 
 /**
  * Kafka resource monitor.
+ * 
  * @author EthanWang
  *
  */
-public class KafkaResourcePeeker extends BaseResourcePeeker{
+public class KafkaResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(KafkaResourcePeeker.class);
-	private static final String TOPIC_QUOTA = "topicQuota";
-	private static final String PARTITION_SIZE = "partitionSize";
 
 	private KafkaClient client;
 
@@ -28,13 +30,11 @@ public class KafkaResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String topic) {
-		if (resourceType.equals(TOPIC_QUOTA)) {
+		if (resourceType.equals("yarnQueueQuota")) {
 			return Long.valueOf(client.getPartitionCount(topic));
-		}
-		else if (resourceType.equals(PARTITION_SIZE)) {
+		} else if (resourceType.equals("partitionSize")) {
 			return client.getRetensionSize(topic);
-		}
-		else {
+		} else {
 			LOG.error("Unknow ResourceType: " + resourceType);
 			throw new RuntimeException("Unknow ResourceType: " + resourceType);
 		}
@@ -42,17 +42,20 @@ public class KafkaResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String topic) {
-		if (resourceType.equals(TOPIC_QUOTA)) {
+		if (resourceType.equals("yarnQueueQuota")) {
 			return Long.valueOf(client.getPartitionCount(topic));
-		}
-		else if (resourceType.equals(PARTITION_SIZE)) {
+		} else if (resourceType.equals("partitionSize")) {
 			long sizeBytes = client.fetchTopicSize(topic);
 			return sizeBytes;
-		}
-		else {
+		} else {
 			LOG.error("Unknow ResourceType: " + resourceType);
 			throw new RuntimeException("Unknow ResourceType: " + resourceType);
 		}
+	}
+
+	@Override
+	public List<String> resourceTypes() {
+		return Arrays.asList("yarnQueueQuota", "partitionSize");
 	}
 
 }

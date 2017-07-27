@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -10,22 +13,20 @@ import com.asiainfo.ocmanager.service.client.HDFSClient;
 
 public class HDFSResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(HDFSResourcePeeker.class);
-	private static final String NAMESPACE_QUOTA = "nameSpaceQuota";
-	private static final String STORAGESPACE_QUOTA = "storageSpaceQuota";
-	private FileSystem fs ;
+	private FileSystem fs;
 
 	@Override
 	protected void setup() {
 		this.fs = HDFSClient.getFileSystem();
 	}
-	
+
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String path) {
 		switch (resourceType) {
-		case NAMESPACE_QUOTA:
+		case "nameSpaceQuota":
 			return totalNamespace(path);
-			
-		case STORAGESPACE_QUOTA:
+
+		case "storageSpaceQuota":
 			return totalStoragespace(path);
 
 		default:
@@ -33,14 +34,14 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 			throw new RuntimeException("Unknown key: " + resourceType + "=" + path);
 		}
 	}
-	
+
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String pathName) {
 		switch (resourceType) {
-		case NAMESPACE_QUOTA:
+		case "nameSpaceQuota":
 			return usedNamespace(pathName);
-			
-		case STORAGESPACE_QUOTA:
+
+		case "storageSpaceQuota":
 			return usedStoragespace(pathName);
 
 		default:
@@ -80,7 +81,7 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 		}
 	}
 
-	private Long totalNamespace(String resourceName){
+	private Long totalNamespace(String resourceName) {
 		try {
 			ContentSummary summary = this.fs.getContentSummary(new Path(resourceName));
 			return summary.getQuota();
@@ -92,7 +93,12 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected void cleanup() {
-		
+
+	}
+
+	@Override
+	public List<String> resourceTypes() {
+		return Arrays.asList("nameSpaceQuota", "storageSpaceQuota");
 	}
 
 }

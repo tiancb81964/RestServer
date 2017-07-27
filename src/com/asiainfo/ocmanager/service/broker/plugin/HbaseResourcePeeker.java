@@ -1,6 +1,8 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -11,14 +13,13 @@ import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.HbaseClient;
 
 /**
- * Implementing broker of ResourcePeeker for Hbase service. 
+ * Implementing broker of ResourcePeeker for Hbase service.
+ * 
  * @author EthanWang
  *
  */
-public class HbaseResourcePeeker extends BaseResourcePeeker{
+public class HbaseResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(HbaseResourcePeeker.class);
-	private static final String TYPE_TAB = "maximumTablesQuota";
-	private static final String TYPE_REG = "maximumRegionsQuota";
 	private static final String KEY_MAX_TABLE = "hbase.namespace.quota.maxtables";
 	private static final String KEY_MAX_REGION = "hbase.namespace.quota.maxregions";
 	private HbaseClient client;
@@ -38,23 +39,20 @@ public class HbaseResourcePeeker extends BaseResourcePeeker{
 		try {
 			admin = client.createAdmin();
 			NamespaceDescriptor des = admin.getNamespaceDescriptor(nsName);
-			if (resourceType.equals(TYPE_TAB)) {
+			if (resourceType.equals("maximumTablesQuota")) {
 				String max = des.getConfigurationValue(KEY_MAX_TABLE);
-				return  max!= null ? Long.valueOf(des.getConfigurationValue(KEY_MAX_TABLE)) : -1l;
-			}
-			else if (resourceType.equals(TYPE_REG)) {
+				return max != null ? Long.valueOf(des.getConfigurationValue(KEY_MAX_TABLE)) : -1l;
+			} else if (resourceType.equals("maximumRegionsQuota")) {
 				String max = des.getConfigurationValue(KEY_MAX_REGION);
 				return max != null ? Long.valueOf(des.getConfigurationValue(KEY_MAX_REGION)) : -1l;
-			}
-			else {
+			} else {
 				LOG.error("Unknown resourceType: " + resourceType);
 				throw new RuntimeException("Unknown resourceType: " + resourceType);
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		}
-		finally {
+		} finally {
 			if (admin != null) {
 				try {
 					admin.close();
@@ -71,22 +69,19 @@ public class HbaseResourcePeeker extends BaseResourcePeeker{
 		try {
 			admin = client.createAdmin();
 			TableName[] tables = admin.listTableNamesByNamespace(nsName);
-			if (resourceType.equals(TYPE_TAB)) {
+			if (resourceType.equals("maximumTablesQuota")) {
 				return Long.valueOf(tables.length);
-			}
-			else if (resourceType.equals(TYPE_REG)) {
+			} else if (resourceType.equals("maximumRegionsQuota")) {
 				return countRegions(tables, admin);
-			}
-			else {
+			} else {
 				LOG.error("Unknown resourceType: " + resourceType);
 				throw new RuntimeException("Unknown resourceType: " + resourceType);
 			}
-			
+
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		}
-		finally {
+		} finally {
 			if (admin != null) {
 				try {
 					admin.close();
@@ -99,10 +94,11 @@ public class HbaseResourcePeeker extends BaseResourcePeeker{
 
 	/**
 	 * Count the total regions of the tables.
+	 * 
 	 * @param tables
-	 * @param admin 
+	 * @param admin
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private Long countRegions(TableName[] tables, Admin admin) throws IOException {
 		int number = 0;
@@ -110,6 +106,11 @@ public class HbaseResourcePeeker extends BaseResourcePeeker{
 			number = number + admin.getTableRegions(t).size();
 		}
 		return Long.valueOf(number);
+	}
+
+	@Override
+	public List<String> resourceTypes() {
+		return Arrays.asList("maximumTablesQuota", "maximumRegionsQuota");
 	}
 
 }

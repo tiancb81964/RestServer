@@ -1,16 +1,17 @@
 package com.asiainfo.ocmanager.service.broker.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.YarnClient;
 import com.google.gson.JsonObject;
 
-public class SparkResourcePeeker extends BaseResourcePeeker{
+public class SparkResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(SparkResourcePeeker.class);
-	private static final String TYPE = "yarnQueueQuota";
 	private YarnClient client;
-	
 
 	@Override
 	protected void setup() {
@@ -23,22 +24,23 @@ public class SparkResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String queueName) {
-		if (!resourceType.equals(TYPE)) {
+		if (!resourceType.equals("yarnQueueQuota")) {
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
 		try {
 			JsonObject queue = client.fetchQueueInfoByName(queueName);
-			double capacity = queue.get("absoluteCapacity").getAsDouble()/100;
+			double capacity = queue.get("absoluteCapacity").getAsDouble() / 100;
 			return new Double(capacity * totalMB()).longValue();
 		} catch (Exception e) {
 			LOG.error("Error while fetching queue infos: ", e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Total memory of yarn.
+	 * 
 	 * @return
 	 */
 	private double totalMB() {
@@ -53,7 +55,7 @@ public class SparkResourcePeeker extends BaseResourcePeeker{
 
 	@Override
 	protected Long fetchUsedQuota(String resourceType, String queueName) {
-		if (!resourceType.equals(TYPE)) {
+		if (!resourceType.equals("yarnQueueQuota")) {
 			LOG.error("Unknown resource type: " + resourceType);
 			throw new RuntimeException("Unknown resource type: " + resourceType);
 		}
@@ -65,6 +67,11 @@ public class SparkResourcePeeker extends BaseResourcePeeker{
 			LOG.error("Error while fetching queue infos: ", e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public List<String> resourceTypes() {
+		return Arrays.asList("yarnQueueQuota");
 	}
 
 }

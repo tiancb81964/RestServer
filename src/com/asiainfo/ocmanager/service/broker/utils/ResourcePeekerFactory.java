@@ -7,20 +7,22 @@ import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 
 /**
  * Factory to create service resource broker.
+ * 
  * @author EthanWang
  *
  */
 public class ResourcePeekerFactory {
 	private static final Logger LOG = Logger.getLogger(ResourcePeekerFactory.class);
-	
+
 	/**
 	 * totalQuota is a table of < resourceType, resourceName, value >
+	 * 
 	 * @param clz
 	 * @param totalQuota
 	 * @return
 	 * @throws Exception
 	 */
-	public static ResourcePeeker getPeeker(Class<? extends BaseResourcePeeker> clz){
+	public static ResourcePeeker getPeeker(Class<? extends BaseResourcePeeker> clz) {
 		try {
 			BaseResourcePeeker broker = clz.newInstance();
 			return broker;
