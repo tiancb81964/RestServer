@@ -16,7 +16,7 @@ public interface ResourcePeeker extends Broker {
 	 * @param resources
 	 * @return
 	 */
-	public ResourcePeeker peekOn(List<String> resources);
+	public ResourcePeeker peekOn(List<String> resources) throws Exception;
 
 	/**
 	 * Get total quota.
@@ -24,7 +24,7 @@ public interface ResourcePeeker extends Broker {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long getTotalQuota(String type, String name) throws Exception;
+	public Long getTotalQuota(String type, String name);
 
 	/**
 	 * Get used quota.
@@ -33,7 +33,7 @@ public interface ResourcePeeker extends Broker {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long getUsedQuota(String key, String name) throws Exception;
+	public Long getUsedQuota(String key, String name);
 
 	/**
 	 * Get free quota.
@@ -42,5 +42,5 @@ public interface ResourcePeeker extends Broker {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long getFreeQuota(String key, String name) throws Exception;
+	public Long getFreeQuota(String key, String name);
 }

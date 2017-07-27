@@ -112,20 +112,20 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	 */
 	protected abstract Long fetchUsedQuota(String resourceType, String resourceName);
 
-	public Long getTotalQuota(String key, String name) throws Exception {
+	public Long getTotalQuota(String key, String name) {
 		if (inited()) {
 			return this.resources.getTotal(key, name);
 		}
 		LOG.error("No resources for current broker to spy on!");
-		throw new Exception("No resources for current broker to spy on!");
+		throw new RuntimeException("No resources for current broker to spy on!");
 	}
 
-	public Long getUsedQuota(String key, String name) throws Exception {
+	public Long getUsedQuota(String key, String name) {
 		if (inited()) {
 			return this.resources.getUsed(key, name);
 		}
 		LOG.error("No resources for current broker to spy on!");
-		throw new Exception("No resources for current broker to spy on!");
+		throw new RuntimeException("No resources for current broker to spy on!");
 	}
 
 	private boolean inited() {
@@ -133,7 +133,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	}
 
 	@Override
-	public Long getFreeQuota(String key, String name) throws Exception {
+	public Long getFreeQuota(String key, String name) {
 		if (inited()) {
 			long t = this.resources.getTotal(key, name);
 			if (t < 0) {
@@ -144,6 +144,6 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 			return (t - u);
 		}
 		LOG.error("No resources for current broker to spy on!");
-		throw new Exception("No resources for current broker to spy on!");
+		throw new RuntimeException("No resources for current broker to spy on!");
 	}
 }
