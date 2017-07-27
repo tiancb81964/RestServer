@@ -19,15 +19,15 @@ public class TestAuthenticator {
     public void testLoginWithUsernamePassword() {
         Assert.assertTrue(authenticator.loginWithUsernamePassword("u1","passw0rd"));
     }
-    @Test
-    public void testCacheLogin() {
-        UsernamePasswordToken token = new UsernamePasswordToken("u3", "passw0rd");
-        try {
-            System.out.println(authenticator.cacheLogin(token));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    @Test
+//    public void testCacheLogin() {
+//        UsernamePasswordToken token = new UsernamePasswordToken("u3", "passw0rd");
+//        try {
+//            System.out.println(authenticator.cacheLogin(token));
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
 
     @Test
