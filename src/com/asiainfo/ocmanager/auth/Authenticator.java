@@ -38,29 +38,6 @@ public class Authenticator {
         return SingletonHolder.INSTANCE;
     }
 
-    public static boolean cacheLogin(UsernamePasswordToken token) throws Exception{
-        try {
-            logger.info("Start login in cache file.");
-            subject.login(token);
-        }catch (AuthenticationException e){
-            logger.info(e.toString());
-            return false;
-        }
-        if(subject.isAuthenticated()) {
-            logger.info("Cache file login success");
-            System.out.println("Authenticated Success from "+subject.getPrincipals().getRealmNames());
-            subject.logout();
-            return true;
-        }
-        return false;
-    }
-
-    public static void updateCacheFile(String username,String password,String realm) {
-        Date date = new Date();
-        CacheUserInfo userInfo = new CacheUserInfo(username,password,date,realm);
-        CacheFileUtil.updateByUser(userInfo);
-    }
-
     public void clearCache() {
         RealmSecurityManager securityManager =
                 (RealmSecurityManager) SecurityUtils.getSecurityManager();
@@ -103,31 +80,20 @@ public class Authenticator {
             logger.warn("parse token Exception: " + e.getMessage());
             return false;
         }
-        boolean cacheLoginsuccess = false;
-
-//        try {
-//            cacheLoginsuccess = cacheLogin(usernamePasswordToken);
-//            isAuthcSuccess = cacheLoginsuccess;
-//        } catch (Exception e) {
-//            logger.warn("Cache login error:" + e.getMessage());
-//        }
-
-        if(!cacheLoginsuccess) {
-            try {
-                logger.info("Starting login authenticate...");
-                subject.login(usernamePasswordToken);
-            }catch (AuthenticationException e) {
-                logger.error(e.toString());
-            }
-            if (subject.isAuthenticated()){
-                logger.info("Authentication success from "+ subject.getPrincipals().getRealmNames());
-                isAuthcSuccess = true;
-            }else {
-                logger.info("Authenticated Failed");
-                isAuthcSuccess = false;
-            }
-//            subject.logout();
+        try {
+            logger.info("Starting login authenticate...");
+            subject.login(usernamePasswordToken);
+        }catch (AuthenticationException e) {
+            logger.error(e.toString());
         }
+        if (subject.isAuthenticated()){
+            logger.info("Authentication success from "+ subject.getPrincipals().getRealmNames());
+            isAuthcSuccess = true;
+        }else {
+            logger.info("Authenticated Failed");
+            isAuthcSuccess = false;
+        }
+//            subject.logout();
         return isAuthcSuccess;
     }
 
