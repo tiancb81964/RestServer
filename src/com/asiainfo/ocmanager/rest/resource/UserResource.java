@@ -32,6 +32,9 @@ import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstancePersistenceWrap
 import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.utils.TenantTree;
+import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -358,21 +361,16 @@ public class UserResource {
 		try {
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
 
-			List<Tenant> tenantList = UserResource.getTenantsList(turs);
-
-			ArrayList<String> tenantIdList = new ArrayList<String>();
-			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
-			for (Tenant ten : tenantList) {
-				if (!tenantIdList.contains(ten.getId())) {
-					tenantIdList.add(ten.getId());
-					tenants.add(ten);
-				}
+			List<Tenant> tenantList = new ArrayList<Tenant>();
+			for (UserRoleView tur : turs) {
+				TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
+				List<TenantTreeNode> nodes = tree.listAllNodes();
+				tenantList.addAll(TenantTreeUtil.transform(nodes));
 			}
 
-			return Response.ok().entity(tenants).build();
+			return Response.ok().entity(tenantList).build();
 		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("getTenantsById -> " + e.getMessage());
+			logger.error("Error while getting Tenants by user id: " + userId, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -387,23 +385,16 @@ public class UserResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getTenantsByName(@PathParam("name") String userName) {
 		try {
+			List<Tenant> tenantList = new ArrayList<Tenant>();
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
-
-			List<Tenant> tenantList = UserResource.getTenantsList(turs);
-
-			ArrayList<String> tenantIdList = new ArrayList<String>();
-			ArrayList<Tenant> tenants = new ArrayList<Tenant>();
-			for (Tenant ten : tenantList) {
-				if (!tenantIdList.contains(ten.getId())) {
-					tenantIdList.add(ten.getId());
-					tenants.add(ten);
-				}
+			for (UserRoleView tur : turs) {
+				TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
+				List<TenantTreeNode> allNodes = tree.listAllNodes();
+				tenantList.addAll(TenantTreeUtil.transform(allNodes));
 			}
-
-			return Response.ok().entity(tenants).build();
+			return Response.ok().entity(tenantList).build();
 		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("getTenantsByName -> " + e.getMessage());
+			logger.error("Error while getting Tenants by user name: " + userName, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
