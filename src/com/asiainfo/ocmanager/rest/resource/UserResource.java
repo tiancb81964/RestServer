@@ -474,40 +474,9 @@ public class UserResource {
 	private static List<Tenant> getTenantsList(List<UserRoleView> turs) {
 		List<Tenant> tenantList = new ArrayList<Tenant>();
 		for (UserRoleView tur : turs) {
-			Tenant tenant = TenantPersistenceWrapper.getTenantById(tur.getTenantId());
-			if (tenant.getLevel() == 1) {
-				// level 1 mean it can see all the tenants, because only one
-				// root tenant
-				tenantList.clear();
-				tenantList = TenantPersistenceWrapper.getAllTenants();
-				break;
-			} else if (tenant.getLevel() == 2) {
-				// level 2 add its children, itself and its parent
-				List<Tenant> list = TenantPersistenceWrapper.getChildrenTenants(tenant.getId());
-				tenantList.addAll(list);
-				tenantList.add(tenant);
-				Tenant level1 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
-				if (level1 != null) {
-					tenantList.add(level1);
-				} else {
-					logger.debug("getTenantsList level1 -> orphan tenant");
-				}
-			} else {
-				// level 3 add itself, its parent and its parents parent
-				tenantList.add(tenant);
-				Tenant level2 = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
-				if (level2 != null) {
-					tenantList.add(level2);
-					Tenant level1 = TenantPersistenceWrapper.getTenantById(level2.getParentId());
-					if (level1 != null) {
-						tenantList.add(level1);
-					} else {
-						logger.debug("getTenantsList  level2 level1 -> orphan tenant");
-					}
-				} else {
-					logger.debug("getTenantsList level2 -> orphan tenant");
-				}
-			}
+			TenantTree tree = TenantTreeUtil.constructTree(tur.getTenantId());
+			List<TenantTreeNode> allNodes = tree.listAllNodes();
+			tenantList.addAll(TenantTreeUtil.transform(allNodes));
 		}
 		return tenantList;
 	}
