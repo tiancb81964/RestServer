@@ -138,10 +138,11 @@ public class User {
 		this.platformRoleId = platformRoleId;
 	}
 
+	@Override
 	public String toString() {
-		return "id:" + id + " username:" + username + " password:" + password + " email:" + email + " phone:" + phone
-				+ " description:" + description + " createdUser:" + createdUser + " createTime:" + createTime
-				+ " platformRoleId:" + platformRoleId;
+		return "User:{id: " + id + " username: " + username + " password: " + password + " email: " + email + " phone: "
+				+ phone + " description: " + description + " createdUser: " + createdUser + " createTime: " + createTime
+				+ " platformRoleId: " + platformRoleId + "}";
 	}
 
 }

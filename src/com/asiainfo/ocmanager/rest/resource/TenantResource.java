@@ -1,11 +1,6 @@
 package com.asiainfo.ocmanager.rest.resource;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +20,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -49,8 +42,10 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -227,7 +222,7 @@ public class TenantResource {
 	public Response getTenantServiceInstanceAccessInfo(@PathParam("tenantId") String tenantId,
 			@PathParam("InstanceName") String InstanceName) {
 		try {
-			return Response.ok().entity(TenantResource.getTenantServiceInstancesFromDf(tenantId, InstanceName)).build();
+			return Response.ok().entity(TenantUtils.getTenantServiceInstancesFromDf(tenantId, InstanceName)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("getTenantServiceInstanceAccessInfo -> " + e.getMessage());
@@ -376,7 +371,7 @@ public class TenantResource {
 								.getAsJsonObject("provisioning").get("backingservice_name").getAsString());
 
 						// get the just now created instance info
-						String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId,
+						String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
 								serviceInstance.getInstanceName());
 
 						JsonElement serviceInstanceJson = new JsonParser().parse(getInstanceResBody);
@@ -398,7 +393,7 @@ public class TenantResource {
 							// wait for 3 secs
 							Thread.sleep(3000);
 							// get the instance info again
-							getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId,
+							getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
 									serviceInstance.getInstanceName());
 							serviceInstanceJson = new JsonParser().parse(getInstanceResBody);
 							serviceName = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
@@ -420,8 +415,17 @@ public class TenantResource {
 						}
 						serviceInstance.setStatus(phase);
 						// set instance id, the id generated after Provisioning
-						serviceInstance.setId(serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.get("instance_id").getAsString());
+						JsonElement instanceId = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
+								.get("instance_id");
+						if (instanceId == null || instanceId.isJsonNull() || instanceId.getAsString().isEmpty()) {
+							// just make sure if the create failed and not
+							// return id in df, generate the uid by
+							// adapter self, in this way the data will
+							// be sync with df
+							serviceInstance.setId(UUIDFactory.getUUID());
+						} else {
+							serviceInstance.setId(instanceId.getAsString());
+						}
 
 						// insert the service instance into the adapter DB
 						ServiceInstancePersistenceWrapper.createServiceInstance(serviceInstance);
@@ -476,7 +480,7 @@ public class TenantResource {
 		try {
 
 			// get the just now created instance info
-			String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
+			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 
 			JsonElement serviceInstanceJson = new JsonParser().parse(getInstanceResBody);
 			// get status phase
@@ -508,7 +512,7 @@ public class TenantResource {
 				for (Map.Entry<String, JsonElement> entry : parameterObj.entrySet()) {
 					String key = entry.getKey();
 					JsonElement value = entry.getValue();
-					//only check quota
+					// only check quota
 					if (Constant.serviceQuotaParam.contains(key)) {
 						// if value is not int, will throw Exception
 						value.getAsInt();
@@ -529,7 +533,7 @@ public class TenantResource {
 			status.addProperty("patch", Constant.UPDATE);
 
 			logger.info("updateServiceInstanceInTenant -> update start");
-			AdapterResponseBean responseBean = TenantResource.updateTenantServiceInstanceInDf(tenantId, instanceName,
+			AdapterResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
 					serviceInstanceJson.toString());
 
 			String quota = null;
@@ -572,7 +576,7 @@ public class TenantResource {
 
 		try {
 
-			String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
+			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 			JsonElement resBodyJson = new JsonParser().parse(getInstanceResBody);
 			JsonObject instance = resBodyJson.getAsJsonObject();
 			String serviceName = instance.getAsJsonObject("spec").getAsJsonObject("provisioning")
@@ -600,12 +604,12 @@ public class TenantResource {
 							String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
 							logger.debug("deleteServiceInstanceInTenant -> userName" + userName);
 							logger.info("deleteServiceInstanceInTenant -> begin to unbinding");
-							AdapterResponseBean unBindingRes = TenantResource.removeOCDPServiceCredentials(tenantId,
+							AdapterResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
 									instanceName, userName);
 
 							if (unBindingRes.getResCodel() == 201) {
 								logger.info("deleteServiceInstanceInTenant -> wait unbinding complete");
-								TenantResource.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
+								TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
 								logger.info("deleteServiceInstanceInTenant -> unbinding complete");
 							}
 						}
@@ -734,7 +738,7 @@ public class TenantResource {
 			assignment.setTenantId(tenantId);
 
 			// get all service instances from df
-			String allServiceInstances = TenantResource.getTenantAllServiceInstancesFromDf(tenantId);
+			String allServiceInstances = TenantUtils.getTenantAllServiceInstancesFromDf(tenantId);
 			JsonElement allServiceInstancesJson = new JsonParser().parse(allServiceInstances);
 
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
@@ -776,7 +780,7 @@ public class TenantResource {
 			assignment.setTenantId(tenantId);
 
 			// get all service instances from df
-			String allServiceInstances = TenantResource.getTenantAllServiceInstancesFromDf(tenantId);
+			String allServiceInstances = TenantUtils.getTenantAllServiceInstancesFromDf(tenantId);
 			JsonElement allServiceInstancesJson = new JsonParser().parse(allServiceInstances);
 
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
@@ -814,7 +818,7 @@ public class TenantResource {
 
 		try {
 			// get all service instances from df
-			String allServiceInstances = TenantResource.getTenantAllServiceInstancesFromDf(tenantId);
+			String allServiceInstances = TenantUtils.getTenantAllServiceInstancesFromDf(tenantId);
 			JsonElement allServiceInstancesJson = new JsonParser().parse(allServiceInstances);
 
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
@@ -835,286 +839,6 @@ public class TenantResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
-	}
-
-	public static void watiInstanceUnBindingComplete(AdapterResponseBean unBindingRes, String tenantId,
-			String instanceName) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
-			IOException, InterruptedException {
-
-		String unBindingResStr = unBindingRes.getMessage();
-		JsonElement unBindingResJson = new JsonParser().parse(unBindingResStr);
-		int bound = unBindingResJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-
-		String instStr = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
-		JsonElement instJson = new JsonParser().parse(instStr);
-
-		int currentBound = instJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-
-		while (currentBound == bound) {
-			logger.debug("watiInstanceUnBindingComplete -> waiting");
-			Thread.sleep(1000);
-			instStr = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
-			instJson = new JsonParser().parse(instStr);
-			currentBound = instJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-		}
-
-	}
-
-	public static void watiInstanceBindingComplete(AdapterResponseBean bindingRes, String tenantId, String instanceName)
-			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException,
-			InterruptedException {
-
-		String bindingResStr = bindingRes.getMessage();
-		JsonElement bindingResJson = new JsonParser().parse(bindingResStr);
-		int bound = bindingResJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-
-		String instStr = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
-		JsonElement instJson = new JsonParser().parse(instStr);
-
-		int currentBound = instJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-
-		while (currentBound == bound) {
-			logger.debug("watiInstanceBindingComplete -> waiting");
-			Thread.sleep(1000);
-			instStr = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
-			instJson = new JsonParser().parse(instStr);
-			currentBound = instJson.getAsJsonObject().getAsJsonObject("spec").get("bound").getAsInt();
-		}
-
-	}
-
-	public static void watiInstanceUpdateComplete(AdapterResponseBean updateRes, String tenantId, String instanceName)
-			throws InterruptedException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
-			IOException {
-
-		String updateInstStr = updateRes.getMessage();
-		JsonElement updateInstJson = new JsonParser().parse(updateInstStr);
-
-		JsonElement patch = updateInstJson.getAsJsonObject().getAsJsonObject("status").get("patch");
-
-		while (patch != null) {
-			logger.debug("watiInstanceUpdateComplete -> waiting");
-			Thread.sleep(1000);
-			updateInstStr = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
-			updateInstJson = new JsonParser().parse(updateInstStr);
-
-			patch = updateInstJson.getAsJsonObject().getAsJsonObject("status").get("patch");
-		}
-
-	}
-
-	public static AdapterResponseBean removeOCDPServiceCredentials(String tenantId, String instanceName,
-			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
-				+ "/binding";
-
-		JsonObject reqBody = new JsonObject();
-		reqBody.addProperty("apiVersion", "v1");
-		reqBody.addProperty("kind", "BindingRequestOptions");
-		reqBody.addProperty("bindKind", "HadoopUser");
-		reqBody.addProperty("resourceName", userName);
-
-		JsonObject metadata = new JsonObject();
-		metadata.addProperty("name", instanceName);
-		reqBody.add("metadata", metadata);
-		String reqBodyStr = reqBody.toString();
-
-		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-		try {
-			HttpPut httpPut = new HttpPut(dfRestUrl);
-			httpPut.addHeader("Content-type", "application/json");
-			httpPut.addHeader("Authorization", "bearer " + token);
-
-			StringEntity se = new StringEntity(reqBodyStr);
-			se.setContentType("application/json");
-			httpPut.setEntity(se);
-
-			CloseableHttpResponse response2 = httpclient.execute(httpPut);
-
-			try {
-				int statusCode = response2.getStatusLine().getStatusCode();
-
-				String bodyStr = EntityUtils.toString(response2.getEntity());
-
-				return new AdapterResponseBean("", bodyStr, statusCode);
-			} finally {
-				response2.close();
-			}
-		} finally {
-			httpclient.close();
-		}
-
-	}
-
-	public static AdapterResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
-			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
-				+ "/binding";
-
-		JsonObject reqBody = new JsonObject();
-		reqBody.addProperty("apiVersion", "v1");
-		reqBody.addProperty("kind", "BindingRequestOptions");
-		reqBody.addProperty("bindKind", "HadoopUser");
-		reqBody.addProperty("resourceName", userName);
-
-		JsonObject metadata = new JsonObject();
-		metadata.addProperty("name", instanceName);
-		reqBody.add("metadata", metadata);
-		String reqBodyStr = reqBody.toString();
-
-		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-		try {
-			HttpPost httpPost = new HttpPost(dfRestUrl);
-			httpPost.addHeader("Content-type", "application/json");
-			httpPost.addHeader("Authorization", "bearer " + token);
-
-			StringEntity se = new StringEntity(reqBodyStr);
-			se.setContentType("application/json");
-			httpPost.setEntity(se);
-
-			CloseableHttpResponse response2 = httpclient.execute(httpPost);
-
-			try {
-				int statusCode = response2.getStatusLine().getStatusCode();
-
-				String bodyStr = EntityUtils.toString(response2.getEntity());
-
-				return new AdapterResponseBean("", bodyStr, statusCode);
-			} finally {
-				response2.close();
-			}
-		} finally {
-			httpclient.close();
-		}
-
-	}
-
-	public static String getTenantServiceInstancesFromDf(String tenantId, String instanceName)
-			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
-
-		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-		try {
-			HttpGet httpGet = new HttpGet(dfRestUrl);
-			httpGet.addHeader("Content-type", "application/json");
-			httpGet.addHeader("Authorization", "bearer " + token);
-
-			CloseableHttpResponse response1 = httpclient.execute(httpGet);
-
-			try {
-				// int statusCode =
-				// response1.getStatusLine().getStatusCode();
-
-				String bodyStr = EntityUtils.toString(response1.getEntity());
-
-				return bodyStr;
-			} finally {
-				response1.close();
-			}
-		} finally {
-			httpclient.close();
-		}
-	}
-
-	private static String getTenantAllServiceInstancesFromDf(String tenantId)
-			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
-
-		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-		try {
-			HttpGet httpGet = new HttpGet(dfRestUrl);
-			httpGet.addHeader("Content-type", "application/json");
-			httpGet.addHeader("Authorization", "bearer " + token);
-
-			CloseableHttpResponse response1 = httpclient.execute(httpGet);
-
-			try {
-				int statusCode = response1.getStatusLine().getStatusCode();
-
-				String bodyStr = EntityUtils.toString(response1.getEntity());
-
-				// filter the _ToDelete instances
-				if (statusCode == 200) {
-					JsonElement jsonE = new JsonParser().parse(bodyStr);
-					JsonObject jsonO = jsonE.getAsJsonObject();
-
-					JsonArray items = jsonO.getAsJsonArray(("items"));
-
-					Iterator<JsonElement> it = items.iterator();
-					while (it.hasNext()) {
-						JsonElement je = it.next();
-						JsonObject status = je.getAsJsonObject().getAsJsonObject("status");
-						JsonElement action = status.get("action");
-
-						if (action != null) {
-							if (action.getAsString().equals(Constant._TODELETE)) {
-								it.remove();
-							}
-						}
-					}
-					bodyStr = jsonO.toString();
-				}
-				logger.debug("getTenantAllServiceInstancesFromDf -> " + bodyStr);
-				return bodyStr;
-			} finally {
-				response1.close();
-			}
-		} finally {
-			httpclient.close();
-		}
-
-	}
-
-	public static AdapterResponseBean updateTenantServiceInstanceInDf(String tenantId, String instanceName,
-			String reqBodyStr) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
-
-		// parse the req body make sure it is json
-		JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
-		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-		try {
-			HttpPut httpPut = new HttpPut(dfRestUrl);
-			httpPut.addHeader("Content-type", "application/json");
-			httpPut.addHeader("Authorization", "bearer " + token);
-
-			StringEntity se = new StringEntity(reqBodyJson.toString());
-			se.setContentType("application/json");
-			httpPut.setEntity(se);
-
-			CloseableHttpResponse response2 = httpclient.execute(httpPut);
-
-			try {
-				int statusCode = response2.getStatusLine().getStatusCode();
-				String bodyStr = EntityUtils.toString(response2.getEntity());
-
-				return new AdapterResponseBean("", bodyStr, statusCode);
-			} finally {
-				response2.close();
-			}
-		} finally {
-			httpclient.close();
-		}
 	}
 
 }

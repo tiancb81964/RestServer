@@ -6,6 +6,7 @@ import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -77,7 +78,7 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 					// to do
 					// so here not need to call update
 					logger.info("unassignRoleFromUserInTenant -> begin to unbinding");
-					AdapterResponseBean bindingRes = TenantResource.removeOCDPServiceCredentials(tenantId, instanceName,
+					AdapterResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
 							UserPersistenceWrapper.getUserById(userId).getUsername());
 
 					if (bindingRes.getResCodel() == 201) {

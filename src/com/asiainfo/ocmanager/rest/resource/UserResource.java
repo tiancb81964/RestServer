@@ -32,6 +32,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.utils.TenantTree;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
@@ -491,7 +492,7 @@ public class UserResource {
 			List<ServiceInstance> instaces = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 
 			for (ServiceInstance instace : instaces) {
-				String instanceStr = TenantResource.getTenantServiceInstancesFromDf(tenantId,
+				String instanceStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
 						instace.getInstanceName());
 				JsonElement instanceJE = new JsonParser().parse(instanceStr);
 				JsonObject instanceJson = instanceJE.getAsJsonObject();
