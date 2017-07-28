@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Role;
-import com.asiainfo.ocmanager.rest.resource.utils.RolePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.RolePersistenceWrapper;
 
 /**
  * 

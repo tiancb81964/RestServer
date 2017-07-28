@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
-import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 
 /**
  * Tenants which are constructed in tree-like format, consisting of {@link TenantTreeNode} in structure.
