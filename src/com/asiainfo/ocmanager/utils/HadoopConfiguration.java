@@ -19,10 +19,9 @@ public class HadoopConfiguration {
 	private static final String CONF_HBASE_MASTER_PRINCIPAL = "oc.hbase.master.krb.principal";
 	private static final String CONF_HBASE_RS_PRINCIPAL = "oc.hbase.regionserver.krb.principal";
 
-	
-	public static Configuration getConf(){
+	public static Configuration getConf() {
 		if (conf == null) {
-			synchronized(HadoopConfiguration.class){
+			synchronized (HadoopConfiguration.class) {
 				if (conf == null) {
 					new HadoopConfiguration();
 				}
@@ -30,25 +29,28 @@ public class HadoopConfiguration {
 		}
 		return conf;
 	}
-	
+
 	private static void init() {
 		conf = new Configuration();
-		if (secure()) {
-	        conf.set("hadoop.security.authentication", "KERBEROS");
-			conf.set("hbase.security.authentication", "KERBEROS");
-	        conf.set("hdfs.kerberos.principal", ServerConfiguration.getConf().getProperty(Constant.KRB_PRINCIPAL));
-	        conf.set("hdfs.keytab.file", keytabPath());
-			conf.set("hbase.master.kerberos.principal", ServerConfiguration.getConf().getProperty(CONF_HBASE_MASTER_PRINCIPAL));
-			conf.set("hbase.regionserver.kerberos.principal", ServerConfiguration.getConf().getProperty(CONF_HBASE_RS_PRINCIPAL));
-			conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, "/hbase-secure");
-		}	
 		initHDFSCommon();
 		initHbaseCommon();
+		if (secure()) {
+			conf.set("hadoop.security.authentication", "KERBEROS");
+			conf.set("hbase.security.authentication", "KERBEROS");
+			conf.set("hdfs.kerberos.principal", ServerConfiguration.getConf().getProperty(Constant.KRB_PRINCIPAL));
+			conf.set("hdfs.keytab.file", keytabPath());
+			conf.set("hbase.master.kerberos.principal",
+					ServerConfiguration.getConf().getProperty(CONF_HBASE_MASTER_PRINCIPAL));
+			conf.set("hbase.regionserver.kerberos.principal",
+					ServerConfiguration.getConf().getProperty(CONF_HBASE_RS_PRINCIPAL));
+			conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, "/hbase-secure");
+		}
 	}
 
 	private static void initHbaseCommon() {
 		conf.set(HConstants.ZOOKEEPER_QUORUM, ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER));
 		conf.set(HConstants.ZOOKEEPER_CLIENT_PORT, ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER_PORT));
+		conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, "/hbase-unsecure");
 	}
 
 	private static void initHDFSCommon() {
@@ -57,7 +59,7 @@ public class HadoopConfiguration {
 		conf.set("dfs.nameservices", ns);
 		Map<String, String> map = decomposeNNString();
 		conf.set("dfs.ha.namenodes." + ns, joinKey(map));
-		for(Entry<String, String> nn : map.entrySet()){
+		for (Entry<String, String> nn : map.entrySet()) {
 			conf.set("dfs.namenode.rpc-address." + ns + "." + nn.getKey(), nn.getValue());
 		}
 		conf.set("dfs.client.failover.proxy.provider." + ns, PROXY);
@@ -68,22 +70,23 @@ public class HadoopConfiguration {
 		for (Entry<String, String> en : map.entrySet()) {
 			sb.append(en.getKey()).append(",");
 		}
-		return sb.substring(0, sb.length()-1);
+		return sb.substring(0, sb.length() - 1);
 	}
 
 	private static Map<String, String> decomposeNNString() {
 		String rawNN = ServerConfiguration.getConf().getProperty(CONF_NNS);
 		if (rawNN == null || rawNN.isEmpty()) {
-			throw new RuntimeException(CONF_NNS + " can not be null! should be like: nn1#master1HostName:8020,nn2#master2HostNameIP:8020");
+			throw new RuntimeException(
+					CONF_NNS + " can not be null! should be like: nn1#master1HostName:8020,nn2#master2HostNameIP:8020");
 		}
 		Map<String, String> map = new HashMap<>();
-		for(String element : rawNN.split(",")){
+		for (String element : rawNN.split(",")) {
 			map.put(element.trim().split("#")[0].trim(), element.trim().split("#")[1].trim());
 		}
 		return map;
 	}
-	
-	private HadoopConfiguration(){
+
+	private HadoopConfiguration() {
 		init();
 	}
 

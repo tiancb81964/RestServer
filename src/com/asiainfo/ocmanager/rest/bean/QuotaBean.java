@@ -50,4 +50,10 @@ public class QuotaBean {
 		return desc;
 	}
 
+	@Override
+	public String toString() {
+		return "QuotaBean [name=" + name + ", size=" + size + ", used=" + used + ", available=" + available + ", desc="
+				+ desc + "]";
+	}
+
 }
