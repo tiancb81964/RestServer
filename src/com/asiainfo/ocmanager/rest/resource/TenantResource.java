@@ -45,10 +45,10 @@ import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExe
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUpdateRoleExecutor;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstancePersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.TURAssignmentPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.TenantPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;

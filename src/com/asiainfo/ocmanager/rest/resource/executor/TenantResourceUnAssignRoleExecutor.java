@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
-import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

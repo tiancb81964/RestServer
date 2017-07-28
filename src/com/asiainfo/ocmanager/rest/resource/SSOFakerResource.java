@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.bean.SSOFakerUserBean;
-import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 
 /**
  * 
