@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource.utils;
+package com.asiainfo.ocmanager.rest.resource.persistence;
 
 import java.util.List;
 
