@@ -1,6 +1,6 @@
 package com.asiainfo.ocmanager.auth.test;
 
-import com.asiainfo.ocmanager.auth.AESUtils;
+import com.asiainfo.ocmanager.auth.utils.AESUtils;
 import com.asiainfo.ocmanager.auth.Authenticator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

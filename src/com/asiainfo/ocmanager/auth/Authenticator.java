@@ -1,10 +1,10 @@
 package com.asiainfo.ocmanager.auth;
+import com.asiainfo.ocmanager.auth.utils.AESUtils;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
@@ -38,12 +38,6 @@ public class Authenticator {
         return SingletonHolder.INSTANCE;
     }
 
-    public void clearCache() {
-        RealmSecurityManager securityManager =
-                (RealmSecurityManager) SecurityUtils.getSecurityManager();
-        JdbcEnhancedRealm jdbcRealm = (JdbcEnhancedRealm) securityManager.getRealms().iterator().next();
-        jdbcRealm.clearCachedInfoWhenPasswordChanged(subject.getPrincipals());
-    }
 
     public boolean loginWithUsernamePassword(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);

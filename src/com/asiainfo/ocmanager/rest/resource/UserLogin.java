@@ -1,5 +1,7 @@
-package com.asiainfo.ocmanager.auth;
+package com.asiainfo.ocmanager.rest.resource;
 
+import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.rest.bean.LoginResponseBean;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,10 +31,10 @@ public class UserLogin {
             if (authenticator.loginWithUsernamePassword(username,password)) {
                 String token = authenticator.generateTokenWithTTL(username,password);
                 logger.info("login success. Token: "+ token);
-                return Response.ok().entity(new AuthResponseBean("Login successful!", "Please add token in header of other requests.", 200, token)).build();
+                return Response.ok().entity(new LoginResponseBean("Login successful!", "Please add token in header of other requests.", 200, token)).build();
             } else {
                 logger.info("login failed.");
-                return Response.ok().entity(new AuthResponseBean("Login failed!", "Invalid username or password.", 200, null)).build();
+                return Response.ok().entity(new LoginResponseBean("Login failed!", "Invalid username or password.", 200, null)).build();
             }
         } catch (Exception e) {
             logger.warn("Invalid parameter format!" + e.getMessage());

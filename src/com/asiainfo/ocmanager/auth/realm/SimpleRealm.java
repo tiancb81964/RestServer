@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.auth;
+package com.asiainfo.ocmanager.auth.realm;
 
 import org.apache.shiro.authc.*;
 import org.apache.shiro.realm.AuthenticatingRealm;
@@ -8,7 +8,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.UserUtils;
 /**
  * Created by gq on 17/7/27.
  */
-public class EncryptedPasswordDaoRealm extends AuthenticatingRealm{
+public class SimpleRealm extends AuthenticatingRealm{
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) authenticationToken;
