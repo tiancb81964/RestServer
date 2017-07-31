@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Dashboard;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
-import com.asiainfo.ocmanager.rest.resource.utils.DashboardPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrapper;
 
 /**
  * 

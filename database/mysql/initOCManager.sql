@@ -76,7 +76,6 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`roles` (
   `id` VARCHAR(64) NOT NULL,
   `rolename` VARCHAR(64) NOT NULL,
   `description` MEDIUMTEXT NULL,
-  `permission` MEDIUMTEXT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -179,10 +178,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Init the 4 roles into the table `ocmanager`.`roles`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create subsidiary and add users, assign role to user and add services.", "{createUser: true, updateUser: true, deleteUser: true, addService: true, deleteService: true, grant: true}");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.", "{grant: true}");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "project.admin", "project admin can add uses to the project and assign role to user.", "{grant: true}");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the project information that he is in.", "{}");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create subsidiary and add users, assign role to user and add services.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "project.admin", "project admin can add uses to the project and assign role to user.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the project information that he is in.");
 
 
 -- -----------------------------------------------------

@@ -1,14 +1,14 @@
-package com.asiainfo.ocmanager.rest.resource.manager;
+package com.asiainfo.ocmanager.rest.resource.utils;
 
 import com.asiainfo.ocmanager.persistence.model.User;
-import com.asiainfo.ocmanager.rest.resource.utils.UserPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 
 /**
  * 
  * @author zhaoyim
  *
  */
-public class UserManager {
+public class UserUtils {
 
 	/**
 	 * 

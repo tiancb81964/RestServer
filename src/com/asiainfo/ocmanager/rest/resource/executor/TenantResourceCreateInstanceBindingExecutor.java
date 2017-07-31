@@ -9,8 +9,9 @@ import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceRolePermissionWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -65,7 +66,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 				// only the has service permission users
 				// can be assign
 				if (!(permission == null)) {
-					String getInstanceResBody = TenantResource.getTenantServiceInstancesFromDf(tenantId, instanceName);
+					String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 					JsonElement OCDPServiceInstanceJson = new JsonParser().parse(getInstanceResBody);
 					JsonObject provisioning = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("provisioning");
@@ -79,22 +80,22 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 					status.addProperty("patch", Constant.UPDATE);
 
 					logger.info("createServiceInstanceInTenant -> begin update service instance");
-					AdapterResponseBean updateRes = TenantResource.updateTenantServiceInstanceInDf(tenantId,
+					AdapterResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
 							instanceName, OCDPServiceInstanceJson.toString());
 
 					if (updateRes.getResCodel() == 200) {
 
 						logger.info("createServiceInstanceInTenant -> wait update complete");
-						TenantResource.watiInstanceUpdateComplete(updateRes, tenantId, instanceName);
+						TenantUtils.watiInstanceUpdateComplete(updateRes, tenantId, instanceName);
 						logger.info("createServiceInstanceInTenant -> update complete");
 
 						logger.info("createServiceInstanceInTenant -> begin to binding");
-						AdapterResponseBean bindingRes = TenantResource.generateOCDPServiceCredentials(tenantId,
+						AdapterResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
 								instanceName, u.getUserName());
 
 						if (bindingRes.getResCodel() == 201) {
 							logger.info("createServiceInstanceInTenant -> wait binding complete");
-							TenantResource.watiInstanceBindingComplete(bindingRes, tenantId, instanceName);
+							TenantUtils.watiInstanceBindingComplete(bindingRes, tenantId, instanceName);
 							logger.info("createServiceInstanceInTenant -> binding complete");
 						}
 					}

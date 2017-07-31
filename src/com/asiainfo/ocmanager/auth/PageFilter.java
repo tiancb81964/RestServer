@@ -1,7 +1,7 @@
 package com.asiainfo.ocmanager.auth;
 
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.resource.utils.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 
