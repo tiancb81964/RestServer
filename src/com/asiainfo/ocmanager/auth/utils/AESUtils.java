@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.auth;
+package com.asiainfo.ocmanager.auth.utils;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;

@@ -1,6 +1,6 @@
-package com.asiainfo.ocmanager.auth;
+package com.asiainfo.ocmanager.rest.filter;
 
-import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.auth.Authenticator;
 import org.apache.log4j.Logger;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
