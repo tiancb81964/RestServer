@@ -5,16 +5,16 @@ package com.asiainfo.ocmanager.rest.bean;
  * @author zhaoyim
  *
  */
-public class AdapterResponseBean {
+public class ResourceResponseBean {
 	private String status;
 	private String message;
 	private int resCode;
 
-	public AdapterResponseBean() {
+	public ResourceResponseBean() {
 
 	}
 
-	public AdapterResponseBean(String status, String message, int resCode) {
+	public ResourceResponseBean(String status, String message, int resCode) {
 		this.status = status;
 		this.message = message;
 		this.resCode = resCode;

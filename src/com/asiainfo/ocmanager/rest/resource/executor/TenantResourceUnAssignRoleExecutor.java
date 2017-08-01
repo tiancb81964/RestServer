@@ -2,7 +2,7 @@ package com.asiainfo.ocmanager.rest.resource.executor;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
@@ -78,7 +78,7 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 					// to do
 					// so here not need to call update
 					logger.info("unassignRoleFromUserInTenant -> begin to unbinding");
-					AdapterResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
+					ResourceResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
 							UserPersistenceWrapper.getUserById(userId).getUsername());
 
 					if (bindingRes.getResCodel() == 201) {

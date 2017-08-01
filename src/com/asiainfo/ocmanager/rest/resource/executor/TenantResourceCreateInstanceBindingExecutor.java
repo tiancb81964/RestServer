@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
@@ -80,7 +80,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 					status.addProperty("patch", Constant.UPDATE);
 
 					logger.info("createServiceInstanceInTenant -> begin update service instance");
-					AdapterResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
+					ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
 							instanceName, OCDPServiceInstanceJson.toString());
 
 					if (updateRes.getResCodel() == 200) {
@@ -90,7 +90,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 						logger.info("createServiceInstanceInTenant -> update complete");
 
 						logger.info("createServiceInstanceInTenant -> begin to binding");
-						AdapterResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
+						ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
 								instanceName, u.getUserName());
 
 						if (bindingRes.getResCodel() == 201) {
