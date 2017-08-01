@@ -44,15 +44,17 @@ public class Constant {
 	public static final String KRB_PRINCIPAL = "oc.hadoop.krb.pricipal";
 	public static final String KRB_CONF = "oc.hadoop.krb.conf";
 
+	public static final String ADMIN = "admin";
+	public static final String ADMINID = "2ef26018-003d-4b2b-b786-0481d4ee9fa8";
+	public static final String ADMINROLEID = "a10170cb-524a-11e7-9dbb-fa163ed7d0ae";
 
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/
 	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
-	public static final Long AUTHTOKENTTL = new Long(60*60*1000);
+	public static final Long AUTHTOKENTTL = new Long(60 * 60 * 1000);
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
 	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
-
 
 }

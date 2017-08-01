@@ -26,6 +26,7 @@ import com.asiainfo.ocmanager.persistence.model.User;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
 import com.asiainfo.ocmanager.rest.bean.AssignmentInfoBean;
+import com.asiainfo.ocmanager.rest.bean.PasswordBean;
 import com.asiainfo.ocmanager.rest.bean.UserRoleViewBean;
 import com.asiainfo.ocmanager.rest.bean.UserWithTURBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -127,15 +128,6 @@ public class UserResource {
 			logger.info("getUserWithTenantsById -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
-	}
-
-	private static String getParentTenantName(String tenantId) {
-		Tenant ct = TenantPersistenceWrapper.getTenantById(tenantId);
-		if (ct != null) {
-			Tenant pt = TenantPersistenceWrapper.getTenantById(ct.getParentId());
-			return pt == null ? null : pt.getName();
-		}
-		return null;
 	}
 
 	/**
@@ -261,6 +253,21 @@ public class UserResource {
 		}
 	}
 
+	@PUT
+	@Path("{userName}/password")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password) {
+		try {
+			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());
+			return Response.ok().entity(new AdapterResponseBean("update user password success", userName, 200)).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("updateUserPassword -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
 	/**
 	 * Delete a user
 	 *
@@ -320,38 +327,41 @@ public class UserResource {
 		}
 	}
 
-	/**
-	 *
-	 * @param userId
-	 * @return
-	 */
-	@GET
-	@Path("id/{id}/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
-	public Response getTenantAndRoleById(@PathParam("id") String userId) {
-		try {
-			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
-			return Response.ok().entity(turs).build();
-		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("getTenantAndRoleById -> " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
-		}
-	}
-
-	@GET
-	@Path("name/{name}/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
-	public Response getTenantAndRoleByName(@PathParam("name") String userName) {
-		try {
-			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
-			return Response.ok().entity(turs).build();
-		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("getTenantAndRoleByName -> " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
-		}
-	}
+	// /**
+	// *
+	// * @param userId
+	// * @return
+	// */
+	// @GET
+	// @Path("id/{id}/tenants")
+	// @Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	// public Response getTenantAndRoleById(@PathParam("id") String userId) {
+	// try {
+	// List<UserRoleView> turs =
+	// UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
+	// return Response.ok().entity(turs).build();
+	// } catch (Exception e) {
+	// // system out the exception into the console log
+	// logger.info("getTenantAndRoleById -> " + e.getMessage());
+	// return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+	// }
+	// }
+	//
+	// @GET
+	// @Path("name/{name}/tenants")
+	// @Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	// public Response getTenantAndRoleByName(@PathParam("name") String
+	// userName) {
+	// try {
+	// List<UserRoleView> turs =
+	// UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
+	// return Response.ok().entity(turs).build();
+	// } catch (Exception e) {
+	// // system out the exception into the console log
+	// logger.info("getTenantAndRoleByName -> " + e.getMessage());
+	// return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+	// }
+	// }
 
 	/**
 	 *
@@ -475,6 +485,15 @@ public class UserResource {
 		}
 	}
 
+	private static String getParentTenantName(String tenantId) {
+		Tenant ct = TenantPersistenceWrapper.getTenantById(tenantId);
+		if (ct != null) {
+			Tenant pt = TenantPersistenceWrapper.getTenantById(ct.getParentId());
+			return pt == null ? null : pt.getName();
+		}
+		return null;
+	}
+
 	private static List<Tenant> getTenantsList(List<UserRoleView> turs) {
 		List<Tenant> tenantList = new ArrayList<Tenant>();
 		for (UserRoleView tur : turs) {
@@ -495,8 +514,7 @@ public class UserResource {
 			List<ServiceInstance> instaces = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 
 			for (ServiceInstance instace : instaces) {
-				String instanceStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
-						instace.getInstanceName());
+				String instanceStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instace.getInstanceName());
 				JsonElement instanceJE = new JsonParser().parse(instanceStr);
 				JsonObject instanceJson = instanceJE.getAsJsonObject();
 				JsonObject spec = instanceJson.getAsJsonObject("spec");
@@ -581,7 +599,8 @@ public class UserResource {
 							}
 						}
 					} else {
-						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Success");
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Authorization Success");
 						assignmentInfoBeans.add(AIB);
 					}
 				}

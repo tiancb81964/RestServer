@@ -683,6 +683,19 @@ public class TenantResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteTenant(@PathParam("id") String tenantId) {
 		try {
+			// if have instances can not be deleted
+			if (TenantResource.hasInstances(tenantId)){
+				return Response.status(Status.FORBIDDEN)
+						.entity("The tenant can not be deleted, because it have service instances on it.")
+						.build();
+			}
+			// if have users can not be deleted
+			if (TenantResource.hasUsers(tenantId)){
+				return Response.status(Status.FORBIDDEN)
+						.entity("The tenant can not be deleted, because it have users binding with it.")
+						.build();
+			}
+			
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
@@ -720,6 +733,33 @@ public class TenantResource {
 		}
 	}
 
+	
+	private static boolean hasInstances(String tenantId) {
+		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
+		if (instances.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	private static boolean hasUsers(String tenantId) {
+		List<UserRoleView> users = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
+		// if the user list == 1 and it is admin
+		// the tenant can be deleted
+		if (users.size() == 1 && users.get(0).getUserName().equals(Constant.ADMIN)) {
+			return false;
+		} else {
+			// if the size >= 1 the tenant have user
+			if (users.size() >= 1) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	
 	/**
 	 * Assign role to user in tenant
 	 *
