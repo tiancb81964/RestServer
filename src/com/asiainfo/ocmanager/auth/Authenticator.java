@@ -28,7 +28,7 @@ public class Authenticator {
     }
 
     private Authenticator (){
-        String shiroConfig = "classpath:shiroJdbc.ini";
+        String shiroConfig = Constant.SHIROINIPATH;
         Factory<SecurityManager> factory = new IniSecurityManagerFactory(shiroConfig);
         securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
@@ -40,26 +40,23 @@ public class Authenticator {
     }
 
 
-    public boolean loginWithUsernamePassword(String username, String password) {
+    public static boolean loginWithUsernamePassword(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         logger.info("Try to login with Username Password: " + token.toString());
         try {
-            //4、登录，即身份验证
             subject.login(token);
         } catch (AuthenticationException e) {
-            //5、身份验证失败
             logger.warn("Auth failed!"+ e.getMessage());
 //            e.printStackTrace();
             return false;
         }
         if (subject.isAuthenticated()){
-            logger.info("Authentication success from "+ subject.getPrincipals().getRealmNames());
+            logger.info("loginWithUsernamePassword: Authentication success from "+ subject.getPrincipals().getRealmNames());
             isAuthcSuccess = true;
         }else {
             logger.info("Authenticated Failed");
             isAuthcSuccess = false;
         }
-//        subject.logout();
         return isAuthcSuccess; //断言用户已经登录
     }
 
@@ -80,15 +77,15 @@ public class Authenticator {
             subject.login(usernamePasswordToken);
         }catch (AuthenticationException e) {
             logger.error(e.toString());
+            return false;
         }
         if (subject.isAuthenticated()){
-            logger.info("Authentication success from "+ subject.getPrincipals().getRealmNames());
+            logger.info("loginWithTokenParsed: Authentication success from "+ subject.getPrincipals().getRealmNames());
             isAuthcSuccess = true;
         }else {
             logger.info("Authenticated Failed");
             isAuthcSuccess = false;
         }
-//            subject.logout();
         return isAuthcSuccess;
     }
 
@@ -96,17 +93,19 @@ public class Authenticator {
         return CacheUtils.isTokenInCache(token);
     }
 
-    public static void logout(String token) {
-        CacheUtils.removeToken(token.split("_")[0]);
+    public static void logout(String username) {
+        CacheUtils.removeToken(username);
+        logger.info("remove user [{}] token in Cache.");
     }
 
     public static String generateToken(String username,String password) {
-        String encryptPwd = AESUtils.encrypt(password,username);
-        String token = username+"_"+encryptPwd;
+        Date curDate = new Date();
+        Long curTime = curDate.getTime();
+        String encryptTokenPart = AESUtils.encrypt(password + "_" + String.valueOf(curTime),username);
+        String token = username+"_"+encryptTokenPart;
         CacheUtils.addToken(username,token);
         logger.info("Add token [{}] in Cache.", token);
         return token;
-
     }
 
     public static String generateTokenWithTTL(String username,String password) {
@@ -117,6 +116,8 @@ public class Authenticator {
         logger.info("Generated token will be exproed in " + expiredDate.toString());
         String encryptTokenPart = AESUtils.encrypt(password + "_" + String.valueOf(expiredTime),username);
         String token = username+"_"+encryptTokenPart;
+        CacheUtils.addToken(username,token);
+        logger.info("Add token [{}] in Cache.", token);
         return token;
     }
 
@@ -130,7 +131,7 @@ public class Authenticator {
             logger.warn("Exception in decryption of token. ");
             throw new Exception("Decryption of token error.");
         }
-        logger.debug("Decrypted secrest content: " + content );
+        logger.debug("Decrypted secret content: " + content );
         String[] contentArray = content.split("_");
         Date expiredTime = new Date(Long.parseLong(contentArray[1]));
         logger.info("Token expiredTime: " + expiredTime.toString());

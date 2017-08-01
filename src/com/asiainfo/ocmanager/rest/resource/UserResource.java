@@ -17,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.asiainfo.ocmanager.auth.utils.CacheUtils;
+import com.asiainfo.ocmanager.auth.Authenticator;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -260,6 +260,7 @@ public class UserResource {
 	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password) {
 		try {
 			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());
+			Authenticator.logout(userName);
 			return Response.ok().entity(new AdapterResponseBean("update user password success", userName, 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -291,7 +292,7 @@ public class UserResource {
 
 			if (user.getCreatedUser().equals(loginUser)) {
 				UserPersistenceWrapper.deleteUser(userId);
-				CacheUtils.removeToken(userName);
+				Authenticator.logout(userName);
 			} else {
 				return Response.status(Status.BAD_REQUEST)
 						.entity(new AdapterResponseBean("delete failed",
