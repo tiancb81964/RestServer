@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.asiainfo.ocmanager.persistence.mapper.TenantUserRoleAssignmentMapper;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
+import com.asiainfo.ocmanager.rest.constant.Constant;
+
 import org.apache.ibatis.session.SqlSession;
 
 import com.asiainfo.ocmanager.persistence.mapper.TenantMapper;
@@ -18,9 +20,6 @@ import com.asiainfo.ocmanager.persistence.DBConnectorFactory;
  */
 public class TenantPersistenceWrapper {
 
-	private static final String ADMINID = "2ef26018-003d-4b2b-b786-0481d4ee9fa8";
-	private static final String ADMINROLEID = "a10170cb-524a-11e7-9dbb-fa163ed7d0ae";
-
 	/**
 	 *
 	 * @param tenant
@@ -31,8 +30,8 @@ public class TenantPersistenceWrapper {
 			TenantMapper mapper = session.getMapper(TenantMapper.class);
 			TenantUserRoleAssignmentMapper tenantUserRoleAssignmentMapper = session
 					.getMapper(TenantUserRoleAssignmentMapper.class);
-			TenantUserRoleAssignment tenantUserRoleAssignment = new TenantUserRoleAssignment(tenant.getId(), ADMINID,
-					ADMINROLEID);
+			TenantUserRoleAssignment tenantUserRoleAssignment = new TenantUserRoleAssignment(tenant.getId(),
+					Constant.ADMINID, Constant.ADMINROLEID);
 
 			mapper.insertTenant(tenant);
 			tenantUserRoleAssignmentMapper.insertTenantUserRoleAssignment(tenantUserRoleAssignment);
@@ -71,10 +70,11 @@ public class TenantPersistenceWrapper {
 
 	/**
 	 * Get parent of tenant by the specified tenantID.
+	 * 
 	 * @param tenantID
 	 * @return
 	 */
-	public static Tenant getParent(String tenantID){
+	public static Tenant getParent(String tenantID) {
 		SqlSession session = DBConnectorFactory.getSession();
 		Tenant tenant = null;
 		try {
@@ -89,7 +89,7 @@ public class TenantPersistenceWrapper {
 		}
 		return tenant;
 	}
-	
+
 	/**
 	 *
 	 * @param tenantId
@@ -143,7 +143,7 @@ public class TenantPersistenceWrapper {
 			TenantMapper mapper = session.getMapper(TenantMapper.class);
 			TenantUserRoleAssignmentMapper tenantUserRoleAssignmentMapper = session
 					.getMapper(TenantUserRoleAssignmentMapper.class);
-			tenantUserRoleAssignmentMapper.deleteTenantUserRoleAssignment(tenantId, ADMINID);
+			tenantUserRoleAssignmentMapper.deleteTenantUserRoleAssignment(tenantId, Constant.ADMINID);
 			mapper.deleteTenant(tenantId);
 
 			session.commit();
