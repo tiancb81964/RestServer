@@ -8,27 +8,34 @@ import com.google.gson.JsonParser;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by gq on 17/7/19.
  */
 public class TestAuthenticator {
     Authenticator authenticator = Authenticator.getInstance();
+    static Logger logger = LoggerFactory.getLogger(TestAuthenticator.class.getName());
 
-    @Test
+
     public void testLoginWithUsernamePassword() {
         Assert.assertTrue(authenticator.loginWithUsernamePassword("u1","passw0rd"));
     }
-//    @Test
-//    public void testCacheLogin() {
-//        UsernamePasswordToken token = new UsernamePasswordToken("u3", "passw0rd");
-//        try {
-//            System.out.println(authenticator.cacheLogin(token));
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
 
+    @Test
+    public void testLoginWithToken() {
+        String username = "admin";
+        String password = "admin";
+        if (authenticator.loginWithUsernamePassword(username,password)) {
+            String token = authenticator.generateToken(username, password);
+            logger.info("login success. Token: " + token);
+            logger.info(authenticator.loginWithToken(token)?"success":"failed");
+        }
+        else {
+            logger.info("Invalid password.");
+        }
+    }
 
     @Test
     public void testGenerateTokenWithTTL() {

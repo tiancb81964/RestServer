@@ -36,8 +36,7 @@ public class DBConnectorFactory {
 			// remove classes/
 			// the path will be <tomcat home>/webapps/ocmanager/
 			// for unit test
-			// String propertiesFilePath = currentClassPath
-			// + "../ocmanager/WEB-INF/conf/mysql.properties";
+//			 String propertiesFilePath = currentClassPath + "../ocmanager/WEB-INF/conf/mysql.properties";
 			String propertiesFilePath = currentClassPath + "../conf/mysql.properties";
 
 			InputStream propInputStream = new FileInputStream(new File(propertiesFilePath));

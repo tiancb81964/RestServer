@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.asiainfo.ocmanager.auth.utils.CacheUtils;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -188,6 +189,7 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
+//			TODO: get createdUser from token in header
 			String createdUser = request.getHeader("username");
 			if (createdUser == null) {
 				return Response.status(Status.NOT_FOUND)
@@ -282,6 +284,7 @@ public class UserResource {
 
 			if (user.getCreatedUser().equals(loginUser)) {
 				UserPersistenceWrapper.deleteUser(userId);
+				CacheUtils.removeToken(userName);
 			} else {
 				return Response.status(Status.BAD_REQUEST)
 						.entity(new AdapterResponseBean("delete failed",
