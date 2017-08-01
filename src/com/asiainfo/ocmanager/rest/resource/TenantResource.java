@@ -32,7 +32,7 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
@@ -245,6 +245,13 @@ public class TenantResource {
 
 		if (tenant.getName() == null || tenant.getId() == null) {
 			return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
+		}
+
+		// if the tenant have the instances
+		// can NOT create chlid tenant
+		if (tenant.getParentId() != null && TenantResource.hasInstances(tenant.getParentId())) {
+			return Response.status(Status.FORBIDDEN)
+					.entity("The parent tenant have service instances, can NOT create child tenant.").build();
 		}
 
 		try {
@@ -533,7 +540,7 @@ public class TenantResource {
 			status.addProperty("patch", Constant.UPDATE);
 
 			logger.info("updateServiceInstanceInTenant -> update start");
-			AdapterResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
+			ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
 					serviceInstanceJson.toString());
 
 			String quota = null;
@@ -604,7 +611,7 @@ public class TenantResource {
 							String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
 							logger.debug("deleteServiceInstanceInTenant -> userName" + userName);
 							logger.info("deleteServiceInstanceInTenant -> begin to unbinding");
-							AdapterResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
+							ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
 									instanceName, userName);
 
 							if (unBindingRes.getResCodel() == 201) {
@@ -684,18 +691,16 @@ public class TenantResource {
 	public Response deleteTenant(@PathParam("id") String tenantId) {
 		try {
 			// if have instances can not be deleted
-			if (TenantResource.hasInstances(tenantId)){
+			if (TenantResource.hasInstances(tenantId)) {
 				return Response.status(Status.FORBIDDEN)
-						.entity("The tenant can not be deleted, because it have service instances on it.")
-						.build();
+						.entity("The tenant can not be deleted, because it have service instances on it.").build();
 			}
 			// if have users can not be deleted
-			if (TenantResource.hasUsers(tenantId)){
+			if (TenantResource.hasUsers(tenantId)) {
 				return Response.status(Status.FORBIDDEN)
-						.entity("The tenant can not be deleted, because it have users binding with it.")
-						.build();
+						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
-			
+
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
@@ -733,7 +738,6 @@ public class TenantResource {
 		}
 	}
 
-	
 	private static boolean hasInstances(String tenantId) {
 		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 		if (instances.size() > 0) {
@@ -741,8 +745,7 @@ public class TenantResource {
 		}
 		return false;
 	}
-	
-	
+
 	private static boolean hasUsers(String tenantId) {
 		List<UserRoleView> users = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
 		// if the user list == 1 and it is admin
@@ -758,8 +761,7 @@ public class TenantResource {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Assign role to user in tenant
 	 *
@@ -871,7 +873,7 @@ public class TenantResource {
 
 			TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenantId, userId);
 
-			return Response.ok().entity(new AdapterResponseBean("delete success", userId, 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("delete success", userId, 200)).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log

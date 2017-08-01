@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.SSOFakerUserBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 
@@ -53,7 +53,7 @@ public class SSOFakerResource {
 			// make sure the user name is set
 			if (http_x_proxy_cas_loginname == null) {
 				return Response.status(Status.BAD_REQUEST)
-						.entity(new AdapterResponseBean("Failed",
+						.entity(new ResourceResponseBean("Failed",
 								"Can not get sso user information, please make sure the user info is set.", 200))
 						.build();
 			} else {

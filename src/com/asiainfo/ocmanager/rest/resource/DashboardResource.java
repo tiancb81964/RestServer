@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Dashboard;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrapper;
 
 /**
@@ -83,7 +83,7 @@ public class DashboardResource {
 		try {
 			DashboardPersistenceWrapper.addLink(dashboard);
 
-			return Response.ok().entity(new AdapterResponseBean("successful", "Add successfully", 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("successful", "Add successfully", 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("addDashboardLink -> " + e.getMessage());
@@ -105,7 +105,7 @@ public class DashboardResource {
 			dashboard.setId(id);
 			DashboardPersistenceWrapper.updateLink(dashboard);
 
-			return Response.ok().entity(new AdapterResponseBean("successful", "Update successfully", 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("successful", "Update successfully", 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("updateDashboardLink -> " + e.getMessage());
@@ -126,7 +126,7 @@ public class DashboardResource {
 		try {
 			DashboardPersistenceWrapper.deleteLink(id);
 
-			return Response.ok().entity(new AdapterResponseBean("successful", "Delete successfully", 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("successful", "Delete successfully", 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("deleteDashboardLink -> " + e.getMessage());

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
@@ -114,7 +114,7 @@ public class TenantResourceAssignRoleExecutor implements Runnable {
 						status.addProperty("patch", Constant.UPDATE);
 
 						logger.info("assignRoleToUserInTenant -> begin to update");
-						AdapterResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
+						ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
 								instanceName, OCDPServiceInstanceJson.toString());
 
 						if (updateRes.getResCodel() == 200) {
@@ -123,7 +123,7 @@ public class TenantResourceAssignRoleExecutor implements Runnable {
 							logger.info(instanceName + "assignRoleToUserInTenant -> update complete");
 
 							logger.info(instanceName + "assignRoleToUserInTenant -> begin to binding");
-							AdapterResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
+							ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
 									instanceName, userName);
 							if (bindingRes.getResCodel() == 201) {
 								logger.info(instanceName + "assignRoleToUserInTenant -> binding successfully");
