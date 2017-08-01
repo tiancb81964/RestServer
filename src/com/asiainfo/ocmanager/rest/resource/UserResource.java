@@ -24,7 +24,7 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.User;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.AssignmentInfoBean;
 import com.asiainfo.ocmanager.rest.bean.PasswordBean;
 import com.asiainfo.ocmanager.rest.bean.UserRoleViewBean;
@@ -204,7 +204,7 @@ public class UserResource {
 				return Response.ok().entity(user).build();
 			} else {
 				return Response.status(Status.BAD_REQUEST)
-						.entity(new AdapterResponseBean("create failed",
+						.entity(new ResourceResponseBean("create failed",
 								"The user " + createdUser + " can not add user, because it is team member role.", 4003))
 						.build();
 			}
@@ -240,7 +240,7 @@ public class UserResource {
 				user = UserPersistenceWrapper.updateUser(user);
 				return Response.ok().entity(user).build();
 			} else {
-				return Response.status(Status.BAD_REQUEST).entity(new AdapterResponseBean("update failed",
+				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("update failed",
 						"Can not update the user: " + updateUser.getUsername() + ", it is created by user: "
 								+ updateUser.getCreatedUser() + ". please use the created user to update.",
 						4004)).build();
@@ -261,7 +261,7 @@ public class UserResource {
 		try {
 			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());
 			Authenticator.logout(userName);
-			return Response.ok().entity(new AdapterResponseBean("update user password success", userName, 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("update user password success", userName, 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("updateUserPassword -> " + e.getMessage());
@@ -295,13 +295,13 @@ public class UserResource {
 				Authenticator.logout(userName);
 			} else {
 				return Response.status(Status.BAD_REQUEST)
-						.entity(new AdapterResponseBean("delete failed",
+						.entity(new ResourceResponseBean("delete failed",
 								"Can not delete the user: " + user.getUsername() + ", it is created by user: "
 										+ user.getCreatedUser() + ". please use the created user to delete.",
 								4001))
 						.build();
 			}
-			return Response.ok().entity(new AdapterResponseBean("delete success", userId, 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("delete success", userId, 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("deleteUser -> " + e.getMessage());
@@ -317,7 +317,7 @@ public class UserResource {
 				tenants = tenants.substring(0, tenants.length() - 1);
 				return Response
 						.status(Status.BAD_REQUEST).entity(
-								new AdapterResponseBean("delete failed",
+								new ResourceResponseBean("delete failed",
 										"The user is assign with the tenants: [" + tenants
 												+ "], please unassign the user, then try to delete it again.",
 										4002))

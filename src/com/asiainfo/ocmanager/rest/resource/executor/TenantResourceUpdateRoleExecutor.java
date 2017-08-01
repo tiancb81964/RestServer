@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
@@ -86,7 +86,7 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 					String userName = UserPersistenceWrapper.getUserById(assignment.getUserId()).getUsername();
 
 					logger.info("updateRoleToUserInTenant -> begin to unbinding");
-					AdapterResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
+					ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
 							userName);
 
 					if (unBindingRes.getResCodel() == 201) {
@@ -121,7 +121,7 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 							status.addProperty("patch", Constant.UPDATE);
 
 							logger.info("updateRoleToUserInTenant -> begin to update");
-							AdapterResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
+							ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
 									instanceName, OCDPServiceInstanceJson.toString());
 
 							if (updateRes.getResCodel() == 200) {
@@ -131,7 +131,7 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 								logger.info("updateRoleToUserInTenant -> update compete");
 
 								logger.info("updateRoleToUserInTenant -> begin to binding");
-								AdapterResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
+								ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
 										instanceName, userName);
 								if (bindingRes.getResCodel() == 201) {
 									logger.info("updateRoleToUserInTenant -> binding successfully");

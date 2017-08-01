@@ -17,7 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.bean.AdapterResponseBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
@@ -41,7 +41,7 @@ public class TenantUtils {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static void watiInstanceUnBindingComplete(AdapterResponseBean unBindingRes, String tenantId,
+	public static void watiInstanceUnBindingComplete(ResourceResponseBean unBindingRes, String tenantId,
 			String instanceName) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
 			IOException, InterruptedException {
 
@@ -82,7 +82,7 @@ public class TenantUtils {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static void watiInstanceBindingComplete(AdapterResponseBean bindingRes, String tenantId, String instanceName)
+	public static void watiInstanceBindingComplete(ResourceResponseBean bindingRes, String tenantId, String instanceName)
 			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException,
 			InterruptedException {
 
@@ -123,7 +123,7 @@ public class TenantUtils {
 	 * @throws KeyStoreException
 	 * @throws IOException
 	 */
-	public static void watiInstanceUpdateComplete(AdapterResponseBean updateRes, String tenantId, String instanceName)
+	public static void watiInstanceUpdateComplete(ResourceResponseBean updateRes, String tenantId, String instanceName)
 			throws InterruptedException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
 			IOException {
 
@@ -154,7 +154,7 @@ public class TenantUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyStoreException
 	 */
-	public static AdapterResponseBean removeOCDPServiceCredentials(String tenantId, String instanceName,
+	public static ResourceResponseBean removeOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
@@ -191,7 +191,7 @@ public class TenantUtils {
 
 				String bodyStr = EntityUtils.toString(response2.getEntity());
 
-				return new AdapterResponseBean("", bodyStr, statusCode);
+				return new ResourceResponseBean("", bodyStr, statusCode);
 			} finally {
 				response2.close();
 			}
@@ -212,7 +212,7 @@ public class TenantUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyStoreException
 	 */
-	public static AdapterResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
+	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
@@ -249,7 +249,7 @@ public class TenantUtils {
 
 				String bodyStr = EntityUtils.toString(response2.getEntity());
 
-				return new AdapterResponseBean("", bodyStr, statusCode);
+				return new ResourceResponseBean("", bodyStr, statusCode);
 			} finally {
 				response2.close();
 			}
@@ -374,7 +374,7 @@ public class TenantUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyStoreException
 	 */
-	public static AdapterResponseBean updateTenantServiceInstanceInDf(String tenantId, String instanceName,
+	public static ResourceResponseBean updateTenantServiceInstanceInDf(String tenantId, String instanceName,
 			String reqBodyStr) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
@@ -400,7 +400,7 @@ public class TenantUtils {
 				int statusCode = response2.getStatusLine().getStatusCode();
 				String bodyStr = EntityUtils.toString(response2.getEntity());
 
-				return new AdapterResponseBean("", bodyStr, statusCode);
+				return new ResourceResponseBean("", bodyStr, statusCode);
 			} finally {
 				response2.close();
 			}
