@@ -53,8 +53,7 @@ public class AuthFilter implements Filter {
     }
 
     public boolean authenticate(String token) {
-        Authenticator authenticator = Authenticator.getInstance();
-        return authenticator.loginWithToken(token);
+        return Authenticator.loginWithToken(token);
     }
 
 }

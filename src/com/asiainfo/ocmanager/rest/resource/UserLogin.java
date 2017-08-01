@@ -28,11 +28,10 @@ public class UserLogin {
         try {
             JsonElement req = new JsonParser().parse(requestBody);
             JsonObject obj = req.getAsJsonObject();
-            Authenticator authenticator = Authenticator.getInstance();
             String username = obj.get("username").getAsString();
             String password = obj.get("password").getAsString();
-            if (authenticator.loginWithUsernamePassword(username,password)) {
-                String token = authenticator.generateToken(username,password);
+            if (Authenticator.loginWithUsernamePassword(username,password)) {
+                String token = Authenticator.generateToken(username,password);
                 logger.info("login success. Token: "+ token);
                 return Response.ok().entity(new LoginResponseBean("Login successful!", "Please add token in header of other requests.", 200, token)).build();
             } else {
@@ -55,8 +54,7 @@ public class UserLogin {
             if (!username.equals(token.split("_")[0])) {
                 throw new Exception("Username and token doesn't match!");
             }
-            Authenticator authenticator = Authenticator.getInstance();
-            authenticator.logout(token);
+            Authenticator.logout(username);
             logger.info("User [{}] logout successfully!",username);
             return Response.ok().entity(new LoginResponseBean("Logout successful!", null, 200, null)).build();
         }
