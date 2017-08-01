@@ -19,20 +19,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `ocmanager`.`platform_roles`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ocmanager`.`platform_roles` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL,
-  `description` MEDIUMTEXT NULL,
-  `permission` MEDIUMTEXT NULL,
-  `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `ocmanager`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ocmanager`.`users` (
@@ -44,15 +30,8 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`users` (
   `description` MEDIUMTEXT NULL,
   `createdUser` VARCHAR(64) NULL,
   `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  `platformRoleId` INT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `username_UNIQUE` (`username` ASC),
-  INDEX `fk_users_platform_roles1_idx` (`platformRoleId` ASC),
-  CONSTRAINT `fk_users_platform_roles1`
-    FOREIGN KEY (`platformRoleId`)
-    REFERENCES `ocmanager`.`platform_roles` (`id`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT)
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC))
 ENGINE = InnoDB;
 
 
@@ -178,10 +157,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Init the 4 roles into the table `ocmanager`.`roles`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create subsidiary and add users, assign role to user and add services.");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "project.admin", "project admin can add uses to the project and assign role to user.");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the project information that he is in.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create tenant and add users, assign role to user and add services.");
+-- INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "tenant.admin", "tenant admin can add uses to the tenant and assign role to user.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the tenant information that he is in.");
 
 
 -- -----------------------------------------------------
@@ -215,19 +194,10 @@ INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_i
 INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_id, ServicePermission) VALUES("kafka", "a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "publish,consume,configure,describe,create,delete,kafka_admin");
 
 
-
-
-
--- -----------------------------------------------------
--- Init platform roles in table `ocmanager`.`platform_roles`
--- -----------------------------------------------------
-INSERT INTO `ocmanager`.`platform_roles` (id, name, description, permission) VALUES(1, "platform.admin", "multi-tenants platform admin, has all the platform authorities.", "all");
-INSERT INTO `ocmanager`.`platform_roles` (id, name, description, permission) VALUES(2, "platform.user", "multi-tenants platform user, only has the platform view authority.", "read");
-
 -- -----------------------------------------------------
 -- Init the admin user into the table `ocmanager`.`users`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, description, platformRoleId) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", PASSWORD("admin"), "admin@admin.com", "admin phone number", "System Admin User", 1);
+INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, description, platformRoleId) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", PASSWORD("admin"), "admin@admin.com", "admin phone number", "System Admin User");
 
 -- -----------------------------------------------------
 -- Init the root tenant into `ocmanager`.`tenants`
