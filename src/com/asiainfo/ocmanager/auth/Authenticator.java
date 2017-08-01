@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.auth;
 import com.asiainfo.ocmanager.auth.utils.AESUtils;
+import com.asiainfo.ocmanager.auth.utils.CacheUtils;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -62,7 +63,7 @@ public class Authenticator {
         return isAuthcSuccess; //断言用户已经登录
     }
 
-    public static boolean loginWithToken(String Dtoken) {
+    public static boolean loginWithTokenParsed(String Dtoken) {
         String token = Dtoken;
         UsernamePasswordToken usernamePasswordToken;
         logger.info("Token: " + token);
@@ -91,10 +92,19 @@ public class Authenticator {
         return isAuthcSuccess;
     }
 
-    public static String generateToken(String username,String password) {
+    public static boolean loginWithToken(String token) {
+        return CacheUtils.isTokenInCache(token);
+    }
 
+    public static void logout(String token) {
+        CacheUtils.removeToken(token.split("_")[0]);
+    }
+
+    public static String generateToken(String username,String password) {
         String encryptPwd = AESUtils.encrypt(password,username);
         String token = username+"_"+encryptPwd;
+        CacheUtils.addToken(username,token);
+        logger.info("Add token [{}] in Cache.", token);
         return token;
 
     }
