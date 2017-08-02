@@ -2,9 +2,11 @@ package com.asiainfo.ocmanager.service.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -50,17 +52,17 @@ public class YarnClient {
 	 */
 	private String activeRM() {
 		CloseableHttpResponse rsp = null;
+		List<IOException> errors = new ArrayList<>();
 		for (String url : this.baseUrls) {
 			try {
 				rsp = httpClient.execute(new HttpGet(url + "/ws/v1/cluster/"));
 				if (rsp.getStatusLine().getStatusCode() == 200) {
 					return url;
 				}
-				System.out.println("WARN: ResourceManager return error: " + EntityUtils.toString(rsp.getEntity()));
-				throw new IOException("WARN: ResourceManager return error: " + EntityUtils.toString(rsp.getEntity()));
+				throw new IOException(
+						"ResourceManager connected but return error: " + EntityUtils.toString(rsp.getEntity()));
 			} catch (IOException e) {
-				System.out.println("WARN: Ping to ResourceManager failed: " + url);
-				e.printStackTrace();
+				errors.add(e);
 				continue;
 			} finally {
 				if (rsp != null) {
@@ -72,8 +74,17 @@ public class YarnClient {
 				}
 			}
 		}
-		System.out.println("ERROR: Both ResourceManager nodes unavailable: " + Arrays.asList(this.baseUrls));
+		printError(errors);
 		throw new RuntimeException("ERROR: Both ResourceManager nodes unavailable: " + Arrays.asList(this.baseUrls));
+	}
+
+	private void printError(List<IOException> errorInfos) {
+		System.out.println("ERROR: Both ResourceManager nodes unavailable: " + Arrays.asList(this.baseUrls)
+				+ ". Due to exceptions:");
+		Iterator<IOException> it = errorInfos.iterator();
+		while (it.hasNext()) {
+			it.next().printStackTrace();
+		}
 	}
 
 	/**
