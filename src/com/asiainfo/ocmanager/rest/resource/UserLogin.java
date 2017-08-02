@@ -30,7 +30,8 @@ public class UserLogin {
             JsonObject obj = req.getAsJsonObject();
             String username = obj.get("username").getAsString();
             String password = obj.get("password").getAsString();
-            if (Authenticator.loginWithUsernamePassword(username,password)) {
+            Authenticator authenticator = Authenticator.getInstance();
+            if (authenticator.loginWithUsernamePassword(username,password)) {
                 String token = Authenticator.generateToken(username,password);
                 logger.info("login success. Token: "+ token);
                 return Response.ok().entity(new LoginResponseBean("Login successful!", "Please add token in header of other requests.", 200, token)).build();
@@ -39,7 +40,8 @@ public class UserLogin {
                 return Response.ok().entity(new LoginResponseBean("Login failed!", "Invalid username or password.", 200, null)).build();
             }
         } catch (Exception e) {
-            logger.warn("Invalid parameter format!" + e.getMessage());
+            logger.warn("Exception during login: " + e.getMessage());
+            e.printStackTrace();
             return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
         }
     }

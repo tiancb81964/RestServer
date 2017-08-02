@@ -40,7 +40,7 @@ public class Authenticator {
     }
 
 
-    public static boolean loginWithUsernamePassword(String username, String password) {
+    public boolean loginWithUsernamePassword(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         logger.info("Try to login with Username Password: " + token.toString());
         try {
@@ -60,7 +60,7 @@ public class Authenticator {
         return isAuthcSuccess; //断言用户已经登录
     }
 
-    public static boolean loginWithTokenParsed(String Dtoken) {
+    public boolean loginWithTokenParsed(String Dtoken) {
         String token = Dtoken;
         UsernamePasswordToken usernamePasswordToken;
         logger.info("Token: " + token);

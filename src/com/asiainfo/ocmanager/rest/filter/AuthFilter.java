@@ -43,6 +43,7 @@ public class AuthFilter implements Filter {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                ((HttpServletResponse)servletResponse).sendError(403);
             }
         }
     }
