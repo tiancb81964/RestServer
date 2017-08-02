@@ -48,6 +48,10 @@ public class Constant {
 	public static final String ADMINID = "2ef26018-003d-4b2b-b786-0481d4ee9fa8";
 	public static final String ADMINROLEID = "a10170cb-524a-11e7-9dbb-fa163ed7d0ae";
 
+	public static final String ROOTTENANTID = "ae783b6d-655a-11e7-aa10-fa163ed7d0ae";
+	
+	public static final String SYSADMIN = "system.admin";
+
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/

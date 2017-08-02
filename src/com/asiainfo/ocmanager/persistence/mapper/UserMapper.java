@@ -49,6 +49,12 @@ public interface UserMapper {
 
 	/**
 	 * 
+	 * @param user
+	 */
+	public void updateUserByName(User user);
+
+	/**
+	 * 
 	 * @param userId
 	 * @param password
 	 */

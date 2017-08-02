@@ -140,6 +140,30 @@ public class UserPersistenceWrapper {
 
 	/**
 	 * 
+	 * @param user
+	 * @return
+	 */
+	public static User updateUserByName(User user) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			mapper.updateUserByName(user);
+
+			user = mapper.selectUserByName(user.getUsername());
+			session.commit();
+
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+
+		return user;
+	}
+
+	/**
+	 * 
 	 * @param userId
 	 * @param password
 	 */

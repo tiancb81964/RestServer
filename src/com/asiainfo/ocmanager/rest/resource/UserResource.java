@@ -18,6 +18,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
+
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -30,6 +32,7 @@ import com.asiainfo.ocmanager.rest.bean.PasswordBean;
 import com.asiainfo.ocmanager.rest.bean.UserRoleViewBean;
 import com.asiainfo.ocmanager.rest.bean.UserWithTURBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
@@ -169,6 +172,20 @@ public class UserResource {
 		}
 	}
 
+	@GET
+	@Path("{userName}")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getUserByName(@PathParam("userName") String userName) {
+		try {
+			User user = UserPersistenceWrapper.getUserByName(userName);
+			return Response.ok().entity(user == null ? new User() : user).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getUserById -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
 	/**
 	 * Create a new user
 	 *
@@ -181,33 +198,56 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
-//			TODO: get createdUser from token in header
-			String createdUser = request.getHeader("username");
-			if (createdUser == null) {
+			String token = request.getHeader("token");
+			if (token == null || token.isEmpty()) {
 				return Response.status(Status.NOT_FOUND)
-						.entity("Can not get the login user, please make sure the login user is pass to adapter.")
+						.entity(new ResourceResponseBean("create user failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
 						.build();
 			}
-
-			List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(createdUser);
-			boolean canCreateUser = false;
-			for (UserRoleView urv : urvs) {
-				if (Constant.canCreateUserList.contains(urv.getRoleName())) {
-					canCreateUser = true;
-					break;
-				}
-			}
-
-			if (canCreateUser) {
-				user.setCreatedUser(createdUser);
-				user = UserPersistenceWrapper.createUser(user);
-				return Response.ok().entity(user).build();
-			} else {
-				return Response.status(Status.BAD_REQUEST)
-						.entity(new ResourceResponseBean("create failed",
-								"The user " + createdUser + " can not add user, because it is team member role.", 4003))
+			
+			String loginUser = TokenPaserUtils.paserUserName(token);
+			
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, Constant.ROOTTENANTID);
+			
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))){
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("create user failed",
+								"the user is not system admin role, does NOT have the create user permission.",
+								ResponseCodeConstant.NO_PERMISSION))
 						.build();
 			}
+			
+			
+			// if (createdUser == null) {
+			// return Response.status(Status.NOT_FOUND)
+			// .entity("Can not get the login user, please make sure the login
+			// user is pass to adapter.")
+			// .build();
+			// }
+			//
+			// List<UserRoleView> urvs =
+			// UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(createdUser);
+			// boolean canCreateUser = false;
+			// for (UserRoleView urv : urvs) {
+			// if (Constant.canCreateUserList.contains(urv.getRoleName())) {
+			// canCreateUser = true;
+			// break;
+			// }
+			// }
+
+			// if (canCreateUser) {
+			// user.setCreatedUser(createdUser);
+			user = UserPersistenceWrapper.createUser(user);
+			return Response.ok().entity(user).build();
+			// } else {
+			// return Response.status(Status.BAD_REQUEST)
+			// .entity(new ResourceResponseBean("create failed",
+			// "The user " + createdUser + " can not add user, because it is
+			// team member role.", 4003))
+			// .build();
+			// }
 
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -224,27 +264,66 @@ public class UserResource {
 	 * @return updated user info
 	 */
 	@PUT
+	@Path("{userId}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateUser(User user, @Context HttpServletRequest request) {
+	public Response updateUserById(@PathParam("userId") String userId, User user, @Context HttpServletRequest request) {
 		try {
-			String loginUser = request.getHeader("username");
-			User updateUser = UserPersistenceWrapper.getUserById(user.getId());
+			// String loginUser = request.getHeader("username");
+			User updateUser = UserPersistenceWrapper.getUserById(userId);
 
 			if (updateUser == null) {
 				return Response.status(Status.NOT_FOUND).entity("The user " + user.getUsername() + "can not find.")
 						.build();
 			}
 
-			if (updateUser.getCreatedUser().equals(loginUser)) {
-				user = UserPersistenceWrapper.updateUser(user);
-				return Response.ok().entity(user).build();
-			} else {
-				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("update failed",
-						"Can not update the user: " + updateUser.getUsername() + ", it is created by user: "
-								+ updateUser.getCreatedUser() + ". please use the created user to update.",
-						4004)).build();
+			// if (updateUser.getCreatedUser().equals(loginUser)) {
+			user = UserPersistenceWrapper.updateUser(user);
+			return Response.ok().entity(user).build();
+			// } else {
+			// return Response.status(Status.BAD_REQUEST).entity(new
+			// ResourceResponseBean("update failed",
+			// "Can not update the user: " + updateUser.getUsername() + ", it is
+			// created by user: "
+			// + updateUser.getCreatedUser() + ". please use the created user to
+			// update.",
+			// 4004)).build();
+			// }
+
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("updateUser -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	@PUT
+	@Path("{userName}")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateUserByName(@PathParam("userName") String userName, User user,
+			@Context HttpServletRequest request) {
+		try {
+			// String loginUser = request.getHeader("username");
+			User updateUser = UserPersistenceWrapper.getUserByName(userName);
+
+			if (updateUser == null) {
+				return Response.status(Status.NOT_FOUND).entity("The user " + user.getUsername() + "can not find.")
+						.build();
 			}
+
+			// if (updateUser.getCreatedUser().equals(loginUser)) {
+			user = UserPersistenceWrapper.updateUser(user);
+			return Response.ok().entity(user).build();
+			// } else {
+			// return Response.status(Status.BAD_REQUEST).entity(new
+			// ResourceResponseBean("update failed",
+			// "Can not update the user: " + updateUser.getUsername() + ", it is
+			// created by user: "
+			// + updateUser.getCreatedUser() + ". please use the created user to
+			// update.",
+			// 4004)).build();
+			// }
 
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -261,7 +340,8 @@ public class UserResource {
 		try {
 			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());
 			Authenticator.logout(userName);
-			return Response.ok().entity(new ResourceResponseBean("update user password success", userName, 200)).build();
+			return Response.ok().entity(new ResourceResponseBean("update user password success", userName, 200))
+					.build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("updateUserPassword -> " + e.getMessage());
@@ -281,7 +361,7 @@ public class UserResource {
 	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
 		String userName = null;
 		try {
-			String loginUser = request.getHeader("username");
+			// String loginUser = request.getHeader("username");
 			User user = UserPersistenceWrapper.getUserById(userId);
 
 			if (user == null) {
@@ -290,17 +370,19 @@ public class UserResource {
 
 			userName = user.getUsername();
 
-			if (user.getCreatedUser().equals(loginUser)) {
-				UserPersistenceWrapper.deleteUser(userId);
-				Authenticator.logout(userName);
-			} else {
-				return Response.status(Status.BAD_REQUEST)
-						.entity(new ResourceResponseBean("delete failed",
-								"Can not delete the user: " + user.getUsername() + ", it is created by user: "
-										+ user.getCreatedUser() + ". please use the created user to delete.",
-								4001))
-						.build();
-			}
+			// if (user.getCreatedUser().equals(loginUser)) {
+			UserPersistenceWrapper.deleteUser(userId);
+			Authenticator.logout(userName);
+			// } else {
+			// return Response.status(Status.BAD_REQUEST)
+			// .entity(new ResourceResponseBean("delete failed",
+			// "Can not delete the user: " + user.getUsername() + ", it is
+			// created by user: "
+			// + user.getCreatedUser() + ". please use the created user to
+			// delete.",
+			// 4001))
+			// .build();
+			// }
 			return Response.ok().entity(new ResourceResponseBean("delete success", userId, 200)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
