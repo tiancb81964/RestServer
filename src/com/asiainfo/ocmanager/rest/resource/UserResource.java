@@ -270,7 +270,8 @@ public class UserResource {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
 					Constant.ROOTTENANTID);
 
-			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+			User currentUser = UserPersistenceWrapper.getUserById(userId);
+			if (!(loginUser.equals(currentUser.getUsername())) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
 				return Response.status(Status.FORBIDDEN)
 						.entity(new ResourceResponseBean("update user failed",
 								"the user is not system admin role, does NOT have the update user permission.",
@@ -311,7 +312,7 @@ public class UserResource {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
 					Constant.ROOTTENANTID);
 
-			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
 				return Response.status(Status.FORBIDDEN)
 						.entity(new ResourceResponseBean("update user failed",
 								"the user is not system admin role, does NOT have the update user permission.",

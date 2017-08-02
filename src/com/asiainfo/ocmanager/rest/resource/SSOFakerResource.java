@@ -27,7 +27,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceW
 @Path("/sso")
 public class SSOFakerResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(SSOFakerResource.class);
 
 	/**
 	 * Get the user name for web which CAS proxy set into the header

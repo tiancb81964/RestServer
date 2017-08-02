@@ -21,6 +21,9 @@ public class ResponseCodeConstant {
 	public final static int NO_UPDATE_USER_PASSWORD_PERMISSION = 4033;
 	public final static int NO_DELETE_USER_PERMISSION = 4034;
 	public final static int USER_CAN_NOT_DELETE = 4035;
+	// sb
+	public final static int NO_ADD_SERVICE_BROKER_PERMISSION = 4036;
+	public final static int NO_DELETE_SERVICE_BROKER_PERMISSION = 4037;
 	
 	public final static int USER_EXIST = 4091;
 	

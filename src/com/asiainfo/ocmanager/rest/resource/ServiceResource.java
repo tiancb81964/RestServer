@@ -7,12 +7,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -29,11 +31,16 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Service;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
+import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
@@ -49,7 +56,7 @@ import com.google.gson.JsonParser;
 @Path("/service")
 public class ServiceResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(ServiceResource.class);
 
 	/**
 	 * Get All OCManager services
@@ -136,9 +143,33 @@ public class ServiceResource {
 	@POST
 	@Path("/broker")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
-	public Response addServiceBroker(String reqBodyStr) {
+	public Response addServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
 
 		try {
+
+			String adToken = request.getHeader("token");
+			if (adToken == null || adToken.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("add service broker failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
+						.build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(adToken);
+			logger.debug("addServiceBroker -> add service broker with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("add service broker failed",
+								"the user is not system admin role, does NOT have the add service broker permission.",
+								ResponseCodeConstant.NO_ADD_SERVICE_BROKER_PERMISSION))
+						.build();
+			}
+
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/servicebrokers";
@@ -203,8 +234,33 @@ public class ServiceResource {
 	@DELETE
 	@Path("/broker/{name}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
-	public Response deleteServiceBroker(@PathParam("name") String serviceBrokerName) {
+	public Response deleteServiceBroker(@PathParam("name") String serviceBrokerName,
+			@Context HttpServletRequest request) {
 		try {
+
+			String adToken = request.getHeader("token");
+			if (adToken == null || adToken.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("delete service broker failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
+						.build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(adToken);
+			logger.debug("deleteServiceBroker -> delete service broker with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("delete service broker failed",
+								"the user is not system admin role, does NOT have the add service broker permission.",
+								ResponseCodeConstant.NO_DELETE_SERVICE_BROKER_PERMISSION))
+						.build();
+			}
+
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/servicebrokers/" + serviceBrokerName;
