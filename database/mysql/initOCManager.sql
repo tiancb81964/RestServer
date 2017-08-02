@@ -202,10 +202,12 @@ INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, descripti
 -- -----------------------------------------------------
 -- Init the root tenant into `ocmanager`.`tenants`
 -- -----------------------------------------------------
+INSERT INTO `ocmanager`.`tenants`(id, name, level, description) VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","root.tenant", 1, "root tenant");
 
 
 -- -----------------------------------------------------
 -- Init the admin user for root tenant into `ocmanager`.`tenants_users_roles_assignment`
 -- -----------------------------------------------------
+INSERT INTO `ocmanager`.`tenants_users_roles_assignment`(tenant_id, user_id, role_id) VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","2ef26018-003d-4b2b-b786-0481d4ee9fa8", "a10170cb-524a-11e7-9dbb-fa163ed7d0ae");
 
 

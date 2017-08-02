@@ -27,16 +27,25 @@
 		PASSWORD(#{password}), #{email}, #{phone}, #{description},
 		#{createdUser}, #{platformRoleId})
 	</insert>
-	<!-- update user -->
+	<!-- update user by id -->
 	<update id="updateUser" parameterType="com.asiainfo.ocmanager.persistence.model.User">
 		update users set
-		username = #{username},
 		email = #{email},
 		phone = #{phone},
 		description = #{description},
 		createdUser = #{createdUser},
 		platformRoleId = #{platformRoleId}
 		where id = #{id}
+	</update>
+	<!-- update user by name -->
+	<update id="updateUserByName" parameterType="com.asiainfo.ocmanager.persistence.model.User">
+		update users set
+		email = #{email},
+		phone = #{phone},
+		description = #{description},
+		createdUser = #{createdUser},
+		platformRoleId = #{platformRoleId}
+		where username = #{username}
 	</update>
 	<!-- update user password by id-->
 	<update id="updateUserPassword" parameterType="java.lang.String">
