@@ -39,6 +39,18 @@ __response__
 }
 ```
 
+### 注销登录
+```
+DELETE -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/login/username
+```
+__response__
+```
+{
+"resCode": 200,
+"status": "Logout successful!"
+}
+```
+
 ## 支持授权的REST API
 
  * 添加用户
