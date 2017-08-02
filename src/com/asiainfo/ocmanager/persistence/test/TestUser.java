@@ -20,12 +20,12 @@ public class TestUser {
 
 			System.out.println("=== Insert user ===");
 			mapper.insertUser(new User("user001", "username001", "password001", "email001", "phone001",
-					"description001", null, 2));
+					"description001", null));
 			session.commit();
 
 			System.out.println("=== Insert user again ===");
 			mapper.insertUser(new User("user201", "username201", "password201", "email201", "phone201",
-					"description201", null, 2));
+					"description201", null));
 			session.commit();
 
 			System.out.println("=== All users ===");
@@ -39,7 +39,7 @@ public class TestUser {
 			System.out.println(user1.toString());
 
 			System.out.println("=== Update user ===");
-			mapper.updateUser(new User("user001", "username002", "email002", "phone002", "description002", null, 1));
+			mapper.updateUser(new User("user001", "username002", "email002", "phone002", "description002", null));
 			session.commit();
 
 			System.out.println("=== Get User by id ===");
@@ -51,7 +51,7 @@ public class TestUser {
 			session.commit();
 
 			System.out.println("=== Get User by name ===");
-			User user3 = mapper.selectUserByName("username002");
+			User user3 = mapper.selectUserByName("username001");
 			System.out.println(user3.toString());
 
 			System.out.println("=== Update user password by name ===");

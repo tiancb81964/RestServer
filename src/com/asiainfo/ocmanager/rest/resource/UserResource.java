@@ -56,7 +56,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 @Path("/user")
 public class UserResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(UserResource.class);
 
 	/**
 	 * Get All OCManager users with tenants
@@ -159,7 +159,7 @@ public class UserResource {
 	 * @return user
 	 */
 	@GET
-	@Path("{id}")
+	@Path("id/{id}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getUserById(@PathParam("id") String userId) {
 		try {
@@ -173,7 +173,7 @@ public class UserResource {
 	}
 
 	@GET
-	@Path("{userName}")
+	@Path("name/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getUserByName(@PathParam("userName") String userName) {
 		try {
@@ -206,53 +206,39 @@ public class UserResource {
 								ResponseCodeConstant.EMPTY_TOKEN))
 						.build();
 			}
-			
+
 			String loginUser = TokenPaserUtils.paserUserName(token);
-			
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, Constant.ROOTTENANTID);
-			
-			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))){
+			logger.debug("createUser -> create user with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
 				return Response.status(Status.FORBIDDEN)
 						.entity(new ResourceResponseBean("create user failed",
 								"the user is not system admin role, does NOT have the create user permission.",
-								ResponseCodeConstant.NO_PERMISSION))
+								ResponseCodeConstant.NO_CREATE_USER_PERMISSION))
 						.build();
 			}
-			
-			
-			// if (createdUser == null) {
-			// return Response.status(Status.NOT_FOUND)
-			// .entity("Can not get the login user, please make sure the login
-			// user is pass to adapter.")
-			// .build();
-			// }
-			//
-			// List<UserRoleView> urvs =
-			// UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(createdUser);
-			// boolean canCreateUser = false;
-			// for (UserRoleView urv : urvs) {
-			// if (Constant.canCreateUserList.contains(urv.getRoleName())) {
-			// canCreateUser = true;
-			// break;
-			// }
-			// }
 
-			// if (canCreateUser) {
-			// user.setCreatedUser(createdUser);
 			user = UserPersistenceWrapper.createUser(user);
 			return Response.ok().entity(user).build();
-			// } else {
-			// return Response.status(Status.BAD_REQUEST)
-			// .entity(new ResourceResponseBean("create failed",
-			// "The user " + createdUser + " can not add user, because it is
-			// team member role.", 4003))
-			// .build();
-			// }
 
 		} catch (Exception e) {
+			if (e.getCause() instanceof MySQLIntegrityConstraintViolationException) {
+				MySQLIntegrityConstraintViolationException newExp = (MySQLIntegrityConstraintViolationException) e
+						.getCause();
+				if (newExp.getErrorCode() == 1062) {
+					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("create user failed",
+							"the user" + user.getUsername() + "is already existed", ResponseCodeConstant.USER_EXIST))
+							.build();
+				}
+			}
+
 			// system out the exception into the console log
 			logger.info("createUser -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+
 		}
 	}
 
@@ -264,70 +250,82 @@ public class UserResource {
 	 * @return updated user info
 	 */
 	@PUT
-	@Path("{userId}")
+	@Path("id/{userId}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateUserById(@PathParam("userId") String userId, User user, @Context HttpServletRequest request) {
 		try {
-			// String loginUser = request.getHeader("username");
-			User updateUser = UserPersistenceWrapper.getUserById(userId);
-
-			if (updateUser == null) {
-				return Response.status(Status.NOT_FOUND).entity("The user " + user.getUsername() + "can not find.")
+			String token = request.getHeader("token");
+			if (token == null || token.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("update user failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
 						.build();
 			}
 
-			// if (updateUser.getCreatedUser().equals(loginUser)) {
+			String loginUser = TokenPaserUtils.paserUserName(token);
+			logger.debug("updateUserById -> update user with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("update user failed",
+								"the user is not system admin role, does NOT have the update user permission.",
+								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+						.build();
+			}
+
+			user.setId(userId);
 			user = UserPersistenceWrapper.updateUser(user);
 			return Response.ok().entity(user).build();
-			// } else {
-			// return Response.status(Status.BAD_REQUEST).entity(new
-			// ResourceResponseBean("update failed",
-			// "Can not update the user: " + updateUser.getUsername() + ", it is
-			// created by user: "
-			// + updateUser.getCreatedUser() + ". please use the created user to
-			// update.",
-			// 4004)).build();
-			// }
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateUser -> " + e.getMessage());
+			logger.info("updateUserById -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
 	@PUT
-	@Path("{userName}")
+	@Path("name/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateUserByName(@PathParam("userName") String userName, User user,
 			@Context HttpServletRequest request) {
 		try {
-			// String loginUser = request.getHeader("username");
-			User updateUser = UserPersistenceWrapper.getUserByName(userName);
-
-			if (updateUser == null) {
-				return Response.status(Status.NOT_FOUND).entity("The user " + user.getUsername() + "can not find.")
+			String token = request.getHeader("token");
+			if (token == null || token.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("update user failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
 						.build();
 			}
 
-			// if (updateUser.getCreatedUser().equals(loginUser)) {
+			String loginUser = TokenPaserUtils.paserUserName(token);
+			logger.debug("updateUserByName -> update user with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("update user failed",
+								"the user is not system admin role, does NOT have the update user permission.",
+								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+						.build();
+			}
+
+			user.setUsername(userName);
 			user = UserPersistenceWrapper.updateUser(user);
 			return Response.ok().entity(user).build();
-			// } else {
-			// return Response.status(Status.BAD_REQUEST).entity(new
-			// ResourceResponseBean("update failed",
-			// "Can not update the user: " + updateUser.getUsername() + ", it is
-			// created by user: "
-			// + updateUser.getCreatedUser() + ". please use the created user to
-			// update.",
-			// 4004)).build();
-			// }
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateUser -> " + e.getMessage());
+			logger.info("updateUserByName -> " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -336,11 +334,37 @@ public class UserResource {
 	@Path("{userName}/password")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password) {
+	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password,
+			@Context HttpServletRequest request) {
 		try {
+
+			String token = request.getHeader("token");
+			if (token == null || token.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("update user password failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
+						.build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(token);
+			logger.debug("updateUserPassword -> update user password with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("update user password failed",
+								"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
+								ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION))
+						.build();
+			}
+
 			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());
 			Authenticator.logout(userName);
-			return Response.ok().entity(new ResourceResponseBean("update user password success", userName, 200))
+			return Response.ok().entity(
+					new ResourceResponseBean("update user password success", userName, ResponseCodeConstant.SUCCESS))
 					.build();
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -361,50 +385,63 @@ public class UserResource {
 	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
 		String userName = null;
 		try {
-			// String loginUser = request.getHeader("username");
+
+			String token = request.getHeader("token");
+			if (token == null || token.isEmpty()) {
+				return Response.status(Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("delete user failed",
+								"token is null or empty, please check the token in request header.",
+								ResponseCodeConstant.EMPTY_TOKEN))
+						.build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(token);
+			logger.debug("deleteUser -> delete user with login user: " + loginUser);
+
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+					Constant.ROOTTENANTID);
+
+			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("delete user failed",
+								"the user is not system admin role, does NOT have the delete user permission.",
+								ResponseCodeConstant.NO_DELETE_USER_PERMISSION))
+						.build();
+			}
+
 			User user = UserPersistenceWrapper.getUserById(userId);
 
 			if (user == null) {
-				return Response.status(Status.NOT_FOUND).entity("The user " + userId + "can not find.").build();
+				return Response.status(Status.NOT_FOUND).entity(new ResourceResponseBean("delete user failed",
+						"The user " + userId + "can not find.", ResponseCodeConstant.USER_NOT_FOUND)).build();
 			}
 
 			userName = user.getUsername();
 
-			// if (user.getCreatedUser().equals(loginUser)) {
 			UserPersistenceWrapper.deleteUser(userId);
 			Authenticator.logout(userName);
-			// } else {
-			// return Response.status(Status.BAD_REQUEST)
-			// .entity(new ResourceResponseBean("delete failed",
-			// "Can not delete the user: " + user.getUsername() + ", it is
-			// created by user: "
-			// + user.getCreatedUser() + ". please use the created user to
-			// delete.",
-			// 4001))
-			// .build();
-			// }
-			return Response.ok().entity(new ResourceResponseBean("delete success", userId, 200)).build();
+
+			return Response.ok()
+					.entity(new ResourceResponseBean("delete user success", userId, ResponseCodeConstant.SUCCESS))
+					.build();
+
 		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.info("deleteUser -> " + e.getMessage());
-
 			if (e.getCause() instanceof MySQLIntegrityConstraintViolationException) {
-
 				List<UserRoleView> urvs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserName(userName);
 
-				String tenants = "";
+				StringBuilder tenants = new StringBuilder();
 				for (UserRoleView t : urvs) {
-					tenants = tenants + t.getTenantName() + ",";
+					tenants.append(t.getTenantName()).append(",");
 				}
-				tenants = tenants.substring(0, tenants.length() - 1);
-				return Response
-						.status(Status.BAD_REQUEST).entity(
-								new ResourceResponseBean("delete failed",
-										"The user is assign with the tenants: [" + tenants
-												+ "], please unassign the user, then try to delete it again.",
-										4002))
+				return Response.status(Status.FORBIDDEN)
+						.entity(new ResourceResponseBean("delete user failed",
+								"The user is assign with the tenants: [" + tenants.toString()
+										+ "], please unassign the user, then try to delete it again.",
+								ResponseCodeConstant.USER_CAN_NOT_DELETE))
 						.build();
 			} else {
+				// system out the exception into the console log
+				logger.info("deleteUser -> " + e.getMessage());
 				return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 			}
 		}
