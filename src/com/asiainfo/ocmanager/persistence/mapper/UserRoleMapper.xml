@@ -26,6 +26,7 @@
 			U.id as "userId",
 			U.username as "userName",
 			TUR.role_id as "roleId",
+			R.rolename as "roleName",
 			TUR.tenant_id as "tenantId",
 			R.permission as "permission"
 			from

@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`roles` (
   `id` VARCHAR(64) NOT NULL,
   `rolename` VARCHAR(64) NOT NULL,
   `description` MEDIUMTEXT NULL,
+  `permission` MEDIUMTEXT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -153,14 +154,13 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`dashboard` (
 ENGINE = InnoDB;
 
 
-
 -- -----------------------------------------------------
 -- Init the 4 roles into the table `ocmanager`.`roles`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create tenant and add users, assign role to user and add services.");
--- INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "tenant.admin", "tenant admin can add uses to the tenant and assign role to user.");
-INSERT INTO `ocmanager`.`roles`(id, rolename, description) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the tenant information that he is in.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a10170cb-524a-11e7-9dbb-fa163ed7d0ae", "system.admin", "system admin is super user, it can create tenant and add users, assign role to user and add services.", "{createUser: true, updateUser: true, deleteUser: true, addService: true, deleteService: true, grant: true}");
+-- INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a1149421-524a-11e7-9dbb-fa163ed7d0ae", "subsidiary.admin", "subsidiary admin create project, add users and assign role to user.");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a12a84d0-524a-11e7-9dbb-fa163ed7d0ae", "tenant.admin", "tenant admin can add uses to the tenant and assign role to user.", "{grant: true}");
+INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a13dd087-524a-11e7-9dbb-fa163ed7d0ae", "team.member", "the user only can read the tenant information that he is in.", "{}");
 
 
 -- -----------------------------------------------------
@@ -197,7 +197,7 @@ INSERT INTO `ocmanager`.`services_roles_permission` (service_servicename, role_i
 -- -----------------------------------------------------
 -- Init the admin user into the table `ocmanager`.`users`
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, description, platformRoleId) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", PASSWORD("admin"), "admin@admin.com", "admin phone number", "System Admin User");
+INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, description) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa8", "admin", PASSWORD("admin"), "admin@admin.com", "admin phone number", "System Admin User");
 
 -- -----------------------------------------------------
 -- Init the root tenant into `ocmanager`.`tenants`

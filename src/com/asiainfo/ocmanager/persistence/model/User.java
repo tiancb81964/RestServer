@@ -14,7 +14,6 @@ public class User {
 	private String description;
 	private String createdUser;
 	private String createTime;
-	private int platformRoleId;
 
 	// TODO should use builder designer
 	public User() {
@@ -50,7 +49,6 @@ public class User {
 		this.phone = phone;
 		this.description = description;
 		this.createdUser = createdUser;
-		this.platformRoleId = platformRoleId;
 	}
 
 	// create user
@@ -63,7 +61,6 @@ public class User {
 		this.phone = phone;
 		this.description = description;
 		this.createdUser = createdUser;
-		this.platformRoleId = platformRoleId;
 	}
 
 	public String getId() {
@@ -130,19 +127,11 @@ public class User {
 		this.createTime = createTime;
 	}
 
-	public int getPlatformRoleId() {
-		return platformRoleId;
-	}
-
-	public void setPlatformRoleId(int platformRoleId) {
-		this.platformRoleId = platformRoleId;
-	}
-
 	@Override
 	public String toString() {
 		return "User:{id: " + id + " username: " + username + " password: " + password + " email: " + email + " phone: "
 				+ phone + " description: " + description + " createdUser: " + createdUser + " createTime: " + createTime
-				+ " platformRoleId: " + platformRoleId + "}";
+				+ "}";
 	}
 
 }
