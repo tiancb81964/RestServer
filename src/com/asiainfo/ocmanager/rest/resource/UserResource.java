@@ -214,7 +214,7 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("create user failed",
 								"the user is not system admin role, does NOT have the create user permission.",
 								ResponseCodeConstant.NO_CREATE_USER_PERMISSION))
@@ -272,7 +272,7 @@ public class UserResource {
 
 			User currentUser = UserPersistenceWrapper.getUserById(userId);
 			if (!(loginUser.equals(currentUser.getUsername())) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"the user is not system admin role, does NOT have the update user permission.",
 								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
@@ -313,7 +313,7 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"the user is not system admin role, does NOT have the update user permission.",
 								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
@@ -355,7 +355,7 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user password failed",
 								"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
 								ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION))
@@ -403,7 +403,7 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("delete user failed",
 								"the user is not system admin role, does NOT have the delete user permission.",
 								ResponseCodeConstant.NO_DELETE_USER_PERMISSION))
@@ -434,7 +434,7 @@ public class UserResource {
 				for (UserRoleView t : urvs) {
 					tenants.append(t.getTenantName()).append(",");
 				}
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("delete user failed",
 								"The user is assign with the tenants: [" + tenants.toString()
 										+ "], please unassign the user, then try to delete it again.",
