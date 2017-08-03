@@ -7,6 +7,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
 import org.slf4j.Logger;
@@ -41,6 +42,11 @@ public class Authenticator {
 
 
     public boolean loginWithUsernamePassword(String username, String password) {
+        Session session = subject.getSession(false);
+        if (session!=null) {
+            session.stop();
+        }
+        subject.getSession();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         logger.info("Try to login with Username Password: " + token.toString());
         try {
