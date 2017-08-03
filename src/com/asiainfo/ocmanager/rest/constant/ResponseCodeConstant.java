@@ -16,14 +16,14 @@ public class ResponseCodeConstant {
 	public final static int EMPTY_TOKEN = 4001;
 	
 	// user
-	public final static int NO_CREATE_USER_PERMISSION = 4031;
-	public final static int NO_UPDATE_USER_PERMISSION = 4032;
-	public final static int NO_UPDATE_USER_PASSWORD_PERMISSION = 4033;
-	public final static int NO_DELETE_USER_PERMISSION = 4034;
-	public final static int USER_CAN_NOT_DELETE = 4035;
+	public final static int NO_CREATE_USER_PERMISSION = 4011;
+	public final static int NO_UPDATE_USER_PERMISSION = 4012;
+	public final static int NO_UPDATE_USER_PASSWORD_PERMISSION = 4013;
+	public final static int NO_DELETE_USER_PERMISSION = 4014;
+	public final static int USER_CAN_NOT_DELETE = 4015;
 	// sb
-	public final static int NO_ADD_SERVICE_BROKER_PERMISSION = 4036;
-	public final static int NO_DELETE_SERVICE_BROKER_PERMISSION = 4037;
+	public final static int NO_ADD_SERVICE_BROKER_PERMISSION = 4016;
+	public final static int NO_DELETE_SERVICE_BROKER_PERMISSION = 4017;
 	
 	public final static int USER_EXIST = 4091;
 	
