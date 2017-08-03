@@ -76,18 +76,18 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 					// unbinding
 					// to do
 					// so here not need to call update
-					logger.info("unassignRoleFromUserInTenant -> begin to unbinding");
+					logger.info("TenantResourceUnAssignRoleExecutor -> begin to unbinding");
 					ResourceResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
 							UserPersistenceWrapper.getUserById(userId).getUsername());
 
 					if (bindingRes.getResCodel() == 201) {
-						logger.info("unassignRoleFromUserInTenant -> unbinding successfully");
+						logger.info("TenantResourceUnAssignRoleExecutor -> unbinding successfully");
 					}
 				}
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("assignRoleToUserInTenant -> " + e.getMessage());
+			logger.info("TenantResourceUnAssignRoleExecutor -> " + e.getMessage());
 
 		}
 	}
