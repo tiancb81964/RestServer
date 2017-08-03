@@ -29,7 +29,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrap
 @Path("/dashboard")
 public class DashboardResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(DashboardResource.class);
 
 	/**
 	 * 

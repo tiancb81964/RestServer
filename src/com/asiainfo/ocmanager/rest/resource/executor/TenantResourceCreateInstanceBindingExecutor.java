@@ -8,7 +8,6 @@ import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
@@ -18,7 +17,7 @@ import com.google.gson.JsonParser;
 
 public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(TenantResourceCreateInstanceBindingExecutor.class);
 
 	private String tenantId;
 	private String serviceName;

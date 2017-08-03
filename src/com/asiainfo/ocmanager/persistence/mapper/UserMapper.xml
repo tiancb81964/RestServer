@@ -22,10 +22,10 @@
 	<insert id="insertUser" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.User">
 		insert into users (id, username, password, email, phone,
-		description, createdUser, platformRoleId)
+		description, createdUser)
 		values (#{id}, #{username},
 		PASSWORD(#{password}), #{email}, #{phone}, #{description},
-		#{createdUser}, #{platformRoleId})
+		#{createdUser})
 	</insert>
 	<!-- update user by id -->
 	<update id="updateUser" parameterType="com.asiainfo.ocmanager.persistence.model.User">
@@ -33,8 +33,7 @@
 		email = #{email},
 		phone = #{phone},
 		description = #{description},
-		createdUser = #{createdUser},
-		platformRoleId = #{platformRoleId}
+		createdUser = #{createdUser}
 		where id = #{id}
 	</update>
 	<!-- update user by name -->
@@ -43,8 +42,7 @@
 		email = #{email},
 		phone = #{phone},
 		description = #{description},
-		createdUser = #{createdUser},
-		platformRoleId = #{platformRoleId}
+		createdUser = #{createdUser}
 		where username = #{username}
 	</update>
 	<!-- update user password by id-->
