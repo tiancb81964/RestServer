@@ -23,7 +23,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.RolePersistenceWrapper;
 @Path("/role")
 public class RoleResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = Logger.getLogger(RoleResource.class);
 
 	/**
 	 * Get All OCManager roles
