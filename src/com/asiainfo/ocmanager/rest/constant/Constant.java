@@ -51,14 +51,14 @@ public class Constant {
 	public static final String ROOTTENANTID = "ae783b6d-655a-11e7-aa10-fa163ed7d0ae";
 	
 	public static final String SYSADMIN = "system.admin";
+	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
+	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
+	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
 
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/
-	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
+	public static final String SHIROINIPATH = "classpath:shiroLdap.ini";
 	public static final Long AUTHTOKENTTL = new Long(60 * 60 * 1000);
-	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
-	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
-	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
 
 }
