@@ -145,11 +145,6 @@ public class UserResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response getUsers() {
 		try {
-			String type = ServerConfiguration.getConf().getProperty(Constant.AUTHTYPE);
-			if (type != null && type.equals("ldap")) {
-				List<User> users = getLdapUsers();
-				return Response.ok().entity(users).build();
-			}
 			List<User> users = UserPersistenceWrapper.getUsers();
 			return Response.ok().entity(users).build();
 		} catch (Exception e) {
@@ -158,9 +153,24 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
-
-	private List<User> getLdapUsers() {
-		return LdapUtils.transform(LdapWrapper.allUsers());
+	
+	/**
+	 * Get All OCManager users
+	 *
+	 * @return user list
+	 */
+	@GET
+	@Path("ldap")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response listLdapUsers() {
+		try {
+			List<String> users = LdapWrapper.allUsers();
+			return Response.ok().entity(users).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("getUsers -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
 	}
 
 	/**
