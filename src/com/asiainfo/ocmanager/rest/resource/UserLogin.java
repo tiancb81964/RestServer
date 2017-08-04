@@ -30,7 +30,7 @@ public class UserLogin {
             JsonObject obj = req.getAsJsonObject();
             String username = obj.get("username").getAsString();
             String password = obj.get("password").getAsString();
-            Authenticator authenticator = Authenticator.getInstance();
+            Authenticator authenticator = new Authenticator();
             if (authenticator.loginWithUsernamePassword(username,password)) {
                 String token = Authenticator.generateToken(username,password);
                 logger.info("login success. Token: "+ token);
