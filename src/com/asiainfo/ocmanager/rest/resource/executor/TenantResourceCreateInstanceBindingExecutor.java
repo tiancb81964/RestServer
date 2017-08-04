@@ -10,6 +10,7 @@ import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceRolePermissionWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -71,31 +72,35 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 							.getAsJsonObject("provisioning");
 
 					provisioning.getAsJsonObject("parameters").addProperty("user_name", u.getUserName());
-					logger.debug("createServiceInstanceInTenant -> permission.getServicePermission(): "
+					logger.debug("TenantResourceCreateInstanceBindingExecutor -> permission.getServicePermission(): "
 							+ permission.getServicePermission());
 					provisioning.getAsJsonObject("parameters").addProperty("accesses",
 							permission.getServicePermission());
 					JsonObject status = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("status");
 					status.addProperty("patch", Constant.UPDATE);
 
-					logger.info("createServiceInstanceInTenant -> begin update service instance");
-					ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
-							instanceName, OCDPServiceInstanceJson.toString());
+					logger.info("TenantResourceCreateInstanceBindingExecutor -> begin update service instance");
+					ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
+							OCDPServiceInstanceJson.toString());
 
 					if (updateRes.getResCodel() == 200) {
 
-						logger.info("createServiceInstanceInTenant -> wait update complete");
+						logger.info("TenantResourceCreateInstanceBindingExecutor -> wait update complete");
 						TenantUtils.watiInstanceUpdateComplete(updateRes, tenantId, instanceName);
-						logger.info("createServiceInstanceInTenant -> update complete");
+						logger.info("TenantResourceCreateInstanceBindingExecutor -> update complete");
 
-						logger.info("createServiceInstanceInTenant -> begin to binding");
-						ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
-								instanceName, u.getUserName());
+						JsonElement patch = TenantJsonParserUtils.getPatchString(tenantId, instanceName);
+						// only update success, then do binding
+						if (patch == null) {
+							logger.info("TenantResourceCreateInstanceBindingExecutor -> begin to binding");
+							ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
+									instanceName, u.getUserName());
 
-						if (bindingRes.getResCodel() == 201) {
-							logger.info("createServiceInstanceInTenant -> wait binding complete");
-							TenantUtils.watiInstanceBindingComplete(bindingRes, tenantId, instanceName);
-							logger.info("createServiceInstanceInTenant -> binding complete");
+							if (bindingRes.getResCodel() == 201) {
+								logger.info("TenantResourceCreateInstanceBindingExecutor -> wait binding complete");
+								TenantUtils.watiInstanceBindingComplete(bindingRes, tenantId, instanceName);
+								logger.info("TenantResourceCreateInstanceBindingExecutor -> binding complete");
+							}
 						}
 					}
 				}
@@ -103,7 +108,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("assignRoleToUserInTenant -> " + e.getMessage());
+			logger.info("TenantResourceCreateInstanceBindingExecutor -> " + e.getMessage());
 
 		}
 	}

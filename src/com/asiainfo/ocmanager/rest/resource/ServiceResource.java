@@ -163,7 +163,7 @@ public class ServiceResource {
 					Constant.ROOTTENANTID);
 
 			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("add service broker failed",
 								"the user is not system admin role, does NOT have the add service broker permission.",
 								ResponseCodeConstant.NO_ADD_SERVICE_BROKER_PERMISSION))
@@ -254,7 +254,7 @@ public class ServiceResource {
 					Constant.ROOTTENANTID);
 
 			if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("delete service broker failed",
 								"the user is not system admin role, does NOT have the add service broker permission.",
 								ResponseCodeConstant.NO_DELETE_SERVICE_BROKER_PERMISSION))
