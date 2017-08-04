@@ -15,12 +15,15 @@ import org.slf4j.LoggerFactory;
  * Created by gq on 17/7/19.
  */
 public class TestAuthenticator {
-    Authenticator authenticator = Authenticator.getInstance();
+    Authenticator authenticator = new Authenticator();
     static Logger logger = LoggerFactory.getLogger(TestAuthenticator.class.getName());
 
-
+    @Test
     public void testLoginWithUsernamePassword() {
-        Assert.assertTrue(authenticator.loginWithUsernamePassword("u1","passw0rd"));
+        authenticator.loginWithUsernamePassword("admin","admin");
+        authenticator.loginWithUsernamePassword("admin","admin1");
+        authenticator.loginWithUsernamePassword("admin","admin");
+
     }
 
     @Test

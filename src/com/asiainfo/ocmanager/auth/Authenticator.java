@@ -20,39 +20,23 @@ import java.util.Date;
  */
 public class Authenticator {
     static Logger logger = LoggerFactory.getLogger(Authenticator.class.getName());
-    private static boolean isAuthcSuccess = false;
-    private static Subject subject;
-    private static SecurityManager securityManager;
-
-    private static class SingletonHolder {
-        private static final Authenticator INSTANCE = new Authenticator();
-    }
-
-    private Authenticator (){
-        String shiroConfig = Constant.SHIROINIPATH;
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory(shiroConfig);
-        securityManager = factory.getInstance();
-        SecurityUtils.setSecurityManager(securityManager);
-        subject = SecurityUtils.getSubject();
-    }
-
-    public static final Authenticator getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
 
     public boolean loginWithUsernamePassword(String username, String password) {
-        Session session = subject.getSession(false);
-        if (session!=null) {
-            session.stop();
-        }
-        subject.getSession();
+        boolean isAuthcSuccess;
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATH);
+        SecurityManager securityManager = factory.getInstance();
+        SecurityUtils.setSecurityManager(securityManager);
+        Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         logger.info("Try to login with Username Password: " + token.toString());
+        Session session=subject.getSession();
+        logger.info("Session Id: [{}], Timeout : [{}]",session.getId(),String.valueOf(session.getTimeout()));
+
         try {
             subject.login(token);
         } catch (AuthenticationException e) {
             logger.warn("Auth failed!"+ e.getMessage());
+            session.stop();
 //            e.printStackTrace();
             return false;
         }
@@ -63,10 +47,17 @@ public class Authenticator {
             logger.info("Authenticated Failed");
             isAuthcSuccess = false;
         }
-        return isAuthcSuccess; //断言用户已经登录
+        logger.info("Session Id: [{}], Timeout : [{}]",subject.getSession().getId(),String.valueOf(subject.getSession().getTimeout()));
+        subject.logout();
+        return isAuthcSuccess;
     }
 
     public boolean loginWithTokenParsed(String Dtoken) {
+        boolean isAuthcSuccess;
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATH);
+        SecurityManager securityManager = factory.getInstance();
+        SecurityUtils.setSecurityManager(securityManager);
+        Subject subject = SecurityUtils.getSubject();
         String token = Dtoken;
         UsernamePasswordToken usernamePasswordToken;
         logger.info("Token: " + token);
@@ -92,6 +83,7 @@ public class Authenticator {
             logger.info("Authenticated Failed");
             isAuthcSuccess = false;
         }
+        subject.logout();
         return isAuthcSuccess;
     }
 
