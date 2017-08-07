@@ -28,4 +28,7 @@ public class ResponseCodeConstant {
 	public final static int USER_EXIST = 4091;
 	
 	public final static int USER_NOT_FOUND = 4041;
+	// tenant
+	public final static int NO_PERMISSION_ON_TENANT = 4015;
+
 }

@@ -264,7 +264,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -376,7 +376,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -533,7 +533,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -640,7 +640,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -758,7 +758,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -856,7 +856,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -910,7 +910,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
@@ -963,7 +963,7 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 						.build();
 			}
 
