@@ -52,8 +52,8 @@ public class LdapWrapper {
 	private static void initClz() {
 		InputStream inputStream = null;
 		try {
-			String base = LdapWrapper.class.getResource("/").getPath();
-			String confpath = base + "ldap.properties";
+			String base = LdapWrapper.class.getResource("/").getPath() + ".." + File.separator;
+			String confpath = base + "conf" + File.separator + "ldap.properties";
 			inputStream = new FileInputStream(new File(confpath));
 			props = new Properties();
 			props.load(inputStream);
