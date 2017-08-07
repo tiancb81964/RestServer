@@ -11,6 +11,7 @@ public class ResponseCodeConstant {
 	/*****************************************************************/
 	// common
 	public final static int SUCCESS = 200;
+	public final static int FORBIDDEN = 403;
 	
 	// token
 	public final static int EMPTY_TOKEN = 4001;
