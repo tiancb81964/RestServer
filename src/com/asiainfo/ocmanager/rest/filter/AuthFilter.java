@@ -1,11 +1,21 @@
 package com.asiainfo.ocmanager.rest.filter;
 
-import com.asiainfo.ocmanager.auth.Authenticator;
-import org.apache.log4j.Logger;
-import javax.servlet.*;
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.log4j.Logger;
+
+import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 
 /**
  * Created by gq on 17/7/18.
@@ -29,7 +39,7 @@ public class AuthFilter implements Filter {
                 String token = hsRequest.getHeader("token");
                 if(token == null)
                 {
-                    ((HttpServletResponse)servletResponse).sendError(403);
+                    ((HttpServletResponse)servletResponse).sendError(ResponseCodeConstant.FORBIDDEN);
                 }else {
                     boolean authcSuccess = authenticate(token);
                     if(authcSuccess) {
@@ -38,12 +48,12 @@ public class AuthFilter implements Filter {
                     }
                     else {
                         logger.warn("Authentication fail with token: " + token);
-                        ((HttpServletResponse)servletResponse).sendError(403);
+                        ((HttpServletResponse)servletResponse).sendError(ResponseCodeConstant.FORBIDDEN);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                ((HttpServletResponse)servletResponse).sendError(403);
+                ((HttpServletResponse)servletResponse).sendError(ResponseCodeConstant.FORBIDDEN);
             }
         }
     }

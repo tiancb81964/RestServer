@@ -252,7 +252,7 @@ public class TenantResource {
 		// if the tenant have the instances
 		// can NOT create chlid tenant
 		if (tenant.getParentId() != null && TenantResource.hasInstances(tenant.getParentId())) {
-			return Response.status(Status.FORBIDDEN)
+			return Response.status(Status.NOT_ACCEPTABLE)
 					.entity("The parent tenant have service instances, can NOT create child tenant.").build();
 		}
 
@@ -781,12 +781,12 @@ public class TenantResource {
 
 			// if have instances can not be deleted
 			if (TenantResource.hasInstances(tenantId)) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have service instances on it.").build();
 			}
 			// if have users can not be deleted
 			if (TenantResource.hasUsers(tenantId)) {
-				return Response.status(Status.FORBIDDEN)
+				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
 
