@@ -24,8 +24,14 @@ public class ResponseCodeConstant {
 	// sb
 	public final static int NO_ADD_SERVICE_BROKER_PERMISSION = 4016;
 	public final static int NO_DELETE_SERVICE_BROKER_PERMISSION = 4017;
+	// tenant
+	public final static int NO_PERMISSION_ON_TENANT = 4018;
+	public final static int NOT_SYSTEM_ADMIN = 4019;
+
 	
 	public final static int USER_EXIST = 4091;
 	
 	public final static int USER_NOT_FOUND = 4041;
+
+
 }

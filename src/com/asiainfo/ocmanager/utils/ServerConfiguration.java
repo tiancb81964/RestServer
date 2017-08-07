@@ -32,8 +32,8 @@ public class ServerConfiguration {
 	private void loadConf() {
 		InputStream inputStream = null;
 		try {
-			String base = this.getClass().getResource("/").getPath();
-			String confpath = base + "server.properties";
+			String base = this.getClass().getResource("/").getPath() + ".." + File.separator;
+			String confpath = base + "conf" + File.separator + "server.properties";
 			inputStream = new FileInputStream(new File(confpath));
 			conf = new Properties();
 			conf.load(inputStream);	

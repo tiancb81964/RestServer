@@ -28,12 +28,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
@@ -255,6 +257,16 @@ public class TenantResource {
 		}
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				logger.error("Only sysadmin can do this operation. User: " + loginUser);
+				return Response.status(Status.UNAUTHORIZED)
+						.entity(new ResourceResponseBean("operation failed",
+								"Current user has no privilege to do the operations.",
+								ResponseCodeConstant.NOT_SYSTEM_ADMIN))
+						.build();
+			}
+
 			List<Tenant> allRootTenants = TenantPersistenceWrapper.getAllRootTenants();
 			List<String> allRootTenantsId = new ArrayList<String>();
 			for (Tenant t : allRootTenants) {
@@ -327,6 +339,35 @@ public class TenantResource {
 	}
 
 	/**
+	 * Whether the role has tenant.admin privilege
+	 * @param role
+	 * @return
+	 */
+	private boolean privileged(UserRoleView role) {
+		if (role == null || role.getRoleName().isEmpty()) {
+			return false;
+		}
+		return role.getRoleName().equals(Constant.TENANTADMIN);
+	}
+
+	private String getToken(HttpServletRequest request) {
+		String token = request.getHeader("token");
+		if (token == null || token.isEmpty()) {
+			logger.error("Token is null in request: " + request);
+			throw new RuntimeException("Token is null in request");
+		}
+		return token;
+	}
+	
+	private boolean isSysadmin(String user) {
+		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(user, Constant.ROOTTENANTID);
+		if (role == null || role.getRoleName().isEmpty()) {
+			return false;
+		}
+		return role.getRoleName().equals(Constant.SYSADMIN);
+	}
+
+	/**
 	 * Create a service instance in specific tenant
 	 *
 	 * @param
@@ -336,9 +377,23 @@ public class TenantResource {
 	@Path("{id}/service/instance")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createServiceInstanceInTenant(@PathParam("id") String tenantId, String reqBodyStr) {
+	public Response createServiceInstanceInTenant(@PathParam("id") String tenantId, String reqBodyStr,
+			@Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
+
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
@@ -482,9 +537,21 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateServiceInstanceInTenant(@PathParam("id") String tenantId,
-			@PathParam("instanceName") String instanceName, String parametersStr) {
+			@PathParam("instanceName") String instanceName, String parametersStr, @Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
 
 			// get the just now created instance info
 			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
@@ -579,9 +646,21 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteServiceInstanceInTenant(@PathParam("id") String tenantId,
-			@PathParam("instanceName") String instanceName) {
+			@PathParam("instanceName") String instanceName, @Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
 
 			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 			JsonElement resBodyJson = new JsonParser().parse(getInstanceResBody);
@@ -688,8 +767,18 @@ public class TenantResource {
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteTenant(@PathParam("id") String tenantId) {
+	public Response deleteTenant(@PathParam("id") String tenantId, @Context HttpServletRequest request) {
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				logger.error("Only sysadmin can do this operation. User: " + loginUser);
+				return Response.status(Status.UNAUTHORIZED)
+						.entity(new ResourceResponseBean("operation failed",
+								"Current user has no privilege to do the operations.",
+								ResponseCodeConstant.NOT_SYSTEM_ADMIN))
+						.build();
+			}
+
 			// if have instances can not be deleted
 			if (TenantResource.hasInstances(tenantId)) {
 				return Response.status(Status.FORBIDDEN)
@@ -773,9 +862,23 @@ public class TenantResource {
 	@Path("{id}/user/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response assignRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment) {
+	public Response assignRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
+			@Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
+
 			// assgin to the input tenant
 			assignment.setTenantId(tenantId);
 
@@ -815,9 +918,23 @@ public class TenantResource {
 	@Path("{id}/user/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment) {
+	public Response updateRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
+			@Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
+
 			// assgin to the input tenant
 			assignment.setTenantId(tenantId);
 
@@ -856,9 +973,23 @@ public class TenantResource {
 	@Path("{id}/user/{userId}/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response unassignRoleFromUserInTenant(@PathParam("id") String tenantId, @PathParam("userId") String userId) {
+	public Response unassignRoleFromUserInTenant(@PathParam("id") String tenantId, @PathParam("userId") String userId,
+			@Context HttpServletRequest request) {
 
 		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}	
+			}
+
 			// get all service instances from df
 			String allServiceInstances = TenantUtils.getTenantAllServiceInstancesFromDf(tenantId);
 			JsonElement allServiceInstancesJson = new JsonParser().parse(allServiceInstances);

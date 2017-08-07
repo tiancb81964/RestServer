@@ -51,6 +51,8 @@ public class Constant {
 	public static final String ROOTTENANTID = "ae783b6d-655a-11e7-aa10-fa163ed7d0ae";
 	
 	public static final String SYSADMIN = "system.admin";
+	public static final String TENANTADMIN = "tenant.admin";
+	
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
 	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
