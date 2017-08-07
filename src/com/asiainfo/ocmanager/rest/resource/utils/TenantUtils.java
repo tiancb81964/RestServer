@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -17,6 +20,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
@@ -82,9 +86,9 @@ public class TenantUtils {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static void watiInstanceBindingComplete(ResourceResponseBean bindingRes, String tenantId, String instanceName)
-			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException,
-			InterruptedException {
+	public static void watiInstanceBindingComplete(ResourceResponseBean bindingRes, String tenantId,
+			String instanceName) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
+			IOException, InterruptedException {
 
 		String bindingResStr = bindingRes.getMessage();
 		JsonElement bindingResJson = new JsonParser().parse(bindingResStr);
@@ -408,4 +412,19 @@ public class TenantUtils {
 			httpclient.close();
 		}
 	}
+
+	/**
+	 * remove the duplicate tenants in a tenant list
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static List<Tenant> removeListDup(List<Tenant> list) {
+
+		HashSet<Tenant> hs = new HashSet<Tenant>(list);
+		List<Tenant> newList = new ArrayList<Tenant>();
+		newList.addAll(hs);
+		return newList;
+	}
+
 }

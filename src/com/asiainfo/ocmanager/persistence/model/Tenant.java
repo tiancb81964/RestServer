@@ -1,5 +1,7 @@
 package com.asiainfo.ocmanager.persistence.model;
 
+import java.util.Objects;
+
 /**
  * 
  * @author zhaoyim
@@ -12,7 +14,6 @@ public class Tenant {
 	private String description;
 	private String parentId;
 	private int level;
-	private int dacpTeamCode;
 
 	public Tenant() {
 
@@ -66,16 +67,37 @@ public class Tenant {
 		this.level = level;
 	}
 
-	public int getDacpTeamCode() {
-		return dacpTeamCode;
+	@Override
+	public String toString() {
+		return "Tenant: {id: " + id + " name: " + name + " description: " + description + " parentId: " + parentId
+				+ " level: " + level + "}";
 	}
 
-	public void setDacpTeamCode(int dacpTeamCode) {
-		this.dacpTeamCode = dacpTeamCode;
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Tenant other = (Tenant) obj;
+
+		return Objects.equals(name, other.name) && Objects.equals(id, other.id)
+				&& Objects.equals(description, other.description) && Objects.equals(parentId, other.parentId)
+				&& level == other.level;
 	}
 
-	public String toString()
-	{
-		return "id:" + this.id + "	name:" + this.name + "	level:" + this.level;
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, id, description, parentId, level);
 	}
+
 }

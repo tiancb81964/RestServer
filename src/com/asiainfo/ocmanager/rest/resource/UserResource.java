@@ -546,7 +546,7 @@ public class UserResource {
 				tenantList.addAll(TenantTreeUtil.transform(nodes));
 			}
 
-			return Response.ok().entity(tenantList).build();
+			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).build();
 		} catch (Exception e) {
 			logger.error("Error while getting Tenants by user id: " + userId, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
@@ -570,7 +570,7 @@ public class UserResource {
 				List<TenantTreeNode> allNodes = tree.listAllNodes();
 				tenantList.addAll(TenantTreeUtil.transform(allNodes));
 			}
-			return Response.ok().entity(tenantList).build();
+			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).build();
 		} catch (Exception e) {
 			logger.error("Error while getting Tenants by user name: " + userName, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
