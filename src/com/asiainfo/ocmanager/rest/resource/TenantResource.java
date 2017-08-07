@@ -258,9 +258,8 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenant.getParentId());
-			if (!isSysadmin(role)) {
-				logger.error("Only sysadmin can do this operation. User: " + loginUser + " with role: " + role == null ? "Null" : role.getRoleName());
+			if (!isSysadmin(loginUser)) {
+				logger.error("Only sysadmin can do this operation. User: " + loginUser);
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("operation failed",
 								"Current user has no privilege to do the operations.",
@@ -360,7 +359,8 @@ public class TenantResource {
 		return token;
 	}
 	
-	private boolean isSysadmin(UserRoleView role) {
+	private boolean isSysadmin(String user) {
+		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(user, Constant.ROOTTENANTID);
 		if (role == null || role.getRoleName().isEmpty()) {
 			return false;
 		}
@@ -382,14 +382,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
 			}
 
 			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
@@ -539,14 +541,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
 			}
 
 			// get the just now created instance info
@@ -646,14 +650,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
 			}
 
 			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
@@ -764,9 +770,8 @@ public class TenantResource {
 	public Response deleteTenant(@PathParam("id") String tenantId, @Context HttpServletRequest request) {
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!isSysadmin(role)) {
-				logger.error("Only sysadmin can do this operation. User: " + loginUser + " with role: " + role == null ? "Null" : role.getRoleName());
+			if (!isSysadmin(loginUser)) {
+				logger.error("Only sysadmin can do this operation. User: " + loginUser);
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("operation failed",
 								"Current user has no privilege to do the operations.",
@@ -862,14 +867,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
 			}
 
 			// assgin to the input tenant
@@ -916,14 +923,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
 			}
 
 			// assgin to the input tenant
@@ -969,14 +978,16 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-						.build();
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}	
 			}
 
 			// get all service instances from df
