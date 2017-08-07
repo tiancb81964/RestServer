@@ -17,20 +17,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.asiainfo.ocmanager.auth.Authenticator;
-import com.asiainfo.ocmanager.auth.LdapWrapper;
-import com.asiainfo.ocmanager.auth.utils.LdapUtils;
-import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
-
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.auth.LdapWrapper;
+import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.User;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.AssignmentInfoBean;
+import com.asiainfo.ocmanager.rest.bean.IsAdminBean;
 import com.asiainfo.ocmanager.rest.bean.PasswordBean;
+import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.UserRoleViewBean;
 import com.asiainfo.ocmanager.rest.bean.UserWithTURBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -40,7 +39,6 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.asiainfo.ocmanager.utils.TenantTree;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
@@ -470,6 +468,29 @@ public class UserResource {
 		}
 	}
 
+	
+	
+	@GET
+	@Path("is/admin/{userName}")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response isAdminByName(@PathParam("userName") String userName) {
+		try {
+			
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(userName,
+					Constant.ROOTTENANTID);
+			
+			if (role != null && role.getRoleName().equals(Constant.SYSADMIN)) {
+				return Response.ok().entity(new IsAdminBean(true, userName)).build();
+			} else {
+				return Response.ok().entity(new IsAdminBean(false, userName)).build();
+			}
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("isAdminByName -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+	
 	// /**
 	// *
 	// * @param userId
