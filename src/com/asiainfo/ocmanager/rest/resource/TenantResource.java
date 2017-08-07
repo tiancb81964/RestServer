@@ -258,9 +258,9 @@ public class TenantResource {
 
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
-			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenant.getId());
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenant.getParentId());
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenant.getParentId() + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -372,7 +372,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -529,7 +529,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -636,7 +636,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -754,7 +754,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -852,7 +852,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -906,7 +906,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
@@ -959,7 +959,7 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 			if (!privileged(role)) {
-				logger.error("Current user " + loginUser + " has no privilege coz of role: " + role.getRoleName());
+				logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"Current user has no privilege to do the operations.",
