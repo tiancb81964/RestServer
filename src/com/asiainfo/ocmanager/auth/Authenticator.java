@@ -141,4 +141,24 @@ public class Authenticator {
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,password);
         return usernamePasswordToken;
     }
+    
+	/**
+	 * Auth type, with ladp(0) and mysql(1).
+	 * @author EthanWang
+	 *
+	 */
+	public enum AuthType
+	{
+		ldap(0),
+		mysql(1);
+		private int type;
+		private AuthType(int type)
+		{
+			this.type = type;
+		}
+		
+		public int code() {
+			return type;
+		}
+	}
 }
