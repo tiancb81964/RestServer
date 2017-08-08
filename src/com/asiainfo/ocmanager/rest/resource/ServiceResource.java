@@ -110,7 +110,7 @@ public class ServiceResource {
 			return Response.ok().entity(services).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getServices -> " + e.getMessage());
+			logger.error("getServices  hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -130,7 +130,7 @@ public class ServiceResource {
 			return Response.ok().entity(service == null ? new Service() : service).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getServiceById -> " + e.getMessage());
+			logger.error("getServiceById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -203,7 +203,7 @@ public class ServiceResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("addServiceBroker -> " + e.getMessage());
+			logger.error("addServiceBroker hit exception-> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -221,7 +221,7 @@ public class ServiceResource {
 			return Response.ok().entity(ServiceResource.callDFToGetAllServices()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getServiceFromDf -> " + e.getMessage());
+			logger.error("getServiceFromDf hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -290,7 +290,7 @@ public class ServiceResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("deleteServiceBroker -> " + e.getMessage());
+			logger.error("deleteServiceBroker hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -351,7 +351,7 @@ public class ServiceResource {
 			return Response.ok().entity(serviceInstances).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getAllServiceInstances -> " + e.getMessage());
+			logger.error("getAllServiceInstances hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
