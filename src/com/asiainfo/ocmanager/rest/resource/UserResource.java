@@ -570,6 +570,7 @@ public class UserResource {
 				List<TenantTreeNode> allNodes = tree.listAllNodes();
 				tenantList.addAll(TenantTreeUtil.transform(allNodes));
 			}
+			logger.info("getTenantsByName -> " + userName);
 			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).build();
 		} catch (Exception e) {
 			logger.error("Error while getting Tenants by user name: " + userName, e);

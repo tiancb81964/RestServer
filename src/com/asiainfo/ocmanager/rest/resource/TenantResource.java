@@ -321,6 +321,7 @@ public class TenantResource {
 							tenant.setLevel(3);
 						}
 						TenantPersistenceWrapper.createTenant(tenant);
+						logger.info("createTenant -> insert into DB successfully");
 					}
 					String bodyStr = EntityUtils.toString(response2.getEntity());
 
