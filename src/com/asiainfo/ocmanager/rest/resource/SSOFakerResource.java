@@ -74,7 +74,7 @@ public class SSOFakerResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUserName -> " + e.getMessage());
+			logger.error("getUserName hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}

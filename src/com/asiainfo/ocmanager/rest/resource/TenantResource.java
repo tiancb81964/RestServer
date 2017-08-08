@@ -77,7 +77,7 @@ public class TenantResource {
 			return Response.ok().entity(tenants).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getAllTenants -> " + e.getMessage());
+			logger.error("getAllTenants hit exception-> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -98,7 +98,7 @@ public class TenantResource {
 			return Response.ok().entity(tenant).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getTenantById -> " + e.getMessage());
+			logger.error("getTenantById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -119,7 +119,7 @@ public class TenantResource {
 			return Response.ok().entity(tenants).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getChildrenTenants -> " + e.getMessage());
+			logger.error("getChildrenTenants hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -140,7 +140,7 @@ public class TenantResource {
 			return Response.ok().entity(usersRoles).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getTenantUsers -> " + e.getMessage());
+			logger.error("getTenantUsers hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -184,7 +184,7 @@ public class TenantResource {
 			return Response.ok().entity(role).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getRoleByTenantUserName -> " + e.getMessage());
+			logger.error("getRoleByTenantUserName hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -206,7 +206,7 @@ public class TenantResource {
 			return Response.ok().entity(serviceInstances).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getTenantServiceInstances -> " + e.getMessage());
+			logger.error("getTenantServiceInstances hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -227,7 +227,7 @@ public class TenantResource {
 			return Response.ok().entity(TenantUtils.getTenantServiceInstancesFromDf(tenantId, InstanceName)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getTenantServiceInstanceAccessInfo -> " + e.getMessage());
+			logger.error("getTenantServiceInstanceAccessInfo hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
@@ -260,10 +260,8 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				logger.error("Only sysadmin can do this operation. User: " + loginUser);
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NOT_SYSTEM_ADMIN))
+				return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean("operation failed",
+						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
 						.build();
 			}
 
@@ -334,13 +332,14 @@ public class TenantResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("createTenant -> " + e.getMessage());
+			logger.error("createTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
 	/**
 	 * Whether the role has tenant.admin privilege
+	 * 
 	 * @param role
 	 * @return
 	 */
@@ -359,7 +358,7 @@ public class TenantResource {
 		}
 		return token;
 	}
-	
+
 	private boolean isSysadmin(String user) {
 		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(user, Constant.ROOTTENANTID);
 		if (role == null || role.getRoleName().isEmpty()) {
@@ -386,7 +385,8 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -519,7 +519,7 @@ public class TenantResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("createServiceInstanceInTenant -> " + e.getMessage());
+			logger.error("createServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
@@ -545,7 +545,8 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -595,7 +596,7 @@ public class TenantResource {
 					}
 				}
 			} catch (Exception e) {
-				logger.info("The parameter format check error:" + e.getMessage());
+				logger.error("The parameter format check error:", e);
 				return Response.status(Status.BAD_REQUEST)
 						.entity("BadRequest: the parameter value format is illegal! Error:" + e.toString()).build();
 			}
@@ -630,7 +631,7 @@ public class TenantResource {
 			return Response.ok().entity(responseBean.getMessage()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateServiceInstanceInTenant -> " + e.getMessage());
+			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -654,7 +655,8 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -737,7 +739,7 @@ public class TenantResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("deleteServiceInstanceInTenant -> " + e.getMessage());
+			logger.error("deleteServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
@@ -773,10 +775,8 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				logger.error("Only sysadmin can do this operation. User: " + loginUser);
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("operation failed",
-								"Current user has no privilege to do the operations.",
-								ResponseCodeConstant.NOT_SYSTEM_ADMIN))
+				return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean("operation failed",
+						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
 						.build();
 			}
 
@@ -823,7 +823,7 @@ public class TenantResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("deleteTenant -> " + e.getMessage());
+			logger.error("deleteTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -871,7 +871,8 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -902,7 +903,7 @@ public class TenantResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("assignRoleToUserInTenant -> " + e.getMessage());
+			logger.error("assignRoleToUserInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
@@ -927,7 +928,8 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -957,7 +959,7 @@ public class TenantResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateRoleToUserInTenant -> " + e.getMessage());
+			logger.error("updateRoleToUserInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
@@ -982,13 +984,14 @@ public class TenantResource {
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId + ", coz of role: " + role == null ? "Null" : role.getRoleName());
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
+							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
 									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
 							.build();
-				}	
+				}
 			}
 
 			// get all service instances from df
@@ -1009,7 +1012,7 @@ public class TenantResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("unassignRoleFromUserInTenant -> " + e.getMessage());
+			logger.error("unassignRoleFromUserInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 

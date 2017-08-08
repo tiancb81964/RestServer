@@ -39,7 +39,7 @@ public class RoleResource {
 			return Response.ok().entity(roles).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getRoles -> " + e.getMessage());
+			logger.error("getRoles hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}

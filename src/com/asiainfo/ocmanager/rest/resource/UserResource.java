@@ -91,7 +91,7 @@ public class UserResource {
 			return Response.ok().entity(usersWithTenants).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUsersWithTenants -> " + e.getMessage());
+			logger.error("getUsersWithTenants hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -129,7 +129,7 @@ public class UserResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUserWithTenantsById -> " + e.getMessage());
+			logger.error("getUserWithTenantsById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -147,11 +147,11 @@ public class UserResource {
 			return Response.ok().entity(users).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUsers -> " + e.getMessage());
+			logger.error("getUsers hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
-	
+
 	/**
 	 * Get All OCManager users
 	 *
@@ -166,7 +166,7 @@ public class UserResource {
 			return Response.ok().entity(users).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUsers -> " + e.getMessage());
+			logger.error("getUsers hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -187,7 +187,7 @@ public class UserResource {
 			return Response.ok().entity(user == null ? new User() : user).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUserById -> " + e.getMessage());
+			logger.error("getUserById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -201,7 +201,7 @@ public class UserResource {
 			return Response.ok().entity(user == null ? new User() : user).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getUserById -> " + e.getMessage());
+			logger.error("getUserById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -256,7 +256,7 @@ public class UserResource {
 			}
 
 			// system out the exception into the console log
-			logger.info("createUser -> " + e.getMessage());
+			logger.error("createUser hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 
 		}
@@ -291,7 +291,8 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			User currentUser = UserPersistenceWrapper.getUserById(userId);
-			if (!(loginUser.equals(currentUser.getUsername())) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+			if (!(loginUser.equals(currentUser.getUsername())) || role == null
+					|| !(role.getRoleName().equals(Constant.SYSADMIN))) {
 				return Response.status(Status.UNAUTHORIZED)
 						.entity(new ResourceResponseBean("update user failed",
 								"the user is not system admin role, does NOT have the update user permission.",
@@ -305,7 +306,7 @@ public class UserResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateUserById -> " + e.getMessage());
+			logger.error("updateUserById hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -346,7 +347,7 @@ public class UserResource {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateUserByName -> " + e.getMessage());
+			logger.error("updateUserByName hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -389,7 +390,7 @@ public class UserResource {
 					.build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("updateUserPassword -> " + e.getMessage());
+			logger.error("updateUserPassword hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -462,23 +463,21 @@ public class UserResource {
 						.build();
 			} else {
 				// system out the exception into the console log
-				logger.info("deleteUser -> " + e.getMessage());
+				logger.error("deleteUser  hit exception -> ", e);
 				return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 			}
 		}
 	}
 
-	
-	
 	@GET
 	@Path("is/admin/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	public Response isAdminByName(@PathParam("userName") String userName) {
 		try {
-			
+
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(userName,
 					Constant.ROOTTENANTID);
-			
+
 			if (role != null && role.getRoleName().equals(Constant.SYSADMIN)) {
 				return Response.ok().entity(new IsAdminBean(true, userName)).build();
 			} else {
@@ -486,11 +485,11 @@ public class UserResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("isAdminByName -> " + e.getMessage());
+			logger.error("isAdminByName hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
-	
+
 	// /**
 	// *
 	// * @param userId
@@ -609,7 +608,7 @@ public class UserResource {
 			return Response.ok().entity(children).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getChildrenTenantsByUserIdTenantId -> " + e.getMessage());
+			logger.error("getChildrenTenantsByUserIdTenantId hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -645,7 +644,7 @@ public class UserResource {
 			return Response.ok().entity(children).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getChildrenTenantsByUserNameTenantId -> " + e.getMessage());
+			logger.error("getChildrenTenantsByUserNameTenantId  hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
@@ -774,7 +773,7 @@ public class UserResource {
 			return Response.ok().entity(assignmentInfoBeans).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("getAssignmentsInfoForUser -> " + e.getMessage());
+			logger.error("getAssignmentsInfoForUser hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
