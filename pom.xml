@@ -220,6 +220,11 @@
       <artifactId>junit</artifactId>
       <version>RELEASE</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-kerberos-codec</artifactId>
+      <version>2.0.0-M21</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>ocmanager</finalName>
@@ -269,6 +274,10 @@
             <resource>
               <directory>WebContent/WEB-INF/conf</directory>
               <targetPath>WEB-INF/conf</targetPath>
+            </resource>
+            <resource>
+              <directory>WebContent/WEB-INF/keytabs</directory>
+              <targetPath>WEB-INF/keytabs</targetPath>
             </resource>
             <resource>
               <directory>database</directory>

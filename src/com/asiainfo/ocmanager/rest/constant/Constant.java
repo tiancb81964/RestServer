@@ -49,10 +49,10 @@ public class Constant {
 	public static final String ADMINROLEID = "a10170cb-524a-11e7-9dbb-fa163ed7d0ae";
 
 	public static final String ROOTTENANTID = "ae783b6d-655a-11e7-aa10-fa163ed7d0ae";
-	
+
 	public static final String SYSADMIN = "system.admin";
 	public static final String TENANTADMIN = "tenant.admin";
-	
+
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
 	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
@@ -63,5 +63,14 @@ public class Constant {
 	public static final String SHIROINIPATH = "classpath:shiroJdbc.ini";
 	public static final Long AUTHTOKENTTL = new Long(60 * 60 * 1000);
 	public static final String AUTHTYPE = "oc.server.auth.type";
+
+	/*****************************************************************/
+	/***************** kerberos properties const *********************/
+	/*****************************************************************/
+	public static final String KERBEROS_USER_PRINCIPAL="kerberos.user.principal";
+	public static final String KERBEROS_KEYTAB_LOCATION="kerberos.keytab.location";
+	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
+	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
+	public static final String KERBEROS_REALM="kerberos.realm";
 
 }
