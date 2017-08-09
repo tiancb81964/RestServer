@@ -12,10 +12,15 @@ public class ResponseCodeConstant {
 	// common
 	public final static int SUCCESS = 200;
 	public final static int FORBIDDEN = 403;
-	
+
 	// token
 	public final static int EMPTY_TOKEN = 4001;
-	
+
+	// kerberos
+	public final static int CAN_NOT_FIND_KRB_USERNAME_OR_PASSWORD = 4002;
+
+	public final static int CAN_NOT_FIND_KRB_KEYTAB_FILE = 4041;
+
 	// user
 	public final static int NO_CREATE_USER_PERMISSION = 4011;
 	public final static int NO_UPDATE_USER_PERMISSION = 4012;
@@ -29,10 +34,8 @@ public class ResponseCodeConstant {
 	public final static int NO_PERMISSION_ON_TENANT = 4018;
 	public final static int NOT_SYSTEM_ADMIN = 4019;
 
-	
 	public final static int USER_EXIST = 4091;
-	
-	public final static int USER_NOT_FOUND = 4041;
 
+	public final static int USER_NOT_FOUND = 4041;
 
 }
