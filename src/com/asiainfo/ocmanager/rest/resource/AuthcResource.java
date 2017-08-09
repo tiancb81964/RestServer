@@ -29,8 +29,14 @@ public class AuthcResource {
 		try {
 			JsonElement req = new JsonParser().parse(requestBody);
 			JsonObject obj = req.getAsJsonObject();
-			String username = obj.get("username").getAsString();
-			String password = obj.get("password").getAsString();
+            if (!(obj.has("username") && obj.has("password"))) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(new LoginResponseBean("Login failed!",
+                    "username or password doesn't exist in request body!",
+                    Response.Status.BAD_REQUEST.getStatusCode(), null)).build();
+            }
+            String username = obj.get("username").getAsString();
+            String password = obj.get("password").getAsString();
+
 			Authenticator authenticator = new Authenticator();
 			if (authenticator.loginWithUsernamePassword(username, password)) {
 				String token = Authenticator.generateToken(username, password);
@@ -46,7 +52,8 @@ public class AuthcResource {
 		} catch (Exception e) {
 			logger.error("Exception during login: ", e);
 			e.printStackTrace();
-			return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Response.Status.BAD_REQUEST).entity(new LoginResponseBean("Login failed!",
+                e.getMessage(),Response.Status.BAD_REQUEST.getStatusCode(), null)).build();
 		}
 	}
 

@@ -1,7 +1,7 @@
 ## Authentication 用户认证
 ### 用户登录
 ```
-POST ocmanager/v1/api/login
+POST ocmanager/v1/api/authc/login
 
 ```
 __request body:__
@@ -41,7 +41,7 @@ __response__
 
 ### 注销登录
 ```
-DELETE -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/login/username
+DELETE -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/logout/username
 ```
 __response__
 ```
