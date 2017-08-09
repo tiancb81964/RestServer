@@ -17,11 +17,12 @@ import javax.ws.rs.core.Response;
 /**
  * Created by gq on 17/7/17.
  */
-@Path("/login")
-public class UserLogin {
-	private static Logger logger = LoggerFactory.getLogger(UserLogin.class);
+@Path("/authc")
+public class AuthcResource {
+	private static Logger logger = LoggerFactory.getLogger(AuthcResource.class);
 
 	@POST
+    @Path("login")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response login(String requestBody) {
@@ -50,7 +51,7 @@ public class UserLogin {
 	}
 
 	@DELETE
-	@Path("{username}")
+	@Path("logout/{username}")
 	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response logout(@PathParam("username") String username, @Context HttpServletRequest request) {
@@ -67,5 +68,17 @@ public class UserLogin {
 			return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
+
+    @GET
+    @Path("type")
+    @Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+    public Response getType() {
+        try {
+            return Response.ok().entity(Authenticator.getAuthType()).build();
+        } catch (Exception e) {
+            logger.error("Exception while get auth type: ", e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
 
 }
