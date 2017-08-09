@@ -265,12 +265,6 @@ public class TenantResource {
 						.build();
 			}
 
-			List<Tenant> allRootTenants = TenantPersistenceWrapper.getAllRootTenants();
-			List<String> allRootTenantsId = new ArrayList<String>();
-			for (Tenant t : allRootTenants) {
-				allRootTenantsId.add(t.getId());
-			}
-
 			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/projectrequests";
@@ -309,15 +303,6 @@ public class TenantResource {
 
 					if (statusCode == 201) {
 						logger.info("createTenant -> start successfully");
-						// very ugly code here hard code 3 level
-						// only for citic should enhance
-						if (tenant.getParentId() == null) {
-							tenant.setLevel(1);
-						} else if (allRootTenantsId.contains(tenant.getParentId())) {
-							tenant.setLevel(2);
-						} else {
-							tenant.setLevel(3);
-						}
 						TenantPersistenceWrapper.createTenant(tenant);
 						logger.info("createTenant -> insert into DB successfully");
 					}
