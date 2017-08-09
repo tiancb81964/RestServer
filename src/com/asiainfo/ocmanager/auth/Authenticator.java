@@ -14,6 +14,7 @@ import org.apache.shiro.util.Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -24,7 +25,8 @@ public class Authenticator {
 
     public boolean loginWithUsernamePassword(String username, String password) {
         boolean isAuthcSuccess;
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATHS.get(getAuthType()));
+        String confPath = this.getClass().getResource("/").getPath() + ".." + File.separator + "conf" + File.separator;
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory(confPath + Constant.SHIROINIPATHS.get(getAuthType()));
         SecurityManager securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
         Subject subject = SecurityUtils.getSubject();

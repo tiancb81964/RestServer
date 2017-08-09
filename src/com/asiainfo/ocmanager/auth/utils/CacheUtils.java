@@ -8,7 +8,7 @@ import net.sf.ehcache.Element;
  * Created by gq on 17/7/31.
  */
 public class CacheUtils {
-    static CacheManager manager = CacheManager.create(CacheUtils.class.getResourceAsStream("/ehcache.xml"));
+    static CacheManager manager = CacheManager.create(CacheUtils.class.getResourceAsStream("/../conf/ehcache.xml"));
     static Cache cache = manager.getCache("AuthenticationTokenCache");
     public static void addToken(String username, String token) {
         Element element = new Element(username, token);

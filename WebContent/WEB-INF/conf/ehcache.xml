@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache updateCheck="false"  name="shirocache">
-    <diskStore path="/tmp"/>
+    <diskStore path="java.io.tmpdir"/>
     <cache name="AuthenticationTokenCache"
            maxElementsInMemory="2000"
            maxEntriesLocalHeap="2000"

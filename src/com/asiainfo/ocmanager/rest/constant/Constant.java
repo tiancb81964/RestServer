@@ -60,7 +60,7 @@ public class Constant {
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/
-	public static final List<String> SHIROINIPATHS = Arrays.asList("classpath:shiroLdap.ini","classpath:shiroJdbc.ini");
+	public static final List<String> SHIROINIPATHS = Arrays.asList("shiroLdap.ini", "shiroJdbc.ini");
 	public static final Long AUTHTOKENTTL = new Long(60 * 60 * 1000);
 	public static final String AUTHTYPE = "oc.server.auth.type";
 
