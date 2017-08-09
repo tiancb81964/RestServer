@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.auth;
 import com.asiainfo.ocmanager.auth.utils.AESUtils;
 import com.asiainfo.ocmanager.auth.utils.CacheUtils;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -23,7 +24,7 @@ public class Authenticator {
 
     public boolean loginWithUsernamePassword(String username, String password) {
         boolean isAuthcSuccess;
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATH);
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATHS.get(getAuthType()));
         SecurityManager securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
         Subject subject = SecurityUtils.getSubject();
@@ -48,41 +49,6 @@ public class Authenticator {
             isAuthcSuccess = false;
         }
         logger.info("Session Id: [{}], Timeout : [{}]",subject.getSession().getId(),String.valueOf(subject.getSession().getTimeout()));
-        subject.logout();
-        return isAuthcSuccess;
-    }
-
-    public boolean loginWithTokenParsed(String Dtoken) {
-        boolean isAuthcSuccess;
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory(Constant.SHIROINIPATH);
-        SecurityManager securityManager = factory.getInstance();
-        SecurityUtils.setSecurityManager(securityManager);
-        Subject subject = SecurityUtils.getSubject();
-        String token = Dtoken;
-        UsernamePasswordToken usernamePasswordToken;
-        logger.info("Token: " + token);
-
-        try {
-            usernamePasswordToken = parseTokenWithTTl(token);
-        }
-        catch (Exception e) {
-            logger.warn("parse token Exception: " + e.getMessage());
-            return false;
-        }
-        try {
-            logger.info("Starting login authenticate...");
-            subject.login(usernamePasswordToken);
-        }catch (AuthenticationException e) {
-            logger.error(e.toString());
-            return false;
-        }
-        if (subject.isAuthenticated()){
-            logger.info("loginWithTokenParsed: Authentication success from "+ subject.getPrincipals().getRealmNames());
-            isAuthcSuccess = true;
-        }else {
-            logger.info("Authenticated Failed");
-            isAuthcSuccess = false;
-        }
         subject.logout();
         return isAuthcSuccess;
     }
@@ -141,7 +107,7 @@ public class Authenticator {
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,password);
         return usernamePasswordToken;
     }
-    
+
 	/**
 	 * Auth type, with ladp(0) and mysql(1).
 	 * @author EthanWang
@@ -156,9 +122,15 @@ public class Authenticator {
 		{
 			this.type = type;
 		}
-		
+
 		public int code() {
 			return type;
 		}
 	}
+
+    public static int getAuthType() {
+        AuthType type = AuthType.valueOf(ServerConfiguration.getConf().getProperty(Constant.AUTHTYPE));
+        return type.code();
+    }
+
 }
