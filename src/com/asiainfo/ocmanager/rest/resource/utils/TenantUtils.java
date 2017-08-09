@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
+import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -160,8 +160,8 @@ public class TenantUtils {
 	 */
 	public static ResourceResponseBean removeOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
 				+ "/binding";
 
@@ -218,8 +218,8 @@ public class TenantUtils {
 	 */
 	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
 				+ "/binding";
 
@@ -275,8 +275,8 @@ public class TenantUtils {
 	 */
 	public static String getTenantServiceInstancesFromDf(String tenantId, String instanceName)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -316,8 +316,8 @@ public class TenantUtils {
 	public static String getTenantAllServiceInstancesFromDf(String tenantId)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -380,8 +380,8 @@ public class TenantUtils {
 	 */
 	public static ResourceResponseBean updateTenantServiceInstanceInDf(String tenantId, String instanceName,
 			String reqBodyStr) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 		// parse the req body make sure it is json

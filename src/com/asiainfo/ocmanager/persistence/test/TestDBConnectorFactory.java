@@ -11,8 +11,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
-
 /**
  * 
  * @author zhaoyim
@@ -29,7 +27,7 @@ public class TestDBConnectorFactory {
 			String resource = "com/asiainfo/ocmanager/persistence/configuration.xml";
 			InputStream inputStream = Resources.getResourceAsStream(resource);
 
-			String currentClassPath = new DFPropertiesFoundry().getClass().getResource("/").getPath();
+			String currentClassPath = new TestDBConnectorFactory().getClass().getResource("/").getPath();
 			String propertiesFilePath = currentClassPath.substring(0, currentClassPath.length() - 4)
 					+ "WebContent/WEB-INF/conf/mysql.properties";
 

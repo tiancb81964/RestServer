@@ -9,19 +9,19 @@ import java.util.Properties;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
 
-public class DFPropertiesFoundry {
+public class DataFoundryConfiguration {
 
 	private static HashMap<String, String> map = new HashMap<String, String>();
 
 	public static HashMap<String, String> getDFProperties() throws IOException {
 
 		if (map.size() == 0) {
-			synchronized (DFPropertiesFoundry.class) {
+			synchronized (DataFoundryConfiguration.class) {
 				if (map.size() == 0) {
 					// we deployed in tomcat the path is: <tomcat
 					// home>/webapps/ocmanager/
 					// it will get <tomcat home>/webapps/ocmanager/classes/
-					String currentClassPath = new DFPropertiesFoundry().getClass().getResource("/").getPath();
+					String currentClassPath = new DataFoundryConfiguration().getClass().getResource("/").getPath();
 					String propertiesFilePath = currentClassPath + "../conf/dataFoundry.properties";
 					InputStream inStream = new FileInputStream(new File(propertiesFilePath));
 					Properties prop = new Properties();
