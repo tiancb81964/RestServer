@@ -45,7 +45,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistence
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
-import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
+import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
 import com.google.gson.JsonArray;
@@ -271,8 +271,8 @@ public class TenantResource {
 				allRootTenantsId.add(t.getId());
 			}
 
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/projectrequests";
 
 			JsonObject jsonObj1 = new JsonObject();
@@ -395,8 +395,8 @@ public class TenantResource {
 				}
 			}
 
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
 
 			// parse the req body make sure it is json
@@ -707,8 +707,8 @@ public class TenantResource {
 			}
 
 			// begin to delete the instance
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -791,8 +791,8 @@ public class TenantResource {
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
 
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
 
 			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
