@@ -81,11 +81,16 @@ public class AuthcResource {
     @Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
     public Response getType() {
         try {
-            return Response.ok().entity(Authenticator.getAuthType()).build();
+            return Response.ok().entity(toTypeString(Authenticator.getAuthType())).build();
         } catch (Exception e) {
             logger.error("Exception while get auth type: ", e);
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
+    }
+    
+    private String toTypeString(int type) {
+    	String temp = "{\"type\":${type}}";
+    	return temp.replace("${type}", String.valueOf(type));
     }
 
 }
