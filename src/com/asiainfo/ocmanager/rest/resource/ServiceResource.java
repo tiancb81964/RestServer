@@ -41,7 +41,7 @@ import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
+import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -170,8 +170,8 @@ public class ServiceResource {
 						.build();
 			}
 
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/servicebrokers";
 
 			// parse the req body make sure it is json
@@ -261,8 +261,8 @@ public class ServiceResource {
 						.build();
 			}
 
-			String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/servicebrokers/" + serviceBrokerName;
 
 			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -308,8 +308,8 @@ public class ServiceResource {
 	private static String callDFToGetAllServices() throws KeyManagementException, NoSuchAlgorithmException,
 			KeyStoreException, ClientProtocolException, IOException {
 
-		String url = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DFPropertiesFoundry.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/openshift/backingservices";
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();

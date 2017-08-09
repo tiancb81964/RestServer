@@ -64,4 +64,13 @@ public class Constant {
 	public static final Long AUTHTOKENTTL = new Long(60 * 60 * 1000);
 	public static final String AUTHTYPE = "oc.server.auth.type";
 
+	/*****************************************************************/
+	/***************** kerberos properties const *********************/
+	/*****************************************************************/
+	public static final String KERBEROS_USER_PRINCIPAL="kerberos.user.principal";
+	public static final String KERBEROS_KEYTAB_LOCATION="kerberos.keytab.location";
+	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
+	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
+	public static final String KERBEROS_REALM="kerberos.realm";
+
 }

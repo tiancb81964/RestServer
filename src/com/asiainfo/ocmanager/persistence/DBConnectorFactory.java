@@ -11,8 +11,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import com.asiainfo.ocmanager.rest.utils.DFPropertiesFoundry;
-
 /**
  * 
  * @author zhaoyim
@@ -32,7 +30,7 @@ public class DBConnectorFactory {
 			// we deployed in tomcat the path is: <tomcat
 			// home>/webapps/ocmanager/
 			// it will get <tomcat home>/webapps/ocmanager/classes/
-			String currentClassPath = new DFPropertiesFoundry().getClass().getResource("/").getPath();
+			String currentClassPath = new DBConnectorFactory().getClass().getResource("/").getPath();
 			// remove classes/
 			// the path will be <tomcat home>/webapps/ocmanager/
 			// for unit test
