@@ -38,4 +38,7 @@ public class ResponseCodeConstant {
 
 	public final static int USER_NOT_FOUND = 4041;
 
+	// service
+	public final static int SERVICE_PLAN_NOT_FOUND = 4042;
+
 }
