@@ -356,4 +356,41 @@ public class ServiceResource {
 		}
 	}
 
+	/**
+	 * 
+	 * @param serviceName
+	 * @return
+	 */
+	@GET
+	@Path("{serviceName}/plan")
+	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	public Response getServicePlanInfo(@PathParam("serviceName") String serviceName) {
+		try {
+			String servicesStr = ServiceResource.callDFToGetAllServices();
+			JsonObject servicesJson = new JsonParser().parse(servicesStr).getAsJsonObject();
+			JsonArray items = servicesJson.getAsJsonArray("items");
+			if (items != null) {
+				for (int i = 0; i < items.size(); i++) {
+					JsonObject spec = items.get(i).getAsJsonObject().getAsJsonObject("spec");
+					String name = spec.get("name").getAsString();
+					String plan = spec.getAsJsonArray("plans").toString();
+					if (serviceName.equals(name)) {
+						return Response.ok().entity(plan).build();
+					}
+				}
+			}
+
+			return Response.status(Status.NOT_FOUND)
+					.entity(new ResourceResponseBean("get service plan failed",
+							"can NOT find the service plan, please make sure you input the correct service name"
+									+ " or the service is added successfully in the OCManager.",
+							ResponseCodeConstant.SERVICE_PLAN_NOT_FOUND))
+					.build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.error("getServicePlanInfo hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
 }
