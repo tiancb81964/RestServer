@@ -50,7 +50,7 @@ public class AuthFilter implements Filter {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Error while do filter: ", e);
 				((HttpServletResponse) servletResponse).sendError(ResponseCodeConstant.FORBIDDEN);
 			}
 		}
