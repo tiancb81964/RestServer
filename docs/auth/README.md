@@ -1,4 +1,9 @@
 ## Authentication 用户认证
+### 配置认证源
+支持mysql和ldap两种认证源, 在server.properties中修改配置
+```
+oc.server.auth.type=ldap/mysql
+```
 ### 用户登录
 ```
 POST ocmanager/v1/api/authc/login
@@ -48,6 +53,17 @@ __response__
 {
 "resCode": 200,
 "status": "Logout successful!"
+}
+```
+
+### 获取认证源类型(0:ldap, 1:mysql)
+```
+GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/type
+```
+__response__
+```
+{
+"type": 0
 }
 ```
 
