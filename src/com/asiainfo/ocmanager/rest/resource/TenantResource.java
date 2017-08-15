@@ -293,6 +293,7 @@ public class TenantResource {
 
 				StringEntity se = new StringEntity(reqBody);
 				se.setContentType("application/json");
+				se.setContentEncoding("utf-8");
 				httpPost.setEntity(se);
 
 				logger.info("createTenant -> start create");
@@ -396,6 +397,7 @@ public class TenantResource {
 
 				StringEntity se = new StringEntity(reqBodyJson.toString());
 				se.setContentType("application/json");
+				se.setContentEncoding("utf-8");
 				httpPost.setEntity(se);
 
 				logger.info("createServiceInstanceInTenant -> begin to create service instance");

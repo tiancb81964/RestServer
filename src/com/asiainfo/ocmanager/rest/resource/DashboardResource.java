@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Dashboard;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrapper;
 
 /**
@@ -37,7 +38,7 @@ public class DashboardResource {
 	 */
 	@GET
 	@Path("link")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getAllDashboardLinks() {
 		try {
 			List<Dashboard> dashboard = DashboardPersistenceWrapper.getAllLinks();
@@ -57,7 +58,7 @@ public class DashboardResource {
 	 */
 	@GET
 	@Path("link/{name}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getDashboardLink(@PathParam("name") String name) {
 		try {
 			Dashboard dashboard = DashboardPersistenceWrapper.getLinkByName(name);
@@ -77,7 +78,7 @@ public class DashboardResource {
 	 */
 	@POST
 	@Path("link")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addDashboardLink(Dashboard dashboard) {
 		try {
@@ -98,7 +99,7 @@ public class DashboardResource {
 	 */
 	@PUT
 	@Path("link/{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateDashboardLink(Dashboard dashboard, @PathParam("id") int id) {
 		try {
@@ -120,7 +121,7 @@ public class DashboardResource {
 	 */
 	@DELETE
 	@Path("link/{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteDashboardLink(@PathParam("id") int id) {
 		try {

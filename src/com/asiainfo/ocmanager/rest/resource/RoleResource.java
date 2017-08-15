@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.persistence.model.Role;
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.RolePersistenceWrapper;
 
 /**
@@ -31,7 +32,7 @@ public class RoleResource {
 	 * @return role list
 	 */
 	@GET
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getRoles() {
 		try {
 			List<Role> roles = RolePersistenceWrapper.getRoles();
