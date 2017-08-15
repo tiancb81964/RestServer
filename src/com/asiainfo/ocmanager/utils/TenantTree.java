@@ -24,7 +24,7 @@ public class TenantTree {
 	}
 
 	public TenantTree(String tenantId){
-		LOG.info("Going to construct Tenant-Tree by tenantID: " + tenantId);
+		LOG.debug("Going to construct Tenant-Tree by tenantID: " + tenantId);
 		Tenant originalTenant = TenantPersistenceWrapper.getTenantById(tenantId);
 		if (originalTenant == null) {
 			LOG.error("Tenant not exist: " + tenantId);
@@ -32,7 +32,7 @@ public class TenantTree {
 		}
 		this.originTenant = new TenantTreeNode(originalTenant.getId(), originalTenant.getName(), originalTenant.getDescription(), null);
 		initTree();
-		LOG.info("Tenant-Tree constructed successful: " + this.originTenant);
+		LOG.debug("Tenant-Tree constructed successful: " + this.originTenant);
 	}
 	
 	/**
