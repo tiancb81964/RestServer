@@ -62,7 +62,7 @@ public class KerberosResource {
 
 	@POST
 	@Path("create/keytab")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createKeyTabFile(String requestBody) {
 		try {

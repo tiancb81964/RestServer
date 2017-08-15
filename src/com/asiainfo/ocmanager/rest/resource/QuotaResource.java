@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.plugin.GPResourcePeeker;
@@ -32,7 +33,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("hdfs")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getHdfsQuota(@Context HttpServletRequest request) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(HDFSResourcePeeker.class);
@@ -47,7 +48,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("mapreduce/{queuename}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getYarnQuota(@PathParam("queuename") String queuename) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(MapRedResourcePeeker.class);

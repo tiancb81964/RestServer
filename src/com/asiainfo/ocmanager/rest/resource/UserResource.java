@@ -66,7 +66,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("/with/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getUsersWithTenants() {
 		try {
 			List<User> users = UserPersistenceWrapper.getUsers();
@@ -105,7 +105,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("{id}/with/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getUserWithTenantsById(@PathParam("id") String userId) {
 		try {
 			User user = UserPersistenceWrapper.getUserById(userId);
@@ -140,7 +140,7 @@ public class UserResource {
 	 * @return user list
 	 */
 	@GET
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getUsers() {
 		try {
 			List<User> users = UserPersistenceWrapper.getUsers();
@@ -159,7 +159,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("ldap")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response listLdapUsers() {
 		try {
 			List<String> users = LdapWrapper.allUsers();
@@ -180,7 +180,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("id/{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getUserById(@PathParam("id") String userId) {
 		try {
 			User user = UserPersistenceWrapper.getUserById(userId);
@@ -194,7 +194,7 @@ public class UserResource {
 
 	@GET
 	@Path("name/{userName}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getUserByName(@PathParam("userName") String userName) {
 		try {
 			User user = UserPersistenceWrapper.getUserByName(userName);
@@ -214,7 +214,7 @@ public class UserResource {
 	 * @return new user info
 	 */
 	@POST
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
@@ -271,7 +271,7 @@ public class UserResource {
 	 */
 	@PUT
 	@Path("id/{userId}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateUserById(@PathParam("userId") String userId, User user, @Context HttpServletRequest request) {
 		try {
@@ -313,7 +313,7 @@ public class UserResource {
 
 	@PUT
 	@Path("name/{userName}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateUserByName(@PathParam("userName") String userName, User user,
 			@Context HttpServletRequest request) {
@@ -354,7 +354,7 @@ public class UserResource {
 
 	@PUT
 	@Path("{userName}/password")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password,
 			@Context HttpServletRequest request) {
@@ -403,7 +403,7 @@ public class UserResource {
 	 */
 	@DELETE
 	@Path("{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
 		String userName = null;
 		try {
@@ -471,7 +471,7 @@ public class UserResource {
 
 	@GET
 	@Path("is/admin/{userName}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response isAdminByName(@PathParam("userName") String userName) {
 		try {
 
