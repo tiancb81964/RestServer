@@ -186,6 +186,7 @@ public class TenantUtils {
 
 			StringEntity se = new StringEntity(reqBodyStr);
 			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
 			httpPut.setEntity(se);
 
 			CloseableHttpResponse response2 = httpclient.execute(httpPut);
@@ -217,7 +218,7 @@ public class TenantUtils {
 	 * @throws KeyStoreException
 	 */
 	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
-			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+			String userName, String accesses) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
@@ -232,6 +233,12 @@ public class TenantUtils {
 		JsonObject metadata = new JsonObject();
 		metadata.addProperty("name", instanceName);
 		reqBody.add("metadata", metadata);
+		
+		JsonObject parameters = new JsonObject();
+		parameters.addProperty("user_name", userName);
+		parameters.addProperty("accesses", accesses);
+		reqBody.add("parameters", parameters);
+		
 		String reqBodyStr = reqBody.toString();
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -244,6 +251,7 @@ public class TenantUtils {
 
 			StringEntity se = new StringEntity(reqBodyStr);
 			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
 			httpPost.setEntity(se);
 
 			CloseableHttpResponse response2 = httpclient.execute(httpPost);
@@ -396,6 +404,7 @@ public class TenantUtils {
 
 			StringEntity se = new StringEntity(reqBodyJson.toString());
 			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
 			httpPut.setEntity(se);
 
 			CloseableHttpResponse response2 = httpclient.execute(httpPut);

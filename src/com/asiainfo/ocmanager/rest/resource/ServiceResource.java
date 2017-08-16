@@ -78,7 +78,7 @@ public class ServiceResource {
 			// get all the services in the adapter db
 			List<String> dbServiceNameList = new ArrayList<String>();
 			for (Service s : servicesInDB) {
-				dbServiceNameList.add(s.getServicename());
+				dbServiceNameList.add(s.getServicename().toLowerCase());
 			}
 
 			String servicesFromDf = ServiceResource.callDFToGetAllServices();
@@ -97,7 +97,7 @@ public class ServiceResource {
 					if (servicesInDB.size() == 0) {
 						ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
 					} else {
-						if (!dbServiceNameList.contains(name)) {
+						if (!dbServiceNameList.contains(name.toLowerCase())) {
 							ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
 						}
 					}

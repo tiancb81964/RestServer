@@ -1,6 +1,7 @@
 package com.asiainfo.ocmanager.rest.resource.executor;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceRolePermission;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
@@ -13,7 +14,6 @@ import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 /**
  * 
@@ -22,7 +22,7 @@ import com.google.gson.JsonParser;
  */
 public class TenantResourceUpdateRoleExecutor implements Runnable {
 
-	private static Logger logger = Logger.getLogger(TenantResourceUpdateRoleExecutor.class);
+	private static Logger logger = LoggerFactory.getLogger(TenantResourceUpdateRoleExecutor.class);
 
 	private String tenantId;
 	private int instnaceNum;
@@ -85,17 +85,19 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 					String instanceName = instance.getAsJsonObject("metadata").get("name").getAsString();
 					String userName = UserPersistenceWrapper.getUserById(assignment.getUserId()).getUsername();
 
-					logger.info("TenantResourceUpdateRoleExecutor -> begin to unbinding");
+					logger.info("TenantResourceUpdateRoleExecutor -> begin to unbinding with user: {} on instance: {}",
+							userName, instanceName);
 					ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
 							userName);
 
 					if (unBindingRes.getResCodel() == 201) {
-						logger.info("TenantResourceUpdateRoleExecutor -> wait unbinding compelte");
+						logger.info(
+								"TenantResourceUpdateRoleExecutor -> wait unbinding compelte with user: {} on instance: {}",
+								userName, instanceName);
 						TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
-						logger.info("TenantResourceUpdateRoleExecutor -> unbinding compelte");
-
-						String OCDPServiceInstanceStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
-								instanceName);
+						logger.info(
+								"TenantResourceUpdateRoleExecutor -> unbinding compelte with user: {} on instance: {}",
+								userName, instanceName);
 
 						// get the service permission
 						ServiceRolePermission permission = ServiceRolePermissionWrapper
@@ -104,43 +106,30 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 						// only the has service permission users
 						// can be assign
 						if (permission != null) {
-							// parse the update request body
-							JsonElement OCDPServiceInstanceJson = new JsonParser().parse(OCDPServiceInstanceStr);
-							// get the provisioning json
-							JsonObject provisioning = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-									.getAsJsonObject("provisioning");
 
-							provisioning.getAsJsonObject("parameters").addProperty("user_name", userName);
-
-							// add the accesses fields into the request body
-							provisioning.getAsJsonObject("parameters").addProperty("accesses",
-									permission.getServicePermission());
-
-							// add the patch Updating into the request body
-							JsonObject status = OCDPServiceInstanceJson.getAsJsonObject().getAsJsonObject("status");
-							status.addProperty("patch", Constant.UPDATE);
-
-							logger.info("TenantResourceUpdateRoleExecutor -> begin to update");
-							ResourceResponseBean updateRes = TenantUtils.updateTenantServiceInstanceInDf(tenantId,
-									instanceName, OCDPServiceInstanceJson.toString());
-
-							if (updateRes.getResCodel() == 200) {
-
-								logger.info("TenantResourceUpdateRoleExecutor -> wait update compete");
-								TenantUtils.watiInstanceUpdateComplete(updateRes, tenantId, instanceName);
-								logger.info("TenantResourceUpdateRoleExecutor -> update compete");
-
-								JsonElement patch = TenantJsonParserUtils.getPatchString(tenantId, instanceName);
-								// only update success, then do binding
-								if (patch == null) {
-									logger.info("TenantResourceUpdateRoleExecutor -> begin to binding");
-									ResourceResponseBean bindingRes = TenantUtils
-											.generateOCDPServiceCredentials(tenantId, instanceName, userName);
-									if (bindingRes.getResCodel() == 201) {
-										logger.info("TenantResourceUpdateRoleExecutor -> binding successfully");
-									}
+							JsonElement patch = TenantJsonParserUtils.getPatchString(tenantId, instanceName);
+							// only update success, then do binding
+							if (patch == null) {
+								logger.info(
+										"TenantResourceUpdateRoleExecutor -> begin to binding with user: {} on instance: {}",
+										userName, instanceName);
+								ResourceResponseBean bindingRes = TenantUtils.generateOCDPServiceCredentials(tenantId,
+										instanceName, userName, permission.getServicePermission());
+								if (bindingRes.getResCodel() == 201) {
+									logger.info(
+											"TenantResourceUpdateRoleExecutor -> binding successfully with user: {} on instance: {}",
+											userName, instanceName);
+								} else {
+									logger.info(
+											"TenantResourceUpdateRoleExecutor -> binding falied with user: {} on instance: {}",
+											userName, instanceName);
 								}
-
+							} else {
+								logger.info(
+										instanceName
+												+ " TenantResourceUpdateRoleExecutor -> The instance is updating or failed with user: {} on instance: {}"
+												+ " please make sure there is NOT operations on the instance.",
+										userName, instanceName);
 							}
 						}
 					}
@@ -149,7 +138,7 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("TenantResourceUpdateRoleExecutor -> " + e.getMessage());
+			logger.error("TenantResourceUpdateRoleExecutor -> ", e);
 
 		}
 	}
