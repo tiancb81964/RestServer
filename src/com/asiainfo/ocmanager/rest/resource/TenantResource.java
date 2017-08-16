@@ -579,7 +579,7 @@ public class TenantResource {
 					// only check quota
 					if (Constant.serviceQuotaParam.contains(key)) {
 						// if value is not int, will throw Exception
-						value.getAsInt();
+						value.getAsLong();
 						logger.info("parameters" + key + ":" + value.toString());
 					}
 				}
