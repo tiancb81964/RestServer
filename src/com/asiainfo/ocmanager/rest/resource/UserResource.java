@@ -533,7 +533,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("id/{id}/all/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantsById(@PathParam("id") String userId) {
 		try {
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
@@ -559,7 +559,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("name/{name}/all/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantsByName(@PathParam("name") String userName) {
 		try {
 			List<Tenant> tenantList = new ArrayList<Tenant>();
@@ -579,7 +579,7 @@ public class UserResource {
 
 	@GET
 	@Path("id/{id}/tenant/{tenantId}/children/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getChildrenTenantsByUserIdTenantId(@PathParam("id") String userId,
 			@PathParam("tenantId") String tenantId) {
 		try {
@@ -615,7 +615,7 @@ public class UserResource {
 
 	@GET
 	@Path("name/{name}/tenant/{tenantId}/children/tenants")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getChildrenTenantsByUserNameTenantId(@PathParam("name") String userName,
 			@PathParam("tenantId") String tenantId) {
 		try {
@@ -670,7 +670,7 @@ public class UserResource {
 
 	@GET
 	@Path("name/{userName}/tenant/{tenantId}/assignments/info")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getAssignmentsInfoForUser(@PathParam("userName") String userName,
 			@PathParam("tenantId") String tenantId) {
 		try {

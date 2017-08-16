@@ -34,6 +34,7 @@ import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -309,7 +310,7 @@ public class TenantResource {
 					}
 					String bodyStr = EntityUtils.toString(response2.getEntity());
 
-					return Response.ok().entity(bodyStr).build();
+					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 				} finally {
 					response2.close();
 				}
@@ -794,6 +795,8 @@ public class TenantResource {
 				CloseableHttpResponse response1 = httpclient.execute(httpDelete);
 
 				try {
+					Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+					
 					int statusCode = response1.getStatusLine().getStatusCode();
 					if (statusCode == 200) {
 						TenantPersistenceWrapper.deleteTenant(tenantId);
@@ -801,7 +804,7 @@ public class TenantResource {
 					}
 					String bodyStr = EntityUtils.toString(response1.getEntity());
 
-					return Response.ok().entity(bodyStr).build();
+					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 				} finally {
 					response1.close();
 				}
