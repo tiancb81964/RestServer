@@ -1,8 +1,11 @@
-package com.asiainfo.ocmanager.dacp;
+package com.asiainfo.ocmanager.dacp.utils;
+
 
 /**
- * Created by YANLSH
- * Created on 2017/7/3
+ * Created by YANLSH on 2017/7/3.
+ * Determines and returns the drive type name based on the drive type
+ * @Parameter driveTypeStr
+ * @returns driveClassname
  */
 public enum DriverTypeEnum {
     ORACLE("oracle.jdbc.driver.OracleDriver","oracle"), MySQL("com.mysql.jdbc.Driver","mysql"),

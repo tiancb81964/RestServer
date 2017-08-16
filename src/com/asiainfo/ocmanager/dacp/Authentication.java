@@ -7,7 +7,7 @@ import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
 
 /**
- * Created by Allen on 2017/7/4.
+ * Created by zhangfq on 2017/7/4.
  * 解决服务器不识别证书问题
  */
 public class Authentication {

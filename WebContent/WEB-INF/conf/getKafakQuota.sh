@@ -17,7 +17,10 @@ zx-dn-14"
 #xianoc1.jcloud.local03"
 
 quotaSum=0
-huanSuanG=1048576
+# if the unit is G
+#huanSuanG=1048576
+# now the unit is B
+huanSuanG=1
 for i in $hosts
 do
 	quota=`ssh $i "du -sk ${kafka_dir}/${topic_name}"|awk -F '\t' '{sum+=$1} END {print sum}'`

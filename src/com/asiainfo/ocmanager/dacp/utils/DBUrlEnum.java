@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.dacp;
+package com.asiainfo.ocmanager.dacp.utils;
 
 import com.asiainfo.ocmanager.mail.ParamQuery;
 import org.apache.log4j.Logger;
@@ -7,7 +7,11 @@ import java.io.IOException;
 
 /**
  * Created by YANLSH on 2017/7/3.
+ * this component URL obtained by a component type
+ * @Parameter driveTypeStr,uri,ip,port,dbname,usename
+ * @returns driveUrl
  */
+
 public enum DBUrlEnum {
 
 

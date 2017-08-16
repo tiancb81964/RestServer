@@ -15,24 +15,25 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * Created by Allen on 2017/6/27.
+ * Created by zhangfq on 2017/6/27.
  */
 public class YarnUtil {
 
-//    private static HttpURLConnection conn;
-//    private static BufferedReader reader;
-
     private static Logger logger = Logger.getLogger(YarnUtil.class);
+
+    /**
+     * 获取yarn资源用量
+     * @param queuename
+     * @return yarnQuota
+     */
     public static List<Quota> getYarnData(String queuename){
 
         String yarnurl = AmbariUtil.getUrl("yarn");
-
         String restresult = "";
         String yarnresturl = "http://"+yarnurl+"/ws/v1/cluster/scheduler";
-
         Quota memoryquota = new Quota("yarnQueueQuota","","","","queue memory quota(MB)");
         Quota vcoresquota = new Quota("queueVcoreQuota","","","","queue vcore qutoa(MB)");
-
+        //通过yarn rest api获取资源用量信息
         HttpURLConnection conn = null;
         BufferedReader reader;
         try {
@@ -71,7 +72,7 @@ public class YarnUtil {
         } finally {
             conn.disconnect();
         }
-
+        //解析返回的信息
         try {
             JSONObject json1 = new JSONObject(restresult);
             String scheduler = json1.getString("scheduler");

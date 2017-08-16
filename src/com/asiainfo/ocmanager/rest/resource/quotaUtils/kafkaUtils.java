@@ -33,6 +33,11 @@ public class kafkaUtils {
     }
 
 
+    /**
+     * Gets the partition number of the topic based on the topic name
+     * @Parameter topicName
+     * @returns kafka partition Quota,If there is a network exception or topic not exist,returns the default topic Quota
+     */
     public  static Quota  getKafkaPartitionNumQuota(String topicName){
 
         Quota partitionQuota;
@@ -71,6 +76,13 @@ public class kafkaUtils {
 
         return partitionQuota;
     }
+
+
+    /**
+     * Execute shell scripts to get the size of the topic based on the topic name
+     * @Parameter topicName
+     * @returns kafka partition Quota,If there is a network exception or topic not exist, returns the default topic Quota
+     */
     public static Quota getKafkaSpaceQuota(String topicName){
         String shellClassPath = new kafkaUtils().getClass().getResource("/").getPath();
         String shellPath = shellClassPath.substring(0,shellClassPath.length() - 8) + "conf/";

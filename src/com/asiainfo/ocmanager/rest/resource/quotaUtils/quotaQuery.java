@@ -105,9 +105,9 @@ public class quotaQuery {
         return result;
     }
     /**
-     *
-     * @param topicName
-     * @return kafka Quota
+     * get the Quota of the kafka based on the topicName
+     * @Parameter :topicName
+     * @returns KafkaQuota Quota,If there is a network exception or topicName not exist, returns the default kafka Quota
      */
     public static Map getKafkaQuota(String topicName) {
         Map result = new HashMap();
@@ -122,9 +122,9 @@ public class quotaQuery {
     }
 
     /**
-     *
-     * @param database
-     * @return GP Quota
+     * get the size of the GP based on the databasename
+     * @Parameter :database
+     * @returns GP Quota,If there is a network exception or database not exist, returns the default GP Quota
      */
     public static Map getGpQuota(String database) {
         Map result = new HashMap();
@@ -168,10 +168,11 @@ public class quotaQuery {
         return result;
     }
 
+
     /**
-     *
-     * @param databasename
-     * @return mongo Quota
+     * get the size of the mongo based on the databasename
+     * @Parameter :databasename
+     * @returns mongo Quota,If there is a network exception or databasename not exist, returns the default mongo Quota
      */
     public static Map getMongoQuota(String databasename) {
         Map result = new HashMap();

@@ -17,48 +17,33 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.log4j.Logger;
 
 /**
- * Created by Allen on 2017/6/27.
+ * Created by zhangfq on 2017/6/27.
  */
 public class HdfsUtil {
 
     public static final Configuration conf = new Configuration();
     private static Properties prop = new Properties();
     private static Logger logger = Logger.getLogger(HdfsUtil.class);
-//    private static Quota filesquota;
-//    private static Quota spacequota;
-    /*static {
-        String currentClassPath = new HdfsUtil().getClass().getResource("/").getPath();
-        String  keytabPath= currentClassPath.substring(0, currentClassPath.length() - 8) + "conf/shixiuru.keytab";
-        String  krbPath = currentClassPath.substring(0,currentClassPath.length() - 8) + "conf/krb5.conf";
-        String dfsurl = AmbariUtil.getUrl("hdfs");
 
-        conf.set(KEYTAB_FILE_KEY, keytabPath);
-        conf.set(DEFAULT_FS,dfsurl);
-        conf.set(AUTHENTICATION,"kerberos");
-        System.setProperty("java.security.krb5.conf",krbPath);
-        UserGroupInformation.setConfiguration(conf);
-        try {
-            UserGroupInformation.loginUserFromKeytab("shixiuru@EXAMPLE.COM",keytabPath);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
-
-    }*/
     static {
         String classPath = new AmbariUtil().getClass().getResource("/").getPath();
         String currentClassesPath = classPath.substring(0, classPath.length() - 8)+ "conf/config.properties";
         try{
             InputStream inStream = new FileInputStream(new File(currentClassesPath ));
-    //            prop = new Properties();
             prop.load(inStream);
         }catch(IOException e){
             logger.error(e.getMessage());
         }
     }
 
+    /**
+     * 获取hdfs资源用量信息
+     * @param path
+     * @return hdfsQuota
+     */
     public static List<Quota> getHDFSData(String path){
 
+        //进行kerberos认证
         String currentClassPath = new HdfsUtil().getClass().getResource("/").getPath();
         String  keytabPath= currentClassPath.substring(0, currentClassPath.length() - 8) + "conf/"+prop.getProperty("hdfs.kerberos.keytab.name");
         String  krbPath = currentClassPath.substring(0,currentClassPath.length() - 8) + "conf/"+prop.getProperty("kerberos.krb.name");
@@ -76,6 +61,7 @@ public class HdfsUtil {
             UserGroupInformation.loginUserFromKeytab(prop.getProperty("hadoop.kerberos.principal"),keytabPath);
             FileSystem fs = FileSystem.get(conf);
             ContentSummary contentSum = fs.getContentSummary(new Path(path));
+            //获取资源信息并封装
             long Quota = contentSum.getQuota();
             long FileCount = contentSum.getFileCount();
             logger.info("quota:"+Quota+"-------   filecount:"+FileCount);

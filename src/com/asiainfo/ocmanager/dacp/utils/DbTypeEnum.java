@@ -1,8 +1,10 @@
-package com.asiainfo.ocmanager.dacp;
+package com.asiainfo.ocmanager.dacp.utils;
 
 /**
- * Created by YANLSH
- * Created on 2017/7/3
+ * Created by YANLSH on 2017/7/3.
+ * Determines whether this type is based on the database type
+ * @Parameter dbType
+ * @returns dbTypefalg true is this type,else "" is not
  */
 public enum DbTypeEnum {
     HIVE("true","hive"),

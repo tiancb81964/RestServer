@@ -14,7 +14,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * Created by Allen on 2017/6/27.
+ * Created by zhangfq on 2017/6/27.
  */
 public class AmbariUtil {
 
@@ -22,9 +22,6 @@ public class AmbariUtil {
     private static final String YARN_PATH = "yarn.resourcemanager.webapp.address";
     private static final String HBASE_PATH = "hbase.zookeeper.quorum";
     private static Properties prop = new Properties();
-//    private static HttpURLConnection conn;
-//    private static BufferedReader reader;
-
     private static Logger logger = Logger.getLogger(AmbariUtil.class);
 
     static {
@@ -32,14 +29,17 @@ public class AmbariUtil {
         String currentClassesPath = classPath.substring(0, classPath.length() - 8)+ "conf/config.properties";
         try{
             InputStream inStream = new FileInputStream(new File(currentClassesPath ));
-//            prop = new Properties();
             prop.load(inStream);
         }catch(IOException e){
             logger.error(e.getMessage());
         }
     }
 
-
+    /**
+     * 通过ambari rest api 获取不同服务所在的主机名
+     * @param servicename
+     * @return host name
+     */
     public static String getUrl(String servicename){
 
         String result = "";
@@ -74,7 +74,6 @@ public class AmbariUtil {
                     while ((line = reader.readLine()) != null) {
                         fsResult += line;
                     }
-//                    System.out.println(fsResult);
                     JSONObject json = new JSONObject(fsResult);
                     JSONArray items = json.getJSONArray("items");
                     String itemStr = items.toString().replace("[","").replace("]","");
@@ -95,6 +94,10 @@ public class AmbariUtil {
 
     }
 
+    /**
+     * 获取hdfs服务主机信息
+     * @return hdfs host name
+     */
     public static String getHdfsUrl(){
 
         String clustername = getClustername();
@@ -116,7 +119,6 @@ public class AmbariUtil {
                 while ((line = reader.readLine()) != null) {
                     fsResult += line;
                 }
-//                System.out.println(fsResult);
                 JSONObject json = new JSONObject(fsResult);
                 JSONArray items = json.getJSONArray("items");
                 String itemStr = items.toString().replace("[","").replace("]","");
@@ -124,7 +126,6 @@ public class AmbariUtil {
                 JSONObject hostRoles = newItem.getJSONObject("HostRoles");
                 String hostname = hostRoles.getString("host_name");
                 result = hostname;
-//                System.out.println(hostname);
                 logger.info("hostname is:"+result);
                 logger.info("servicename is :hdfs");
             }
@@ -136,6 +137,11 @@ public class AmbariUtil {
         return result;
     }
 
+    /**
+     * 通过服务名称获取查询所需的key值
+     * @param servicename
+     * @return parametername
+     */
     public static String getparametername(String servicename){
 
         String parametername = null;
@@ -150,7 +156,11 @@ public class AmbariUtil {
         return parametername;
     }
 
-
+    /**
+     * 获取version信息
+     * @param servicename
+     * @return version
+     */
     public static String getTags(String servicename){
 
         String result = "";
@@ -173,7 +183,6 @@ public class AmbariUtil {
                 while ((line = reader.readLine()) != null) {
                     fsResult += line;
                 }
-//                System.out.println(fsResult);
                 List list = new ArrayList<>();
                 JSONObject json = new JSONObject(fsResult);
                 JSONArray items = json.getJSONArray("items");
@@ -190,10 +199,12 @@ public class AmbariUtil {
         return result;
     }
 
-
+    /**
+     * 获取集群名称
+     * @return clustername
+     */
     public static String getClustername(){
 
-//        getProp();
         String result="";
         String url = "http://"+(prop.getProperty("ambari.host"))+"/api/v1/clusters";
         logger.info("get cluster name ,url is :"+url);

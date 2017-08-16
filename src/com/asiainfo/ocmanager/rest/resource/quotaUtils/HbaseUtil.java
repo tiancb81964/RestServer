@@ -1,7 +1,7 @@
 package com.asiainfo.ocmanager.rest.resource.quotaUtils;
 
 /**
- * Created by Allen on 2017/6/27.
+ * Created by zhangfq on 2017/6/27.
  */
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,54 +25,31 @@ public class HbaseUtil {
 
     public static final Configuration conf = new Configuration();
     private static Properties prop = new Properties();
-//    private static Connection hconn;
-//    private static Admin admin;
-//    private static int tabnum;
-//    private static int regnum;
 
     private static Logger logger = Logger.getLogger(HbaseUtil.class);
 
- /*   static {
-        String currentClassPath = new HbaseUtil().getClass().getResource("/").getPath();
-        String  keytabPath= currentClassPath.substring(0, currentClassPath.length() - 8) + "conf/shixiuru.keytab";
-        String  krbPath = currentClassPath.substring(0,currentClassPath.length() - 8) + "conf/krb5.conf";
-        String hbaseurl = AmbariUtil.getUrl("hbase");
-
-        conf.set("hbase.zookeeper.quorum", hbaseurl);
-        conf.set("hbase.zookeeper.property.clientPort", "2181");
-        conf.set("zookeeper.znode.parent", "/hbase-secure");
-
-        conf.set("hadoop.security.authentication", "kerberos");
-        conf.set("hbase.security.authentication", "kerberos");
-        conf.set("hbase.master.kerberos.principal", "hbase/_HOST@EXAMPLE.COM");
-        conf.set("hbase.regionserver.kerberos.principal", "hbase/_HOST@EXAMPLE.COM");
-        System.setProperty("java.security.krb5.conf",krbPath);
-        UserGroupInformation.setConfiguration(conf);
-
-        try {
-            UserGroupInformation.loginUserFromKeytab("shixiuru@EXAMPLE.COM", keytabPath);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }*/
      static {
         String classPath = new AmbariUtil().getClass().getResource("/").getPath();
         String currentClassesPath = classPath.substring(0, classPath.length() - 8)+ "conf/config.properties";
         try{
             InputStream inStream = new FileInputStream(new File(currentClassesPath ));
-            //            prop = new Properties();
             prop.load(inStream);
         }catch(IOException e){
             logger.error(e.getMessage());
         }
     }
 
+    /**
+     * 获取hbase资源用量信息
+     * @param namespace
+     * @return hbaseQuota
+     */
     public static List<Quota> getHbaseData(String namespace){
 
         int tabnum = 0;
         int regnum = 0;
         List<Quota> result = new ArrayList<Quota>();
-        //testing environment
+        //进行kerberos认证
         String currentClassPath = new HbaseUtil().getClass().getResource("/").getPath();
         String  keytabPath= currentClassPath.substring(0, currentClassPath.length() - 8) +"conf/"+prop.getProperty("hbase.kerberos.keytab.name");
         String  krbPath = currentClassPath.substring(0,currentClassPath.length() - 8) + "conf/"+prop.getProperty("kerberos.krb.name");
@@ -92,7 +69,7 @@ public class HbaseUtil {
             UserGroupInformation.loginUserFromKeytab(prop.getProperty("hbase.kerberos.principal"), keytabPath);
             Connection hconn = ConnectionFactory.createConnection(conf);
             Admin admin = hconn.getAdmin();
-
+            //获取资源信息
             TableName[] tables = admin.listTableNamesByNamespace(namespace);
             tabnum = tables.length;
             for(TableName tab:tables){
@@ -103,6 +80,7 @@ public class HbaseUtil {
                 }
             }
             logger.info("tabnum:"+tabnum+"------  regnum:"+regnum);
+            //将获取的信息封装
             Quota tabquota = new Quota();
             Quota regquota = new Quota();
             tabquota.setName("maximumTablesQuota");
