@@ -1,6 +1,5 @@
 package com.asiainfo.ocmanager.rest.resource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +33,7 @@ import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -70,7 +70,7 @@ public class TenantResource {
 	 * @return tenant list
 	 */
 	@GET
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getAllTenants() {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getAllTenants();
@@ -91,7 +91,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Path("{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantById(@PathParam("id") String tenantId) {
 		try {
 			Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
@@ -112,7 +112,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Path("{id}/children")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getChildrenTenants(@PathParam("id") String parentTenantId) {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getChildrenTenants(parentTenantId);
@@ -133,7 +133,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Path("{id}/users")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantUsers(@PathParam("id") String tenantId) {
 		try {
 			List<UserRoleView> usersRoles = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
@@ -166,14 +166,14 @@ public class TenantResource {
 
 	/**
 	 * Get the role based on the tenant and user
-	 * 
+	 *
 	 * @param tenantId
 	 * @param userName
 	 * @return
 	 */
 	@GET
 	@Path("{id}/user/{userName}/role")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getRoleByTenantUserName(@PathParam("id") String tenantId, @PathParam("userName") String userName) {
 		try {
 			UserRoleView role = TenantResource.getRole(tenantId, userName);
@@ -198,7 +198,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Path("{id}/service/instances")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantServiceInstances(@PathParam("id") String tenantId) {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
@@ -220,7 +220,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Path("{tenantId}/service/instance/{InstanceName}/access/info")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getTenantServiceInstanceAccessInfo(@PathParam("tenantId") String tenantId,
 			@PathParam("InstanceName") String InstanceName) {
 		try {
@@ -241,7 +241,7 @@ public class TenantResource {
 	 * @return new tenant info
 	 */
 	@POST
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createTenant(Tenant tenant, @Context HttpServletRequest request) {
 
@@ -293,6 +293,7 @@ public class TenantResource {
 
 				StringEntity se = new StringEntity(reqBody);
 				se.setContentType("application/json");
+				se.setContentEncoding("utf-8");
 				httpPost.setEntity(se);
 
 				logger.info("createTenant -> start create");
@@ -308,7 +309,7 @@ public class TenantResource {
 					}
 					String bodyStr = EntityUtils.toString(response2.getEntity());
 
-					return Response.ok().entity(bodyStr).build();
+					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 				} finally {
 					response2.close();
 				}
@@ -324,7 +325,7 @@ public class TenantResource {
 
 	/**
 	 * Whether the role has tenant.admin privilege
-	 * 
+	 *
 	 * @param role
 	 * @return
 	 */
@@ -360,7 +361,7 @@ public class TenantResource {
 	 */
 	@POST
 	@Path("{id}/service/instance")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createServiceInstanceInTenant(@PathParam("id") String tenantId, String reqBodyStr,
 			@Context HttpServletRequest request) {
@@ -371,7 +372,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -396,6 +397,7 @@ public class TenantResource {
 
 				StringEntity se = new StringEntity(reqBodyJson.toString());
 				se.setContentType("application/json");
+				se.setContentEncoding("utf-8");
 				httpPost.setEntity(se);
 
 				logger.info("createServiceInstanceInTenant -> begin to create service instance");
@@ -520,7 +522,7 @@ public class TenantResource {
 	 */
 	@PUT
 	@Path("{id}/service/instance/{instanceName}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateServiceInstanceInTenant(@PathParam("id") String tenantId,
 			@PathParam("instanceName") String instanceName, String parametersStr, @Context HttpServletRequest request) {
@@ -531,7 +533,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -576,7 +578,7 @@ public class TenantResource {
 					// only check quota
 					if (Constant.serviceQuotaParam.contains(key)) {
 						// if value is not int, will throw Exception
-						value.getAsInt();
+						value.getAsLong();
 						logger.info("parameters" + key + ":" + value.toString());
 					}
 				}
@@ -630,7 +632,7 @@ public class TenantResource {
 	 */
 	@DELETE
 	@Path("{id}/service/instance/{instanceName}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteServiceInstanceInTenant(@PathParam("id") String tenantId,
 			@PathParam("instanceName") String instanceName, @Context HttpServletRequest request) {
@@ -641,7 +643,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -753,7 +755,7 @@ public class TenantResource {
 	 */
 	@DELETE
 	@Path("{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteTenant(@PathParam("id") String tenantId, @Context HttpServletRequest request) {
 		try {
@@ -792,6 +794,8 @@ public class TenantResource {
 				CloseableHttpResponse response1 = httpclient.execute(httpDelete);
 
 				try {
+					Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+
 					int statusCode = response1.getStatusLine().getStatusCode();
 					if (statusCode == 200) {
 						TenantPersistenceWrapper.deleteTenant(tenantId);
@@ -799,7 +803,7 @@ public class TenantResource {
 					}
 					String bodyStr = EntityUtils.toString(response1.getEntity());
 
-					return Response.ok().entity(bodyStr).build();
+					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 				} finally {
 					response1.close();
 				}
@@ -846,7 +850,7 @@ public class TenantResource {
 	 */
 	@POST
 	@Path("{id}/user/role/assignment")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response assignRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
 			@Context HttpServletRequest request) {
@@ -857,7 +861,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -903,7 +907,7 @@ public class TenantResource {
 	 */
 	@PUT
 	@Path("{id}/user/role/assignment")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
 			@Context HttpServletRequest request) {
@@ -914,7 +918,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -959,7 +963,7 @@ public class TenantResource {
 	 */
 	@DELETE
 	@Path("{id}/user/{userId}/role/assignment")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response unassignRoleFromUserInTenant(@PathParam("id") String tenantId, @PathParam("userId") String userId,
 			@Context HttpServletRequest request) {
@@ -970,7 +974,7 @@ public class TenantResource {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
 				if (!privileged(role)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + role == null ? "Null" : role.getRoleName());
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",

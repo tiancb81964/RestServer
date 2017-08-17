@@ -1,6 +1,8 @@
 package com.asiainfo.ocmanager.rest.resource.executor;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -11,7 +13,7 @@ import com.google.gson.JsonObject;
 
 public class TenantResourceUnAssignRoleExecutor implements Runnable {
 
-	private static Logger logger = Logger.getLogger(TenantResourceUnAssignRoleExecutor.class);
+	private static Logger logger = LoggerFactory.getLogger(TenantResourceUnAssignRoleExecutor.class);
 
 	private String tenantId;
 	private int instnaceNum;
@@ -71,23 +73,23 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 				if (Constant.list.contains(serviceName.toLowerCase())) {
 					// get service instance name
 					String instanceName = instance.getAsJsonObject("metadata").get("name").getAsString();
-
+					String userName = UserPersistenceWrapper.getUserById(userId).getUsername();
 					// the unassign df and service broker only use the
 					// unbinding
 					// to do
 					// so here not need to call update
-					logger.info("TenantResourceUnAssignRoleExecutor -> begin to unbinding");
-					ResourceResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName,
-							UserPersistenceWrapper.getUserById(userId).getUsername());
+					logger.info("TenantResourceUnAssignRoleExecutor -> begin to unbinding with user: {} on instance: {}", userName, instanceName);
+					ResourceResponseBean bindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId, instanceName, userName
+							);
 
 					if (bindingRes.getResCodel() == 201) {
-						logger.info("TenantResourceUnAssignRoleExecutor -> unbinding successfully");
+						logger.info("TenantResourceUnAssignRoleExecutor -> unbinding successfully with user: {} on instance: {}", userName, instanceName);
 					}
 				}
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("TenantResourceUnAssignRoleExecutor -> " + e.getMessage());
+			logger.error("TenantResourceUnAssignRoleExecutor -> ", e);
 
 		}
 	}

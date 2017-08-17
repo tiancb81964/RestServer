@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
-import com.asiainfo.ocmanager.service.client.krbClient;
+import com.asiainfo.ocmanager.service.client.KrbClient;
 import com.asiainfo.ocmanager.service.exception.KerberosOperationException;
 import com.asiainfo.ocmanager.utils.KerberosConfiguration;
 import com.google.gson.JsonElement;
@@ -62,7 +62,7 @@ public class KerberosResource {
 
 	@POST
 	@Path("create/keytab")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createKeyTabFile(String requestBody) {
 		try {
@@ -96,7 +96,7 @@ public class KerberosResource {
 	}
 
 	private void createKeyTabFile(String krbusername, String krbpassword) throws KerberosOperationException {
-		krbClient client = krbClient.getInstance();
+		KrbClient client = KrbClient.getInstance();
 		String principalName = krbusername + "@" + KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_REALM);
 
 		if (client.principalExists(principalName)) {

@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.rest.resource;
 
 import com.asiainfo.ocmanager.auth.Authenticator;
 import com.asiainfo.ocmanager.rest.bean.LoginResponseBean;
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -23,7 +24,7 @@ public class AuthcResource {
 
 	@POST
     @Path("login")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response login(String requestBody) {
 		try {
@@ -59,7 +60,7 @@ public class AuthcResource {
 
 	@DELETE
 	@Path("logout/{username}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response logout(@PathParam("username") String username, @Context HttpServletRequest request) {
 		try {
@@ -78,7 +79,7 @@ public class AuthcResource {
 
     @GET
     @Path("type")
-    @Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+    @Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
     public Response getType() {
         try {
             return Response.ok().entity(toTypeString(Authenticator.getAuthType())).build();

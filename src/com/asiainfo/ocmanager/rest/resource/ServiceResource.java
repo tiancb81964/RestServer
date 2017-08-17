@@ -64,7 +64,7 @@ public class ServiceResource {
 	 * @return service list
 	 */
 	@GET
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getServices() {
 
 		try {
@@ -76,9 +76,9 @@ public class ServiceResource {
 			List<Service> servicesInDB = ServicePersistenceWrapper.getAllServices();
 
 			// get all the services in the adapter db
-			List<String> dbServiceList = new ArrayList<String>();
+			List<String> dbServiceNameList = new ArrayList<String>();
 			for (Service s : servicesInDB) {
-				dbServiceList.add(s.getId());
+				dbServiceNameList.add(s.getServicename().toLowerCase());
 			}
 
 			String servicesFromDf = ServiceResource.callDFToGetAllServices();
@@ -97,7 +97,7 @@ public class ServiceResource {
 					if (servicesInDB.size() == 0) {
 						ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
 					} else {
-						if (!dbServiceList.contains(id)) {
+						if (!dbServiceNameList.contains(name.toLowerCase())) {
 							ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
 						}
 					}
@@ -122,7 +122,7 @@ public class ServiceResource {
 	 */
 	@GET
 	@Path("{id}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getServiceById(@PathParam("id") String serviceId) {
 		try {
 			Service service = ServicePersistenceWrapper.getServiceById(serviceId);
@@ -142,7 +142,7 @@ public class ServiceResource {
 	 */
 	@POST
 	@Path("/broker")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response addServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
 
 		try {
@@ -185,6 +185,7 @@ public class ServiceResource {
 				httpPost.addHeader("Authorization", "bearer " + token);
 				StringEntity se = new StringEntity(reqBodyJson.toString());
 				se.setContentType("application/json");
+				se.setContentEncoding("utf-8");
 				httpPost.setEntity(se);
 
 				CloseableHttpResponse response2 = httpclient.execute(httpPost);
@@ -215,7 +216,7 @@ public class ServiceResource {
 	 */
 	@GET
 	@Path("/df")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getServiceFromDf() {
 		try {
 			return Response.ok().entity(ServiceResource.callDFToGetAllServices()).build();
@@ -233,7 +234,7 @@ public class ServiceResource {
 	 */
 	@DELETE
 	@Path("/broker/{name}")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response deleteServiceBroker(@PathParam("name") String serviceBrokerName,
 			@Context HttpServletRequest request) {
 		try {
@@ -344,7 +345,7 @@ public class ServiceResource {
 	 */
 	@GET
 	@Path("all/instances")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getAllServiceInstances() {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper.getAllServiceInstances();
@@ -363,7 +364,7 @@ public class ServiceResource {
 	 */
 	@GET
 	@Path("{serviceName}/plan")
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getServicePlanInfo(@PathParam("serviceName") String serviceName) {
 		try {
 			String servicesStr = ServiceResource.callDFToGetAllServices();
