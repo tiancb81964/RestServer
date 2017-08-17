@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.asiainfo.ocmanager.rest.bean.QuotaBean;
+import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 
 public class PeekerUtils {
@@ -15,7 +16,7 @@ public class PeekerUtils {
 	 * @param peeker
 	 * @return
 	 */
-	public static List<QuotaBean> transform(ResourcePeeker peeker) {
+	public static QuotaResponse transform(ResourcePeeker peeker) {
 		List<QuotaBean> list = new ArrayList<>();
 		for (String type : peeker.resourceTypes()) {
 			for (String resource : peeker.getResourcesByType(type)) {
@@ -26,7 +27,8 @@ public class PeekerUtils {
 				list.add(bean);
 			}
 		}
-		return list;
+		QuotaResponse res = new QuotaResponse(list);
+		return res;
 	}
 
 }
