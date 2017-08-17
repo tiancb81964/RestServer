@@ -84,7 +84,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 			}
 		}
 		this.resources = new Resource(targetResources);
-		LOG.info("Service broker peeking on: " + resources);
+		LOG.debug("Service broker peeking on: " + resources);
 	}
 
 	/**

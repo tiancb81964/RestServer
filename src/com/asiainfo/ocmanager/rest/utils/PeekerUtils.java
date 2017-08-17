@@ -1,7 +1,9 @@
 package com.asiainfo.ocmanager.rest.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.asiainfo.ocmanager.rest.bean.QuotaBean;
-import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 
 public class PeekerUtils {
@@ -13,18 +15,18 @@ public class PeekerUtils {
 	 * @param peeker
 	 * @return
 	 */
-	public static QuotaResponse transform(ResourcePeeker peeker) {
-		QuotaResponse response = new QuotaResponse();
+	public static List<QuotaBean> transform(ResourcePeeker peeker) {
+		List<QuotaBean> list = new ArrayList<>();
 		for (String type : peeker.resourceTypes()) {
 			for (String resource : peeker.getResourcesByType(type)) {
-				QuotaBean bean = new QuotaBean(resource, type);
+				QuotaBean bean = new QuotaBean(type, resource);
 				bean.setSize(peeker.getTotalQuota(type, resource));
 				bean.setUsed(peeker.getUsedQuota(type, resource));
 				bean.setAvailable(peeker.getFreeQuota(type, resource));
-				response.addItem(bean);
+				list.add(bean);
 			}
 		}
-		return response;
+		return list;
 	}
 
 }
