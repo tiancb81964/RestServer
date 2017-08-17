@@ -8,9 +8,9 @@ package com.asiainfo.ocmanager.rest.bean;
  */
 public class QuotaBean {
 	private String name;
-	private long size;
-	private long used;
-	private long available;
+	private String size;
+	private String used;
+	private String available;
 	private String desc;
 
 	public QuotaBean(String name, String desc) {
@@ -18,15 +18,15 @@ public class QuotaBean {
 		this.desc = desc;
 	}
 
-	public void setSize(long size) {
+	public void setSize(String size) {
 		this.size = size;
 	}
 
-	public void setUsed(long used) {
+	public void setUsed(String used) {
 		this.used = used;
 	}
 
-	public void setAvailable(long available) {
+	public void setAvailable(String available) {
 		this.available = available;
 	}
 
@@ -34,15 +34,15 @@ public class QuotaBean {
 		return name;
 	}
 
-	public long getSize() {
+	public String getSize() {
 		return size;
 	}
 
-	public long getUsed() {
+	public String getUsed() {
 		return used;
 	}
 
-	public long getAvailable() {
+	public String getAvailable() {
 		return available;
 	}
 

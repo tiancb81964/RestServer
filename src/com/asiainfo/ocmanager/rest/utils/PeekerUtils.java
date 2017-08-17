@@ -21,9 +21,9 @@ public class PeekerUtils {
 		for (String type : peeker.resourceTypes()) {
 			for (String resource : peeker.getResourcesByType(type)) {
 				QuotaBean bean = new QuotaBean(type, resource);
-				bean.setSize(peeker.getTotalQuota(type, resource));
-				bean.setUsed(peeker.getUsedQuota(type, resource));
-				bean.setAvailable(peeker.getFreeQuota(type, resource));
+				bean.setSize(String.valueOf(peeker.getTotalQuota(type, resource)));
+				bean.setUsed(String.valueOf(peeker.getUsedQuota(type, resource)));
+				bean.setAvailable(String.valueOf(peeker.getFreeQuota(type, resource)));
 				list.add(bean);
 			}
 		}
