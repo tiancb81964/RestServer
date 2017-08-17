@@ -62,7 +62,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("hbase/{namespace}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getHbaseQuota(@PathParam("namespace") String namespace) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(HbaseResourcePeeker.class);
@@ -76,7 +76,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("kafka/{serviceInstanceId}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getKafkaQuota(@PathParam("serviceInstanceId") String instanceId) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(KafkaResourcePeeker.class);
@@ -90,7 +90,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("greenplum/{serviceInstanceId}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getGpQuota(@PathParam("serviceInstanceId") String instanceId) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(GPResourcePeeker.class);
@@ -104,7 +104,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("mongodb/{serviceInstanceId}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getMongoQuota(@PathParam("serviceInstanceId") String instanceId) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(MongoResourcePeeker.class);
@@ -118,7 +118,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("spark/{serviceInstanceId}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getSparkQuota(@PathParam("serviceInstanceId") String instanceId) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(SparkResourcePeeker.class);
@@ -132,7 +132,7 @@ public class QuotaResource {
 
 	@GET
 	@Path("hive/{dbname}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getHiveQuota(@PathParam("dbname") String dbname, @Context HttpServletRequest request) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(HiveResourcePeeker.class);
