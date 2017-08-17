@@ -37,11 +37,11 @@ import com.asiainfo.ocmanager.utils.ShellCommandUtil;
  * @author whitebai1986@gmail.com
  *
  */
-public class krbClient {
+public class KrbClient {
 	// TODO: need to use java client to manipulate MIT kerberos instead of using
 	// kadmin CLI.
 
-	private Logger logger = LoggerFactory.getLogger(krbClient.class);
+	private Logger logger = LoggerFactory.getLogger(KrbClient.class);
 	private static final Set<EncryptionType> DEFAULT_CIPHERS = Collections
 			.unmodifiableSet(new HashSet<EncryptionType>() {
 				{
@@ -59,11 +59,11 @@ public class krbClient {
 	private String kdcHost;
 	private String realm;
 
-	public static krbClient getInstance() {
-		return new krbClient();
+	public static KrbClient getInstance() {
+		return new KrbClient();
 	}
 
-	private krbClient() {
+	private KrbClient() {
 		this.userPrincipal = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_USER_PRINCIPAL);
 		this.keytabLocation = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_KEYTAB_LOCATION);
 		this.adminPwd = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_ADMIN_PASSWORD);
