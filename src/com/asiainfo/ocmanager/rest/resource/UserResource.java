@@ -291,13 +291,15 @@ public class UserResource {
 					Constant.ROOTTENANTID);
 
 			User currentUser = UserPersistenceWrapper.getUserById(userId);
-			if (!(loginUser.equals(currentUser.getUsername())) || role == null
-					|| !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("update user failed",
-								"the user is not system admin role, does NOT have the update user permission.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
-						.build();
+
+			if (!(loginUser.equals(currentUser.getUsername()))) {
+				if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("update user failed",
+									"the user is not system admin role, does NOT have the update user permission.",
+									ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+							.build();
+				}
 			}
 
 			user.setId(userId);
@@ -333,16 +335,18 @@ public class UserResource {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
 					Constant.ROOTTENANTID);
 
-			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("update user failed",
-								"the user is not system admin role, does NOT have the update user permission.",
-								ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
-						.build();
+			if (!(userName.equals(loginUser))) {
+				if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("update user failed",
+									"the user is not system admin role, does NOT have the update user permission.",
+									ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
+							.build();
+				}
 			}
 
 			user.setUsername(userName);
-			user = UserPersistenceWrapper.updateUser(user);
+			user = UserPersistenceWrapper.updateUserByName(user);
 			return Response.ok().entity(user).build();
 
 		} catch (Exception e) {
