@@ -1413,6 +1413,154 @@ __response:__
 ```
 
 
+### OCDP service instances quota APIs
+1. 获取大数据平台HDFS服务实例用量
+```
+GET /ocmanager/v1/api/quota/hdfs?path={HDFS Path}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "1001",
+      "desc": "/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8",
+      "name": "nameSpaceQuota",
+      "size": "1001",
+      "used": "0"
+    },
+    {
+      "available": "1025000000000",
+      "desc": "/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8",
+      "name": "storageSpaceQuota",
+      "size": "1025000000000",
+      "used": "0"
+    }
+  ]
+}
+```
+
+2. 获取大数据平台Hbase服务实例用量
+```
+GET /ocmanager/v1/api/quota/hbase/{HBaseNameSpace}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "10",
+      "desc": "cc11a764831711e78d91fa163efdbea8",
+      "name": "maximumTablesQuota",
+      "size": "10",
+      "used": "0"
+    },
+    {
+      "available": "100",
+      "desc": "cc11a764831711e78d91fa163efdbea8",
+      "name": "maximumRegionsQuota",
+      "size": "100",
+      "used": "0"
+    }
+  ]
+}
+```
+
+
+3. 获取大数据平台kafka服务实例用量
+```
+GET /ocmanager/v1/api/quota/kafka/{topic}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "0",
+      "desc": "oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8",
+      "name": "topicQuota",
+      "size": "1",
+      "used": "1"
+    },
+    {
+      "available": "-1",
+      "desc": "oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8",
+      "name": "partitionSize",
+      "size": "-1073741824",
+      "used": "0"
+    }
+  ]
+}
+```
+
+
+4. 获取大数据平台MapReduce服务实例用量
+```
+GET /ocmanager/v1/api/quota/mapreduce/{queuename}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "10238",
+      "desc": "64647831-1c83-4d09-bdc1-f0494958d8d8",
+      "name": "yarnQueueQuota",
+      "size": "10238",
+      "used": "0"
+    }
+  ]
+}
+```
+
+
+5. 获取大数据平台Spark服务实例用量
+```
+GET /ocmanager/v1/api/quota/spark/{queuename}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "10238",
+      "desc": "b798d4da-cccf-4249-8e05-f31deb8baa49",
+      "name": "yarnQueueQuota",
+      "size": "10238",
+      "used": "0"
+    }
+  ]
+}
+```
+
+
+6. 获取大数据平台Hive服务实例用量
+```
+GET /ocmanager/v1/api/quota/hive/{dbname}?queue={queuename}
+```
+__response:__
+```
+{
+  "items": [
+    {
+      "available": "1024000000000",
+      "desc": "/apps/hive/warehouse/1f3aff3d865411e7bf73fa163efdbea8.db",
+      "name": "storageSpaceQuota",
+      "size": "1024000000000",
+      "used": "0"
+    },
+    {
+      "available": "10238",
+      "desc": "154157fe-d1b9-4be7-b2e9-92de2969c5a5",
+      "name": "yarnQueueQuota",
+      "size": "10238",
+      "used": "0"
+    }
+  ]
+}
+```
+
+
 
 ### Dashboard Links APIs
 1. 添加多租户平台首页连接
