@@ -110,9 +110,11 @@ dataFoundry.url=https://<df rest server IP>:<df rest server api port>
 dataFoundry.token=<df admin token>
 ```
 
-12. Then restart the tomcat server
+12. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: http://ambari_server_host:6080/login.jsp Attention: user should be appended to the first policy under all services.
 
-13. Then Access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__ you can see the data
+13. Then restart the tomcat server
+
+14. Then Access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__ you can see the data
 
 
 __NOTE: __ More rest api, please access the link: https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest
