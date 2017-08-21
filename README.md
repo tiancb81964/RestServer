@@ -39,8 +39,64 @@ mysql -u user -p password
 mysql> source <TOMCAT_HOME>/webapps/ocmanager/WEB-INF/database/mysql/initOCManager.sql
 ```
 
+9. Configure RestServer configuration, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __server.properties__
+```
 
-9. Congifure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit the mysql.properties
+#Either 'ldap' or 'mysql' is supposed to specify where users should be added from	
+oc.server.user.source=ldap
+#Period(in seconds) of authentication action	
+oc.server.security.scheduler.period.seconds=85800
+#If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
+oc.server.security.mudule.class=com.asiainfo.ocmanager.security.module.plugin.KrbModule
+#krb5.conf file path, needed only if Kerberos is enabled
+oc.hadoop.krb.conf=D:/kerberos/krb5.conf
+
+#For HA, configure to HDFS nameservices. For non-HA, configure to 'namenodeHostname:port'	
+oc.hdfs.dfs.nameservices=aicloud1.asiainfo.com:8020
+#HDFS dfs.ha.namenodes, in format like	'nn1#NN1Hostname:port,nn2#NN2Hostname:port'	
+oc.hdfs.dfs.ha.namenodes=nn1#aicloud1.asiainfo.com:8020,nn2#aicloud2.asiainfo.com:8020
+
+#Kerberos princial to use for HDFS service	
+oc.hadoop.krb.pricipal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
+#Kerberos keytab path, must be aligned with configured principal	
+oc.hadoop.krb.keytab=D:/kerberos/nn.service.keytab
+
+#Kerberos principal to use for Hbase Master, '_HOST' stands for whichever master that's active.    
+oc.hbase.master.krb.principal=hbase/_HOST@ASIAINFO.COM
+#Kerberos principal to use for Hbase Regionserver
+oc.hbase.regionserver.krb.principal=hbase/_HOST@ASIAINFO.COM
+
+#HTTP URL(http://host:port) of ResourceManager. Both RM can be configured using comma as seperator if HA is enabled
+oc.yarn.resourcemanager.http.url=http://aicloud1.asiainfo.com:8088,http://aicloud2.asiainfo.com:8088
+
+#Hostnames of zookeeper, seperated by comma
+oc.zookeeper.quorum=aicloud1.asiainfo.com,aicloud2.asiainfo.com
+#Zookeeper port
+oc.zookeeper.port=2181
+
+#Hostnames of kafka brokers, seperated by comma
+oc.kafka.brokers=aicloud1.asiainfo.com,aicloud2.asiainfo.com
+#Kafka port
+oc.kafka.broker.port=6667
+#Kafka jaas file path, needed only if Kerberos is enabled
+oc.kafka.security.jaas.file=D:\\kafka_jaas.conf
+
+#Hostname of Mongo server
+oc.mongo.server.host=ochadoop111.jcloud.local
+#Mongo server port
+oc.mongo.server.port=27021
+
+#Hostname of Greenplum server
+oc.greenplum.server.host=ochadoop111.jcloud.local
+#Greenplum port
+oc.greenplum.server.port=5432
+#Admin account of Greenplum
+oc.greenplum.user=gpadmin
+#Password of admin account 
+oc.greenplum.password=asiainfo
+```
+
+10. Congifure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __mysql.properties__
 ```
 jdbc.driver=com.mysql.jdbc.Driver
 jdbc.encoding=useUnicode=true&characterEncoding=utf8
@@ -49,15 +105,39 @@ jdbc.username=<the user create the ocmanager scheame>
 jdbc.password=<the user password create the ocmanager scheame>
 ```
 
-10. Congifure the df properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit the dataFoundry.properties
+11. Congifure the df properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __dataFoundry.properties__
 ```
 dataFoundry.url=https://<df rest server IP>:<df rest server api port>
 dataFoundry.token=<df admin token>
 ```
 
-11. Then restart the tomcat server
+12. Configure Ldap properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __ldap.properties__
+```
+#Ldap server URL, in format 'ldap://ldap_server_host:port'
+ldap.url=ldap://10.1.236.146:389
+#Ldap base entry, from where to search for users
+ldap.base.name=ou=People,dc=asiainfo,dc=com
+#Ldap search filter in RFC2254
+ldap.search.filter=objectClass=person
+```
+go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __shiroLdap.ini__
+```
+#Ldap realm
+ldapRealm = org.apache.shiro.realm.ldap.JndiLdapRealm
+#user template to use for authentication
+ldapRealm.userDnTemplate = uid={0},ou=People,dc=asiainfo,dc=com
+#Ldap server URL, in format 'ldap://ldap_server_host:port'
+ldapRealm.contextFactory.url = ldap://10.1.236.146:389
+#Ldap realm to use for Shiro authentication
+securityManager.realms = $ldapRealm
+```
 
-12. Then Access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__ you can see the data
+13. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
+__Attention: user should be appended to the first policy under all services__.
+
+14. Restart the tomcat server
+
+15. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
 
 
 __NOTE: __ More rest api, please access the link: https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest

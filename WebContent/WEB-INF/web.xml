@@ -31,7 +31,7 @@
 		<url-pattern>/v1/api/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- filter>
+	<filter>
 		<filter-name>AuthFiler</filter-name>
 		<filter-class>com.asiainfo.ocmanager.rest.filter.AuthFilter</filter-class>
 	</filter>
@@ -40,5 +40,5 @@
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
-	</filter-mapping-->
+	</filter-mapping>
 </web-app>
