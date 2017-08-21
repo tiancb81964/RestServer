@@ -4,6 +4,23 @@
 ```
 oc.server.user.source=ldap/mysql
 ```
+
+### 配置登陆用户Session信息
+登陆用户的Session配置,例如"超时时间"可以通过修改配置文件进行配置, 在ehcache.xml中修改相应配置项
+```
+#Max elements to retain in memory
+maxElementsInMemory="2000"
+maxEntriesLocalHeap="2000"
+eternal="false"
+#Session timeout in seconds
+timeToIdleSeconds="1800"
+timeToLiveSeconds="0"
+maxElementsOnDisk="0"
+overflowToDisk="true"
+memoryStoreEvictionPolicy="FIFO"
+statistics="true"
+```
+
 ### 用户登录
 ```
 POST ocmanager/v1/api/authc/login
