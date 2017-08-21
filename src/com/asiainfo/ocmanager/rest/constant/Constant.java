@@ -56,6 +56,7 @@ public class Constant {
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
 	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
+	public static final String SECURITY_PERIOD = "oc.server.security.scheduler.period.seconds";
 	
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";

@@ -13,7 +13,10 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
 	version="3.1" metadata-complete="true">
-
+	<listener>
+	    <listener-class>com.asiainfo.ocmanager.rest.listener.EnvInitializer</listener-class>
+	</listener>
+	
 	<servlet>
 		<servlet-name>Jersey Web Application</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -28,7 +31,7 @@
 		<url-pattern>/v1/api/*</url-pattern>
 	</servlet-mapping>
 
-	<filter>
+	<!-- filter>
 		<filter-name>AuthFiler</filter-name>
 		<filter-class>com.asiainfo.ocmanager.rest.filter.AuthFilter</filter-class>
 	</filter>
@@ -37,5 +40,5 @@
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
-	</filter-mapping>
+	</filter-mapping-->
 </web-app>
