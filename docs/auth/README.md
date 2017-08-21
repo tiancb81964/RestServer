@@ -2,7 +2,7 @@
 ### 配置认证源
 支持mysql和ldap两种认证源, 在server.properties中修改配置
 ```
-oc.server.auth.type=ldap/mysql
+oc.server.user.source=ldap/mysql
 ```
 ### 用户登录
 ```
