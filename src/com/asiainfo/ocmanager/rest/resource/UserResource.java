@@ -379,12 +379,14 @@ public class UserResource {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
 					Constant.ROOTTENANTID);
 
-			if (!(userName.equals(loginUser)) || role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-				return Response.status(Status.UNAUTHORIZED)
-						.entity(new ResourceResponseBean("update user password failed",
-								"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
-								ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION))
-						.build();
+			if (!(userName.equals(loginUser))) {
+				if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("update user password failed",
+									"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
+									ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION))
+							.build();
+				}
 			}
 
 			UserPersistenceWrapper.updateUserPasswordByName(userName, password.getPassword());

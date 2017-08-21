@@ -2,6 +2,79 @@
 
 __NOTE: All the rest request should set__ _Accept: application/json_ __and__ _Content-Type: application/json_
 
+
+### Authentication APIs
+
+1. 用户认证
+```
+POST ocmanager/v1/api/authc/login
+
+```
+__request body:__
+```
+{
+    "username": "u1",
+    "password": "password1"
+}
+```
+__response__
+```
+{
+    "message": "Please add token in request header",
+    "resCode": 200,
+    "status": "Login successful",
+    "token": "u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3"
+}
+```
+
+
+2. 用户注销
+```
+DELETE -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/logout/username
+```
+__response__
+```
+{
+    "resCode": 200,
+    "status": "Logout successful!"
+}
+```
+
+3. 获取认证类型 (0:ldap, 1:mysql)
+```
+GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/type
+```
+__response__
+```
+{
+    "type": 0
+}
+```
+
+#### __NOTE: All the API call should add the http request header with the authc token. For example:__
+```
+'token: admin_2D05DA23B89F65C04646A0330752ED26FE59BF7F451700846872438A2023C6E1'
+```
+#### How to use token
+```
+GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/user
+```
+__response__
+```
+{
+    "createTime": "2017-07-27 14:03:29.0",
+    "description": "System Admin User",
+    "email": "admin@admin.com",
+    "id": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+    "password": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+    "phone": "admin phone number",
+    "platformRoleId": 1,
+    "username": "admin"
+}
+```
+
+
+
 ### Users APIs
 
 1. 获取所有用户
@@ -11,77 +84,94 @@ GET /ocmanager/v1/api/user
 __response:__
 ```
 [
-    {
-        "description": "user1 description",
-        "email": "user1@.com",
-        "id": "085571dc-7a94-44aa-8963-99c328b5527a",
-        "password": "password",
-        "phone": "123",
-        "username": "user1"
-    },
-    ...
+  {
+    "createTime": "2017-08-02 15:15:13.0",
+    "description": "System Admin User",
+    "email": "admin@admin.com",
+    "id": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+    "password": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+    "phone": "admin phone number",
+    "username": "admin"
+  },
+  ...
 ]
 ```
 
-2. 获取单个用户
+2. 通过用户id获取单个用户
 ```
-GET /ocmanager/v1/api/user/{id}
+GET /ocmanager/v1/api/user/id/{id}
 ```
 __response:__
 ```
 {
-    "description": "user1 description",
-    "email": "user1@.com",
-    "id": "085571dc-7a94-44aa-8963-99c328b5527a",
-    "password": "password",
-    "phone": "123",
-    "username": "user1"
+  "createTime": "2017-08-02 15:15:13.0",
+  "description": "System Admin User",
+  "email": "admin@admin.com",
+  "id": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+  "password": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+  "phone": "admin phone number",
+  "username": "admin"
 }
 ```
 
-3. 创建用户
+3. 通过用户名字获取单个用户
+```
+GET /ocmanager/v1/api/user/name/{userName}
+```
+__response:__
+```
+{
+  "createTime": "2017-08-02 15:15:13.0",
+  "description": "System Admin User",
+  "email": "admin@admin.com",
+  "id": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+  "password": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+  "phone": "admin phone number",
+  "username": "admin"
+}
+```
+
+4. 创建用户
 ```
 POST /ocmanager/v1/api/user
 ```
 __request body:__
 ```
 {
-    "username": "createUser1",
-    "email": "createUser1@com",
-    "description": "createUser1 description",
-    "password": "createUser1 password",
-    "phone": "123"
+    "username": "createUser001",
+    "email": "createUser001@com",
+    "description": "createUser001 description",
+    "password": "createUser001 password",
+    "phone": "1234567890"
 }
 ```
 
 __response:__
 ```
 {
-  "description": "createUser1 description",
-  "email": "createUser1@com",
-  "id": "8dc8f0dd-a6c0-434f-ad0a-095201caa8ef",
-  "password": "createUser1 password",
-  "username": "createUser1",
-  "phone": "123",
+  "createTime": "2017-08-18 16:13:13.0",
+  "description": "createUser001 description",
+  "email": "createUser001@com",
+  "id": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
+  "password": "*1580C3237E7227E56B4A3304E7D9F8255CA47253",
+  "phone": "1234567890",
+  "username": "createUser001"
 }
 ```
 
 
 
-4. 更新用户
+5. 通过用户id更新用户
 ```
-PUT /ocmanager/v1/api/user
+PUT /ocmanager/v1/api/user/id/{id}
 ```
 
 __request body:__
 ```
 {
-    "username": "createUser2Update",
-    "email": "createUser2@comUpdate",
-    "id": "a02a11e8-c762-426f-8db9-3c204d87b2dc",
-    "description": "createUser2 descriptionUpdate",
-    "password": "createUser2 passwordUpdate",
-    "phone": "123"
+  "description": "createUser001 description 11111 update",
+  "email": "createUser001____update@com",
+  "phone": "111111111"
 }
 ```
 
@@ -89,67 +179,303 @@ __request body:__
 __response:__
 ```
 {
-  "description": "createUser2 descriptionUpdate",
-  "email": "createUser2@comUpdate",
-  "id": "a02a11e8-c762-426f-8db9-3c204d87b2dc",
-  "password": "createUser2 passwordUpdate",
-  "username": "createUser2Update",
-  "phone": "123"
+  "createTime": "2017-08-18 16:13:13.0",
+  "description": "createUser001 description 11111 update",
+  "email": "createUser001____update@com",
+  "id": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
+  "password": "*1580C3237E7227E56B4A3304E7D9F8255CA47253",
+  "phone": "111111111",
+  "username": "createUser001"
 }
 ```
 
-5. 删除用户
+6. 通过用户名更新用户
+```
+PUT /ocmanager/v1/api/user/name/{userName}
+```
+
+__request body:__
+```
+{
+  "description": "createUser001 description 33333 update",
+  "email": "createUser001____update333@com",
+  "phone": "33333333"
+}
+```
+
+
+__response:__
+```
+{
+  "createTime": "2017-08-18 16:13:13.0",
+  "description": "createUser001 description 33333 update",
+  "email": "createUser001____update333@com",
+  "id": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
+  "password": "*1580C3237E7227E56B4A3304E7D9F8255CA47253",
+  "phone": "33333333",
+  "username": "createUser001"
+}
+```
+
+
+7. 删除用户
 ```
 DELETE /ocmanager/v1/api/user/{id}
 ``` 
 __response:__
 ```
 {
-  "message": "a02a11e8-c762-426f-8db9-3c204d87b2dc",
+  "message": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
   "resCodel": 200,
-  "status": "delete success"
+  "status": "delete user success"
+}
+```
+
+8. 修改用户密码
+```
+PUT /ocmanager/v1/api/user/{userName}/password
+```
+
+__request body:__
+```
+{
+  "password": "1234567890"
 }
 ```
 
 
-6. 通过用户ID获取某个用户再哪些租户下
+__response:__
 ```
-GET /ocmanager/v1/api/user/id/{id}/tenants
+{
+  "message": "username001",
+  "resCodel": 200,
+  "status": "update user password success"
+}
+```
+
+
+9. 检查用户是否是系统管理员
+```
+GET /ocmanager/v1/api/user/is/admin/{userName}
+```
+__response:__
+```
+{
+  "admin": true,
+  "userName": "admin"
+}
+```
+
+
+
+10. 通过用户名获取次用户可访问的租户
+```
+GET /ocmanager/v1/api/user/name/{name}/all/tenants
 ```
 __response:__
 ```
 [
   {
-    "roleId": "r1",
-    "roleName": "r1",
-    "tenantId": "t1",
-    "tenantName": "t1",
-    "userDescription": "u2 description",
-    "userId": "u2",
-    "userName": "u2"
+    "description": "root tenant",
+    "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+    "level": 1,
+    "name": "root.tenant"
   },
+  {
+    "description": "zhaoyimDemo1",
+    "id": "admin-1502693686",
+    "level": 2,
+    "name": "zhaoyimDemo1",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+  }
+]
+```
+
+11. 通过用户id获取次用户可访问的租户
+```
+GET /ocmanager/v1/api/user/id/{id}/all/tenants
+```
+__response:__
+```
+[
+  {
+    "description": "root tenant",
+    "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+    "level": 1,
+    "name": "root.tenant"
+  },
+  {
+    "description": "",
+    "id": "zhaoyim-1502869020",
+    "level": 2,
+    "name": "zhaoyimDemo003",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+  }
+]
+```
+
+
+12. 通过用户名和租户id获取该租户中此用户可访问的租户
+```
+GET /ocmanager/v1/api/user/name/{name}/tenant/{tenantId}/children/tenants
+```
+__response:__
+```
+[
+  {
+    "description": "asdasd",
+    "id": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae-1502090717",
+    "level": 3,
+    "name": "asdsad",
+    "parentId": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae"
+  },
+  {
+    "description": "zhaoyimLevel2",
+    "id": "86c62459-7c04-11e7-aa10-fa163ed7d0ae",
+    "level": 3,
+    "name": "zhaoyimLevel2",
+    "parentId": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae"
+  }
+]
+```
+
+
+13. 通过用户id和租户id获取该租户中此用户可访问的租户
+```
+GET /ocmanager/v1/api/user/id/{id}/tenant/{tenantId}/children/tenants
+```
+__response:__
+```
+[
+  {
+    "description": "asdasd",
+    "id": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae-1502090717",
+    "level": 3,
+    "name": "asdsad",
+    "parentId": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae"
+  },
+  {
+    "description": "zhaoyimLevel2",
+    "id": "86c62459-7c04-11e7-aa10-fa163ed7d0ae",
+    "level": 3,
+    "name": "zhaoyimLevel2",
+    "parentId": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae"
+  }
+]
+```
+
+
+14. 获取所有用户以及该用户关联的租户
+```
+GET /ocmanager/v1/api/user/with/tenants
+```
+__response:__
+```
+[
+ {
+    "description": "",
+    "email": "1@2.com",
+    "id": "b71eed6f-3032-4c57-97db-312a00bf05f6",
+    "password": "",
+    "username": "zhaoyimtest",
+    "urv": [
+      {
+        "roleId": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+        "roleName": "system.admin",
+        "tenantId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+        "tenantName": "root.tenant",
+        "userDescription": "",
+        "userId": "b71eed6f-3032-4c57-97db-312a00bf05f6",
+        "userName": "zhaoyimtest"
+      }
+    ]
+  }
+  ...
+]
+```
+
+
+15. 根据用户id获取用户以及该用户关联的租户
+```
+GET /ocmanager/v1/api/user/{id}/with/tenants
+```
+__response:__
+```
+{
+  "description": "",
+  "email": "a@com",
+  "id": "5abbd34c-c5af-42b2-afe1-381363f180fb",
+  "password": "*74B1C21ACE0C2D6B0678A5E503D2A60E8F9651A3",
+  "username": "user003",
+  "urv": [
+    {
+      "roleId": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+      "roleName": "system.admin",
+      "tenantId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+      "tenantName": "root.tenant",
+      "userDescription": "",
+      "userId": "5abbd34c-c5af-42b2-afe1-381363f180fb",
+      "userName": "user003"
+    },
+    {
+      "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+      "roleName": "team.member",
+      "tenantId": "test009",
+      "tenantName": "test009",
+      "userDescription": "",
+      "userId": "5abbd34c-c5af-42b2-afe1-381363f180fb",
+      "userName": "user003",
+      "parentTenantName": "root.tenant"
+    },
+    {
+      "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+      "roleName": "team.member",
+      "tenantId": "zhaoyim-1502869020",
+      "tenantName": "zhaoyimDemo003",
+      "userDescription": "",
+      "userId": "5abbd34c-c5af-42b2-afe1-381363f180fb",
+      "userName": "user003",
+      "parentTenantName": "root.tenant"
+    }
+  ]
+}
+```
+
+
+16. 获取ldap服务其上所有用户（__NOTE:只在enbale ldap 认证后可用__）
+```
+GET /ocmanager/v1/api/user/ldap
+```
+__response:__
+```
+[
+  "ethanwang",
+  "admin",
+  "user001",
+  "user001",
+  "user003",
+  "zhaoyimtest",
   ...
 ]
 ```
 
 
 
-7. 通过用户名称获取某个用户再哪些租户下
+17. 根据用户名获取此用户在给定租户下的服务实例授权是否成功
 ```
-GET /ocmanager/v1/api/user/name/{name}/tenants
+GET /ocmanager/v1/api/user/name/{userName}/tenant/{tenantId}/assignments/info
 ```
 __response:__
 ```
 [
   {
-    "roleId": "r1",
-    "roleName": "r1",
-    "tenantId": "t1",
-    "tenantName": "t1",
-    "userDescription": "u2 description",
-    "userId": "u2",
-    "userName": "u2"
-  },
+    "assignmentStatus": "Authorization Success",
+    "instanceName": "HDFS-zhaoyim-9E700BB"
+  }
+  {
+    "assignmentStatus": "Authorization Success",
+    "instanceName": "HDFS-zhaoyim-49D917E"
+  }
   ...
 ]
 ```
