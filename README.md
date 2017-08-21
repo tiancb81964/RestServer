@@ -110,7 +110,8 @@ dataFoundry.url=https://<df rest server IP>:<df rest server api port>
 dataFoundry.token=<df admin token>
 ```
 
-12. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__ Attention: user should be appended to the first policy under all services.
+12. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__ 
+__Attention: user should be appended to the first policy under all services__.
 
 13. Then restart the tomcat server
 
