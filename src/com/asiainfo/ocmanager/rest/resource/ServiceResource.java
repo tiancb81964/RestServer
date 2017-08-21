@@ -375,7 +375,7 @@ public class ServiceResource {
 					JsonObject spec = items.get(i).getAsJsonObject().getAsJsonObject("spec");
 					String name = spec.get("name").getAsString();
 					String plan = spec.getAsJsonArray("plans").toString();
-					if (serviceName.equals(name)) {
+					if (serviceName.toLowerCase().equals(name.toLowerCase())) {
 						return Response.ok().entity(plan).build();
 					}
 				}
