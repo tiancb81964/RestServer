@@ -40,57 +40,58 @@ mysql> source <TOMCAT_HOME>/webapps/ocmanager/WEB-INF/database/mysql/initOCManag
 ```
 9. Configure RestServer configuration
 ```
-//Either 'ldap' or 'mysql' is supposed to specify where users should be added from	
+
+#Either 'ldap' or 'mysql' is supposed to specify where users should be added from	
 oc.server.user.source=ldap
-//Period(in seconds) of authentication action	
+#Period(in seconds) of authentication action	
 oc.server.security.scheduler.period.seconds=85800
-//If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
+#If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
 oc.server.security.mudule.class=com.asiainfo.ocmanager.security.module.plugin.KrbModule
-//krb5.conf file path, needed only if Kerberos is enabled
+#krb5.conf file path, needed only if Kerberos is enabled
 oc.hadoop.krb.conf=D:/kerberos/krb5.conf
 
-//For HA, configure to HDFS nameservices. For non-HA, configure to 'namenodeHostname:port'	
+#For HA, configure to HDFS nameservices. For non-HA, configure to 'namenodeHostname:port'	
 oc.hdfs.dfs.nameservices=aicloud1.asiainfo.com:8020
-//HDFS dfs.ha.namenodes, in format like	'nn1#NN1Hostname:port,nn2#NN2Hostname:port'	
+#HDFS dfs.ha.namenodes, in format like	'nn1#NN1Hostname:port,nn2#NN2Hostname:port'	
 oc.hdfs.dfs.ha.namenodes=nn1#aicloud1.asiainfo.com:8020,nn2#aicloud2.asiainfo.com:8020
 
-//Kerberos princial to use for HDFS service	
+#Kerberos princial to use for HDFS service	
 oc.hadoop.krb.pricipal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
-//Kerberos keytab path, must be aligned with configured principal	
+#Kerberos keytab path, must be aligned with configured principal	
 oc.hadoop.krb.keytab=D:/kerberos/nn.service.keytab
 
-//Kerberos principal to use for Hbase Master, '_HOST' stands for whichever master that's active.    
+#Kerberos principal to use for Hbase Master, '_HOST' stands for whichever master that's active.    
 oc.hbase.master.krb.principal=hbase/_HOST@ASIAINFO.COM
-//Kerberos principal to use for Hbase Regionserver
+#Kerberos principal to use for Hbase Regionserver
 oc.hbase.regionserver.krb.principal=hbase/_HOST@ASIAINFO.COM
 
-//HTTP URL(http://host:port) of ResourceManager. Both RM can be configured using comma as seperator if HA is enabled
+#HTTP URL(http://host:port) of ResourceManager. Both RM can be configured using comma as seperator if HA is enabled
 oc.yarn.resourcemanager.http.url=http://aicloud1.asiainfo.com:8088,http://aicloud2.asiainfo.com:8088
 
-//Hostnames of zookeeper, seperated by comma
+#Hostnames of zookeeper, seperated by comma
 oc.zookeeper.quorum=aicloud1.asiainfo.com,aicloud2.asiainfo.com
-//Zookeeper port
+#Zookeeper port
 oc.zookeeper.port=2181
 
-//Hostnames of kafka brokers, seperated by comma
+#Hostnames of kafka brokers, seperated by comma
 oc.kafka.brokers=aicloud1.asiainfo.com,aicloud2.asiainfo.com
-//Kafka port
+#Kafka port
 oc.kafka.broker.port=6667
-//Kafka jaas file path, needed only if Kerberos is enabled
+#Kafka jaas file path, needed only if Kerberos is enabled
 oc.kafka.security.jaas.file=D:\\kafka_jaas.conf
 
-//Hostname of Mongo server
+#Hostname of Mongo server
 oc.mongo.server.host=ochadoop111.jcloud.local
-//Mongo server port
+#Mongo server port
 oc.mongo.server.port=27021
 
-//Hostname of Greenplum server
+#Hostname of Greenplum server
 oc.greenplum.server.host=ochadoop111.jcloud.local
-//Greenplum port
+#Greenplum port
 oc.greenplum.server.port=5432
-//Admin account of Greenplum
+#Admin account of Greenplum
 oc.greenplum.user=gpadmin
-//Password of admin account 
+#Password of admin account 
 oc.greenplum.password=asiainfo
 ```
 
