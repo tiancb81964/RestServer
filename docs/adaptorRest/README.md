@@ -231,7 +231,7 @@ __response:__
 }
 ```
 
-8. 修改用户密码
+8. 修改用户密码（__NOTE:只在enbale mysql 认证后可用__）
 ```
 PUT /ocmanager/v1/api/user/{userName}/password
 ```
@@ -492,8 +492,14 @@ __response:__
 ```
 [
   {
-    "description": "hdfs description",
-    "id": "100",
+    "description": "A Hadoop hbase service broker implementation",
+    "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
+    "origin": "ocdp",
+    "servicename": "hbase"
+  },
+  {
+    "description": "A Hadoop hdfs service broker implementation",
+    "id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d8",
     "origin": "ocdp",
     "servicename": "hdfs"
   },
@@ -508,14 +514,14 @@ GET /ocmanager/v1/api/service/{id}
 __response:__
 ```
 {
-  "description": "hdfs description",
-  "id": "100",
+  "description": "A Hadoop hbase service broker implementation",
+  "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
   "origin": "ocdp",
-  "servicename": "hdfs"
+  "servicename": "hbase"
 }
 ```
 
-3. 添加Service broker（添加服务， 服务是注册在service broker 里面的，，因此会添加service broker 中注册的所有服务）
+3. 添加Service broker（添加服务,服务是注册在service broker 里面的,因此会添加service broker 中注册的所有服务）
 ```
 POST /ocmanager/v1/api/service/broker
 ```
@@ -561,7 +567,7 @@ __response:__
 }
 ```
 
-4. 删除Service broker（删除服务， 服务是注册在service broker 里面的，因此会删除service broker 中注册的所有服务）
+4. 删除Service broker（删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务）
 ```
 DELETE /ocmanager/v1/api/service/broker/{name}
 ```
@@ -607,110 +613,154 @@ __response:__
   "apiVersion": "v1",
   "metadata": {
     "selfLink": "/oapi/v1/namespaces/openshift/backingservices",
-    "resourceVersion": "17209829"
+    "resourceVersion": "22588737"
   },
   "items": [
     {
       "metadata": {
-        "name": "Cassandra",
-        "generateName": "etcd",
+        "name": "HBase",
+        "generateName": "hadoop",
         "namespace": "openshift",
-        "selfLink": "/oapi/v1/namespaces/openshift/backingservices/Cassandra",
-        "uid": "38fa4221-cd9f-11e6-b10e-4e10dba0edae",
-        "resourceVersion": "6202322",
-        "creationTimestamp": "2016-12-29T08:17:22Z",
+        "selfLink": "/oapi/v1/namespaces/openshift/backingservices/HBase",
+        "uid": "8217a0da-6620-11e7-9586-fa163efdbea8",
+        "resourceVersion": "22401880",
+        "creationTimestamp": "2017-07-11T10:05:46Z",
         "labels": {
-          "asiainfo.io/servicebroker": "etcd"
+          "asiainfo.io/servicebroker": "hadoop"
         }
       },
       "spec": {
-        "name": "Cassandra",
-        "id": "3D7D7D07-D704-4B22-B492-EE5AE5301A55",
-        "description": "A Sample Cassandra (v3.4) cluster on Openshift",
-        "bindable": true,
+        "name": "HBase",
+        "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
+        "description": "HBase是Hadoop的面向列的分布式非关系型数据库。版本：v1.1.2",
+        "bindable": false,
         "plan_updateable": false,
         "tags": [
-          "cassandra",
-          "openshift"
+          "hbase",
+          "database"
         ],
-        "requires": null,
+        "requires": [],
         "metadata": {
-          "displayName": "Cassandra",
-          "documentationUrl": "https://wiki.apache.org/cassandra/GettingStarted",
-          "imageUrl": "https://cassandra.apache.org/media/img/cassandra_logo.png",
-          "longDescription": "Managed, highly available cassandra clusters in the cloud.",
+          "displayName": "HBase",
+          "documentationUrl": "http://hbase.apache.org/",
+          "imageUrl": "http://hbase.apache.org/images/hbase_logo_with_orca_large.png",
+          "longDescription": "HBase是一个开源的，非关系型的，分布式数据库，类似于Google的BigTable。",
           "providerDisplayName": "Asiainfo",
-          "supportUrl": "https://cassandra.apache.org/"
+          "supportUrl": "http://hbase.apache.org/book.html"
         },
         "plans": [
           {
-            "name": "standalone",
-            "id": "7B7EC041-2090-4ACB-AE0F-E8BDF315A778",
-            "description": "HA Cassandra on Openshift",
+            "name": "shared",
+            "id": "f658e391-b7d6-4b72-9e4c-c754e4943ae1",
+            "description": "共享HBase实例",
             "metadata": {
               "bullets": [
-                "20 GB of Disk",
-                "20 connections"
+                "HBase Maximun Tables:10",
+                "HBase Maximun Regions:10"
               ],
-              "costs": null,
-              "displayName": "Shared and Free",
-              "customize": null
+              "costs": [
+                {
+                  "amount": {
+                    "usd": 0
+                  },
+                  "unit": "MONTHLY"
+                }
+              ],
+              "displayName": "",
+              "customize": {
+                "maximumRegionsQuota": {
+                  "default": 100,
+                  "max": 1000,
+                  "price": 10,
+                  "step": 10,
+                  "desc": "HBase命名空间允许的最大的region数目"
+                },
+                "maximumTablesQuota": {
+                  "default": 10,
+                  "max": 100,
+                  "price": 10,
+                  "step": 10,
+                  "desc": "HBase命名空间允许的最大的表数目"
+                }
+              }
             },
-            "free": true
+            "free": false
           }
         ],
         "dashboard_client": null
       },
       "status": {
-        "phase": "Inactive"
+        "phase": "Active"
       }
     },
     {
       "metadata": {
-        "name": "liuxu",
-        "generateName": "liuxu",
+        "name": "HDFS",
+        "generateName": "hadoop",
         "namespace": "openshift",
-        "selfLink": "/oapi/v1/namespaces/openshift/backingservices/liuxu",
-        "uid": "95468dec-28c4-11e7-9b96-fa163efdbea8",
-        "resourceVersion": "7495189",
-        "creationTimestamp": "2017-04-24T08:04:04Z",
+        "selfLink": "/oapi/v1/namespaces/openshift/backingservices/HDFS",
+        "uid": "821718e4-6620-11e7-9586-fa163efdbea8",
+        "resourceVersion": "22401881",
+        "creationTimestamp": "2017-07-11T10:05:46Z",
         "labels": {
-          "asiainfo.io/servicebroker": "liuxu"
+          "asiainfo.io/servicebroker": "hadoop"
         }
       },
       "spec": {
-        "name": "Greenplum",
-        "id": "98E2AFE3-7279-40CA-B04E-74276B3FF4B2",
-        "description": "Greenplumæ¯Pivotalå¼æºçMPPæ°æ®åºã",
-        "bindable": true,
+        "name": "HDFS",
+        "id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d8",
+        "description": "HDFS是Hadoop的分布式文件系统。版本：v2.7.1",
+        "bindable": false,
         "plan_updateable": false,
         "tags": [
-          "Greenplum",
-          "mpp",
-          "database"
+          "hdfs",
+          "storage"
         ],
-        "requires": null,
+        "requires": [],
         "metadata": {
-          "displayName": "Greenplum",
-          "documentationUrl": "http://gpdb.docs.pivotal.io",
-          "imageUrl": "pub/assets/Greenplum.png",
-          "longDescription": "The First Open SourceMassively Parallel Data Warehouse",
+          "displayName": "HDFS",
+          "documentationUrl": "http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html",
+          "imageUrl": "https://hadoop.apache.org/images/hadoop-logo.jpg",
+          "longDescription": "Hadoop分布式文件系统(HDFS)是一个的分布式的，可扩展的，轻量级的文件系统。",
           "providerDisplayName": "Asiainfo",
-          "supportUrl": "http://greenplum.org"
+          "supportUrl": "http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html"
         },
         "plans": [
           {
-            "name": "Experimental",
-            "id": "B48A3972-536F-47A6-B04F-A5344F4DC5E0",
-            "description": "åç¬Greenplumå®ä¾",
+            "name": "shared",
+            "id": "72150b09-1025-4533-8bae-0e04ef68ac13",
+            "description": "共享HDFS实例",
             "metadata": {
               "bullets": [
-                "20 GB of Disk",
-                "20 connections"
+                "Name Space Quota:1000",
+                "Storage Space Quota (GB):20"
               ],
-              "costs": null,
-              "displayName": "Shared and Free",
-              "customize": null
+              "costs": [
+                {
+                  "amount": {
+                    "usd": 0
+                  },
+                  "unit": "MONTHLY"
+                }
+              ],
+              "displayName": "",
+              "customize": {
+                "nameSpaceQuota": {
+                  "default": 1000,
+                  "max": 100000,
+                  "price": 10,
+                  "step": 10,
+                  "desc": "HDFS目录允许创建的最大文件数目"
+                },
+                "storageSpaceQuota": {
+                  "default": 1024,
+                  "max": 102400,
+                  "price": 10,
+                  "step": 10,
+                  "unit": "GB",
+                  "desc": "HDFS目录的最大存储容量"
+                }
+              }
             },
             "free": false
           }
@@ -727,8 +777,7 @@ __response:__
 ```
 
 
-### Service Instance APIs
-1. 获取多租户平台所有服务实例
+6. 获取多租户平台上所有服务实例列表
 ```
 GET /ocmanager/v1/api/service/all/instances
 ```
@@ -736,16 +785,75 @@ __response:__
 ```
 [
   {
-    "id": "21aeba68-57f2-11e7-9a0f-fa163efdbea8",
-    "instanceName": "hive-instance001",
-    "quota": "{\"hiveStorageQuota\":\"1024\",\"yarnQueueQuota\":\"10\"}",
+    "id": "01567a01-8259-11e7-990a-fa163efdbea8",
+    "instanceName": "Hive-zhaoyim-1B07F71",
+    "quota": "{\"storageSpaceQuota\":\"1024\",\"yarnQueueQuota\":\"10\"}",
     "serviceTypeId": "",
     "serviceTypeName": "Hive",
-    "tenantId": "zhaoyim"
+    "status": "Failure",
+    "tenantId": "zhaoyim-1502869020"
   },
-    ......
+  {
+    "id": "158dcc32-8090-11e7-8e31-fa163efdbea8",
+    "instanceName": "HDFS-admin-1502673613",
+    "serviceTypeId": "",
+    "serviceTypeName": "HDFS",
+    "status": "Failure",
+    "tenantId": "86c62459-7c04-11e7-aa10-fa163ed7d0ae"
+  },
+  ...
+]  
+```
+
+
+7. 获取指定服务的plan套餐
+```
+GET /ocmanager/v1/api/service/{serviceName}/plan
+```
+__response:__
+```
+[
+  {
+    "name": "shared",
+    "id": "f658e391-b7d6-4b72-9e4c-c754e4943ae1",
+    "description": "共享HBase实例",
+    "metadata": {
+      "bullets": [
+        "HBase Maximun Tables:10",
+        "HBase Maximun Regions:10"
+      ],
+      "costs": [
+        {
+          "amount": {
+            "usd": 0
+          },
+          "unit": "MONTHLY"
+        }
+      ],
+      "displayName": "",
+      "customize": {
+        "maximumRegionsQuota": {
+          "default": 100,
+          "max": 1000,
+          "price": 10,
+          "step": 10,
+          "desc": "HBase命名空间允许的最大的region数目"
+        },
+        "maximumTablesQuota": {
+          "default": 10,
+          "max": 100,
+          "price": 10,
+          "step": 10,
+          "desc": "HBase命名空间允许的最大的表数目"
+        }
+      }
+    },
+    "free": false
+  }
 ]
 ```
+
+
 
 
 ### Roles APIs
@@ -757,11 +865,23 @@ __response:__
 ```
 [
   {
-    "description": "admin description",
-    "id": "1",
-    "rolename": "admin"
+    "description": "system admin is super user, it can create tenant and add users, assign role to user and add services.",
+    "id": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+    "permission": "{createUser: true, updateUser: true, deleteUser: true, addService: true, deleteService: true, grant: true}",
+    "rolename": "system.admin"
   },
-    ......
+  {
+    "description": "tenant admin can add uses to the tenant and assign role to user.",
+    "id": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae",
+    "permission": "{grant: true}",
+    "rolename": "tenant.admin"
+  },
+  {
+    "description": "the user only can read the tenant information that he is in.",
+    "id": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+    "permission": "{}",
+    "rolename": "team.member"
+  }
 ]
 ```
 
@@ -775,10 +895,10 @@ POST /ocmanager/v1/api/tenant
 __request body:__
 ```
 {
-    "id": "09367148-c72a-413f-b1de-5a23b566d808",
+    "id": "09367148-c72a-413f-b1de-5a23b566d809",
     "name": "createTenant001",
     "description": "create tenant 001",
-    "parentId": "f7f281ee-a544-4636-9341-2db50c491b96"
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
 }
 ```
 
@@ -786,31 +906,13 @@ __request body:__
 __response:__
 ```
 {
-  "kind": "Project",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "09367148-c72a-413f-b1de-5a23b566d808",
-    "selfLink": "/oapi/v1/projectrequests/09367148-c72a-413f-b1de-5a23b566d808",
-    "uid": "d24eaab4-51d5-11e7-9b16-fa163efdbea8",
-    "resourceVersion": "16511194",
-    "creationTimestamp": "2017-06-15T14:20:45Z",
-    "annotations": {
-      "openshift.io/description": "create tenant 001",
-      "openshift.io/display-name": "createTenant001",
-      "openshift.io/requester": "system:serviceaccount:default:ocm",
-      "openshift.io/sa.scc.mcs": "s0:c16,c10",
-      "openshift.io/sa.scc.supplemental-groups": "1000260000/10000",
-      "openshift.io/sa.scc.uid-range": "1000260000/10000"
-    }
-  },
-  "spec": {
-    "finalizers": [
-      "openshift.io/origin",
-      "kubernetes"
-    ]
-  },
-  "status": {
-    "phase": "Active"
+  "dataFoundryInfo": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"09367148-c72a-413f-b1de-5a23b566d809\",\"selfLink\":\"/oapi/v1/projectrequests/09367148-c72a-413f-b1de-5a23b566d809\",\"uid\":\"9767c526-8622-11e7-bf73-fa163efdbea8\",\"resourceVersion\":\"22589952\",\"creationTimestamp\":\"2017-08-21T03:41:18Z\",\"annotations\":{\"openshift.io/description\":\"create tenant 001\",\"openshift.io/display-name\":\"createTenant001\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c11,c5\",\"openshift.io/sa.scc.supplemental-groups\":\"1000120000/10000\",\"openshift.io/sa.scc.uid-range\":\"1000120000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
+  "databaseInfo": {
+    "description": "create tenant 001",
+    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "level": 0,
+    "name": "createTenant001",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
   }
 }
 ``` 
@@ -825,20 +927,18 @@ __response:__
 ```
 [
   {
-    "description": "child tenant",
-    "id": "5a6c16a9-0c85-42da-aec3-8ac1f5532fe1",
-    "name": "ChildTenant",
-    "parentId": "f7f281ee-a544-4636-9341-2db50c491b96",
-    "level": 2,
-    "dacpTeamCode": 2
+    "description": "create tenant 001",
+    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "level": 0,
+    "name": "createTenant001",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
   },
   {
     "description": "root tenant",
-    "id": "f7f281ee-a544-4636-9341-2db50c491b96",
-    "name": "rootTenant",
+    "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
     "level": 1,
-    "dacpTeamCode": 1
-  }
+    "name": "root.tenant"
+  },
   ...
 ]
 ```
@@ -851,17 +951,15 @@ GET /ocmanager/v1/api/tenant/{id}
 __response:__
 ```
 {
-  "description": "child tenant",
-  "id": "5a6c16a9-0c85-42da-aec3-8ac1f5532fe1",
-  "name": "ChildTenant",
-  "parentId": "f7f281ee-a544-4636-9341-2db50c491b96",
-  "level": 2,
-  "dacpTeamCode": 2
+  "description": "root tenant",
+  "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+  "level": 1,
+  "name": "root.tenant"
 }
 
 ```
 
-4. 获取租户所有子租户
+4. 获取指定租户的所有子租户
 ```
 GET /ocmanager/v1/api/tenant/{id}/children
 ```
@@ -869,13 +967,19 @@ __response:__
 ```
 [
   {
-    "description": "child tenant",
-    "id": "5a6c16a9-0c85-42da-aec3-8ac1f5532fe1",
-    "name": "ChildTenant",
-    "parentId": "f7f281ee-a544-4636-9341-2db50c491b96",
+    "description": "create tenant 001",
+    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "level": 0,
+    "name": "createTenant001",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+  },
+  {
+    "description": "zhaoyimLevel1",
+    "id": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae",
     "level": 2,
-    "dacpTeamCode": 2
-  }
+    "name": "zhaoyimLevel1",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+  },
   ...
 ]
 
@@ -895,15 +999,15 @@ __request body:__
   "apiVersion":"v1",
   "metadata":
     {
-      "name":"ETCD-instance017"
+      "name":"zhaoyim_kafka_instance777"
     },
   "spec":
     {
       "provisioning":
         {
-          "backingservice_name":"ETCD",
-          "backingservice_plan_guid":"204F8288-F8D9-4806-8661-EB48D94504B3",
-          "parameters":{"ETCDStorageQuota":"1024","ETCDQueueQuota":"10"}
+          "backingservice_name":"Kafka",
+          "backingservice_plan_guid":"68ee85c2-5b1a-4f51-89e9-5b111c251f0d",
+          "parameters":{"partitionSize":"10","topicQuota":"10","topicTTL":"10"}
         }
     }
 }
@@ -916,21 +1020,25 @@ __response:__
   "kind": "BackingServiceInstance",
   "apiVersion": "v1",
   "metadata": {
-    "name": "ETCD-instance017",
-    "namespace": "zhaoyim",
-    "selfLink": "/oapi/v1/namespaces/zhaoyim/backingserviceinstances/ETCD-instance017",
-    "uid": "e45783a5-5240-11e7-8905-fa163efdbea8",
-    "resourceVersion": "16574723",
-    "creationTimestamp": "2017-06-16T03:07:12Z"
+    "name": "zhaoyim_kafka_instance777",
+    "namespace": "09367148-c72a-413f-b1de-5a23b566d809",
+    "selfLink": "/oapi/v1/namespaces/09367148-c72a-413f-b1de-5a23b566d809/backingserviceinstances/zhaoyim_kafka_instance777",
+    "uid": "f8bda5e4-8624-11e7-bf73-fa163efdbea8",
+    "resourceVersion": "22590366",
+    "creationTimestamp": "2017-08-21T03:58:20Z"
   },
   "spec": {
     "provisioning": {
       "dashboard_url": "",
-      "backingservice_name": "ETCD",
+      "backingservice_name": "Kafka",
       "backingservice_spec_id": "",
-      "backingservice_plan_guid": "204F8288-F8D9-4806-8661-EB48D94504B3",
+      "backingservice_plan_guid": "68ee85c2-5b1a-4f51-89e9-5b111c251f0d",
       "backingservice_plan_name": "",
-      "parameters": null,
+      "parameters": {
+        "partitionSize": "10",
+        "topicQuota": "10",
+        "topicTTL": "10"
+      },
       "credentials": null
     },
     "userprovidedservice": {
@@ -942,9 +1050,7 @@ __response:__
     "tags": null
   },
   "status": {
-    "phase": "Provisioning",
-    "action": "",
-    "last_operation": null
+    "phase": "Provisioning"
   }
 }
 ``` 
@@ -958,11 +1064,13 @@ __response:__
 ```
 [
   {
-    "id": "e45783a5-5240-11e7-8905-fa163efdbea8",
-    "instanceName": "ETCD-instance017",
+    "id": "f8be2b3f-8624-11e7-bf73-fa163efdbea8",
+    "instanceName": "zhaoyim_kafka_instance777",
+    "quota": "{\"instance_id\":\"f8be2b3f-8624-11e7-bf73-fa163efdbea8\",\"partitionSize\":\"10\",\"topicQuota\":\"10\",\"topicTTL\":\"10\"}",
     "serviceTypeId": "",
-    "serviceTypeName": "ETCD",
-    "tenantId": "zhaoyim"
+    "serviceTypeName": "Kafka",
+    "status": "Unbound",
+    "tenantId": "09367148-c72a-413f-b1de-5a23b566d809"
   },
   ...
 ]
@@ -979,41 +1087,51 @@ __response:__
   "kind": "BackingServiceInstance",
   "apiVersion": "v1",
   "metadata": {
-    "name": "ETCD-instance017",
-    "namespace": "zhaoyim",
-    "selfLink": "/oapi/v1/namespaces/zhaoyim/backingserviceinstances/ETCD-instance017",
-    "uid": "e45783a5-5240-11e7-8905-fa163efdbea8",
-    "resourceVersion": "16575264",
-    "creationTimestamp": "2017-06-16T03:07:12Z",
-    "deletionTimestamp": "2017-06-16T03:12:13Z"
+    "name": "zhaoyim_kafka_instance777",
+    "namespace": "09367148-c72a-413f-b1de-5a23b566d809",
+    "selfLink": "/oapi/v1/namespaces/09367148-c72a-413f-b1de-5a23b566d809/backingserviceinstances/zhaoyim_kafka_instance777",
+    "uid": "f8bda5e4-8624-11e7-bf73-fa163efdbea8",
+    "resourceVersion": "22590458",
+    "creationTimestamp": "2017-08-21T03:58:20Z",
+    "deletionTimestamp": "2017-08-21T04:02:13Z",
+    "annotations": {
+      "datafoundry.io/servicebroker": "hadoop"
+    }
   },
   "spec": {
     "provisioning": {
       "dashboard_url": "",
-      "backingservice_name": "ETCD",
-      "backingservice_spec_id": "",
-      "backingservice_plan_guid": "204F8288-F8D9-4806-8661-EB48D94504B3",
-      "backingservice_plan_name": "",
-      "parameters": null,
-      "credentials": null
+      "backingservice_name": "Kafka",
+      "backingservice_spec_id": "7b738c78-d412-422b-ac3e-43a9fc72a4a7",
+      "backingservice_plan_guid": "68ee85c2-5b1a-4f51-89e9-5b111c251f0d",
+      "backingservice_plan_name": "shared",
+      "parameters": {
+        "instance_id": "f8be2b3f-8624-11e7-bf73-fa163efdbea8",
+        "partitionSize": "10",
+        "topicQuota": "10",
+        "topicTTL": "10"
+      },
+      "credentials": {
+        "ZooKeeper_URI": "ochadoop111.jcloud.local:2181",
+        "host": "",
+        "port": "",
+        "topic": "oc_f8be2b3f-8624-11e7-bf73-fa163efdbea8"
+      }
     },
     "userprovidedservice": {
       "credentials": null
     },
     "binding": null,
     "bound": 0,
-    "instance_id": "",
+    "instance_id": "f8be2b3f-8624-11e7-bf73-fa163efdbea8",
     "tags": null
   },
   "status": {
-    "phase": "Provisioning",
-    "action": "_ToDelete",
-    "last_operation": null
+    "phase": "Unbound",
+    "action": "_ToDelete"
   }
 }
 ```
-
-
 
 
 8. 绑定租户，用户和角色
@@ -1024,8 +1142,8 @@ POST /ocmanager/v1/api/tenant/{id}/user/role/assignment
 __request body:__
 ```
 {
-    "userId": "user1",
-    "roleId": "role1"
+    "userId": "011ea988-abc2-4267-9215-cacf111716d1",
+    "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae"
 }
 ```
 
@@ -1033,11 +1151,12 @@ __request body:__
 __response:__
 ```
 {
-  "roleId": "role1",
-  "tenantId": "tenant1",
-  "userId": "user1"
+  "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+  "tenantId": "09367148-c72a-413f-b1de-5a23b566d809",
+  "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
+
 
 9. 获取租户下所有用户以及用户角色
 ```
@@ -1047,16 +1166,26 @@ __response:__
 ```
 [
   {
-    "roleId": "r1",
-    "roleName": "r1",
-    "tenantId": "t1",
-    "userDescription": "u1 description",
-    "userEmail": "a@163.com",
-    "userId": "u1",
-    "userName": "u1",
-    "userPassword": "passw0rd",
-    "userPhone": "123"
-  },,
+    "roleId": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+    "roleName": "system.admin",
+    "tenantId": "09367148-c72a-413f-b1de-5a23b566d809",
+    "userDescription": "System Admin User",
+    "userEmail": "admin@admin.com",
+    "userId": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+    "userName": "admin",
+    "userPassword": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+    "userPhone": "admin phone number"
+  },
+  {
+    "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+    "roleName": "team.member",
+    "tenantId": "09367148-c72a-413f-b1de-5a23b566d809",
+    "userDescription": "",
+    "userEmail": "a1@163.com",
+    "userId": "011ea988-abc2-4267-9215-cacf111716d1",
+    "userName": "user001",
+    "userPassword": "*74B1C21ACE0C2D6B0678A5E503D2A60E8F9651A3"
+  },
   ...
 ]
 ```
@@ -1070,8 +1199,8 @@ PUT /ocmanager/v1/api/tenant/{id}/user/role/assignment
 __request body:__
 ```
 {
-    "userId": "user1",
-    "roleId": "role2"
+    "userId": "011ea988-abc2-4267-9215-cacf111716d1",
+    "roleId": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae"
 }
 ```
 
@@ -1079,9 +1208,9 @@ __request body:__
 __response:__
 ```
 {
-  "roleId": "role2",
-  "tenantId": "tenant1",
-  "userId": "user1"
+  "roleId": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae",
+  "tenantId": "09367148-c72a-413f-b1de-5a23b566d809",
+  "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
 
@@ -1093,7 +1222,7 @@ DELETE /ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment
 __response:__
 ```
 {
-  "message": "user1",
+  "message": "011ea988-abc2-4267-9215-cacf111716d1",
   "resCodel": 200,
   "status": "delete success"
 }
@@ -1107,16 +1236,19 @@ DELETE /ocmanager/v1/api/tenant/{id}
 __response:__
 ```
 {
-  "kind": "Status",
-  "apiVersion": "v1",
-  "metadata": {},
-  "status": "Success",
-  "code": 200
+  "dataFoundryInfo": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n",
+  "databaseInfo": {
+    "description": "create tenant 001",
+    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "level": 0,
+    "name": "createTenant001",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+  }
 }
 ```
 
 
-13. 获取服务实例访问信息（只有服务实例状态是Active的时候才会有访问信息）
+13. 获取服务实例访问信息
 ```
 GET /ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info
 ```
@@ -1126,35 +1258,60 @@ __response:__
   "kind": "BackingServiceInstance",
   "apiVersion": "v1",
   "metadata": {
-    "name": "ETCD-instance014",
-    "namespace": "zhaoyim",
-    "selfLink": "/oapi/v1/namespaces/zhaoyim/backingserviceinstances/ETCD-instance014",
-    "uid": "fae1f410-50ee-11e7-87b1-fa163efdbea8",
-    "resourceVersion": "16363936",
-    "creationTimestamp": "2017-06-14T10:48:19Z"
+    "name": "HDFS-admin-54979FD",
+    "namespace": "zhaoyim-1502764945",
+    "selfLink": "/oapi/v1/namespaces/zhaoyim-1502764945/backingserviceinstances/HDFS-admin-54979FD",
+    "uid": "4789f551-8629-11e7-bf73-fa163efdbea8",
+    "resourceVersion": "22591222",
+    "creationTimestamp": "2017-08-21T04:29:11Z",
+    "annotations": {
+      "datafoundry.io/servicebroker": "hadoop"
+    }
   },
   "spec": {
     "provisioning": {
       "dashboard_url": "",
-      "backingservice_name": "ETCD",
-      "backingservice_spec_id": "",
-      "backingservice_plan_guid": "204F8288-F8D9-4806-8661-EB48D94504B3",
-      "backingservice_plan_name": "",
-      "parameters": null,
-      "credentials": null
+      "backingservice_name": "HDFS",
+      "backingservice_spec_id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d8",
+      "backingservice_plan_guid": "72150b09-1025-4533-8bae-0e04ef68ac13",
+      "backingservice_plan_name": "shared",
+      "parameters": {
+        "accesses": "read,write,execute",
+        "instance_id": "478a729e-8629-11e7-bf73-fa163efdbea8",
+        "nameSpaceQuota": "1000",
+        "storageSpaceQuota": "1024",
+        "user_name": "user001"
+      },
+      "credentials": {
+        "HDFS Path": "/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+        "host": "ochadoop111",
+        "port": "50070",
+        "uri": "http://ochadoop111:50070/webhdfs/v1/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8"
+      }
     },
     "userprovidedservice": {
       "credentials": null
     },
-    "binding": null,
-    "bound": 0,
-    "instance_id": "",
+    "binding": [
+      {
+        "bound_time": "2017-08-21T04:32:55Z",
+        "bind_uuid": "ccf906dc-8629-11e7-bf73-fa163efdbea8",
+        "bind_hadoop_user": "user001",
+        "credentials": {
+          "HDFS Path": "/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+          "host": "ochadoop111",
+          "port": "50070",
+          "uri": "http://ochadoop111:50070/webhdfs/v1/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+          "username": "user001"
+        }
+      }
+    ],
+    "bound": 1,
+    "instance_id": "478a729e-8629-11e7-bf73-fa163efdbea8",
     "tags": null
   },
   "status": {
-    "phase": "Provisioning",
-    "action": "",
-    "last_operation": null
+    "phase": "Bound"
   }
 }
 ```
@@ -1169,8 +1326,8 @@ __request body:__
 {      
     "parameters": 
         {
-            "hiveStorageQuota": "99999",
-            "yarnQueueQuota": "88888"
+            "hiveStorageQuota": "77",
+            "yarnQueueQuota": "77"
         }
 }
 ```
@@ -1182,45 +1339,58 @@ __response:__
   "kind": "BackingServiceInstance",
   "apiVersion": "v1",
   "metadata": {
-    "name": "hive-instance",
-    "namespace": "zhaoyim",
-    "selfLink": "/oapi/v1/namespaces/zhaoyim/backingserviceinstances/hive-instance",
-    "uid": "f1a993d6-57c8-11e7-9a0f-fa163efdbea8",
-    "resourceVersion": "17465724",
-    "creationTimestamp": "2017-06-23T04:03:41Z"
+    "name": "HDFS-admin-54979FD",
+    "namespace": "zhaoyim-1502764945",
+    "selfLink": "/oapi/v1/namespaces/zhaoyim-1502764945/backingserviceinstances/HDFS-admin-54979FD",
+    "uid": "4789f551-8629-11e7-bf73-fa163efdbea8",
+    "resourceVersion": "22591433",
+    "creationTimestamp": "2017-08-21T04:29:11Z",
+    "annotations": {
+      "datafoundry.io/servicebroker": "hadoop"
+    }
   },
   "spec": {
     "provisioning": {
       "dashboard_url": "",
-      "backingservice_name": "Hive",
-      "backingservice_spec_id": "2ef26018-003d-4b2b-b786-0481d4ee9fa3",
-      "backingservice_plan_guid": "aa7e364f-fdbf-4187-b60a-218b6fa398ed",
+      "backingservice_name": "HDFS",
+      "backingservice_spec_id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d8",
+      "backingservice_plan_guid": "72150b09-1025-4533-8bae-0e04ef68ac13",
       "backingservice_plan_name": "shared",
       "parameters": {
-            "hiveStorageQuota": "99999",
-            "yarnQueueQuota": "88888"
+        "hiveStorageQuota": "77",
+        "yarnQueueQuota": "77"
       },
       "credentials": {
-        "Hive database": "14ea4d0557c911e79a0ffa163efdbea8",
-        "host": "zx-dn-03",
-        "password": "e6510d82-2ed3-48f5-8668-b82d572aaac1",
-        "port": "10000",
-        "uri": "jdbc:hive2://zx-dn-03:10000/14ea4d0557c911e79a0ffa163efdbea8;principal=hive/zx-dn-03@EXAMPLE.COM",
-        "username": "zhaoyim@EXAMPLE.COM"
+        "HDFS Path": "/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+        "host": "ochadoop111",
+        "port": "50070",
+        "uri": "http://ochadoop111:50070/webhdfs/v1/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8"
       }
     },
     "userprovidedservice": {
       "credentials": null
     },
-    "binding": null,
-    "bound": 0,
-    "instance_id": "14ea4d05-57c9-11e7-9a0f-fa163efdbea8",
+    "binding": [
+      {
+        "bound_time": "2017-08-21T04:32:55Z",
+        "bind_uuid": "ccf906dc-8629-11e7-bf73-fa163efdbea8",
+        "bind_hadoop_user": "user001",
+        "credentials": {
+          "HDFS Path": "/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+          "host": "ochadoop111",
+          "port": "50070",
+          "uri": "http://ochadoop111:50070/webhdfs/v1/servicebroker/478a729e-8629-11e7-bf73-fa163efdbea8",
+          "username": "user001"
+        }
+      }
+    ],
+    "bound": 1,
+    "instance_id": "478a729e-8629-11e7-bf73-fa163efdbea8",
     "tags": null
   },
   "status": {
-    "phase": "Unbound",
-    "action": "",
-    "last_operation": null
+    "phase": "Bound",
+    "patch": "Update"
   }
 }
 ``` 
@@ -1233,30 +1403,15 @@ GET /ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role
 __response:__
 ```
 {
-  "roleId": "r1Id",
-  "tenantId": "t1Id",
-  "userId": "u1Id",
-  "userName": "u1Name"
+  "permission": "{createUser: true, updateUser: true, deleteUser: true, addService: true, deleteService: true, grant: true}",
+  "roleId": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+  "roleName": "system.admin",
+  "tenantId": "zhaoyim-1502764945",
+  "userId": "8f9adc49-bf64-4358-bb74-ad1a2c657c35",
+  "userName": "zhaoyim"
 }
 ```
 
-
-### Single Sign on APIs
-1. 获取当前用户(所要用户信息需要设置在request header中)
-```
-GET /ocmanager/v1/api/sso/user
-```
-__response:__
-```
-{
-  "http_x_proxy_cas_email": "",
-  "http_x_proxy_cas_loginname": "user1",
-  "http_x_proxy_cas_mobile": "",
-  "http_x_proxy_cas_userid": "",
-  "http_x_proxy_cas_username": "user1",
-  "admin": false,
-}
-```
 
 
 ### Dashboard Links APIs
