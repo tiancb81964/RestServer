@@ -1561,6 +1561,45 @@ __response:__
 ```
 
 
+### Create and download Kerberos keytab APIs (should configure the KDC server info in the rest server)
+1. 创建Kerberos keytab
+```
+POST /ocmanager/v1/api/kerberos/create/keytab
+```
+
+__request body:__
+```
+{
+    "krbusername": "zhaoyim",
+    "krbpassword": "zhaoyim"
+}
+```
+
+
+__response:__
+```
+{
+  "message": "zhaoyim.keytab created",
+  "resCodel": 200,
+  "status": "generate keytab successfully!"
+}
+``` 
+
+2. 下载Kerberos keytab
+```
+GET /ocmanager/v1/api/kerberos/keytab/{userName}
+```
+
+__response:__
+```
+### it should down load the keytab file. for example: you can use curl to download the keytab file:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/kerberos/keytab/{userName}
+
+eg:
+curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim
+``` 
+
+
 
 ### Dashboard Links APIs
 1. 添加多租户平台首页连接
