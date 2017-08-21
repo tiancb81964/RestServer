@@ -75,12 +75,12 @@ public class QuotaResource {
 	}
 
 	@GET
-	@Path("kafka/{serviceInstanceId}")
+	@Path("kafka/{topic}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	public Response getKafkaQuota(@PathParam("serviceInstanceId") String instanceId) {
+	public Response getKafkaQuota(@PathParam("topic") String topic) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(KafkaResourcePeeker.class);
-			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
+			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(topic)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
