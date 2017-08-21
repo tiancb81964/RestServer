@@ -66,7 +66,7 @@ public class SecurityManager {
 			String clz = ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE).trim();
 			Class<?> clazz = Class.forName(clz);
 			module = (SecurityModule) clazz.newInstance();
-			LOG.info("Security module configured to: " + clz);
+			LOG.info("Using security module: " + clz);
 		} catch (Exception e) {
 			LOG.error("Error init security module: "
 					+ ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE), e);
