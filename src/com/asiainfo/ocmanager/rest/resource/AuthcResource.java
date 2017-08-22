@@ -46,8 +46,8 @@ public class AuthcResource {
 						"Please add token in header of other requests.", 200, token)).build();
 			} else {
 				logger.info("login failed.");
-				return Response.ok()
-						.entity(new LoginResponseBean("Login failed!", "Invalid username or password.", 200, null))
+				return Response.status(Response.Status.UNAUTHORIZED)
+						.entity(new LoginResponseBean("Login failed!", "Invalid username or password.", 401, null))
 						.build();
 			}
 		} catch (Exception e) {
