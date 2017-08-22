@@ -1,5 +1,8 @@
 # RestServer Readme
-
+## Pre-request
+1. Runtime JRE1.8 +
+2. Network is reachable between RestServer and OCDP cluster, and other service servers like Mysql, Mongo, Greenplum etc.
+3. Kafka JMX enabled(Requested by quota monitor, enable by appending 'export JMX_PORT=9999' to Kafka runtime environment)
 
 ## How to deploy the OCManager REST API into the tomcat
 
