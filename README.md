@@ -1,5 +1,8 @@
 # RestServer Readme
-
+## Pre-request
+1. Runtime JRE1.8 +
+2. Network is reachable between RestServer and OCDP cluster
+3. Kafka JMX enabled(requested by Kafka quota monitor)
 
 ## How to deploy the OCManager REST API into the tomcat
 
