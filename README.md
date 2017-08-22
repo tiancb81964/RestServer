@@ -135,12 +135,23 @@ ldapRealm.contextFactory.url = ldap://10.1.236.146:389
 securityManager.realms = $ldapRealm
 ```
 
-13. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
+
+13. Configure Kerberos properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __kerberos.properties__ (__NOTE: If you did NOT enable Kerberos we can ignore this step__)
+```
+kerberos.user.principal=admin/admin@ASIAINFO.COM
+kerberos.keytab.location=/etc/krb5.conf
+kerberos.admin.password=00AAaa00
+kerberos.kdc.host=10.1.236.146
+kerberos.realm=ASIAINFO.COM
+```
+
+
+14. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
 __Attention: user should be appended to the first policy under all services__.
 
-14. Restart the tomcat server
+15. Restart the tomcat server
 
-15. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
+16. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
 
 
-__NOTE: __ More rest api, please access the link: https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest
+__NOTE: More rest api, please access the link:__  https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest
