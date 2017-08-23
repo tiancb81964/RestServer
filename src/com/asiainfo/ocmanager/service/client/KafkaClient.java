@@ -18,6 +18,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
+import org.apache.kafka.common.protocol.SecurityProtocol;
 import org.apache.kafka.common.requests.MetadataResponse.TopicMetadata;
 import org.apache.kafka.common.security.JaasUtils;
 import org.apache.log4j.Logger;
@@ -25,10 +26,12 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.security.module.plugin.KrbModule;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
+import com.google.common.collect.Sets;
 
 import kafka.admin.AdminUtils;
 import kafka.utils.ZkUtils;
 import scala.Tuple2;
+import scala.collection.JavaConversions;
 
 /**
  * Client for kafka.
@@ -42,6 +45,7 @@ public class KafkaClient {
 	private List<String> brokers = new ArrayList<>();
 	private int port = -1;
 	private ZkUtils zookeeper;
+	private SecurityProtocol protocol = SecurityProtocol.PLAINTEXT;
 
 	public static KafkaClient getInstance() {
 		if (instance == null) {
@@ -61,13 +65,18 @@ public class KafkaClient {
 	 * @return
 	 */
 	public int getPartitionCount(String topic) {
-		TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topic, zookeeper);
-		int number = meta.partitionMetadata().size();
+		scala.collection.Set<TopicMetadata> meta = AdminUtils.fetchTopicMetadataFromZk(toSet(topic), zookeeper, protocol);
+		int number = meta.head().partitionMetadata().size();
 		if (number <= 0) {
 			LOG.error("Partition number is negtive: " + topic);
 			throw new RuntimeException("Partition number is negtive: " + topic);
 		}
 		return number;
+	}
+	
+
+	private scala.collection.Set<String> toSet(String topic) {
+		return JavaConversions.asScalaSet(Sets.newHashSet(topic));
 	}
 
 	/**
@@ -122,35 +131,11 @@ public class KafkaClient {
 	 */
 	private Set<Partition> getLeaderPartitions(String topicName) {
 		Set<Partition> partitions = new HashSet<>();
-		TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topicName, zookeeper);
-		for(org.apache.kafka.common.requests.MetadataResponse.PartitionMetadata partition : meta.partitionMetadata()) {
+		scala.collection.Set<TopicMetadata> meta = AdminUtils.fetchTopicMetadataFromZk(toSet(topicName), zookeeper, protocol);
+		for(org.apache.kafka.common.requests.MetadataResponse.PartitionMetadata partition : meta.head().partitionMetadata()) {
 			partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
 		}
 		return partitions;
-		
-//		for (String broker : this.brokers) {
-//		    Properties props = new Properties();
-//		    props.put("bootstrap.servers", broker + ":" + this.port);
-//		    props.put("enable.auto.commit", "false");
-//		    props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-//		    props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-//			KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-//			List<PartitionInfo> parMetas = consumer.partitionsFor(topicName);
-//			for (PartitionInfo partition : parMetas) {
-//				partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
-//			}
-//			SimpleConsumer consumer = new SimpleConsumer(broker, this.port, 1, 1, "777");
-//			kafka.api.TopicMetadataRequest request = new kafka.api.TopicMetadataRequest(topic(topicName), 777);
-//			TopicMetadataResponse rsp = consumer.send(request);
-//			for (kafka.api.TopicMetadata topicMeta : toList(rsp.topicsMetadata())) {
-//				for (PartitionMetadata partitionMeta : toList(topicMeta.partitionsMetadata())) {
-//					String allocatedHost = partitionMeta.leader().get().host();
-//					partitions.add(new Partition(topicName, partitionMeta.partitionId(), allocatedHost));
-//				}
-//			}
-//			consumer.close();
-//		}
-//		return partitions;
 	}
 
 //	/**
@@ -181,6 +166,7 @@ public class KafkaClient {
 				throw new RuntimeException("Kafka jaas file not configured.");
 			}
 			System.setProperty("java.security.auth.login.config", jaas);
+			protocol = SecurityProtocol.SASL_PLAINTEXT;
 		}
 		boolean isSecure = JaasUtils.isZkSecurityEnabled();
 		LOG.info("Zookeeper isZkSecurityEnabled : " + isSecure);
