@@ -6,15 +6,15 @@
 ```
 export JMX_PORT=9999
 ```
-If Kerberos is disabled, skip to next step. If Kerberos enabled, change Kafka configuration by folowing steps(Due to Ambari bug):
+    If Kerberos is disabled, skip to next step. If Kerberos enabled, change Kafka configuration by folowing steps(Due to Ambari bug):
 ```
-Open and login OCDP web page: http://ocdpIP:8080
-Find Kafka service on left edge, click it and then click Configuration tab on the right page.
-Find 'listeners' configuration in 'Kafka Broker' section and change value to 'SASL_PLAINTEXT://localhost:6667'
-Find 'security.inter.broker.protocol' configuration in 'Custom kafka-broker' section and change value to 'SASL_PLAINTEXT'
+1. Open and login OCDP web page: http://ocdpIP:8080
+2. Find Kafka service on left edge, click it and then click Configuration tab on the right page.
+3. Find 'listeners' configuration in 'Kafka Broker' section and change value to 'SASL_PLAINTEXT://localhost:6667'
+4. Find 'security.inter.broker.protocol' configuration in 'Custom kafka-broker' section and change value to 'SASL_PLAINTEXT'
 ```    
-Complete above changes and restart Kafka cluster.
-Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release.
+    Complete above changes and restart Kafka cluster.	
+    Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release.
 4. Should install the Kerberos cleint. For example(Assume you already have the yum repos):
 ```
 yum install krb5-devel krb5-workstation krb5-libs
