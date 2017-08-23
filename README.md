@@ -1,16 +1,16 @@
 # RestServer Readme
 ## Pre-request
-1. Runtime JRE1.8 +
-2. OCDP2.6 +
-3. Network is reachable between RestServer and OCDP cluster, and other service servers like Mysql, Mongo, Greenplum etc.
-4. Kafka JMX enabled(Requested by quota monitor, enable by appending below line to Kafka->Configuration->Advanced kafka-env->'kafka-env template'):
+1. Runtime JRE1.8 +  
+2. OCDP2.6 +  
+3. Network is reachable between RestServer and OCDP cluster, and other service servers like Mysql, Mongo, Greenplum etc.  
+4. Kafka JMX enabled(Requested by quota monitor, enable by appending below line to Kafka->Configuration->Advanced kafka-env->'kafka-env template'):  
 **export JMX_PORT=9999**  
 
-Skip to next step if Kerberos disabled. **If Kerberos enabled**, change Kafka configuration by folowing steps(Due to Ambari bug): 
-a. Open and login OCDP web page: *http://ambari_server_ip:8080*  
-b. Find Kafka service on left edge, click it and then click Configuration tab on the right page.  
-c. Find **listeners** configuration in '*Kafka Broker*' section and change value to **SASL_PLAINTEXT://localhost:kafkaport**  
-d. Find **security.inter.broker.protocol** configuration in '*Custom kafka-broker*' section and change value to **SASL_PLAINTEXT**  
+Skip to next step if Kerberos disabled. **If Kerberos enabled**, change Kafka configuration by folowing steps(Due to Ambari bug):  
+**a)** Open and login OCDP web page: *http://ambari_server_ip:8080*  
+**b)**. Find Kafka service on left edge, click it and then click Configuration tab on the right page.  
+**c)**. Find **listeners** configuration in '*Kafka Broker*' section and change value to **SASL_PLAINTEXT://localhost:kafkaport**  
+**d)**. Find **security.inter.broker.protocol** configuration in '*Custom kafka-broker*' section and change value to **SASL_PLAINTEXT**  
 
 Complete above changes and restart Kafka cluster.  
 *Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release*  
