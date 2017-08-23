@@ -18,6 +18,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
+import org.apache.kafka.common.requests.MetadataResponse.TopicMetadata;
 import org.apache.kafka.common.security.JaasUtils;
 import org.apache.log4j.Logger;
 
@@ -26,15 +27,8 @@ import com.asiainfo.ocmanager.security.module.plugin.KrbModule;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
 import kafka.admin.AdminUtils;
-import kafka.api.PartitionMetadata;
-import kafka.api.TopicMetadata;
-import kafka.api.TopicMetadataRequest;
-import kafka.api.TopicMetadataResponse;
-import kafka.consumer.SimpleConsumer;
 import kafka.utils.ZkUtils;
 import scala.Tuple2;
-import scala.collection.JavaConversions;
-import scala.collection.Seq;
 
 /**
  * Client for kafka.
@@ -68,7 +62,7 @@ public class KafkaClient {
 	 */
 	public int getPartitionCount(String topic) {
 		TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topic, zookeeper);
-		int number = meta.partitionsMetadata().size();
+		int number = meta.partitionMetadata().size();
 		if (number <= 0) {
 			LOG.error("Partition number is negtive: " + topic);
 			throw new RuntimeException("Partition number is negtive: " + topic);
@@ -107,12 +101,15 @@ public class KafkaClient {
 
 	private long partitionSize(Partition par) {
 		try {
+			if (par.getHost() == null || par.getHost().isEmpty()) {
+				LOG.error("Leader not found for topic: " + par.getTopic() + ", partition: " + par.getPar() + ". Partition size ungettable");
+				return 0l;
+			}
 			MBeanServerConnection conn = KafkaJMXPool.getConnection(par.getHost());
 			Object value = conn.getAttribute(MBeanName.name(par.getTopic(), par.getPar()), MBeanName.VALUE);
 			return (Long) value;
 		} catch (Exception e) {
 			LOG.error("Fetching partition size failed: " + par, e);
-			;
 			throw new RuntimeException("Fetching partition size failed: " + par, e);
 		}
 	}
@@ -124,45 +121,51 @@ public class KafkaClient {
 	 * @return
 	 */
 	private Set<Partition> getLeaderPartitions(String topicName) {
-		// Set<Partition> partitions = new HashSet<>();
-		// TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topicName,
-		// zookeeper);
-		// for(PartitionMetadata partitionMeta :
-		// toList(meta.partitionsMetadata())){
-		// String allocatedHost = partitionMeta.leader().get().host();
-		// partitions.add(new Partition(topicName, partitionMeta.partitionId(),
-		// allocatedHost));
-		// }
-		// return partitions;
 		Set<Partition> partitions = new HashSet<>();
-		for (String broker : this.brokers) {
-			SimpleConsumer consumer = new SimpleConsumer(broker, this.port, 30000, 30000, "777");
-			TopicMetadataRequest request = new TopicMetadataRequest(topic(topicName), 999);
-			TopicMetadataResponse rsp = consumer.send(request);
-			for (TopicMetadata topicMeta : toList(rsp.topicsMetadata())) {
-				for (PartitionMetadata partitionMeta : toList(topicMeta.partitionsMetadata())) {
-					String allocatedHost = partitionMeta.leader().get().host();
-					partitions.add(new Partition(topicName, partitionMeta.partitionId(), allocatedHost));
-				}
-			}
-			consumer.close();
+		TopicMetadata meta = AdminUtils.fetchTopicMetadataFromZk(topicName, zookeeper);
+		for(org.apache.kafka.common.requests.MetadataResponse.PartitionMetadata partition : meta.partitionMetadata()) {
+			partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
 		}
 		return partitions;
+		
+//		for (String broker : this.brokers) {
+//		    Properties props = new Properties();
+//		    props.put("bootstrap.servers", broker + ":" + this.port);
+//		    props.put("enable.auto.commit", "false");
+//		    props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+//		    props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+//			KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+//			List<PartitionInfo> parMetas = consumer.partitionsFor(topicName);
+//			for (PartitionInfo partition : parMetas) {
+//				partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
+//			}
+//			SimpleConsumer consumer = new SimpleConsumer(broker, this.port, 1, 1, "777");
+//			kafka.api.TopicMetadataRequest request = new kafka.api.TopicMetadataRequest(topic(topicName), 777);
+//			TopicMetadataResponse rsp = consumer.send(request);
+//			for (kafka.api.TopicMetadata topicMeta : toList(rsp.topicsMetadata())) {
+//				for (PartitionMetadata partitionMeta : toList(topicMeta.partitionsMetadata())) {
+//					String allocatedHost = partitionMeta.leader().get().host();
+//					partitions.add(new Partition(topicName, partitionMeta.partitionId(), allocatedHost));
+//				}
+//			}
+//			consumer.close();
+//		}
+//		return partitions;
 	}
 
-	/**
-	 * Put topic name in seq
-	 * 
-	 * @param topicName
-	 * @return
-	 */
-	private Seq<String> topic(String topicName) {
-		return toSeq(toList(topicName));
-	}
-
-	private List<String> toList(String name) {
-		return Arrays.asList(new String[] { name });
-	}
+//	/**
+//	 * Put topic name in seq
+//	 * 
+//	 * @param topicName
+//	 * @return
+//	 */
+//	private Seq<String> topic(String topicName) {
+//		return toSeq(toList(topicName));
+//	}
+//
+//	private List<String> toList(String name) {
+//		return Arrays.asList(new String[] { name });
+//	}
 
 	private KafkaClient() {
 		String[] hosts = ServerConfiguration.getConf().getProperty("oc.kafka.brokers").trim().split(",");
@@ -258,6 +261,10 @@ public class KafkaClient {
 
 		public static MBeanServerConnection getConnection(String host) {
 			try {
+				if (host == null || host.isEmpty()) {
+					LOG.error("MBean connection host is null");
+					throw new RuntimeException("MBean connection host can not be null.");
+				}
 				if (jmx.containsKey(host)) {
 					JMXConnector connector = jmx.get(host);
 					return connector.getMBeanServerConnection();
@@ -280,7 +287,7 @@ public class KafkaClient {
 				JMXConnector jmxc = JMXConnectorFactory.connect(url);
 				return jmxc;
 			} catch (Exception e) {
-				LOG.error("Creating KafkaJMX connection failed: " + host, e);
+				LOG.error("Creating KafkaJMX connection failed by host: " + host, e);
 				throw new RuntimeException("Creating KafkaJMX connection failed: " + host, e);
 			}
 		}
@@ -302,12 +309,12 @@ public class KafkaClient {
 		}
 	}
 
-	private <T> Seq<T> toSeq(List<T> list) {
-		return JavaConversions.asScalaBuffer(list).seq();
-	}
-
-	private <T> List<T> toList(Seq<T> seq) {
-		return JavaConversions.asJavaList(seq);
-	}
+//	private <T> Seq<T> toSeq(List<T> list) {
+//		return JavaConversions.asScalaBuffer(list).seq();
+//	}
+//
+//	private <T> List<T> toList(Seq<T> seq) {
+//		return JavaConversions.asJavaList(seq);
+//	}
 
 }
