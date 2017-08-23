@@ -102,7 +102,7 @@ public class KafkaClient {
 	private long partitionSize(Partition par) {
 		try {
 			if (par.getHost() == null || par.getHost().isEmpty()) {
-				LOG.error("Leader not found for topic: " + par.getTopic() + ", partition: " + par.getPar());
+				LOG.error("Leader not found for topic: " + par.getTopic() + ", partition: " + par.getPar() + ". Partition size ungettable");
 				return 0l;
 			}
 			MBeanServerConnection conn = KafkaJMXPool.getConnection(par.getHost());
