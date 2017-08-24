@@ -12,8 +12,8 @@
    **c)**. Find **listeners** configuration in '*Kafka Broker*' section and change value to **SASL_PLAINTEXT://localhost:kafkaport**  
    **d)**. Find **security.inter.broker.protocol** configuration in '*Custom kafka-broker*' section and change value to **SASL_PLAINTEXT**  
 
-Complete above changes and restart Kafka cluster.  
-*Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release*  
+   Complete above changes and restart Kafka cluster.  
+   *Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release*  
 
 5. Should install the Kerberos cleint. For example(Assume you already have the yum repos):
 ```
