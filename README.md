@@ -14,6 +14,7 @@ Skip to next step if Kerberos disabled. **If Kerberos enabled**, change Kafka co
 
 Complete above changes and restart Kafka cluster.  
 *Attention: Above configuration changes must be made due to Ambari bug('PLAINTEXTSASL' protocol is no longer recognized by Kafka above 0.9.0 version). It wouldn't be neccessary to follow current step is Ambari fix this in future release*  
+
 5. Should install the Kerberos cleint. For example(Assume you already have the yum repos):
 ```
 yum install krb5-devel krb5-workstation krb5-libs
@@ -68,7 +69,7 @@ oc.server.security.scheduler.period.seconds=85800
 #If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
 oc.server.security.mudule.class=com.asiainfo.ocmanager.security.module.plugin.KrbModule
 #krb5.conf file path, needed only if Kerberos is enabled
-oc.hadoop.krb.conf=D:/kerberos/krb5.conf
+oc.hadoop.krb.conf=/etc/krb5.conf
 
 #For HA, configure to HDFS nameservices. For non-HA, configure to 'namenodeHostname:port'	
 oc.hdfs.dfs.nameservices=aicloud1.asiainfo.com:8020
@@ -78,7 +79,7 @@ oc.hdfs.dfs.ha.namenodes=nn1#aicloud1.asiainfo.com:8020,nn2#aicloud2.asiainfo.co
 #Kerberos princial to use for HDFS service	
 oc.hadoop.krb.pricipal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
 #Kerberos keytab path, must be aligned with configured principal	
-oc.hadoop.krb.keytab=D:/kerberos/nn.service.keytab
+oc.hadoop.krb.keytab=/etc/security/keytabs/nn.service.keytab
 
 #Kerberos principal to use for Hbase Master, '_HOST' stands for whichever master that's active.    
 oc.hbase.master.krb.principal=hbase/_HOST@ASIAINFO.COM
@@ -98,7 +99,7 @@ oc.kafka.brokers=aicloud1.asiainfo.com,aicloud2.asiainfo.com
 #Kafka port
 oc.kafka.broker.port=6667
 #Kafka jaas file path, needed only if Kerberos is enabled
-oc.kafka.security.jaas.file=D:\\kafka_jaas.conf
+oc.kafka.security.jaas.file=/etc/kafka/conf/kafka_jaas.conf
 
 #Hostname of Mongo server
 oc.mongo.server.host=ochadoop111.jcloud.local
