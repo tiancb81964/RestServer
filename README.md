@@ -18,6 +18,7 @@ Complete above changes and restart Kafka cluster.
 ```
 yum install krb5-devel krb5-workstation krb5-libs
 ```
+6. Need OCDF installed, the OCManager need OCDF services.
 
 ## How to deploy the OCManager REST API into the tomcat
 
