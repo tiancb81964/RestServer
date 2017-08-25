@@ -47,5 +47,13 @@ public interface ServiceInstanceMapper {
 	 */
 	public void updateInstanceQuota(@Param("tenantId") String tenantId, @Param("instanceName") String instanceName,
 			@Param("quota") String quota);
+	
+	/**
+	 * Get service instance by tenantID and serviceInstanceName
+	 * @param tenantId
+	 * @param instanceName
+	 * @return
+	 */
+	public ServiceInstance getServiceInstance(@Param("tenantId") String tenantId, @Param("instanceName") String instanceName);
 
 }

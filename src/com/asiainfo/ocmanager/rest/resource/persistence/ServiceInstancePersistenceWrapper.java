@@ -125,5 +125,24 @@ public class ServiceInstancePersistenceWrapper {
 			session.close();
 		}
 	}
+	
+	/**
+	 * Get serviceInstance by tenantID and instanceName
+	 * @param tenantId
+	 * @param instanceName
+	 * @return
+	 */
+	public static ServiceInstance getServiceInstance(String tenantId, String instanceName) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
+			ServiceInstance serviceInstance = mapper.getServiceInstance(tenantId, instanceName);
+			return serviceInstance;
+		} catch (Exception e) {
+			throw e;
+		}finally {
+			session.close();
+		}
+	}
 
 }
