@@ -599,8 +599,6 @@ public class TenantResource {
 			// add into the update json
 			provisioning.add("parameters", parameterObj);
 			
-			System.out.println(">>>>>>>parameters: " + parameterObj);
-
 			// add the patch Updating into the request body
 			JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
 			status.addProperty("patch", Constant.UPDATE);
