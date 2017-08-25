@@ -598,6 +598,8 @@ public class TenantResource {
 
 			// add into the update json
 			provisioning.add("parameters", parameterObj);
+			
+			System.out.println(">>>>>>>parameters: " + parameterObj);
 
 			// add the patch Updating into the request body
 			JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
@@ -620,14 +622,8 @@ public class TenantResource {
 					quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("parameters").toString();
 				}
-//				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quota);
+				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quotaString(parametersStr));
 			}
-			else {
-				logger.error("Abnormal response from DF, return code is not 200. UpdateRquest: instanceName " + instanceName + ", parameters " + parametersStr);
-				throw new RuntimeException("Abnormal response from DF, return code is not 200.");
-			}
-			
-			ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, parametersStr);
 
 			return Response.ok().entity(responseBean.getMessage()).build();
 		} catch (Exception e) {
@@ -635,6 +631,12 @@ public class TenantResource {
 			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private String quotaString(String parametersStr) {
+		JsonElement parameterJon = new JsonParser().parse(parametersStr);
+		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
+		return parameterObj.toString();
 	}
 
 	/**
