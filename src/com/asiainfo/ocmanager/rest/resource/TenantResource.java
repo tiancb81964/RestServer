@@ -579,6 +579,7 @@ public class TenantResource {
 					Entry<String, JsonElement> entry = iterator.next();
 					if (!isChanged(tenantId, instanceName, entry)) {
 						// remove unchanged parameters
+						logger.warn("Removing request parameter [" + entry.getKey() + "], coz it's equivalent to current value: " + entry.getValue());
 						iterator.remove();
 					}
 					
@@ -647,7 +648,17 @@ public class TenantResource {
 		if (isKafkaTopicQuota(entry)) {
 			long quotaInDB = getQuotaInDB(tenantID, instanceName);
 			long newQuota = entry.getValue().getAsLong();
-			return newQuota > quotaInDB;
+			if (newQuota < quotaInDB) {
+				logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: " + quotaInDB);
+				throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
+			}
+			else if (newQuota == quotaInDB) {
+				logger.debug("Kafka topicQuota parameter is equivalent to current value: " + quotaInDB);
+				return false;
+			}
+			else {
+				return true;
+			}
 		}
 		// pass all other services except Kafka.
 		return true;
