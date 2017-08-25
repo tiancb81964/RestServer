@@ -1,7 +1,9 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -572,14 +574,20 @@ public class TenantResource {
 
 			// check whether parameters format is legal
 			try {
-				for (Map.Entry<String, JsonElement> entry : parameterObj.entrySet()) {
-					String key = entry.getKey();
-					JsonElement value = entry.getValue();
+				Iterator<Entry<String, JsonElement>> iterator = parameterObj.entrySet().iterator();
+				while (iterator.hasNext()) {
+					Entry<String, JsonElement> entry = iterator.next();
+					if (!isChanged(tenantId, instanceName, entry)) {
+						// remove unchanged parameters
+						logger.warn("Removing request parameter [" + entry.getKey() + "], coz it's equivalent to current value: " + entry.getValue());
+						iterator.remove();
+					}
+					
 					// only check quota
-					if (Constant.serviceQuotaParam.contains(key)) {
+					if (Constant.serviceQuotaParam.contains(entry.getKey())) {
 						// if value is not int, will throw Exception
-						value.getAsLong();
-						logger.info("parameters" + key + ":" + value.toString());
+						entry.getValue().getAsLong();
+						logger.info("parameters" + entry.getKey() + ":" + entry.getValue());
 					}
 				}
 			} catch (Exception e) {
@@ -590,7 +598,7 @@ public class TenantResource {
 
 			// add into the update json
 			provisioning.add("parameters", parameterObj);
-
+			
 			// add the patch Updating into the request body
 			JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
 			status.addProperty("patch", Constant.UPDATE);
@@ -606,13 +614,13 @@ public class TenantResource {
 				JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
 				if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
 						.isJsonNull())) {
-					// TODO should get df service quota
+					logger.error("Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName " + instanceName + ", parameters " + parametersStr);
+					throw new RuntimeException("parameters returned by DF is null!");
 				} else {
 					quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("parameters").toString();
 				}
-
-				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quota);
+				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quotaString(parametersStr));
 			}
 
 			return Response.ok().entity(responseBean.getMessage()).build();
@@ -621,6 +629,50 @@ public class TenantResource {
 			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private String quotaString(String parametersStr) {
+		JsonElement parameterJon = new JsonParser().parse(parametersStr);
+		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
+		return parameterObj.toString();
+	}
+
+	/**
+	 * Filter request parameters, remove unchanged parameters for better 
+	 * performance of backend services. 
+	 * @param instanceName 
+	 * @param instanceName2 
+	 * @param entry
+	 */
+	private boolean isChanged(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
+		if (isKafkaTopicQuota(entry)) {
+			long quotaInDB = getQuotaInDB(tenantID, instanceName);
+			long newQuota = entry.getValue().getAsLong();
+			if (newQuota < quotaInDB) {
+				logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: " + quotaInDB);
+				throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
+			}
+			else if (newQuota == quotaInDB) {
+				logger.debug("Kafka topicQuota parameter is equivalent to current value: " + quotaInDB);
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+		// pass all other services except Kafka.
+		return true;
+	}
+
+	private boolean isKafkaTopicQuota(Entry<String, JsonElement> entry) {
+		return "topicQuota".equals(entry.getKey().trim());
+	}
+	
+	private long getQuotaInDB(String tenantID, String instanceName) {
+		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
+		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
+		long topicSize = jobj.get("topicQuota").getAsLong();
+		return topicSize;
 	}
 
 	/**

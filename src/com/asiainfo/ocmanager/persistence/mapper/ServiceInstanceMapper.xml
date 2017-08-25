@@ -27,4 +27,8 @@
 		quota = #{quota}
 		where tenantId = #{tenantId} and instanceName = #{instanceName}
 	</update>
+	<!-- get service instance by tenant id and instanceName -->
+    <select id="getServiceInstance" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
+        select * from service_instances where tenantId = #{tenantId} and instanceName = #{instanceName}
+    </select>
 </mapper>
