@@ -71,6 +71,11 @@ public class KrbClient {
 		this.realm = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_REALM);
 	}
 
+	public boolean isValidCrendencial(String username, String passwd) throws KerberosOperationException {
+//		executeCommand(new String[] {"/usr/bin/kinit", ""}, null);
+		return true;//TODO:
+	}
+	
 	/**
 	 * Invokes the kadmin shell command to issue queries
 	 *
@@ -347,6 +352,8 @@ public class KrbClient {
 		}
 		return keyTabString;
 	}
+	
+
 
 	private void ensureKeytabFolderExists(String keytabFilePath) {
 		String keytabFolderPath = keytabFilePath.substring(0, keytabFilePath.lastIndexOf("/"));
