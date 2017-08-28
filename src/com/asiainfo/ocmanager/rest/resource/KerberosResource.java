@@ -30,16 +30,16 @@ public class KerberosResource {
 
 	private static Logger logger = Logger.getLogger(KerberosResource.class);
 
+	private static final String PATH = KerberosResource.class.getResource("/").getPath() + ".." + File.separator
+			+ "keytabs" + File.separator + "oc.{$username}.keytab";;
+
 	@GET
 	@Path("keytab/{userName}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response getKeyTabFile(@PathParam("userName") String userName) {
 		try {
 
-			String keytabFilePath = this.getClass().getResource("/").getPath() + ".." + File.separator + "keytabs"
-					+ File.separator + userName + ".keytab";
-
-			File file = new File(keytabFilePath);
+			File file = new File(PATH.replace("{$username}", userName.trim()));
 
 			if (!file.exists()) {
 				return Response.status(Response.Status.NOT_FOUND)
@@ -54,7 +54,6 @@ public class KerberosResource {
 					.header("Cache-Control", "no-cache").build();
 
 		} catch (Exception e) {
-			// system out the exception into the console log
 			logger.error("getKeyTabFile hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
@@ -80,6 +79,8 @@ public class KerberosResource {
 								ResponseCodeConstant.CAN_NOT_FIND_KRB_USERNAME_OR_PASSWORD))
 						.build();
 			}
+			
+			logger.info("Creating keytab for user " + krbusernameJE + " with password " + krbpasswordJE);
 
 			String krbusername = krbusernameJE.getAsString();
 			String krbpassword = krbpasswordJE.getAsString();
@@ -99,17 +100,28 @@ public class KerberosResource {
 		KrbClient client = KrbClient.getInstance();
 		String principalName = krbusername + "@" + KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_REALM);
 
-		if (client.principalExists(principalName)) {
-			client.removePrincipal(principalName);
-			client.createPrincipal(principalName, krbpassword);
-		} else {
-			client.createPrincipal(principalName, krbpassword);
+		if (!client.principalExists(principalName)) {
+			logger.error("INVALID PRICIPAL! Principal not exist: " + krbusername);
+			throw new RuntimeException("INVALID PRICIPAL! Principal not exist: " + krbusername);
 		}
+		
+		checkPassword(client, krbusername, krbpassword);
 
-		String keytabFilePath = this.getClass().getResource("/").getPath() + ".." + File.separator + "keytabs"
-				+ File.separator + krbusername + ".keytab";
 		Keytab keyTab = client.createKeyTab(principalName, krbpassword, null);
 
-		client.createKeyTabFile(keyTab, keytabFilePath);
+		client.createKeyTabFile(keyTab, PATH.replace("{$username}", krbusername.trim()));
+	}
+
+	private void checkPassword(KrbClient client, String krbusername, String krbpassword) {
+		try {
+			if (!client.isValidCrendencial(krbusername, krbpassword)) {
+				logger.error("Illegal credencial for user " + krbusername + " with password: " + krbpassword);
+				throw new RuntimeException("Illegal credencial for user " + krbusername);
+			}
+		} catch (Exception e) {
+			logger.error("Exception while executing krb command: ", e);
+			throw new RuntimeException("Exception while executing krb command:", e);
+		}
+
 	}
 }
