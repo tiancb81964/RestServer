@@ -2,7 +2,6 @@ package com.asiainfo.ocmanager.rest.resource;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -64,7 +64,7 @@ import com.google.gson.JsonParser;
 @Path("/tenant")
 public class TenantResource {
 
-	private static Logger logger = Logger.getLogger(TenantResource.class);
+	private static Logger logger = LoggerFactory.getLogger(TenantResource.class);
 
 	/**
 	 * Get All OCManager tenants
@@ -383,12 +383,45 @@ public class TenantResource {
 				}
 			}
 
+			// parse the req body make sure it is json
+			JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
+
+			// when custom the bsi name shoud check
+			// wethere it existing
+			String metadataName = reqBodyJson.getAsJsonObject().getAsJsonObject("metadata").get("name").getAsString();
+			String backingServiceName = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
+					.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
+			JsonElement cuzBsiNameJE = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
+					.getAsJsonObject("provisioning").getAsJsonObject("parameters").get("cuzBsiName");
+
+			// metadata.name and spec.provisioning.parameters.cuzBsiName
+			// should be the same
+			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
+				String cuzBsiName = cuzBsiNameJE.getAsString();
+				if (!metadataName.equals(cuzBsiName)) {
+					logger.error("The service instance name are not match, metadata.name is {}; "
+							+ "and spec.provisioning.parameters.cuzBsiName is {}. "
+							+ "please make sure they are the same", metadataName, cuzBsiName);
+					return Response.status(Status.BAD_REQUEST)
+							.entity(new ResourceResponseBean("operation failed",
+									"The service instance name are not match.", ResponseCodeConstant.BAD_REQUEST))
+							.build();
+				}
+
+				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByName(cuzBsiName);
+				if (serInst != null) {
+					logger.error("The service instance {} is already existing in OCDP cluster. "
+							+ "please try another name.", cuzBsiName);
+					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("operation failed",
+							"The service instance is already existing in OCDP cluster.", ResponseCodeConstant.CONFLICT))
+							.build();
+				}
+			}
+
 			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
 
-			// parse the req body make sure it is json
-			JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
 			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
 
 			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
@@ -579,10 +612,11 @@ public class TenantResource {
 					Entry<String, JsonElement> entry = iterator.next();
 					if (!isChanged(tenantId, instanceName, entry)) {
 						// remove unchanged parameters
-						logger.warn("Removing request parameter [" + entry.getKey() + "], coz it's equivalent to current value: " + entry.getValue());
+						logger.warn("Removing request parameter [" + entry.getKey()
+								+ "], coz it's equivalent to current value: " + entry.getValue());
 						iterator.remove();
 					}
-					
+
 					// only check quota
 					if (Constant.serviceQuotaParam.contains(entry.getKey())) {
 						// if value is not int, will throw Exception
@@ -598,7 +632,7 @@ public class TenantResource {
 
 			// add into the update json
 			provisioning.add("parameters", parameterObj);
-			
+
 			// add the patch Updating into the request body
 			JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
 			status.addProperty("patch", Constant.UPDATE);
@@ -614,13 +648,16 @@ public class TenantResource {
 				JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
 				if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
 						.isJsonNull())) {
-					logger.error("Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName " + instanceName + ", parameters " + parametersStr);
+					logger.error(
+							"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
+									+ instanceName + ", parameters " + parametersStr);
 					throw new RuntimeException("parameters returned by DF is null!");
 				} else {
 					quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("parameters").toString();
 				}
-				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quotaString(parametersStr));
+				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
+						quotaString(parametersStr));
 			}
 
 			return Response.ok().entity(responseBean.getMessage()).build();
@@ -638,10 +675,11 @@ public class TenantResource {
 	}
 
 	/**
-	 * Filter request parameters, remove unchanged parameters for better 
-	 * performance of backend services. 
-	 * @param instanceName 
-	 * @param instanceName2 
+	 * Filter request parameters, remove unchanged parameters for better
+	 * performance of backend services.
+	 * 
+	 * @param instanceName
+	 * @param instanceName2
 	 * @param entry
 	 */
 	private boolean isChanged(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
@@ -649,14 +687,13 @@ public class TenantResource {
 			long quotaInDB = getQuotaInDB(tenantID, instanceName);
 			long newQuota = entry.getValue().getAsLong();
 			if (newQuota < quotaInDB) {
-				logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: " + quotaInDB);
+				logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: "
+						+ quotaInDB);
 				throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
-			}
-			else if (newQuota == quotaInDB) {
+			} else if (newQuota == quotaInDB) {
 				logger.debug("Kafka topicQuota parameter is equivalent to current value: " + quotaInDB);
 				return false;
-			}
-			else {
+			} else {
 				return true;
 			}
 		}
@@ -667,7 +704,7 @@ public class TenantResource {
 	private boolean isKafkaTopicQuota(Entry<String, JsonElement> entry) {
 		return "topicQuota".equals(entry.getKey().trim());
 	}
-	
+
 	private long getQuotaInDB(String tenantID, String instanceName) {
 		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
 		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();

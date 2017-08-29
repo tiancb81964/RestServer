@@ -31,4 +31,8 @@
     <select id="getServiceInstance" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
         select * from service_instances where tenantId = #{tenantId} and instanceName = #{instanceName}
     </select>
+    <!-- get service instance by instanceName -->
+    <select id="selectServiceInstanceByName" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
+        select * from service_instances where instanceName = #{instanceName}
+    </select>
 </mapper>
