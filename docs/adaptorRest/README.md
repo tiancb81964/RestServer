@@ -1570,8 +1570,7 @@ POST /ocmanager/v1/api/kerberos/create/keytab
 __request body:__
 ```
 {
-    "krbusername": "zhaoyim",
-    "krbpassword": "zhaoyim"
+    "krbusername": "zhaoyim"
 }
 ```
 
