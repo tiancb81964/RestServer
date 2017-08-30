@@ -10,6 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Cookie;
 
 import org.apache.log4j.Logger;
 
@@ -38,6 +39,11 @@ public class AuthFilter implements Filter {
 			try {
 				String token = hsRequest.getHeader("token");
 				if (token == null) {
+					Cookie[] cookies = hsRequest.getCookies();
+					token = this.getTokenFromCookie(cookies);
+				}
+
+				if (token == null) {
 					((HttpServletResponse) servletResponse).sendError(ResponseCodeConstant.FORBIDDEN);
 				} else {
 					boolean authcSuccess = authenticate(token);
@@ -63,6 +69,19 @@ public class AuthFilter implements Filter {
 
 	public boolean authenticate(String token) {
 		return Authenticator.loginWithToken(token);
+	}
+
+	private String getTokenFromCookie(Cookie[] cookies) {
+		logger.debug("get token from cookies");
+		String token = null;
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals("token")) {
+				token = cookie.getValue();
+				break;
+			}
+		}
+		logger.debug("token is: " + token);
+		return token;
 	}
 
 }
