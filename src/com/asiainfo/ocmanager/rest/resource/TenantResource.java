@@ -394,6 +394,15 @@ public class TenantResource {
 			JsonElement cuzBsiNameJE = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
 					.getAsJsonObject("provisioning").getAsJsonObject("parameters").get("cuzBsiName");
 
+			if (metadataName.indexOf("-") != -1) {
+				logger.error("The service instance name can NOT include dash (-), " + "please try antoher name.");
+				return Response.status(Status.BAD_REQUEST)
+						.entity(new ResourceResponseBean("operation failed",
+								"The service instance name can NOT include dash (-), " + "please try antoher name.",
+								ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
 			// metadata.name and spec.provisioning.parameters.cuzBsiName
 			// should be the same
 			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
