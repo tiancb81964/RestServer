@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
 import com.asiainfo.ocmanager.service.client.KrbClient;
 import com.asiainfo.ocmanager.service.exception.KerberosOperationException;
 import com.asiainfo.ocmanager.utils.KerberosConfiguration;
@@ -69,23 +70,24 @@ public class KerberosResource {
 			JsonObject obj = req.getAsJsonObject();
 
 			JsonElement krbusernameJE = obj.get("krbusername");
-			JsonElement krbpasswordJE = obj.get("krbpassword");
+			// JsonElement krbpasswordJE = obj.get("krbpassword");
 
-			if (krbusernameJE == null || krbpasswordJE == null) {
+			if (krbusernameJE == null) {
 				return Response.status(Status.BAD_REQUEST)
 						.entity(new ResourceResponseBean("generate keytab failed",
-								"can NOT find krbusername or krbpassword, please make sure you "
+								"can NOT find krbusername in the request boday, please make sure you "
 										+ "input the krbusername and krbpassword in the request body correctly.",
 								ResponseCodeConstant.CAN_NOT_FIND_KRB_USERNAME_OR_PASSWORD))
 						.build();
 			}
-			
-			logger.info("Creating keytab for user " + krbusernameJE + " with password " + krbpasswordJE);
+
+			logger.info("Creating keytab for user " + krbusernameJE + " with password random password.");
 
 			String krbusername = krbusernameJE.getAsString();
-			String krbpassword = krbpasswordJE.getAsString();
+			// String krbpassword = krbpasswordJE.getAsString();
 
-			this.createKeyTabFile(krbusername, krbpassword);
+			// use the uuid as the random password
+			this.createKeyTabFile(krbusername, UUIDFactory.getUUID());
 
 			return Response.ok().entity(new ResourceResponseBean("generate keytab successfully!",
 					krbusername + ".keytab created", ResponseCodeConstant.SUCCESS)).build();
@@ -100,28 +102,18 @@ public class KerberosResource {
 		KrbClient client = KrbClient.getInstance();
 		String principalName = krbusername + "@" + KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_REALM);
 
-		if (!client.principalExists(principalName)) {
-			logger.error("INVALID PRICIPAL! Principal not exist: " + krbusername);
-			throw new RuntimeException("INVALID PRICIPAL! Principal not exist: " + krbusername);
+		// if the pricipal exists remove first
+		// then user the random password create a new one
+		if (client.principalExists(principalName)) {
+			client.removePrincipal(principalName);
+			client.createPrincipal(principalName, krbpassword);
+		} else {
+			client.createPrincipal(principalName, krbpassword);
 		}
-		
-		checkPassword(client, krbusername, krbpassword);
 
 		Keytab keyTab = client.createKeyTab(principalName, krbpassword, null);
 
 		client.createKeyTabFile(keyTab, PATH.replace("{$username}", krbusername.trim()));
 	}
 
-	private void checkPassword(KrbClient client, String krbusername, String krbpassword) {
-		try {
-			if (!client.isValidCrendencial(krbusername, krbpassword)) {
-				logger.error("Illegal credencial for user " + krbusername + " with password: " + krbpassword);
-				throw new RuntimeException("Illegal credencial for user " + krbusername);
-			}
-		} catch (Exception e) {
-			logger.error("Exception while executing krb command: ", e);
-			throw new RuntimeException("Exception while executing krb command:", e);
-		}
-
-	}
 }
