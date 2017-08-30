@@ -75,11 +75,12 @@ public class AuthFilter implements Filter {
 		logger.debug("get token from cookies");
 		String token = null;
 		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("username")) {
+			if (cookie.getName().equals("token")) {
 				token = cookie.getValue();
 				break;
 			}
 		}
+		logger.debug("token is: " + token);
 		return token;
 	}
 
