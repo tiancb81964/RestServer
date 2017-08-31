@@ -94,7 +94,7 @@ public class KerberosResource {
 				this.createKeyTabFile(krbusername, UUIDFactory.getUUID());
 				logger.info("Creating keytab successful, user: " + krbusernameJE);
 			} else {
-				logger.info("The keytab already existed for user: " + krbusername + "NOT need to generate again.");
+				logger.warn("The keytab already existed for user: " + krbusername + "NOT need to generate again.");
 			}
 
 			return Response.ok().entity(new ResourceResponseBean("generate keytab successfully!",
