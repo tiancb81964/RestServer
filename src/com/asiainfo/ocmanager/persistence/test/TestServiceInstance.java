@@ -6,10 +6,13 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.asiainfo.ocmanager.persistence.mapper.ServiceInstanceMapper;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
+import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 
 public class TestServiceInstance {
 
 	public static void main(String[] args) {
+		
+		
 		SqlSession session = TestDBConnectorFactory.getSession();
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
@@ -36,7 +39,7 @@ public class TestServiceInstance {
 			System.out.println("=== update quota successfully ==");
 			mapper.updateInstanceQuota("zhaoyim", "hive-instance001", null);
 			
-			ServiceInstance si = mapper.selectServiceInstanceByCuzBsiName("aaaaaaa");
+			ServiceInstance si = mapper.selectServiceInstanceByCuzBsiName("aaaaaaa", "hive");
 			System.out.println(si.getInstanceName());
 			System.out.println(si.getId());
 			System.out.println(si.getCuzBsiName());
