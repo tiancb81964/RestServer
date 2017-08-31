@@ -403,26 +403,14 @@ public class TenantResource {
 						.build();
 			}
 
-			// metadata.name and spec.provisioning.parameters.cuzBsiName
-			// should be the same
+			// check exist custom bsiName
 			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
-//				if (!metadataName.equals(cuzBsiName)) {
-//					logger.error("The service instance name are not match, metadata.name is {}; "
-//							+ "and spec.provisioning.parameters.cuzBsiName is {}. "
-//							+ "please make sure they are the same", metadataName, cuzBsiName);
-//					return Response.status(Status.BAD_REQUEST)
-//							.entity(new ResourceResponseBean("operation failed",
-//									"The service instance name are not match.", ResponseCodeConstant.BAD_REQUEST))
-//							.build();
-//				}
-
-				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName);
+				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName, backingServiceName);
 				if (serInst != null) {
-					logger.error("The service instance {} is already existing in OCDP cluster. "
-							+ "please try another name.", cuzBsiName);
+					logger.error("Resource name [{}] of service [{}] already exist in OCDP cluster. Try another name.", cuzBsiName, backingServiceName);
 					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("operation failed",
-							"The service instance is already existing in OCDP cluster.", ResponseCodeConstant.CONFLICT))
+							"Resource name already exist in OCDP cluster.", ResponseCodeConstant.CONFLICT))
 							.build();
 				}
 			}
