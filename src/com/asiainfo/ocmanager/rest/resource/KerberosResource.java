@@ -87,10 +87,15 @@ public class KerberosResource {
 			String krbusername = krbusernameJE.getAsString();
 			// String krbpassword = krbpasswordJE.getAsString();
 
-			// use the uuid as the random password
-			this.createKeyTabFile(krbusername, UUIDFactory.getUUID());
-			
-			logger.info("Creating keytab successful, user: " + krbusernameJE);
+			File file = new File(PATH.replace("{$username}", krbusername.trim()));
+
+			if (!file.exists()) {
+				// use the uuid as the random password
+				this.createKeyTabFile(krbusername, UUIDFactory.getUUID());
+				logger.info("Creating keytab successful, user: " + krbusernameJE);
+			} else {
+				logger.info("The keytab already existed for user: " + krbusername + "NOT need to generate again.");
+			}
 
 			return Response.ok().entity(new ResourceResponseBean("generate keytab successfully!",
 					krbusername + ".keytab created", ResponseCodeConstant.SUCCESS)).build();
