@@ -64,6 +64,6 @@ public interface ServiceInstanceMapper {
 	 * @param instanceName
 	 * @return
 	 */
-	public ServiceInstance selectServiceInstanceByName(@Param("instanceName") String instanceName);
+	public ServiceInstance selectServiceInstanceByCuzBsiName(@Param("cuzBsiName") String cuzBsiName);
 
 }

@@ -36,9 +36,10 @@ public class TestServiceInstance {
 			System.out.println("=== update quota successfully ==");
 			mapper.updateInstanceQuota("zhaoyim", "hive-instance001", null);
 			
-			ServiceInstance si = mapper.selectServiceInstanceByName("Redis-zhaoyim-52DFDCD");
+			ServiceInstance si = mapper.selectServiceInstanceByCuzBsiName("aaaaaaa");
 			System.out.println(si.getInstanceName());
 			System.out.println(si.getId());
+			System.out.println(si.getCuzBsiName());
 			
 			session.commit();
 		} catch (Exception e) {

@@ -407,17 +407,17 @@ public class TenantResource {
 			// should be the same
 			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
-				if (!metadataName.equals(cuzBsiName)) {
-					logger.error("The service instance name are not match, metadata.name is {}; "
-							+ "and spec.provisioning.parameters.cuzBsiName is {}. "
-							+ "please make sure they are the same", metadataName, cuzBsiName);
-					return Response.status(Status.BAD_REQUEST)
-							.entity(new ResourceResponseBean("operation failed",
-									"The service instance name are not match.", ResponseCodeConstant.BAD_REQUEST))
-							.build();
-				}
+//				if (!metadataName.equals(cuzBsiName)) {
+//					logger.error("The service instance name are not match, metadata.name is {}; "
+//							+ "and spec.provisioning.parameters.cuzBsiName is {}. "
+//							+ "please make sure they are the same", metadataName, cuzBsiName);
+//					return Response.status(Status.BAD_REQUEST)
+//							.entity(new ResourceResponseBean("operation failed",
+//									"The service instance name are not match.", ResponseCodeConstant.BAD_REQUEST))
+//							.build();
+//				}
 
-				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByName(cuzBsiName);
+				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName);
 				if (serInst != null) {
 					logger.error("The service instance {} is already existing in OCDP cluster. "
 							+ "please try another name.", cuzBsiName);
@@ -463,6 +463,12 @@ public class TenantResource {
 								.getAsJsonObject("provisioning").get("backingservice_spec_id").getAsString());
 						serviceInstance.setServiceTypeName(resBodyJsonObj.getAsJsonObject("spec")
 								.getAsJsonObject("provisioning").get("backingservice_name").getAsString());
+
+						JsonElement resCuzBsiNameJE = resBodyJsonObj.getAsJsonObject("spec")
+								.getAsJsonObject("provisioning").getAsJsonObject("parameters").get("cuzBsiName");
+						if (resCuzBsiNameJE != null) {
+							serviceInstance.setCuzBsiName(resCuzBsiNameJE.getAsString());
+						}
 
 						// get the just now created instance info
 						String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
