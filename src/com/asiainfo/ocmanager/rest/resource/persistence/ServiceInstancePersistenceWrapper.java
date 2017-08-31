@@ -152,11 +152,11 @@ public class ServiceInstancePersistenceWrapper {
 	 * @param instanceName
 	 * @return
 	 */
-	public static ServiceInstance getServiceInstanceByName(String instanceName) {
+	public static ServiceInstance getServiceInstanceByCuzBsiName(String cuzBsiName) {
 		SqlSession session = DBConnectorFactory.getSession();
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
-			ServiceInstance serviceInstance = mapper.selectServiceInstanceByName(instanceName);
+			ServiceInstance serviceInstance = mapper.selectServiceInstanceByCuzBsiName(cuzBsiName);
 			return serviceInstance;
 		} catch (Exception e) {
 			throw e;
