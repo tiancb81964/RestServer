@@ -43,6 +43,7 @@ public class KerberosResource {
 			File file = new File(PATH.replace("{$username}", userName.trim()));
 
 			if (!file.exists()) {
+				logger.error("File not found: " + file.getPath());
 				return Response.status(Response.Status.NOT_FOUND)
 						.entity(new ResourceResponseBean("download keytab failed!",
 								userName + ".keytab is NOT exist, please generate the keytab by call"
@@ -88,6 +89,8 @@ public class KerberosResource {
 
 			// use the uuid as the random password
 			this.createKeyTabFile(krbusername, UUIDFactory.getUUID());
+			
+			logger.info("Creating keytab successful, user: " + krbusernameJE);
 
 			return Response.ok().entity(new ResourceResponseBean("generate keytab successfully!",
 					krbusername + ".keytab created", ResponseCodeConstant.SUCCESS)).build();
