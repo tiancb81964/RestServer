@@ -999,15 +999,15 @@ __request body:__
   "apiVersion":"v1",
   "metadata":
     {
-      "name":"zhaoyim_kafka_instance777"
+      "name":"zhaoyim2222"
     },
   "spec":
     {
       "provisioning":
         {
-          "backingservice_name":"Kafka",
-          "backingservice_plan_guid":"68ee85c2-5b1a-4f51-89e9-5b111c251f0d",
-          "parameters":{"partitionSize":"10","topicQuota":"10","topicTTL":"10"}
+          "backingservice_name":"HBase",
+          "backingservice_plan_guid":"f658e391-b7d6-4b72-9e4c-c754e4943ae1",
+          "parameters":{"maximumRegionsQuota":"1","maximumTablesQuota":"1", "cuzBsiName": "zhaoyim1234"}
         }
     }
 }
@@ -1020,24 +1020,24 @@ __response:__
   "kind": "BackingServiceInstance",
   "apiVersion": "v1",
   "metadata": {
-    "name": "zhaoyim_kafka_instance777",
-    "namespace": "09367148-c72a-413f-b1de-5a23b566d809",
-    "selfLink": "/oapi/v1/namespaces/09367148-c72a-413f-b1de-5a23b566d809/backingserviceinstances/zhaoyim_kafka_instance777",
-    "uid": "f8bda5e4-8624-11e7-bf73-fa163efdbea8",
-    "resourceVersion": "22590366",
-    "creationTimestamp": "2017-08-21T03:58:20Z"
+    "name": "zhaoyim2222",
+    "namespace": "admin-1503559648",
+    "selfLink": "/oapi/v1/namespaces/admin-1503559648/backingserviceinstances/zhaoyim2222",
+    "uid": "9ef21386-8edb-11e7-b3b4-fa163efdbea8",
+    "resourceVersion": "22852703",
+    "creationTimestamp": "2017-09-01T06:05:57Z"
   },
   "spec": {
     "provisioning": {
       "dashboard_url": "",
-      "backingservice_name": "Kafka",
+      "backingservice_name": "HBase",
       "backingservice_spec_id": "",
-      "backingservice_plan_guid": "68ee85c2-5b1a-4f51-89e9-5b111c251f0d",
+      "backingservice_plan_guid": "f658e391-b7d6-4b72-9e4c-c754e4943ae1",
       "backingservice_plan_name": "",
       "parameters": {
-        "partitionSize": "10",
-        "topicQuota": "10",
-        "topicTTL": "10"
+        "cuzBsiName": "zhaoyim1234",
+        "maximumRegionsQuota": "1",
+        "maximumTablesQuota": "1"
       },
       "credentials": null
     },
