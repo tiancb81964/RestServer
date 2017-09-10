@@ -357,7 +357,7 @@ public class TenantResource {
 
 	/**
 	 * Create a service instance in specific tenant
-	 *
+	 * should enhance to check parent tenant
 	 * @param
 	 * @return
 	 */
