@@ -18,11 +18,15 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
@@ -32,7 +36,7 @@ import com.google.gson.JsonParser;
 
 public class TenantUtils {
 
-	private static Logger logger = Logger.getLogger(TenantUtils.class);
+	private static Logger logger = LoggerFactory.getLogger(TenantUtils.class);
 
 	/**
 	 * 
@@ -218,7 +222,8 @@ public class TenantUtils {
 	 * @throws KeyStoreException
 	 */
 	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
-			String userName, String accesses) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+			String userName, String accesses)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
@@ -233,12 +238,12 @@ public class TenantUtils {
 		JsonObject metadata = new JsonObject();
 		metadata.addProperty("name", instanceName);
 		reqBody.add("metadata", metadata);
-		
+
 		JsonObject parameters = new JsonObject();
 		parameters.addProperty("user_name", userName);
 		parameters.addProperty("accesses", accesses);
 		reqBody.add("parameters", parameters);
-		
+
 		String reqBodyStr = reqBody.toString();
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -434,6 +439,38 @@ public class TenantUtils {
 		List<Tenant> newList = new ArrayList<Tenant>();
 		newList.addAll(hs);
 		return newList;
+	}
+
+	/**
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
+		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
+		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+
+		Tenant tmpTenant = new Tenant();
+		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+
+		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(tenant.getParentId());
+
+		for (Tenant child : childrenTenants) {
+			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
+		}
+
+		// minus all existing children quota
+		// calculate the left quota
+		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
+		// will create tenant quota
+		TenantQuotaBean currentTenantQuota = new TenantQuotaBean(tenant);
+		// left quota minus request quota
+		parentTenantQuota.minusOtherTenantQuota(currentTenantQuota);
+
+		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanCreateTenant(parentTenantQuota);
+
+		return checkRes;
 	}
 
 }

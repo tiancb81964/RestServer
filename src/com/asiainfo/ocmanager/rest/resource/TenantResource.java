@@ -36,6 +36,7 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -46,7 +47,9 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
@@ -147,7 +150,7 @@ public class TenantResource {
 		}
 	}
 
-	private static UserRoleView getRole(String tenantId, String userName) {
+	private UserRoleView getRole(String tenantId, String userName) {
 
 		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(userName, tenantId);
 		if (role == null) {
@@ -160,7 +163,7 @@ public class TenantResource {
 			if (tenant.getParentId() == null) {
 				return null;
 			} else {
-				role = TenantResource.getRole(tenant.getParentId(), userName);
+				role = getRole(tenant.getParentId(), userName);
 			}
 		}
 		return role;
@@ -178,7 +181,7 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getRoleByTenantUserName(@PathParam("id") String tenantId, @PathParam("userName") String userName) {
 		try {
-			UserRoleView role = TenantResource.getRole(tenantId, userName);
+			UserRoleView role = getRole(tenantId, userName);
 			if (role != null) {
 				// set the tenant id to the passed tenant id
 				role.setTenantId(tenantId);
@@ -253,7 +256,7 @@ public class TenantResource {
 
 		// if the tenant have the instances
 		// can NOT create chlid tenant
-		if (tenant.getParentId() != null && TenantResource.hasInstances(tenant.getParentId())) {
+		if (tenant.getParentId() != null && hasInstances(tenant.getParentId())) {
 			return Response.status(Status.NOT_ACCEPTABLE)
 					.entity("The parent tenant have service instances, can NOT create child tenant.").build();
 		}
@@ -265,6 +268,14 @@ public class TenantResource {
 				return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean("operation failed",
 						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
 						.build();
+			}
+
+			// check whether can create sub tenant based on the quota
+			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+			if (!checkRes.isCanCreate()) {
+				logger.error("extra the parent tenant quota, can NOT create.");
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						checkRes.getMessages(), ResponseCodeConstant.EXTRA_PARENT_TENANT_QUOTA)).build();
 			}
 
 			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
@@ -356,8 +367,9 @@ public class TenantResource {
 	}
 
 	/**
-	 * Create a service instance in specific tenant
-	 * should enhance to check parent tenant
+	 * Create a service instance in specific tenant should enhance to check
+	 * parent tenant
+	 * 
 	 * @param
 	 * @return
 	 */
@@ -406,11 +418,14 @@ public class TenantResource {
 			// check exist custom bsiName
 			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
-				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName, backingServiceName);
+				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName,
+						backingServiceName);
 				if (serInst != null) {
-					logger.error("Resource name [{}] of service [{}] already exist in OCDP cluster. Try another name.", cuzBsiName, backingServiceName);
-					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("operation failed",
-							"Resource name already exist in OCDP cluster.", ResponseCodeConstant.CONFLICT))
+					logger.error("Resource name [{}] of service [{}] already exist in OCDP cluster. Try another name.",
+							cuzBsiName, backingServiceName);
+					return Response.status(Status.CONFLICT)
+							.entity(new ResourceResponseBean("operation failed",
+									"Resource name already exist in OCDP cluster.", ResponseCodeConstant.CONFLICT))
 							.build();
 				}
 			}
@@ -860,12 +875,12 @@ public class TenantResource {
 			}
 
 			// if have instances can not be deleted
-			if (TenantResource.hasInstances(tenantId)) {
+			if (hasInstances(tenantId)) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have service instances on it.").build();
 			}
 			// if have users can not be deleted
-			if (TenantResource.hasUsers(tenantId)) {
+			if (hasUsers(tenantId)) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
@@ -909,7 +924,7 @@ public class TenantResource {
 		}
 	}
 
-	private static boolean hasInstances(String tenantId) {
+	private boolean hasInstances(String tenantId) {
 		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 		if (instances.size() > 0) {
 			return true;
@@ -917,7 +932,7 @@ public class TenantResource {
 		return false;
 	}
 
-	private static boolean hasUsers(String tenantId) {
+	private boolean hasUsers(String tenantId) {
 		List<UserRoleView> users = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
 		// if the user list == 1 and it is admin
 		// the tenant can be deleted

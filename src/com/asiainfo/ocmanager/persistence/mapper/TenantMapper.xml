@@ -25,8 +25,8 @@
 	<!-- create tenant -->
 	<insert id="insertTenant" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.Tenant">
-		insert into tenants (id, name, description, parentId, level)
-		values (#{id}, #{name}, #{description}, #{parentId}, #{level})
+		insert into tenants (id, name, description, parentId, level, quota)
+		values (#{id}, #{name}, #{description}, #{parentId}, #{level}, #{quota})
 	</insert>
 	<!-- delete tenant -->
 	<delete id="deleteTenant">
