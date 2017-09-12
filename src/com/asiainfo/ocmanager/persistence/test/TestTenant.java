@@ -6,6 +6,8 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.asiainfo.ocmanager.persistence.mapper.TenantMapper;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 /**
  * 
@@ -19,6 +21,14 @@ public class TestTenant {
 		try {
 			TenantMapper mapper = session.getMapper(TenantMapper.class);
 
+//			Tenant t = new Tenant();
+//			t.setId("demouser001-1503475806");
+//			t.setDescription("uuuuu");
+//			t.setLevel(9999);
+//			JsonElement reqBodyJson = new JsonParser().parse("{\"aaa\":7777}");
+//			t.setQuota(reqBodyJson.toString());
+//			System.out.println(reqBodyJson.toString());
+//			mapper.updateTenant(t);
 			System.out.println("=== Insert Tenant ===");
 			mapper.insertTenant(new Tenant("id8", "name", "description", null, 1));
 

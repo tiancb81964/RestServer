@@ -47,6 +47,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
@@ -254,6 +255,13 @@ public class TenantResource {
 			return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
 		}
 
+		if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity(new ResourceResponseBean("operation failed",
+							"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+					.build();
+		}
+
 		// if the tenant have the instances
 		// can NOT create chlid tenant
 		if (tenant.getParentId() != null && hasInstances(tenant.getParentId())) {
@@ -271,11 +279,11 @@ public class TenantResource {
 			}
 
 			// check whether can create sub tenant based on the quota
-			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
-			if (!checkRes.isCanCreate()) {
-				logger.error("extra the parent tenant quota, can NOT create.");
+			TenantQuotaCheckerResponse checkRes = TenantUtils.canChangeTenant("create", tenant);
+			if (!checkRes.isCanChange()) {
+				logger.error("exceed the parent tenant quota, can NOT create.");
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						checkRes.getMessages(), ResponseCodeConstant.EXTRA_PARENT_TENANT_QUOTA)).build();
+						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 			}
 
 			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
@@ -367,8 +375,7 @@ public class TenantResource {
 	}
 
 	/**
-	 * Create a service instance in specific tenant should enhance to check
-	 * parent tenant
+	 * Create a service instance in specific tenant
 	 * 
 	 * @param
 	 * @return
@@ -840,18 +847,63 @@ public class TenantResource {
 	}
 
 	/**
-	 * Update the existing tenant info
+	 * Update the existing tenant info only in OCM rest
 	 *
 	 * @param tenant
 	 *            tenant obj json
 	 * @return updated tenant info
 	 */
-	@Deprecated
 	@PUT
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Tenant updateTenant(Tenant tenant) {
-		return tenant;
+	public Response updateTenant(Tenant tenant, @Context HttpServletRequest request) {
+
+		if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity(new ResourceResponseBean("operation failed",
+							"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+					.build();
+		}
+
+		try {
+			logger.info("updateTenant -> start update");
+
+			if (tenant.getId() == null) {
+				return Response.status(Status.BAD_REQUEST).entity("tenant id is null").build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+						tenant.getId());
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenant.getId()
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
+
+			// check whether can update the tenant based on the quota
+			TenantQuotaCheckerResponse checkRes = TenantUtils.canChangeTenant("update", tenant);
+			if (!checkRes.isCanChange()) {
+				logger.error("exceed the parent tenant quota, can NOT update.");
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+			}
+
+			TenantPersistenceWrapper.updateTenant(tenant);
+			logger.info("updateTenant -> update complete");
+			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
+
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.error("updateTenant hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
 	}
 
 	/**

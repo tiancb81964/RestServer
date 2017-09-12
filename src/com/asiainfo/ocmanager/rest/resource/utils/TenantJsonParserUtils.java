@@ -5,6 +5,10 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.asiainfo.ocmanager.rest.resource.TenantResource;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -16,6 +20,8 @@ import com.google.gson.JsonParser;
  */
 public class TenantJsonParserUtils {
 
+	private static Logger logger = LoggerFactory.getLogger(TenantJsonParserUtils.class);
+	
 	/**
 	 * 
 	 * @param tenantId
@@ -54,6 +60,7 @@ public class TenantJsonParserUtils {
 			new JsonParser().parse(str);
 			return true;
 		} catch (JsonParseException e) {
+			logger.error("isValidJsonString hit exception-> ", e);
 			return false;
 		}
 	}

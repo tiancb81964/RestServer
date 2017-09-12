@@ -442,11 +442,12 @@ public class TenantUtils {
 	}
 
 	/**
+	 * check whether can create the tenant
 	 * 
 	 * @param tenant
 	 * @return
 	 */
-	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
+	private static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
 
@@ -463,14 +464,81 @@ public class TenantUtils {
 		// minus all existing children quota
 		// calculate the left quota
 		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
-		// will create tenant quota
+		// request tenant quota
 		TenantQuotaBean currentTenantQuota = new TenantQuotaBean(tenant);
 		// left quota minus request quota
 		parentTenantQuota.minusOtherTenantQuota(currentTenantQuota);
 
-		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanCreateTenant(parentTenantQuota);
+		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
 
 		return checkRes;
+	}
+
+	/**
+	 * check whether can update the tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	private static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
+
+		// origin tenant quota
+		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
+		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
+		
+		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(originTenant.getParentId());
+		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+
+		Tenant tmpTenant = new Tenant();
+		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+
+		// calculate all the children tenants quota
+		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(originTenant.getParentId());
+		for (Tenant child : childrenTenants) {
+			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
+		}
+
+		// minus all existing children quota
+		// calculate the left quota
+		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
+
+		// calculate the request quota
+		// request update tenant quota
+		// set the name, because the update not pass the name
+		tenant.setName(originTenant.getName());
+		TenantQuotaBean requestTenantQuota = new TenantQuotaBean(tenant);
+		// real request quota
+		requestTenantQuota.minusOtherTenantQuota(originTenantQuota);
+
+		// left quota minus request quota
+		parentTenantQuota.minusOtherTenantQuota(requestTenantQuota);
+
+		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
+
+		return checkRes;
+	}
+
+	/**
+	 * check whether can change the tenant include create and update
+	 * 
+	 * @param action
+	 * @param tenant
+	 * @return
+	 */
+	public synchronized static TenantQuotaCheckerResponse canChangeTenant(String action, Tenant tenant) {
+
+		if (action.equals("create")) {
+			logger.info("TenantUtils -> TenantQuotaCheckerResponse -> check create tenant");
+			return TenantUtils.canCreateTenant(tenant);
+		}
+
+		if (action.equals("update")) {
+			logger.info("TenantUtils -> TenantQuotaCheckerResponse -> check update tenant");
+			return TenantUtils.canUpdateTenant(tenant);
+		}
+
+		return null;
 	}
 
 }

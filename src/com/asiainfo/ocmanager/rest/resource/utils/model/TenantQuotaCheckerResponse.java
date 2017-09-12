@@ -7,15 +7,15 @@ package com.asiainfo.ocmanager.rest.resource.utils.model;
  */
 public class TenantQuotaCheckerResponse {
 
-	private boolean canCreate;
+	private boolean canChange;
 	private String messages;
 
-	public boolean isCanCreate() {
-		return canCreate;
+	public boolean isCanChange() {
+		return canChange;
 	}
 
-	public void setCanCreate(boolean canCreate) {
-		this.canCreate = canCreate;
+	public void setCanChange(boolean canChange) {
+		this.canChange = canChange;
 	}
 
 	public String getMessages() {
@@ -28,7 +28,7 @@ public class TenantQuotaCheckerResponse {
 
 	@Override
 	public String toString() {
-		return "TenantQuotaCheckerResponse [canCreate: " + canCreate + ", messages: " + messages + "]";
+		return "TenantQuotaCheckerResponse [canChange: " + canChange + ", messages: " + messages + "]";
 	}
 
 }

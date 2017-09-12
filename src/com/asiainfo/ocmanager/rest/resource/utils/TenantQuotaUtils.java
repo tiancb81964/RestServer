@@ -113,78 +113,78 @@ public class TenantQuotaUtils {
 	 * @param tenantQuota
 	 * @return
 	 */
-	public static TenantQuotaCheckerResponse checkCanCreateTenant(TenantQuotaBean tenantQuota) {
+	public static TenantQuotaCheckerResponse checkCanChangeTenant(TenantQuotaBean tenantQuota) {
 		TenantQuotaCheckerResponse checkRes = new TenantQuotaCheckerResponse();
 		StringBuilder resStr = new StringBuilder();
-		boolean canCreate = true;
+		boolean canChange = true;
 
 		// hdfs
 		if (tenantQuota.getNameSpaceQuotaHdfs() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getNameSpaceQuotaHdfs(), "nameSpaceQuota", "hdfs"));
-			canCreate = false;
+			canChange = false;
 		}
 		if (tenantQuota.getStorageSpaceQuotaHdfs() < 0) {
 			resStr.append(
 					TenantQuotaUtils.logAndResStr(tenantQuota.getStorageSpaceQuotaHdfs(), "storageSpaceQuota", "hdfs"));
-			canCreate = false;
+			canChange = false;
 		}
 
 		// hbase
 		if (tenantQuota.getMaximumTablesQuotaHbase() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getMaximumTablesQuotaHbase(), "maximumTablesQuota",
 					"hbase"));
-			canCreate = false;
+			canChange = false;
 		}
 		if (tenantQuota.getMaximumRegionsQuotaHbase() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getMaximumRegionsQuotaHbase(),
 					"maximumRegionsQuota", "hbase"));
-			canCreate = false;
+			canChange = false;
 		}
 
 		// hive
 		if (tenantQuota.getStorageSpaceQuotaHive() < 0) {
 			resStr.append(
 					TenantQuotaUtils.logAndResStr(tenantQuota.getStorageSpaceQuotaHive(), "storageSpaceQuota", "hive"));
-			canCreate = false;
+			canChange = false;
 		}
 		if (tenantQuota.getYarnQueueQuotaHive() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getYarnQueueQuotaHive(), "yarnQueueQuota", "hive"));
-			canCreate = false;
+			canChange = false;
 		}
 
 		// mapreduce
 		if (tenantQuota.getYarnQueueQuotaMapreduce() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getYarnQueueQuotaMapreduce(), "yarnQueueQuota",
 					"mapreduce"));
-			canCreate = false;
+			canChange = false;
 		}
 
 		// spark
 		if (tenantQuota.getYarnQueueQuotaSpark() < 0) {
 			resStr.append(
 					TenantQuotaUtils.logAndResStr(tenantQuota.getYarnQueueQuotaSpark(), "yarnQueueQuota", "spark"));
-			canCreate = false;
+			canChange = false;
 		}
 
 		// kafka
 		if (tenantQuota.getTopicQuotaKafka() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getTopicQuotaKafka(), "topicQuota", "kafka"));
-			canCreate = false;
+			canChange = false;
 		}
 		if (tenantQuota.getPartitionSizeKafka() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getPartitionSizeKafka(), "partitionSize", "kafka"));
-			canCreate = false;
+			canChange = false;
 		}
 		if (tenantQuota.getTopicTTLKafka() < 0) {
 			resStr.append(TenantQuotaUtils.logAndResStr(tenantQuota.getTopicTTLKafka(), "topicTTL", "kafka"));
-			canCreate = false;
+			canChange = false;
 		}
 
-		if (canCreate) {
-			resStr.append("can create tenant!");
+		if (canChange) {
+			resStr.append("can change the tenant!");
 		}
 
-		checkRes.setCanCreate(canCreate);
+		checkRes.setCanChange(canChange);
 		checkRes.setMessages(resStr.toString());
 
 		return checkRes;
