@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,10 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBean;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
@@ -447,7 +451,9 @@ public class TenantUtils {
 	 * @param tenant
 	 * @return
 	 */
-	private static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
+	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
+		logger.info("TenantUtils -> canCreateTenant -> check create tenant");
+
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
 
@@ -480,12 +486,12 @@ public class TenantUtils {
 	 * @param tenant
 	 * @return
 	 */
-	private static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
-
+	public static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
+		logger.info("TenantUtils -> canUpdateTenant -> check update tenant");
 		// origin tenant quota
 		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
 		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
-		
+
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(originTenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
 
@@ -519,26 +525,89 @@ public class TenantUtils {
 		return checkRes;
 	}
 
-	/**
-	 * check whether can change the tenant include create and update
-	 * 
-	 * @param action
-	 * @param tenant
-	 * @return
-	 */
-	public synchronized static TenantQuotaCheckerResponse canChangeTenant(String action, Tenant tenant) {
+	public synchronized static TenantResponse createTenant(Tenant tenant)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 
-		if (action.equals("create")) {
-			logger.info("TenantUtils -> TenantQuotaCheckerResponse -> check create tenant");
-			return TenantUtils.canCreateTenant(tenant);
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+		
+		tenantRes.setCheckerRes(checkRes);
+		
+		if (!checkRes.isCanChange()){
+			return tenantRes;
+		}
+		
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String dfRestUrl = url + "/oapi/v1/projectrequests";
+
+		JsonObject jsonObj1 = new JsonObject();
+		jsonObj1.addProperty("apiVersion", "v1");
+		jsonObj1.addProperty("kind", "ProjectRequest");
+		// mapping DF tenant display name with adapter tenant name
+		jsonObj1.addProperty("displayName", tenant.getName());
+		if (tenant.getDescription() != null) {
+			jsonObj1.addProperty("description", tenant.getDescription());
 		}
 
-		if (action.equals("update")) {
-			logger.info("TenantUtils -> TenantQuotaCheckerResponse -> check update tenant");
-			return TenantUtils.canUpdateTenant(tenant);
+		JsonObject jsonObj2 = new JsonObject();
+		jsonObj2.addProperty("name", tenant.getId());
+		jsonObj1.add("metadata", jsonObj2);
+		String reqBody = jsonObj1.toString();
+
+		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+
+		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		try {
+			HttpPost httpPost = new HttpPost(dfRestUrl);
+			httpPost.addHeader("Content-type", "application/json");
+			httpPost.addHeader("Authorization", "bearer " + token);
+
+			StringEntity se = new StringEntity(reqBody);
+			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
+			httpPost.setEntity(se);
+
+			logger.info("createTenant -> start create");
+			CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+			try {
+				int statusCode = response2.getStatusLine().getStatusCode();
+
+				if (statusCode == 201) {
+					logger.info("createTenant -> start successfully");
+					TenantPersistenceWrapper.createTenant(tenant);
+					logger.info("createTenant -> insert into DB successfully");
+				}
+				String bodyStr = EntityUtils.toString(response2.getEntity());
+
+				// return Response.ok().entity(new TenantBean(tenant,
+				// bodyStr)).build();
+				tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
+			} finally {
+				response2.close();
+			}
+		} finally {
+			httpclient.close();
 		}
 
-		return null;
+		return tenantRes;
+	}
+	
+	
+	public synchronized static TenantResponse updateTenant(Tenant tenant){
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+		
+		tenantRes.setCheckerRes(checkRes);
+		
+		if (!checkRes.isCanChange()){
+			return tenantRes;
+		}
+		
+		TenantPersistenceWrapper.updateTenant(tenant);
+		
+		return tenantRes;
 	}
 
 }

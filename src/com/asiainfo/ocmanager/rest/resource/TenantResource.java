@@ -36,7 +36,6 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -48,9 +47,9 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistence
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
-import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
@@ -250,26 +249,24 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createTenant(Tenant tenant, @Context HttpServletRequest request) {
-
-		if (tenant.getName() == null || tenant.getId() == null) {
-			return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
-		}
-
-		if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
-			return Response.status(Status.BAD_REQUEST)
-					.entity(new ResourceResponseBean("operation failed",
-							"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
-					.build();
-		}
-
-		// if the tenant have the instances
-		// can NOT create chlid tenant
-		if (tenant.getParentId() != null && hasInstances(tenant.getParentId())) {
-			return Response.status(Status.NOT_ACCEPTABLE)
-					.entity("The parent tenant have service instances, can NOT create child tenant.").build();
-		}
-
 		try {
+			if (tenant.getName() == null || tenant.getId() == null) {
+				return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
+			}
+
+			if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("operation failed",
+						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
+			// if the tenant have the instances
+			// can NOT create chlid tenant
+			if (tenant.getParentId() != null && hasInstances(tenant.getParentId())) {
+				return Response.status(Status.NOT_ACCEPTABLE)
+						.entity("The parent tenant have service instances, can NOT create child tenant.").build();
+			}
+
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				logger.error("Only sysadmin can do this operation. User: " + loginUser);
@@ -278,65 +275,76 @@ public class TenantResource {
 						.build();
 			}
 
-			// check whether can create sub tenant based on the quota
-			TenantQuotaCheckerResponse checkRes = TenantUtils.canChangeTenant("create", tenant);
-			if (!checkRes.isCanChange()) {
+
+
+			TenantResponse tenantRes = TenantUtils.createTenant(tenant);
+			
+			if (!tenantRes.getCheckerRes().isCanChange()){
 				logger.error("exceed the parent tenant quota, can NOT create.");
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 			}
+			return Response.ok().entity(tenantRes.getTenantBean()).build();
+			
+//			// check whether can create sub tenant based on the quota
+//			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+//			if (!checkRes.isCanChange()) {
+//				logger.error("exceed the parent tenant quota, can NOT create.");
+//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+//			}
 
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/projectrequests";
-
-			JsonObject jsonObj1 = new JsonObject();
-			jsonObj1.addProperty("apiVersion", "v1");
-			jsonObj1.addProperty("kind", "ProjectRequest");
-			// mapping DF tenant display name with adapter tenant name
-			jsonObj1.addProperty("displayName", tenant.getName());
-			if (tenant.getDescription() != null) {
-				jsonObj1.addProperty("description", tenant.getDescription());
-			}
-
-			JsonObject jsonObj2 = new JsonObject();
-			jsonObj2.addProperty("name", tenant.getId());
-			jsonObj1.add("metadata", jsonObj2);
-			String reqBody = jsonObj1.toString();
-
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpPost httpPost = new HttpPost(dfRestUrl);
-				httpPost.addHeader("Content-type", "application/json");
-				httpPost.addHeader("Authorization", "bearer " + token);
-
-				StringEntity se = new StringEntity(reqBody);
-				se.setContentType("application/json");
-				se.setContentEncoding("utf-8");
-				httpPost.setEntity(se);
-
-				logger.info("createTenant -> start create");
-				CloseableHttpResponse response2 = httpclient.execute(httpPost);
-
-				try {
-					int statusCode = response2.getStatusLine().getStatusCode();
-
-					if (statusCode == 201) {
-						logger.info("createTenant -> start successfully");
-						TenantPersistenceWrapper.createTenant(tenant);
-						logger.info("createTenant -> insert into DB successfully");
-					}
-					String bodyStr = EntityUtils.toString(response2.getEntity());
-
-					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
-				} finally {
-					response2.close();
-				}
-			} finally {
-				httpclient.close();
-			}
+//			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+//			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+//			String dfRestUrl = url + "/oapi/v1/projectrequests";
+//
+//			JsonObject jsonObj1 = new JsonObject();
+//			jsonObj1.addProperty("apiVersion", "v1");
+//			jsonObj1.addProperty("kind", "ProjectRequest");
+//			// mapping DF tenant display name with adapter tenant name
+//			jsonObj1.addProperty("displayName", tenant.getName());
+//			if (tenant.getDescription() != null) {
+//				jsonObj1.addProperty("description", tenant.getDescription());
+//			}
+//
+//			JsonObject jsonObj2 = new JsonObject();
+//			jsonObj2.addProperty("name", tenant.getId());
+//			jsonObj1.add("metadata", jsonObj2);
+//			String reqBody = jsonObj1.toString();
+//
+//			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+//
+//			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+//			try {
+//				HttpPost httpPost = new HttpPost(dfRestUrl);
+//				httpPost.addHeader("Content-type", "application/json");
+//				httpPost.addHeader("Authorization", "bearer " + token);
+//
+//				StringEntity se = new StringEntity(reqBody);
+//				se.setContentType("application/json");
+//				se.setContentEncoding("utf-8");
+//				httpPost.setEntity(se);
+//
+//				logger.info("createTenant -> start create");
+//				CloseableHttpResponse response2 = httpclient.execute(httpPost);
+//
+//				try {
+//					int statusCode = response2.getStatusLine().getStatusCode();
+//
+//					if (statusCode == 201) {
+//						logger.info("createTenant -> start successfully");
+//						TenantPersistenceWrapper.createTenant(tenant);
+//						logger.info("createTenant -> insert into DB successfully");
+//					}
+//					String bodyStr = EntityUtils.toString(response2.getEntity());
+//
+//					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
+//				} finally {
+//					response2.close();
+//				}
+//			} finally {
+//				httpclient.close();
+//			}
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createTenant hit exception -> ", e);
@@ -858,14 +866,13 @@ public class TenantResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateTenant(Tenant tenant, @Context HttpServletRequest request) {
 
-		if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
-			return Response.status(Status.BAD_REQUEST)
-					.entity(new ResourceResponseBean("operation failed",
-							"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
-					.build();
-		}
-
 		try {
+			if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("operation failed",
+						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
 			logger.info("updateTenant -> start update");
 
 			if (tenant.getId() == null) {
@@ -887,17 +894,26 @@ public class TenantResource {
 				}
 			}
 
-			// check whether can update the tenant based on the quota
-			TenantQuotaCheckerResponse checkRes = TenantUtils.canChangeTenant("update", tenant);
-			if (!checkRes.isCanChange()) {
+			TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
+			
+			if (!tenantRes.getCheckerRes().isCanChange()){
 				logger.error("exceed the parent tenant quota, can NOT update.");
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 			}
-
-			TenantPersistenceWrapper.updateTenant(tenant);
-			logger.info("updateTenant -> update complete");
 			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
+			
+//			// check whether can update the tenant based on the quota
+//			TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+//			if (!checkRes.isCanChange()) {
+//				logger.error("exceed the parent tenant quota, can NOT update.");
+//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+//			}
+//
+//			TenantPersistenceWrapper.updateTenant(tenant);
+//			logger.info("updateTenant -> update complete");
+//			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
