@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -452,7 +450,7 @@ public class TenantUtils {
 	 * @return
 	 */
 	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
-		logger.info("TenantUtils -> canCreateTenant -> check create tenant");
+		logger.debug("TenantUtils -> canCreateTenant -> check create tenant");
 
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
@@ -487,7 +485,7 @@ public class TenantUtils {
 	 * @return
 	 */
 	public static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
-		logger.info("TenantUtils -> canUpdateTenant -> check update tenant");
+		logger.debug("TenantUtils -> canUpdateTenant -> check update tenant");
 		// origin tenant quota
 		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
 		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
@@ -525,18 +523,32 @@ public class TenantUtils {
 		return checkRes;
 	}
 
+	/**
+	 * create tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 * @throws IOException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 */
 	public synchronized static TenantResponse createTenant(Tenant tenant)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 
+		logger.debug("TenantUtils -> createTenant -> check can create tenant.");
 		TenantResponse tenantRes = new TenantResponse();
 		TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
-		
+
 		tenantRes.setCheckerRes(checkRes);
-		
-		if (!checkRes.isCanChange()){
+
+		logger.debug("TenantUtils -> createTenant -> check can create tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> createTenant -> check can create tenant is false.");
 			return tenantRes;
 		}
-		
+
+		logger.debug("TenantUtils -> createTenant -> parepare the params for create.");
 		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/projectrequests";
@@ -568,21 +580,19 @@ public class TenantUtils {
 			se.setContentEncoding("utf-8");
 			httpPost.setEntity(se);
 
-			logger.info("createTenant -> start create");
+			logger.debug("TenantUtils -> createTenant -> call df to start create.");
 			CloseableHttpResponse response2 = httpclient.execute(httpPost);
 
 			try {
 				int statusCode = response2.getStatusLine().getStatusCode();
 
 				if (statusCode == 201) {
-					logger.info("createTenant -> start successfully");
+					logger.debug("TenantUtils -> createTenant -> create successfully in df.");
 					TenantPersistenceWrapper.createTenant(tenant);
-					logger.info("createTenant -> insert into DB successfully");
+					logger.debug("TenantUtils -> createTenant -> create successfully in ocm rest.");
 				}
 				String bodyStr = EntityUtils.toString(response2.getEntity());
 
-				// return Response.ok().entity(new TenantBean(tenant,
-				// bodyStr)).build();
 				tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
 			} finally {
 				response2.close();
@@ -593,20 +603,29 @@ public class TenantUtils {
 
 		return tenantRes;
 	}
-	
-	
-	public synchronized static TenantResponse updateTenant(Tenant tenant){
+
+	/**
+	 * update tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public synchronized static TenantResponse updateTenant(Tenant tenant) {
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant.");
 		TenantResponse tenantRes = new TenantResponse();
 		TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
-		
+
 		tenantRes.setCheckerRes(checkRes);
-		
-		if (!checkRes.isCanChange()){
+
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> updateTenant -> check can update tenant is false.");
 			return tenantRes;
 		}
-		
+
 		TenantPersistenceWrapper.updateTenant(tenant);
-		
+		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
+
 		return tenantRes;
 	}
 
