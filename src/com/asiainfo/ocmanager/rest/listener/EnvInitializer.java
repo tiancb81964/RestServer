@@ -14,13 +14,14 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
 /**
  * Initialize env at start-up
+ * 
  * @author EthanWang
  *
  */
-public class EnvInitializer implements ServletContextListener{
+public class EnvInitializer implements ServletContextListener {
 	private static final Logger LOG = LoggerFactory.getLogger(EnvInitializer.class);
 	private Properties conf = ServerConfiguration.getConf();
-	
+
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		LOG.info("EnvInitializer start.");
@@ -31,6 +32,6 @@ public class EnvInitializer implements ServletContextListener{
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		
+		AuthScheduller.stop();
 	}
 }

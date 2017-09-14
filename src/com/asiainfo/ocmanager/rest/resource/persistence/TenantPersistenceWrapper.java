@@ -217,4 +217,23 @@ public class TenantPersistenceWrapper {
 		return tenants;
 	}
 
+	/**
+	 * update tenant, only can update description and quota
+	 * 
+	 * @param tenant
+	 */
+	public static void updateTenant(Tenant tenant) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			TenantMapper mapper = session.getMapper(TenantMapper.class);
+			mapper.updateTenant(tenant);
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
 }

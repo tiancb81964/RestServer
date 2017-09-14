@@ -14,6 +14,7 @@ public class Tenant {
 	private String description;
 	private String parentId;
 	private int level;
+	private String quota;
 
 	public Tenant() {
 
@@ -25,6 +26,15 @@ public class Tenant {
 		this.description = description;
 		this.parentId = parentId;
 		this.level = level;
+	}
+
+	public Tenant(String id, String name, String description, String parentId, int level, String quota) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.parentId = parentId;
+		this.level = level;
+		this.quota = quota;
 	}
 
 	public String getId() {
@@ -67,10 +77,18 @@ public class Tenant {
 		this.level = level;
 	}
 
+	public String getQuota() {
+		return quota;
+	}
+
+	public void setQuota(String quota) {
+		this.quota = quota;
+	}
+
 	@Override
 	public String toString() {
 		return "Tenant: {id: " + id + " name: " + name + " description: " + description + " parentId: " + parentId
-				+ " level: " + level + "}";
+				+ " level: " + level + " quota: " + quota + "}";
 	}
 
 	@Override
@@ -92,12 +110,12 @@ public class Tenant {
 
 		return Objects.equals(name, other.name) && Objects.equals(id, other.id)
 				&& Objects.equals(description, other.description) && Objects.equals(parentId, other.parentId)
-				&& level == other.level;
+				&& level == other.level && quota == other.quota;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, id, description, parentId, level);
+		return Objects.hash(name, id, description, parentId, level, quota);
 	}
 
 }

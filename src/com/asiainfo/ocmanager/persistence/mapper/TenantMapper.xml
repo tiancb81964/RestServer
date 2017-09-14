@@ -21,13 +21,20 @@
 	<select id="selectAllRootTenants"
 		resultType="com.asiainfo.ocmanager.persistence.model.Tenant">
 		select * from tenants where parentId is NULL
-	</select>	
+	</select>
 	<!-- create tenant -->
 	<insert id="insertTenant" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.Tenant">
-		insert into tenants (id, name, description, parentId, level)
-		values (#{id}, #{name}, #{description}, #{parentId}, #{level})
+		insert into tenants (id, name, description, parentId, level, quota)
+		values (#{id}, #{name}, #{description}, #{parentId}, #{level}, #{quota})
 	</insert>
+	<!-- update tenant -->
+	<update id="updateTenant" parameterType="com.asiainfo.ocmanager.persistence.model.Tenant">
+		update tenants set
+		description = #{description},
+		quota = #{quota}
+		where id = #{id}
+	</update>
 	<!-- delete tenant -->
 	<delete id="deleteTenant">
 		delete from tenants where id=#{id}

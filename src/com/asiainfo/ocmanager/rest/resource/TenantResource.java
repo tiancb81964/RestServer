@@ -46,7 +46,10 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
@@ -147,7 +150,7 @@ public class TenantResource {
 		}
 	}
 
-	private static UserRoleView getRole(String tenantId, String userName) {
+	private UserRoleView getRole(String tenantId, String userName) {
 
 		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(userName, tenantId);
 		if (role == null) {
@@ -160,7 +163,7 @@ public class TenantResource {
 			if (tenant.getParentId() == null) {
 				return null;
 			} else {
-				role = TenantResource.getRole(tenant.getParentId(), userName);
+				role = getRole(tenant.getParentId(), userName);
 			}
 		}
 		return role;
@@ -178,7 +181,7 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getRoleByTenantUserName(@PathParam("id") String tenantId, @PathParam("userName") String userName) {
 		try {
-			UserRoleView role = TenantResource.getRole(tenantId, userName);
+			UserRoleView role = getRole(tenantId, userName);
 			if (role != null) {
 				// set the tenant id to the passed tenant id
 				role.setTenantId(tenantId);
@@ -246,19 +249,24 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createTenant(Tenant tenant, @Context HttpServletRequest request) {
-
-		if (tenant.getName() == null || tenant.getId() == null) {
-			return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
-		}
-
-		// if the tenant have the instances
-		// can NOT create chlid tenant
-		if (tenant.getParentId() != null && TenantResource.hasInstances(tenant.getParentId())) {
-			return Response.status(Status.NOT_ACCEPTABLE)
-					.entity("The parent tenant have service instances, can NOT create child tenant.").build();
-		}
-
 		try {
+			if (tenant.getName() == null || tenant.getId() == null) {
+				return Response.status(Status.BAD_REQUEST).entity("input format is not correct").build();
+			}
+
+			if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("operation failed",
+						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
+			// if the tenant have the instances
+			// can NOT create chlid tenant
+			if (tenant.getParentId() != null && hasInstances(tenant.getParentId())) {
+				return Response.status(Status.NOT_ACCEPTABLE)
+						.entity("The parent tenant have service instances, can NOT create child tenant.").build();
+			}
+
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				logger.error("Only sysadmin can do this operation. User: " + loginUser);
@@ -267,57 +275,76 @@ public class TenantResource {
 						.build();
 			}
 
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/projectrequests";
 
-			JsonObject jsonObj1 = new JsonObject();
-			jsonObj1.addProperty("apiVersion", "v1");
-			jsonObj1.addProperty("kind", "ProjectRequest");
-			// mapping DF tenant display name with adapter tenant name
-			jsonObj1.addProperty("displayName", tenant.getName());
-			if (tenant.getDescription() != null) {
-				jsonObj1.addProperty("description", tenant.getDescription());
+
+			TenantResponse tenantRes = TenantUtils.createTenant(tenant);
+			
+			if (!tenantRes.getCheckerRes().isCanChange()){
+				logger.error("exceed the parent tenant quota, can NOT create.");
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 			}
+			return Response.ok().entity(tenantRes.getTenantBean()).build();
+			
+//			// check whether can create sub tenant based on the quota
+//			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+//			if (!checkRes.isCanChange()) {
+//				logger.error("exceed the parent tenant quota, can NOT create.");
+//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+//			}
 
-			JsonObject jsonObj2 = new JsonObject();
-			jsonObj2.addProperty("name", tenant.getId());
-			jsonObj1.add("metadata", jsonObj2);
-			String reqBody = jsonObj1.toString();
-
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpPost httpPost = new HttpPost(dfRestUrl);
-				httpPost.addHeader("Content-type", "application/json");
-				httpPost.addHeader("Authorization", "bearer " + token);
-
-				StringEntity se = new StringEntity(reqBody);
-				se.setContentType("application/json");
-				se.setContentEncoding("utf-8");
-				httpPost.setEntity(se);
-
-				logger.info("createTenant -> start create");
-				CloseableHttpResponse response2 = httpclient.execute(httpPost);
-
-				try {
-					int statusCode = response2.getStatusLine().getStatusCode();
-
-					if (statusCode == 201) {
-						logger.info("createTenant -> start successfully");
-						TenantPersistenceWrapper.createTenant(tenant);
-						logger.info("createTenant -> insert into DB successfully");
-					}
-					String bodyStr = EntityUtils.toString(response2.getEntity());
-
-					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
-				} finally {
-					response2.close();
-				}
-			} finally {
-				httpclient.close();
-			}
+//			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+//			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+//			String dfRestUrl = url + "/oapi/v1/projectrequests";
+//
+//			JsonObject jsonObj1 = new JsonObject();
+//			jsonObj1.addProperty("apiVersion", "v1");
+//			jsonObj1.addProperty("kind", "ProjectRequest");
+//			// mapping DF tenant display name with adapter tenant name
+//			jsonObj1.addProperty("displayName", tenant.getName());
+//			if (tenant.getDescription() != null) {
+//				jsonObj1.addProperty("description", tenant.getDescription());
+//			}
+//
+//			JsonObject jsonObj2 = new JsonObject();
+//			jsonObj2.addProperty("name", tenant.getId());
+//			jsonObj1.add("metadata", jsonObj2);
+//			String reqBody = jsonObj1.toString();
+//
+//			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+//
+//			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+//			try {
+//				HttpPost httpPost = new HttpPost(dfRestUrl);
+//				httpPost.addHeader("Content-type", "application/json");
+//				httpPost.addHeader("Authorization", "bearer " + token);
+//
+//				StringEntity se = new StringEntity(reqBody);
+//				se.setContentType("application/json");
+//				se.setContentEncoding("utf-8");
+//				httpPost.setEntity(se);
+//
+//				logger.info("createTenant -> start create");
+//				CloseableHttpResponse response2 = httpclient.execute(httpPost);
+//
+//				try {
+//					int statusCode = response2.getStatusLine().getStatusCode();
+//
+//					if (statusCode == 201) {
+//						logger.info("createTenant -> start successfully");
+//						TenantPersistenceWrapper.createTenant(tenant);
+//						logger.info("createTenant -> insert into DB successfully");
+//					}
+//					String bodyStr = EntityUtils.toString(response2.getEntity());
+//
+//					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
+//				} finally {
+//					response2.close();
+//				}
+//			} finally {
+//				httpclient.close();
+//			}
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createTenant hit exception -> ", e);
@@ -357,7 +384,7 @@ public class TenantResource {
 
 	/**
 	 * Create a service instance in specific tenant
-	 * should enhance to check parent tenant
+	 * 
 	 * @param
 	 * @return
 	 */
@@ -406,11 +433,14 @@ public class TenantResource {
 			// check exist custom bsiName
 			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
-				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName, backingServiceName);
+				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName,
+						backingServiceName);
 				if (serInst != null) {
-					logger.error("Resource name [{}] of service [{}] already exist in OCDP cluster. Try another name.", cuzBsiName, backingServiceName);
-					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("operation failed",
-							"Resource name already exist in OCDP cluster.", ResponseCodeConstant.CONFLICT))
+					logger.error("Resource name [{}] of service [{}] already exist in OCDP cluster. Try another name.",
+							cuzBsiName, backingServiceName);
+					return Response.status(Status.CONFLICT)
+							.entity(new ResourceResponseBean("operation failed",
+									"Resource name already exist in OCDP cluster.", ResponseCodeConstant.CONFLICT))
 							.build();
 				}
 			}
@@ -825,18 +855,71 @@ public class TenantResource {
 	}
 
 	/**
-	 * Update the existing tenant info
+	 * Update the existing tenant info only in OCM rest
 	 *
 	 * @param tenant
 	 *            tenant obj json
 	 * @return updated tenant info
 	 */
-	@Deprecated
 	@PUT
-	@Produces((MediaType.APPLICATION_JSON + ";charset=utf-8"))
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Tenant updateTenant(Tenant tenant) {
-		return tenant;
+	public Response updateTenant(Tenant tenant, @Context HttpServletRequest request) {
+
+		try {
+			if (!TenantJsonParserUtils.isValidJsonString(tenant.getQuota())) {
+				return Response.status(Status.BAD_REQUEST).entity(new ResourceResponseBean("operation failed",
+						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
+			logger.info("updateTenant -> start update");
+
+			if (tenant.getId() == null) {
+				return Response.status(Status.BAD_REQUEST).entity("tenant id is null").build();
+			}
+
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
+						tenant.getId());
+				if (!privileged(role)) {
+					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenant.getId()
+							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+					return Response.status(Status.UNAUTHORIZED)
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
+				}
+			}
+
+			TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
+			
+			if (!tenantRes.getCheckerRes().isCanChange()){
+				logger.error("exceed the parent tenant quota, can NOT update.");
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+			}
+			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
+			
+//			// check whether can update the tenant based on the quota
+//			TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+//			if (!checkRes.isCanChange()) {
+//				logger.error("exceed the parent tenant quota, can NOT update.");
+//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+//			}
+//
+//			TenantPersistenceWrapper.updateTenant(tenant);
+//			logger.info("updateTenant -> update complete");
+//			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
+
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.error("updateTenant hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
 	}
 
 	/**
@@ -860,12 +943,12 @@ public class TenantResource {
 			}
 
 			// if have instances can not be deleted
-			if (TenantResource.hasInstances(tenantId)) {
+			if (hasInstances(tenantId)) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have service instances on it.").build();
 			}
 			// if have users can not be deleted
-			if (TenantResource.hasUsers(tenantId)) {
+			if (hasUsers(tenantId)) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
@@ -909,7 +992,7 @@ public class TenantResource {
 		}
 	}
 
-	private static boolean hasInstances(String tenantId) {
+	private boolean hasInstances(String tenantId) {
 		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 		if (instances.size() > 0) {
 			return true;
@@ -917,7 +1000,7 @@ public class TenantResource {
 		return false;
 	}
 
-	private static boolean hasUsers(String tenantId) {
+	private boolean hasUsers(String tenantId) {
 		List<UserRoleView> users = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
 		// if the user list == 1 and it is admin
 		// the tenant can be deleted

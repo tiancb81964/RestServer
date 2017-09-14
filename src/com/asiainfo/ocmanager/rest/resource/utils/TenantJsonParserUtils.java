@@ -5,7 +5,11 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 /**
@@ -15,19 +19,49 @@ import com.google.gson.JsonParser;
  */
 public class TenantJsonParserUtils {
 
+	private static Logger logger = LoggerFactory.getLogger(TenantJsonParserUtils.class);
 	
-	public static JsonElement getPatchString(String tenantId, String instanceName) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException{
+	/**
+	 * 
+	 * @param tenantId
+	 * @param instanceName
+	 * @return
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 * @throws IOException
+	 */
+	public static JsonElement getPatchString(String tenantId, String instanceName)
+			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
 		String updateInstStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 		JsonElement updateInstJson = new JsonParser().parse(updateInstStr);
 		JsonElement patch = updateInstJson.getAsJsonObject().getAsJsonObject("status").get("patch");
-		
+
 		return patch;
 	}
-	
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
+	/**
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static boolean isValidJsonString(String str) {
+
+		if (str == null) {
+			return false;
+		}
+
+		if (str.indexOf("{") == -1 || str.indexOf("}") == -1) {
+			return false;
+		}
+
+		try {
+			new JsonParser().parse(str);
+			return true;
+		} catch (JsonParseException e) {
+			logger.error("isValidJsonString hit exception-> ", e);
+			return false;
+		}
 	}
 
 }

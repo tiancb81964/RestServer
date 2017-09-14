@@ -63,11 +63,19 @@ public interface TenantMapper {
 	 * @return
 	 */
 	public List<Tenant> selectTenantsByLevel(@Param("level") int level);
-	
+
 	/**
 	 * Get parent of tenant by specified tenantID
+	 * 
 	 * @param id
 	 * @return
 	 */
 	public Tenant getParent(String id);
+
+	/**
+	 * update tenant
+	 * 
+	 * @param tenant
+	 */
+	public void updateTenant(Tenant tenant);
 }

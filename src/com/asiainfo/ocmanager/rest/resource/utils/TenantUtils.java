@@ -18,11 +18,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.google.gson.JsonArray;
@@ -32,7 +38,7 @@ import com.google.gson.JsonParser;
 
 public class TenantUtils {
 
-	private static Logger logger = Logger.getLogger(TenantUtils.class);
+	private static Logger logger = LoggerFactory.getLogger(TenantUtils.class);
 
 	/**
 	 * 
@@ -218,7 +224,8 @@ public class TenantUtils {
 	 * @throws KeyStoreException
 	 */
 	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
-			String userName, String accesses) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+			String userName, String accesses)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
@@ -233,12 +240,12 @@ public class TenantUtils {
 		JsonObject metadata = new JsonObject();
 		metadata.addProperty("name", instanceName);
 		reqBody.add("metadata", metadata);
-		
+
 		JsonObject parameters = new JsonObject();
 		parameters.addProperty("user_name", userName);
 		parameters.addProperty("accesses", accesses);
 		reqBody.add("parameters", parameters);
-		
+
 		String reqBodyStr = reqBody.toString();
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -434,6 +441,192 @@ public class TenantUtils {
 		List<Tenant> newList = new ArrayList<Tenant>();
 		newList.addAll(hs);
 		return newList;
+	}
+
+	/**
+	 * check whether can create the tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
+		logger.debug("TenantUtils -> canCreateTenant -> check create tenant");
+
+		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
+		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+
+		Tenant tmpTenant = new Tenant();
+		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+
+		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(tenant.getParentId());
+
+		for (Tenant child : childrenTenants) {
+			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
+		}
+
+		// minus all existing children quota
+		// calculate the left quota
+		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
+		// request tenant quota
+		TenantQuotaBean currentTenantQuota = new TenantQuotaBean(tenant);
+		// left quota minus request quota
+		parentTenantQuota.minusOtherTenantQuota(currentTenantQuota);
+
+		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
+
+		return checkRes;
+	}
+
+	/**
+	 * check whether can update the tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
+		logger.debug("TenantUtils -> canUpdateTenant -> check update tenant");
+		// origin tenant quota
+		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
+		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
+
+		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(originTenant.getParentId());
+		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+
+		Tenant tmpTenant = new Tenant();
+		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+
+		// calculate all the children tenants quota
+		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(originTenant.getParentId());
+		for (Tenant child : childrenTenants) {
+			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
+		}
+
+		// minus all existing children quota
+		// calculate the left quota
+		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
+
+		// calculate the request quota
+		// request update tenant quota
+		// set the name, because the update not pass the name
+		tenant.setName(originTenant.getName());
+		TenantQuotaBean requestTenantQuota = new TenantQuotaBean(tenant);
+		// real request quota
+		requestTenantQuota.minusOtherTenantQuota(originTenantQuota);
+
+		// left quota minus request quota
+		parentTenantQuota.minusOtherTenantQuota(requestTenantQuota);
+
+		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
+
+		return checkRes;
+	}
+
+	/**
+	 * create tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 * @throws IOException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 */
+	public synchronized static TenantResponse createTenant(Tenant tenant)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+
+		logger.debug("TenantUtils -> createTenant -> check can create tenant.");
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+
+		tenantRes.setCheckerRes(checkRes);
+
+		logger.debug("TenantUtils -> createTenant -> check can create tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> createTenant -> check can create tenant is false.");
+			return tenantRes;
+		}
+
+		logger.debug("TenantUtils -> createTenant -> parepare the params for create.");
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String dfRestUrl = url + "/oapi/v1/projectrequests";
+
+		JsonObject jsonObj1 = new JsonObject();
+		jsonObj1.addProperty("apiVersion", "v1");
+		jsonObj1.addProperty("kind", "ProjectRequest");
+		// mapping DF tenant display name with adapter tenant name
+		jsonObj1.addProperty("displayName", tenant.getName());
+		if (tenant.getDescription() != null) {
+			jsonObj1.addProperty("description", tenant.getDescription());
+		}
+
+		JsonObject jsonObj2 = new JsonObject();
+		jsonObj2.addProperty("name", tenant.getId());
+		jsonObj1.add("metadata", jsonObj2);
+		String reqBody = jsonObj1.toString();
+
+		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+
+		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		try {
+			HttpPost httpPost = new HttpPost(dfRestUrl);
+			httpPost.addHeader("Content-type", "application/json");
+			httpPost.addHeader("Authorization", "bearer " + token);
+
+			StringEntity se = new StringEntity(reqBody);
+			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
+			httpPost.setEntity(se);
+
+			logger.debug("TenantUtils -> createTenant -> call df to start create.");
+			CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+			try {
+				int statusCode = response2.getStatusLine().getStatusCode();
+
+				if (statusCode == 201) {
+					logger.debug("TenantUtils -> createTenant -> create successfully in df.");
+					TenantPersistenceWrapper.createTenant(tenant);
+					logger.debug("TenantUtils -> createTenant -> create successfully in ocm rest.");
+				}
+				String bodyStr = EntityUtils.toString(response2.getEntity());
+
+				tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
+			} finally {
+				response2.close();
+			}
+		} finally {
+			httpclient.close();
+		}
+
+		return tenantRes;
+	}
+
+	/**
+	 * update tenant
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public synchronized static TenantResponse updateTenant(Tenant tenant) {
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant.");
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+
+		tenantRes.setCheckerRes(checkRes);
+
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> updateTenant -> check can update tenant is false.");
+			return tenantRes;
+		}
+
+		TenantPersistenceWrapper.updateTenant(tenant);
+		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
+
+		return tenantRes;
 	}
 
 }

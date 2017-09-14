@@ -23,6 +23,11 @@ public class AuthScheduller {
 		LOG.info("AuthScheduller schedulled at period " + rate + ", delay " + delay + " in seconds.");
 	}
 
+	public static void stop() {
+		executor.shutdown();
+		LOG.info("AuthScheduller stopped!");
+	}
+
 	private class AuthRunnable implements Runnable {
 
 		@Override
