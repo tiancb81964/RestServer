@@ -35,4 +35,8 @@
     <select id="selectServiceInstanceByCuzBsiName" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
         select * from service_instances where cuzBsiName = #{cuzBsiName} and upper(serviceTypeName) = upper(#{serviceType})
     </select>
+    <!-- get service instance by instanceName -->
+    <select id="selectServiceInstanceByServiceType" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
+        select * from service_instances where tenantId = #{tenantId} and upper(serviceTypeName) = upper(#{serviceType})
+    </select>
 </mapper>

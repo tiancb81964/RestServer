@@ -6,7 +6,6 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.asiainfo.ocmanager.persistence.mapper.ServiceInstanceMapper;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
-import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 
 public class TestServiceInstance {
 
@@ -16,6 +15,19 @@ public class TestServiceInstance {
 		SqlSession session = TestDBConnectorFactory.getSession();
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
+//			List<ServiceInstance> sis2 = mapper.selectServiceInstanceByServiceType("777", "hdfs");
+//			for (ServiceInstance si : sis2) {
+//				System.out.println(si.getId());
+//				System.out.println(si.getServiceTypeName());
+//				System.out.println(si.getQuota());
+//				
+//				JsonObject serviceQuota = new JsonObject();
+//				serviceQuota.addProperty("hdfs", si.getQuota());
+//				
+//				Map<String, String> mm = TenantQuotaUtils.getTenantQuotaByService("hdfs", serviceQuota.getAsString());
+//				System.out.println(mm);
+//		}
+			
 			mapper.insertServiceInstance(
 					new ServiceInstance("9", "inst9", "t1", "300", "ETCD", "hdfs tenant 005 quota", "active"));
 			mapper.deleteServiceInstance("2", "inst9");
