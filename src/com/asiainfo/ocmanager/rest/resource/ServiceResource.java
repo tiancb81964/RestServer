@@ -306,7 +306,7 @@ public class ServiceResource {
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	private static String callDFToGetAllServices() throws KeyManagementException, NoSuchAlgorithmException,
+	public static String callDFToGetAllServices() throws KeyManagementException, NoSuchAlgorithmException,
 			KeyStoreException, ClientProtocolException, IOException {
 
 		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);

@@ -1,7 +1,9 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +38,8 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
+import com.asiainfo.ocmanager.rest.bean.service.instance.HdfsServiceInstanceQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -46,13 +50,17 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
+import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -444,6 +452,70 @@ public class TenantResource {
 							.build();
 				}
 			}
+			
+			
+			
+			
+			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper.getServiceInstanceByServiceType(tenantId, backingServiceName);
+			Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
+			
+			switch (backingServiceName.toLowerCase()) {
+			case "hdfs":
+				// get all hdfs children bsi quota
+				HdfsServiceInstanceQuotaBean childrenTotalQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, new HashMap<String, String>());
+				for (ServiceInstance inst : serviceInstances) {
+					HdfsServiceInstanceQuotaBean hdfsQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, inst.getQuota());
+					childrenTotalQuota.plus(hdfsQuota);
+				}
+				// get parent tenant quota
+				Map<String, String> parentTenantQuotaMap = TenantQuotaUtils.getTenantQuotaByService(backingServiceName, parentTenant.getQuota());
+				HdfsServiceInstanceQuotaBean parentTenantQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, parentTenantQuotaMap);
+				
+				// calculate the left quota
+				parentTenantQuota.minus(childrenTotalQuota);
+				
+				// get request bsi quota
+				HdfsServiceInstanceQuotaBean requestServiceInstanceQuota = HdfsServiceInstanceQuotaBean.createDefaultHdfsServiceInstanceQuota();
+				
+				// left quota minus request quota
+				parentTenantQuota.minus(requestServiceInstanceQuota);
+				
+				// check whether can create
+				ServiceInstanceQuotaCheckerResponse checkRes = parentTenantQuota.checkCanChangeHdfsInst();
+				
+				
+				
+				break;
+			case "hbase":
+
+
+				break;
+			case "hive":
+
+
+				break;
+			case "mapreduce":
+
+
+				break;
+			case "spark":
+
+
+				break;
+			case "kafka":
+
+				break;
+			default:
+				logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", backingServiceName);
+			}
+			
+			
+
+			
+			
+			
+			
+			
 
 			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
 			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
@@ -654,7 +726,7 @@ public class TenantResource {
 					if (Constant.serviceQuotaParam.contains(entry.getKey())) {
 						// if value is not int, will throw Exception
 						entry.getValue().getAsLong();
-						logger.info("parameters" + entry.getKey() + ":" + entry.getValue());
+						logger.info("parameters " + entry.getKey() + ":" + entry.getValue());
 					}
 				}
 			} catch (Exception e) {
