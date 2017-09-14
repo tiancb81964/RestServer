@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.service.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.Query;
+import javax.management.QueryExp;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -253,7 +256,7 @@ public class KafkaClient {
 				}
 				if (jmx.containsKey(host)) {
 					JMXConnector connector = jmx.get(host);
-					return connector.getMBeanServerConnection();
+					return validateConnection(host, connector);
 				}
 				cache(host, create(host));
 				return jmx.get(host).getMBeanServerConnection();
@@ -261,6 +264,26 @@ public class KafkaClient {
 				LOG.error("Error while creating KafkaJMX connection: " + host, e);
 				throw new RuntimeException("Error while creating KafkaJMX connection: " + host, e);
 			}
+		}
+
+		private static MBeanServerConnection validateConnection(String host, JMXConnector connector) throws IOException {
+			try {
+				return connector.getMBeanServerConnection();
+			} catch (IOException e) {
+				renew(host, create(host));
+				return jmx.get(host).getMBeanServerConnection();
+			}
+		}
+		
+		private static void renew(String host, JMXConnector conn) {
+			LOG.info("Renewing JMXConnection to host: " + host);
+			try {
+				jmx.get(host).close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			jmx.remove(host);
+			jmx.put(host, conn);
 		}
 
 		private static void cache(String host, JMXConnector conn) {
