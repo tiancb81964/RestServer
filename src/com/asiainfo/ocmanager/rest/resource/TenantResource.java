@@ -357,7 +357,6 @@ public class TenantResource {
 
 	/**
 	 * Create a service instance in specific tenant
-	 *
 	 * @param
 	 * @return
 	 */
