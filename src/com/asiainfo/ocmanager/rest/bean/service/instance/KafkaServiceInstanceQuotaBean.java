@@ -12,12 +12,11 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class KafkaServiceInstanceQuotaBean {
+public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long topicTTL;
 	private long topicQuota;
 	private long partitionSize;
-	private String serviceType;
 
 	public KafkaServiceInstanceQuotaBean() {
 
@@ -117,14 +116,6 @@ public class KafkaServiceInstanceQuotaBean {
 
 	public void setPartitionSize(long partitionSize) {
 		this.partitionSize = partitionSize;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override

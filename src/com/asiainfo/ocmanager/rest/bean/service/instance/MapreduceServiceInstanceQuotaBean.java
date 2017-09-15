@@ -12,9 +12,8 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class MapreduceServiceInstanceQuotaBean {
+public class MapreduceServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	private long yarnQueueQuota;
-	private String serviceType;
 
 	public MapreduceServiceInstanceQuotaBean() {
 
@@ -80,14 +79,6 @@ public class MapreduceServiceInstanceQuotaBean {
 
 	public void setYarnQueueQuota(long yarnQueueQuota) {
 		this.yarnQueueQuota = yarnQueueQuota;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override
