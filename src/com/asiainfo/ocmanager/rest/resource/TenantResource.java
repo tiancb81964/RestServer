@@ -21,12 +21,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -40,32 +37,25 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.HdfsServiceInstanceQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
-import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUpdateRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
-import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
-import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -288,76 +278,16 @@ public class TenantResource {
 						.build();
 			}
 
-
-
 			TenantResponse tenantRes = TenantUtils.createTenant(tenant);
-			
-			if (!tenantRes.getCheckerRes().isCanChange()){
+
+			if (!tenantRes.getCheckerRes().isCanChange()) {
 				logger.error("exceed the parent tenant quota, can NOT create.");
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+						.build();
 			}
 			return Response.ok().entity(tenantRes.getTenantBean()).build();
-			
-//			// check whether can create sub tenant based on the quota
-//			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
-//			if (!checkRes.isCanChange()) {
-//				logger.error("exceed the parent tenant quota, can NOT create.");
-//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
-//			}
 
-//			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-//			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-//			String dfRestUrl = url + "/oapi/v1/projectrequests";
-//
-//			JsonObject jsonObj1 = new JsonObject();
-//			jsonObj1.addProperty("apiVersion", "v1");
-//			jsonObj1.addProperty("kind", "ProjectRequest");
-//			// mapping DF tenant display name with adapter tenant name
-//			jsonObj1.addProperty("displayName", tenant.getName());
-//			if (tenant.getDescription() != null) {
-//				jsonObj1.addProperty("description", tenant.getDescription());
-//			}
-//
-//			JsonObject jsonObj2 = new JsonObject();
-//			jsonObj2.addProperty("name", tenant.getId());
-//			jsonObj1.add("metadata", jsonObj2);
-//			String reqBody = jsonObj1.toString();
-//
-//			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-//
-//			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-//			try {
-//				HttpPost httpPost = new HttpPost(dfRestUrl);
-//				httpPost.addHeader("Content-type", "application/json");
-//				httpPost.addHeader("Authorization", "bearer " + token);
-//
-//				StringEntity se = new StringEntity(reqBody);
-//				se.setContentType("application/json");
-//				se.setContentEncoding("utf-8");
-//				httpPost.setEntity(se);
-//
-//				logger.info("createTenant -> start create");
-//				CloseableHttpResponse response2 = httpclient.execute(httpPost);
-//
-//				try {
-//					int statusCode = response2.getStatusLine().getStatusCode();
-//
-//					if (statusCode == 201) {
-//						logger.info("createTenant -> start successfully");
-//						TenantPersistenceWrapper.createTenant(tenant);
-//						logger.info("createTenant -> insert into DB successfully");
-//					}
-//					String bodyStr = EntityUtils.toString(response2.getEntity());
-//
-//					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
-//				} finally {
-//					response2.close();
-//				}
-//			} finally {
-//				httpclient.close();
-//			}
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createTenant hit exception -> ", e);
@@ -457,198 +387,29 @@ public class TenantResource {
 							.build();
 				}
 			}
-			
-			
-			
-			
-			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper.getServiceInstanceByServiceType(tenantId, backingServiceName);
+
+			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
+					.getServiceInstanceByServiceType(tenantId, backingServiceName);
 			Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
-			
-			switch (backingServiceName.toLowerCase()) {
-			case "hdfs":
-				// get all hdfs children bsi quota
-				HdfsServiceInstanceQuotaBean childrenTotalQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, new HashMap<String, String>());
-				for (ServiceInstance inst : serviceInstances) {
-					HdfsServiceInstanceQuotaBean hdfsQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, inst.getQuota());
-					childrenTotalQuota.plus(hdfsQuota);
-				}
-				// get parent tenant quota
-				Map<String, String> parentTenantQuotaMap = TenantQuotaUtils.getTenantQuotaByService(backingServiceName, parentTenant.getQuota());
-				HdfsServiceInstanceQuotaBean parentTenantQuota = new HdfsServiceInstanceQuotaBean(backingServiceName, parentTenantQuotaMap);
-				
-				// calculate the left quota
-				parentTenantQuota.minus(childrenTotalQuota);
-				
-				// get request bsi quota
-				HdfsServiceInstanceQuotaBean requestServiceInstanceQuota = HdfsServiceInstanceQuotaBean.createDefaultHdfsServiceInstanceQuota();
-				
-				// left quota minus request quota
-				parentTenantQuota.minus(requestServiceInstanceQuota);
-				
-				// check whether can create
-				ServiceInstanceQuotaCheckerResponse checkRes = parentTenantQuota.checkCanChangeHdfsInst();
-				
-				
-				
-				break;
-			case "hbase":
 
+			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 
-				break;
-			case "hive":
+			ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
+					serviceInstances, parentTenant);
+			serviceInstRes.setCheckerRes(checkRes);
 
-
-				break;
-			case "mapreduce":
-
-
-				break;
-			case "spark":
-
-
-				break;
-			case "kafka":
-
-				break;
-			default:
-				logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", backingServiceName);
+			if (!serviceInstRes.getCheckerRes().isCanChange()) {
+				logger.error("exceed the parent tenant quota, can NOT create bsi.");
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						serviceInstRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+						.build();
 			}
-			
-			
 
-			
-			
-			
-			
-			
+			String resBody = ServiceInstanceUtils.createBsi(tenantId, reqBodyJson);
+			serviceInstRes.setResBody(resBody);
 
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
+			return Response.ok().entity(serviceInstRes.getResBody()).build();
 
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpPost httpPost = new HttpPost(dfRestUrl);
-				httpPost.addHeader("Content-type", "application/json");
-				httpPost.addHeader("Authorization", "bearer " + token);
-
-				StringEntity se = new StringEntity(reqBodyJson.toString());
-				se.setContentType("application/json");
-				se.setContentEncoding("utf-8");
-				httpPost.setEntity(se);
-
-				logger.info("createServiceInstanceInTenant -> begin to create service instance");
-				CloseableHttpResponse response2 = httpclient.execute(httpPost);
-
-				try {
-					int statusCode = response2.getStatusLine().getStatusCode();
-					String bodyStr = EntityUtils.toString(response2.getEntity());
-					ServiceInstance serviceInstance = new ServiceInstance();
-					if (statusCode == 201) {
-						logger.info("createServiceInstanceInTenant -> create service instances successfully");
-
-						JsonElement resBodyJson = new JsonParser().parse(bodyStr);
-						JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
-						serviceInstance
-								.setInstanceName(resBodyJsonObj.getAsJsonObject("metadata").get("name").getAsString());
-						serviceInstance.setTenantId(tenantId);
-						serviceInstance.setServiceTypeId(resBodyJsonObj.getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("backingservice_spec_id").getAsString());
-						serviceInstance.setServiceTypeName(resBodyJsonObj.getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("backingservice_name").getAsString());
-
-						JsonElement resCuzBsiNameJE = resBodyJsonObj.getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").getAsJsonObject("parameters").get("cuzBsiName");
-						if (resCuzBsiNameJE != null) {
-							serviceInstance.setCuzBsiName(resCuzBsiNameJE.getAsString());
-						}
-
-						// get the just now created instance info
-						String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
-								serviceInstance.getInstanceName());
-
-						JsonElement serviceInstanceJson = new JsonParser().parse(getInstanceResBody);
-						// get the service type
-						String serviceName = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
-						// get status phase
-						String phase = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status").get("phase")
-								.getAsString();
-						// get the service instance name
-						String instanceName = serviceInstanceJson.getAsJsonObject().getAsJsonObject("metadata")
-								.get("name").getAsString();
-
-						// loop to wait the instance status.phase change to
-						// Unbound if the status.phase is Provisioning the
-						// update will failed, so need to wait
-						logger.info("createServiceInstanceInTenant -> waiting Provisioning to Unbound");
-						while (phase.equals(Constant.PROVISIONING)) {
-							// wait for 3 secs
-							Thread.sleep(3000);
-							// get the instance info again
-							getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId,
-									serviceInstance.getInstanceName());
-							serviceInstanceJson = new JsonParser().parse(getInstanceResBody);
-							serviceName = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-									.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
-							phase = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status").get("phase")
-									.getAsString();
-						}
-						logger.info("createServiceInstanceInTenant -> waiting Provisioning to Unbound successfully");
-
-						// sync here after the create successfully
-						// get the latest status and insert into DB
-						if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
-								.isJsonNull())) {
-							// TODO should get df service quota
-						} else {
-							// parameters are a json format should use to string
-							serviceInstance.setQuota(serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-									.getAsJsonObject("provisioning").get("parameters").toString());
-						}
-						serviceInstance.setStatus(phase);
-						// set instance id, the id generated after Provisioning
-						JsonElement instanceId = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.get("instance_id");
-						if (instanceId == null || instanceId.isJsonNull() || instanceId.getAsString().isEmpty()) {
-							// just make sure if the create failed and not
-							// return id in df, generate the uid by
-							// adapter self, in this way the data will
-							// be sync with df
-							serviceInstance.setId(UUIDFactory.getUUID());
-						} else {
-							serviceInstance.setId(instanceId.getAsString());
-						}
-
-						// insert the service instance into the adapter DB
-						ServiceInstancePersistenceWrapper.createServiceInstance(serviceInstance);
-
-						// if the phase is failed, it means the create failed
-						if (phase.equals(Constant.FAILURE)) {
-							logger.info("createServiceInstanceInTenant -> phase is failure, throw directly");
-							return Response.ok().entity(getInstanceResBody).build();
-						}
-
-						// only the OCDP services need to wait to assign the
-						// permission
-						if (Constant.list.contains(serviceName.toLowerCase())) {
-
-							TenantResourceCreateInstanceBindingExecutor runnable = new TenantResourceCreateInstanceBindingExecutor(
-									tenantId, serviceName, instanceName);
-							Thread thread = new Thread(runnable);
-							thread.start();
-						}
-					}
-
-					return Response.ok().entity(bodyStr).build();
-				} finally {
-					response2.close();
-				}
-			} finally {
-				httpclient.close();
-			}
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createServiceInstanceInTenant hit exception -> ", e);
@@ -1006,25 +767,30 @@ public class TenantResource {
 			}
 
 			TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
-			
-			if (!tenantRes.getCheckerRes().isCanChange()){
+
+			if (!tenantRes.getCheckerRes().isCanChange()) {
 				logger.error("exceed the parent tenant quota, can NOT update.");
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+						.build();
 			}
 			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
-			
-//			// check whether can update the tenant based on the quota
-//			TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
-//			if (!checkRes.isCanChange()) {
-//				logger.error("exceed the parent tenant quota, can NOT update.");
-//				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-//						checkRes.getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
-//			}
-//
-//			TenantPersistenceWrapper.updateTenant(tenant);
-//			logger.info("updateTenant -> update complete");
-//			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
+
+			// // check whether can update the tenant based on the quota
+			// TenantQuotaCheckerResponse checkRes =
+			// TenantUtils.canUpdateTenant(tenant);
+			// if (!checkRes.isCanChange()) {
+			// logger.error("exceed the parent tenant quota, can NOT update.");
+			// return Response.status(Status.NOT_ACCEPTABLE).entity(new
+			// ResourceResponseBean("operation failed",
+			// checkRes.getMessages(),
+			// ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+			// }
+			//
+			// TenantPersistenceWrapper.updateTenant(tenant);
+			// logger.info("updateTenant -> update complete");
+			// return Response.ok().entity(new TenantBean(tenant, "no
+			// dataFoundryInfo")).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
