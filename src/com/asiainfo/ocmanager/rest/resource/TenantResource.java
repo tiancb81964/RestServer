@@ -486,7 +486,8 @@ public class TenantResource {
 						iterator.remove();
 					}
 				}
-				validateParameter(tenantId, instanceName, toMap(parameterObj.entrySet()));
+				ServiceType type = getInstanceType(tenantId, instanceName);
+				validateParameter(tenantId, type, toMap(parameterObj.entrySet()));
 			} catch (Exception e) {
 				logger.error("Parameter checking error: ", e);
 
@@ -549,11 +550,9 @@ public class TenantResource {
 	 * if parameters exceeeded available maximum.
 	 * 
 	 * @param tenantId
-	 * @param instanceName
 	 * @param entry
 	 */
-	private void validateParameter(String tenantId, String instanceName, Map<String, String> parameters) {
-		ServiceType type = getInstanceType(tenantId, instanceName);
+	private void validateParameter(String tenantId, ServiceType type, Map<String, String> parameters) {
 		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
 		QuotaBean2 allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
 		validate(total, allocated, toBean(type, parameters));
