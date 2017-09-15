@@ -1,9 +1,16 @@
 package com.asiainfo.ocmanager.rest.bean.service.instance;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
+import com.asiainfo.ocmanager.persistence.model.Tenant;
+import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.QuotaCommonUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
 
@@ -12,12 +19,11 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class KafkaServiceInstanceQuotaBean {
+public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long topicTTL;
 	private long topicQuota;
 	private long partitionSize;
-	private String serviceType;
 
 	public KafkaServiceInstanceQuotaBean() {
 
@@ -42,6 +48,10 @@ public class KafkaServiceInstanceQuotaBean {
 				: Long.valueOf(quotaMap.get("partitionSize")).longValue();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static KafkaServiceInstanceQuotaBean createDefaultServiceInstanceQuota() {
 		KafkaServiceInstanceQuotaBean defaultServiceInstanceQuota = new KafkaServiceInstanceQuotaBean();
 		defaultServiceInstanceQuota.setServiceType("kafka");
@@ -54,7 +64,43 @@ public class KafkaServiceInstanceQuotaBean {
 		return defaultServiceInstanceQuota;
 	}
 
-	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst() {
+	@Override
+	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId) {
+
+		List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
+				.getServiceInstanceByServiceType(tenantId, backingServiceName);
+		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
+
+		// get all mapreduce children bsi quota
+		KafkaServiceInstanceQuotaBean kafkaChildrenTotalQuota = new KafkaServiceInstanceQuotaBean(backingServiceName,
+				new HashMap<String, String>());
+
+		for (ServiceInstance inst : serviceInstances) {
+			KafkaServiceInstanceQuotaBean quota = new KafkaServiceInstanceQuotaBean(backingServiceName,
+					inst.getQuota());
+			kafkaChildrenTotalQuota.plus(quota);
+		}
+
+		// get parent tenant quota
+		Map<String, String> parentTenantQuotaMap = TenantQuotaUtils.getTenantQuotaByService(backingServiceName,
+				parentTenant.getQuota());
+		KafkaServiceInstanceQuotaBean kafkaParentTenantQuota = new KafkaServiceInstanceQuotaBean(backingServiceName,
+				parentTenantQuotaMap);
+
+		// calculate the left quota
+		kafkaParentTenantQuota.minus(kafkaChildrenTotalQuota);
+
+		// get request bsi quota
+		KafkaServiceInstanceQuotaBean kafkaRequestServiceInstanceQuota = KafkaServiceInstanceQuotaBean
+				.createDefaultServiceInstanceQuota();
+
+		// left quota minus request quota
+		kafkaParentTenantQuota.minus(kafkaRequestServiceInstanceQuota);
+
+		return kafkaParentTenantQuota.checker();
+	}
+
+	public ServiceInstanceQuotaCheckerResponse checker() {
 		ServiceInstanceQuotaCheckerResponse checkRes = new ServiceInstanceQuotaCheckerResponse();
 		StringBuilder resStr = new StringBuilder();
 		boolean canChange = true;
@@ -83,12 +129,20 @@ public class KafkaServiceInstanceQuotaBean {
 		return checkRes;
 	}
 
+	/**
+	 * 
+	 * @param otherServiceInstanceQuota
+	 */
 	public void plus(KafkaServiceInstanceQuotaBean otherServiceInstanceQuota) {
 		this.topicTTL = this.topicTTL + otherServiceInstanceQuota.getTopicTTL();
 		this.topicQuota = this.topicQuota + otherServiceInstanceQuota.getTopicQuota();
 		this.partitionSize = this.partitionSize + otherServiceInstanceQuota.getPartitionSize();
 	}
 
+	/**
+	 * 
+	 * @param otherServiceInstanceQuota
+	 */
 	public void minus(KafkaServiceInstanceQuotaBean otherServiceInstanceQuota) {
 		this.topicTTL = this.topicTTL - otherServiceInstanceQuota.getTopicTTL();
 		this.topicQuota = this.topicQuota - otherServiceInstanceQuota.getTopicQuota();
@@ -117,14 +171,6 @@ public class KafkaServiceInstanceQuotaBean {
 
 	public void setPartitionSize(long partitionSize) {
 		this.partitionSize = partitionSize;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override

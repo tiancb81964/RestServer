@@ -389,15 +389,11 @@ public class TenantResource {
 							.build();
 				}
 			}
-			
-			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
-					.getServiceInstanceByServiceType(tenantId, backingServiceName);
-			Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 
 			ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
-					serviceInstances, parentTenant);
+					tenantId);
 			serviceInstRes.setCheckerRes(checkRes);
 
 			if (!serviceInstRes.getCheckerRes().isCanChange()) {
@@ -493,9 +489,11 @@ public class TenantResource {
 				validateParameter(tenantId, instanceName, toMap(parameterObj.entrySet()));
 			} catch (Exception e) {
 				logger.error("Parameter checking error: ", e);
+
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 						e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 						.build();
+
 			}
 
 			// add into the update json
@@ -547,8 +545,9 @@ public class TenantResource {
 	}
 
 	/**
-	 * Checking whether volumn of parameters is valid. Exception will be 
-	 * thrown if parameters exceeeded available maximum.
+	 * Checking whether volumn of parameters is valid. Exception will be thrown
+	 * if parameters exceeeded available maximum.
+	 * 
 	 * @param tenantId
 	 * @param instanceName
 	 * @param entry
