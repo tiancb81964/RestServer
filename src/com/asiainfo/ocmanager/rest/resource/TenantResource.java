@@ -571,7 +571,7 @@ public class TenantResource {
 
 	private ServiceType getInstanceType(String tenantId, String instanceName) {
 		ServiceInstance bsi = ServiceInstancePersistenceWrapper.getServiceInstance(tenantId, instanceName);
-		return ServiceType.valueOf(bsi.getServiceTypeName());
+		return ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
 	}
 
 	private String quotaString(String parametersStr) {
