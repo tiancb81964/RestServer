@@ -18,10 +18,10 @@ public class TenantTreeUtil {
 		TenantTreeNode parent = innerNode.getParent();
 		if (parent == null) {
 			return new Tenant(innerNode.getId(), innerNode.getName(), innerNode.getDescription(), null,
-					innerNode.getLevel());
+					innerNode.getLevel(), innerNode.getQuota());
 		}
 		return new Tenant(innerNode.getId(), innerNode.getName(), innerNode.getDescription(), parent.getId(),
-				innerNode.getLevel());
+				innerNode.getLevel(), innerNode.getQuota());
 	}
 
 	/**
