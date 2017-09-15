@@ -70,14 +70,6 @@ public class TenantQuotaUtils {
 		return map;
 	}
 	
-	public static void main(String[] args) {
-		Map<String, String> map1 = TenantQuotaUtils.getTenantQuotaByService("777", ServiceType.HDFS);
-		System.out.println(">>> total: " + map1);
-		Map<String, String> map = TenantQuotaUtils.getAllocatedQuotaByService("777", ServiceType.HDFS);
-		System.out.println(">>> allocated: " + map);
-		System.out.println(">>> end of main");
-	}
-
 	/**
 	 * Parse tenant quota in json format
 	 * @author EthanWang
