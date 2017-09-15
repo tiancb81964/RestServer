@@ -6,14 +6,14 @@ package com.asiainfo.ocmanager.rest.resource.utils;
  *
  */
 public enum ServiceType {
-	HDFS("HDFS", "nameSpaceQuota", "storageSpaceQuota"),
-	HBASE("HBase", "maximumTablesQuota", "maximumRegionsQuota"),
-	MAPREDUCE("MapReduce", "yarnQueueQuota"),
-	HIVE("Hive", "storageSpaceQuota", "yarnQueueQuota"),
-	KAFKA("Kafka", "topicTTL", "topicQuota", "partitionSize"),
-	SPARK("Spark", "yarnQueueQuota"),
-	STORM("Storm"),
-	REDIS("Redis");
+	HDFS("hdfs", "nameSpaceQuota", "storageSpaceQuota"),
+	HBASE("hbase", "maximumTablesQuota", "maximumRegionsQuota"),
+	MAPREDUCE("mapreduce", "yarnQueueQuota"),
+	HIVE("hive", "storageSpaceQuota", "yarnQueueQuota"),
+	KAFKA("kafka", "topicTTL", "topicQuota", "partitionSize"),
+	SPARK("spark", "yarnQueueQuota"),
+	STORM("storm"),
+	REDIS("redis");
 	
 	private String name;
 	private String[] quota;
