@@ -35,6 +35,7 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.QuotaBean2;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -361,8 +362,9 @@ public class TenantResource {
 			String metadataName = reqBodyJson.getAsJsonObject().getAsJsonObject("metadata").get("name").getAsString();
 			String backingServiceName = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
 					.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
-			JsonElement cuzBsiNameJE = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
-					.getAsJsonObject("provisioning").getAsJsonObject("parameters").get("cuzBsiName");
+			JsonObject parameters = reqBodyJson.getAsJsonObject().getAsJsonObject("spec")
+					.getAsJsonObject("provisioning").getAsJsonObject("parameters");
+			JsonElement cuzBsiNameJE = parameters.get("cuzBsiName");
 
 			if (metadataName.indexOf("-") != -1) {
 				logger.error("The service instance name can NOT include dash (-), " + "please try antoher name.");
@@ -387,7 +389,7 @@ public class TenantResource {
 							.build();
 				}
 			}
-
+			
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
 					.getServiceInstanceByServiceType(tenantId, backingServiceName);
 			Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
@@ -553,17 +555,25 @@ public class TenantResource {
 	 */
 	private void validateParameter(String tenantId, String instanceName, Map<String, String> parameters) {
 		ServiceType type = getInstanceType(tenantId, instanceName);
-		Map<String, String> total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
-		Map<String, String> allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
-		validate(total, allocated, parameters);
+		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
+		QuotaBean2 allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
+		validate(total, allocated, toBean(type, parameters));
 	}
 
-	private void validate(Map<String, String> total, Map<String, String> allocated, Map<String, String> parameters) {
-		for (Entry<String, String> entry : parameters.entrySet()) {
-			long free = Long.valueOf(total.get(entry.getKey())) - Long.valueOf(allocated.get(entry.getKey()));
-			long quota = Long.valueOf(entry.getValue());
+	private QuotaBean2 toBean(ServiceType type, Map<String, String> parameters) {
+		Map<String, Long> map = new HashMap<>();
+		for (Entry<String, String> en : parameters.entrySet()) {
+			map.put(en.getKey(), Long.valueOf(en.getValue()));
+		}
+		return new QuotaBean2(type, map);
+	}
+
+	private void validate(QuotaBean2 total, QuotaBean2 allocated, QuotaBean2 parameters) {
+		for (Entry<String, Long> entry : parameters.getQuotas().entrySet()) {
+			long free = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
+			long quota = entry.getValue();
 			if (free < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]", entry.getKey(), total.get(entry.getKey()), free, quota);
+				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]", entry.getKey(), total.getQuotas().get(entry.getKey()), free, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
 		}
