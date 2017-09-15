@@ -32,26 +32,26 @@ public class HdfsServiceInstanceQuotaBean {
 
 	}
 
-	public HdfsServiceInstanceQuotaBean(String serviceType, Map<String, String> hdfsQuotaMap) {
+	public HdfsServiceInstanceQuotaBean(String serviceType, Map<String, String> quotaMap) {
 		this.serviceType = serviceType;
-		this.nameSpaceQuota = hdfsQuotaMap.get("nameSpaceQuota") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("nameSpaceQuota")).longValue();
-		this.storageSpaceQuota = hdfsQuotaMap.get("storageSpaceQuota") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("storageSpaceQuota")).longValue();
+		this.nameSpaceQuota = quotaMap.get("nameSpaceQuota") == null ? 0
+				: Long.valueOf(quotaMap.get("nameSpaceQuota")).longValue();
+		this.storageSpaceQuota = quotaMap.get("storageSpaceQuota") == null ? 0
+				: Long.valueOf(quotaMap.get("storageSpaceQuota")).longValue();
 
 	}
 
-	public static HdfsServiceInstanceQuotaBean createDefaultHdfsServiceInstanceQuota() {
-		HdfsServiceInstanceQuotaBean defaultHdfsServiceInstanceQuota = new HdfsServiceInstanceQuotaBean();
-		defaultHdfsServiceInstanceQuota.setServiceType("hdfs");
-		defaultHdfsServiceInstanceQuota.setNameSpaceQuota(
+	public static HdfsServiceInstanceQuotaBean createDefaultServiceInstanceQuota() {
+		HdfsServiceInstanceQuotaBean defaultServiceInstanceQuota = new HdfsServiceInstanceQuotaBean();
+		defaultServiceInstanceQuota.setServiceType("hdfs");
+		defaultServiceInstanceQuota.setNameSpaceQuota(
 				ServicesDefaultQuotaConf.getInstance().get("hdfs").get("nameSpaceQuota").getDefaultQuota());
-		defaultHdfsServiceInstanceQuota.setStorageSpaceQuota(
+		defaultServiceInstanceQuota.setStorageSpaceQuota(
 				ServicesDefaultQuotaConf.getInstance().get("hdfs").get("storageSpaceQuota").getDefaultQuota());
-		return defaultHdfsServiceInstanceQuota;
+		return defaultServiceInstanceQuota;
 	}
 
-	public ServiceInstanceQuotaCheckerResponse checkCanChangeHdfsInst() {
+	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst() {
 		ServiceInstanceQuotaCheckerResponse checkRes = new ServiceInstanceQuotaCheckerResponse();
 		StringBuilder resStr = new StringBuilder();
 		boolean canChange = true;
@@ -67,13 +67,23 @@ public class HdfsServiceInstanceQuotaBean {
 		}
 
 		if (canChange) {
-			resStr.append("can change the tenant!");
+			resStr.append("can change the bsi!");
 		}
 
 		checkRes.setCanChange(canChange);
 		checkRes.setMessages(resStr.toString());
 
 		return checkRes;
+	}
+
+	public void plus(HdfsServiceInstanceQuotaBean otherServiceInstanceQuota) {
+		this.nameSpaceQuota = this.nameSpaceQuota + otherServiceInstanceQuota.getNameSpaceQuota();
+		this.storageSpaceQuota = this.storageSpaceQuota + otherServiceInstanceQuota.getStorageSpaceQuota();
+	}
+
+	public void minus(HdfsServiceInstanceQuotaBean otherServiceInstanceQuota) {
+		this.nameSpaceQuota = this.nameSpaceQuota - otherServiceInstanceQuota.getNameSpaceQuota();
+		this.storageSpaceQuota = this.storageSpaceQuota - otherServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
 	public long getNameSpaceQuota() {
@@ -98,16 +108,6 @@ public class HdfsServiceInstanceQuotaBean {
 
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
-	}
-
-	public void plus(HdfsServiceInstanceQuotaBean otherHdfsServiceInstanceQuota) {
-		this.nameSpaceQuota = this.nameSpaceQuota + otherHdfsServiceInstanceQuota.getNameSpaceQuota();
-		this.storageSpaceQuota = this.storageSpaceQuota + otherHdfsServiceInstanceQuota.getStorageSpaceQuota();
-	}
-
-	public void minus(HdfsServiceInstanceQuotaBean otherHdfsServiceInstanceQuota) {
-		this.nameSpaceQuota = this.nameSpaceQuota - otherHdfsServiceInstanceQuota.getNameSpaceQuota();
-		this.storageSpaceQuota = this.storageSpaceQuota - otherHdfsServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
 	@Override
