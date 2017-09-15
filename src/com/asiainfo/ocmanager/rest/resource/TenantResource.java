@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -22,9 +23,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -38,31 +37,25 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.HdfsServiceInstanceQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
-import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUpdateRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
-import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
-import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -494,18 +487,12 @@ public class TenantResource {
 								+ "], coz it's equivalent to current value: " + entry.getValue());
 						iterator.remove();
 					}
-
-					// only check quota
-					if (Constant.serviceQuotaParam.contains(entry.getKey())) {
-						// if value is not int, will throw Exception
-						entry.getValue().getAsLong();
-						logger.info("parameters " + entry.getKey() + ":" + entry.getValue());
-					}
 				}
+				validateParameter(tenantId, instanceName, toMap(parameterObj.entrySet()));
 			} catch (Exception e) {
-				logger.error("The parameter format check error:", e);
+				logger.error("Parameter checking error: ", e);
 				return Response.status(Status.BAD_REQUEST)
-						.entity("BadRequest: the parameter value format is illegal! Error:" + e.toString()).build();
+						.entity("Parameter checking error: " + e.toString()).build();
 			}
 
 			// add into the update json
@@ -544,6 +531,46 @@ public class TenantResource {
 			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private Map<String, String> toMap(Set<Entry<String, JsonElement>> entrySet) {
+		Map<String, String> map = new HashMap<>();
+		Iterator<Entry<String, JsonElement>> it = entrySet.iterator();
+		while (it.hasNext()) {
+			Entry<String, JsonElement> kv = it.next();
+			map.put(kv.getKey(), kv.getValue().getAsString());
+		}
+		return map;
+	}
+
+	/**
+	 * Checking whether volumn of parameters is valid. Exception will be 
+	 * thrown if parameters exceeeded available maximum.
+	 * @param tenantId
+	 * @param instanceName
+	 * @param entry
+	 */
+	private void validateParameter(String tenantId, String instanceName, Map<String, String> parameters) {
+		ServiceType type = getInstanceType(tenantId, instanceName);
+		Map<String, String> total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
+		Map<String, String> allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
+		validate(total, allocated, parameters);
+	}
+
+	private void validate(Map<String, String> total, Map<String, String> allocated, Map<String, String> parameters) {
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			long free = Long.valueOf(total.get(entry.getKey())) - Long.valueOf(allocated.get(entry.getKey()));
+			long quota = Long.valueOf(entry.getValue());
+			if (free < quota) {
+				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]", entry.getKey(), total.get(entry.getKey()), free, quota);
+				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
+			}
+		}
+	}
+
+	private ServiceType getInstanceType(String tenantId, String instanceName) {
+		ServiceInstance bsi = ServiceInstancePersistenceWrapper.getServiceInstance(tenantId, instanceName);
+		return ServiceType.valueOf(bsi.getServiceTypeName());
 	}
 
 	private String quotaString(String parametersStr) {
