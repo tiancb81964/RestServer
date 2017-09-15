@@ -562,7 +562,7 @@ public class TenantResource {
 			long free = Long.valueOf(total.get(entry.getKey())) - Long.valueOf(allocated.get(entry.getKey()));
 			long quota = Long.valueOf(entry.getValue());
 			if (free < quota) {
-				logger.error("Requested quota [{}] can not be satisfied with total [{}], free [{}], requested [{}]", entry.getKey(), total.get(entry.getKey()), free, quota);
+				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]", entry.getKey(), total.get(entry.getKey()), free, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
 		}

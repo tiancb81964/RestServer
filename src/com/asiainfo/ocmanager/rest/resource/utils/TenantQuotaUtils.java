@@ -81,7 +81,7 @@ public class TenantQuotaUtils {
 			JsonObject json = new JsonParser().parse(tenantQuotaJson).getAsJsonObject().getAsJsonObject(serviceType.serviceType());
 			if (json == null) {
 				logger.error("No service quota({}) found in tenant_quota [{}] ", serviceType.serviceType(), tenantQuotaJson);
-				throw new RuntimeException("No service quota been found in tenant");
+				throw new RuntimeException("No service quota(" + serviceType.serviceType() + ") been found in tenant " + tenantQuotaJson);
 			}
 			for (Entry<String, JsonElement> kv : json.entrySet()) {
 				map.put(kv.getKey(), kv.getValue().getAsString());
