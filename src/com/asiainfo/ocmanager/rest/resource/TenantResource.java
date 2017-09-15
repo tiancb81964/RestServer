@@ -491,8 +491,9 @@ public class TenantResource {
 				validateParameter(tenantId, instanceName, toMap(parameterObj.entrySet()));
 			} catch (Exception e) {
 				logger.error("Parameter checking error: ", e);
-				return Response.status(Status.BAD_REQUEST)
-						.entity("Parameter checking error: " + e.toString()).build();
+				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+						e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+						.build();
 			}
 
 			// add into the update json
