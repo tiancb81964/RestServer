@@ -37,8 +37,6 @@ public class Constant {
 	public static final List<String> list = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark", "kafka");
 	public static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
 			"project.admin");
-	public static final List<String> serviceQuotaParam = Arrays.asList("volumeSize", "nameSpaceQuota",
-			"storageSpaceQuota", "maximumTablesQuota", "maximumRegionsQuota", "yarnQueueQuota");
 
 	public static final String KRB_KEYTAB = "oc.hadoop.krb.keytab";
 	public static final String KRB_PRINCIPAL = "oc.hadoop.krb.pricipal";

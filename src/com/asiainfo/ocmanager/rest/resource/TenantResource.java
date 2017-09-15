@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
@@ -51,6 +53,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistence
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
@@ -61,6 +64,8 @@ import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
 import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -721,18 +726,12 @@ public class TenantResource {
 								+ "], coz it's equivalent to current value: " + entry.getValue());
 						iterator.remove();
 					}
-
-					// only check quota
-					if (Constant.serviceQuotaParam.contains(entry.getKey())) {
-						// if value is not int, will throw Exception
-						entry.getValue().getAsLong();
-						logger.info("parameters " + entry.getKey() + ":" + entry.getValue());
-					}
 				}
+				validateParameter(tenantId, instanceName, toMap(parameterObj.entrySet()));
 			} catch (Exception e) {
-				logger.error("The parameter format check error:", e);
+				logger.error("Parameter checking error: ", e);
 				return Response.status(Status.BAD_REQUEST)
-						.entity("BadRequest: the parameter value format is illegal! Error:" + e.toString()).build();
+						.entity("Parameter checking error: " + e.toString()).build();
 			}
 
 			// add into the update json
@@ -771,6 +770,46 @@ public class TenantResource {
 			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private Map<String, String> toMap(Set<Entry<String, JsonElement>> entrySet) {
+		Map<String, String> map = new HashMap<>();
+		Iterator<Entry<String, JsonElement>> it = entrySet.iterator();
+		while (it.hasNext()) {
+			Entry<String, JsonElement> kv = it.next();
+			map.put(kv.getKey(), kv.getValue().getAsString());
+		}
+		return map;
+	}
+
+	/**
+	 * Checking whether volumn of parameters is valid. Exception will be 
+	 * thrown if parameters exceeeded available maximum.
+	 * @param tenantId
+	 * @param instanceName
+	 * @param entry
+	 */
+	private void validateParameter(String tenantId, String instanceName, Map<String, String> parameters) {
+		ServiceType type = getInstanceType(tenantId, instanceName);
+		Map<String, String> total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
+		Map<String, String> allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
+		validate(total, allocated, parameters);
+	}
+
+	private void validate(Map<String, String> total, Map<String, String> allocated, Map<String, String> parameters) {
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			long free = Long.valueOf(total.get(entry.getKey())) - Long.valueOf(allocated.get(entry.getKey()));
+			long quota = Long.valueOf(entry.getValue());
+			if (free < quota) {
+				logger.error("Requested quota [{}] can not be satisfied with total [{}], free [{}], requested [{}]", entry.getKey(), total.get(entry.getKey()), free, quota);
+				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
+			}
+		}
+	}
+
+	private ServiceType getInstanceType(String tenantId, String instanceName) {
+		ServiceInstance bsi = ServiceInstancePersistenceWrapper.getServiceInstance(tenantId, instanceName);
+		return ServiceType.valueOf(bsi.getServiceTypeName());
 	}
 
 	private String quotaString(String parametersStr) {
