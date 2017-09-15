@@ -12,10 +12,9 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class SparkServiceInstanceQuotaBean {
+public class SparkServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long yarnQueueQuota;
-	private String serviceType;
 
 	public SparkServiceInstanceQuotaBean() {
 
@@ -81,14 +80,6 @@ public class SparkServiceInstanceQuotaBean {
 
 	public void setYarnQueueQuota(long yarnQueueQuota) {
 		this.yarnQueueQuota = yarnQueueQuota;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override

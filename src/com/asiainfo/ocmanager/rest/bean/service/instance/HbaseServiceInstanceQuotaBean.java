@@ -12,11 +12,10 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class HbaseServiceInstanceQuotaBean {
+public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long maximumTablesQuota;
 	private long maximumRegionsQuota;
-	private String serviceType;
 
 	public HbaseServiceInstanceQuotaBean() {
 
@@ -100,14 +99,6 @@ public class HbaseServiceInstanceQuotaBean {
 
 	public void setMaximumRegionsQuota(long maximumRegionsQuota) {
 		this.maximumRegionsQuota = maximumRegionsQuota;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override

@@ -12,11 +12,10 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class HdfsServiceInstanceQuotaBean {
+public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long nameSpaceQuota;
 	private long storageSpaceQuota;
-	private String serviceType;
 
 	public HdfsServiceInstanceQuotaBean() {
 
@@ -100,14 +99,6 @@ public class HdfsServiceInstanceQuotaBean {
 
 	public void setStorageSpaceQuota(long storageSpaceQuota) {
 		this.storageSpaceQuota = storageSpaceQuota;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override

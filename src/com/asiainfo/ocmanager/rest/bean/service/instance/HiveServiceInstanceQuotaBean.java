@@ -12,11 +12,10 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  * @author zhaoyim
  *
  */
-public class HiveServiceInstanceQuotaBean {
+public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	private long storageSpaceQuota;
 	private long yarnQueueQuota;
-	private String serviceType;
 
 	public HiveServiceInstanceQuotaBean() {
 
@@ -100,14 +99,6 @@ public class HiveServiceInstanceQuotaBean {
 
 	public void setYarnQueueQuota(long yarnQueueQuota) {
 		this.yarnQueueQuota = yarnQueueQuota;
-	}
-
-	public String getServiceType() {
-		return serviceType;
-	}
-
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
 	}
 
 	@Override
