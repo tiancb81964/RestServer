@@ -110,7 +110,7 @@ public class Tenant {
 
 		return Objects.equals(name, other.name) && Objects.equals(id, other.id)
 				&& Objects.equals(description, other.description) && Objects.equals(parentId, other.parentId)
-				&& level == other.level && quota == other.quota;
+				&& level == other.level && Objects.equals(quota, other.quota);
 	}
 
 	@Override
