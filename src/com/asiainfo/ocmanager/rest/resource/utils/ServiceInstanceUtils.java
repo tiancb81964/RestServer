@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -19,13 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
-import com.asiainfo.ocmanager.persistence.model.Tenant;
-import com.asiainfo.ocmanager.rest.bean.service.instance.HbaseServiceInstanceQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.HdfsServiceInstanceQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.HiveServiceInstanceQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.KafkaServiceInstanceQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.MapreduceServiceInstanceQuotaBean;
-import com.asiainfo.ocmanager.rest.bean.service.instance.SparkServiceInstanceQuotaBean;
+import com.asiainfo.ocmanager.rest.bean.service.instance.ServiceInstanceQuotaBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceCreateInstanceBindingExecutor;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
@@ -53,193 +44,11 @@ public class ServiceInstanceUtils {
 	 * @param parentTenant
 	 * @return
 	 */
-	public static ServiceInstanceQuotaCheckerResponse canCreateBsi(String backingServiceName,
-			List<ServiceInstance> serviceInstances, Tenant parentTenant) {
+	public static ServiceInstanceQuotaCheckerResponse canCreateBsi(String backingServiceName, String tenantId) {
 
 		ServiceInstanceQuotaCheckerResponse checkRes = new ServiceInstanceQuotaCheckerResponse();
-
-		// get parent tenant quota
-		Map<String, String> parentTenantQuotaMap = TenantQuotaUtils.getTenantQuotaByService(backingServiceName,
-				parentTenant.getQuota());
-
-		switch (backingServiceName.toLowerCase()) {
-
-		case "hdfs":
-			// get all hdfs children bsi quota
-			HdfsServiceInstanceQuotaBean hdfsChildrenTotalQuota = new HdfsServiceInstanceQuotaBean(backingServiceName,
-					new HashMap<String, String>());
-			for (ServiceInstance inst : serviceInstances) {
-				HdfsServiceInstanceQuotaBean quota = new HdfsServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				hdfsChildrenTotalQuota.plus(quota);
-			}
-			// get parent tenant quota
-			HdfsServiceInstanceQuotaBean hdfsParentTenantQuota = new HdfsServiceInstanceQuotaBean(backingServiceName,
-					parentTenantQuotaMap);
-
-			// calculate the left quota
-			hdfsParentTenantQuota.minus(hdfsChildrenTotalQuota);
-
-			// get request bsi quota
-			HdfsServiceInstanceQuotaBean hdfsRequestServiceInstanceQuota = HdfsServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			hdfsParentTenantQuota.minus(hdfsRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = hdfsParentTenantQuota.checkCanChangeInst();
-
-			break;
-		case "hbase":
-
-			// get all hbase children bsi quota
-			HbaseServiceInstanceQuotaBean hbaseChildrenTotalQuota = new HbaseServiceInstanceQuotaBean(
-					backingServiceName, new HashMap<String, String>());
-
-			for (ServiceInstance inst : serviceInstances) {
-				HbaseServiceInstanceQuotaBean quota = new HbaseServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				hbaseChildrenTotalQuota.plus(quota);
-			}
-
-			HbaseServiceInstanceQuotaBean hbaseParentTenantQuota = new HbaseServiceInstanceQuotaBean(backingServiceName,
-					parentTenantQuotaMap);
-
-			// calculate the left quota
-			hbaseParentTenantQuota.minus(hbaseChildrenTotalQuota);
-
-			// get request bsi quota
-			HbaseServiceInstanceQuotaBean hbaseRequestServiceInstanceQuota = HbaseServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			hbaseParentTenantQuota.minus(hbaseRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = hbaseParentTenantQuota.checkCanChangeInst();
-
-			break;
-		case "hive":
-
-			// get all hive children bsi quota
-			HiveServiceInstanceQuotaBean hiveChildrenTotalQuota = new HiveServiceInstanceQuotaBean(backingServiceName,
-					new HashMap<String, String>());
-
-			for (ServiceInstance inst : serviceInstances) {
-				HiveServiceInstanceQuotaBean quota = new HiveServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				hiveChildrenTotalQuota.plus(quota);
-			}
-
-			HiveServiceInstanceQuotaBean hiveParentTenantQuota = new HiveServiceInstanceQuotaBean(backingServiceName,
-					parentTenantQuotaMap);
-
-			// calculate the left quota
-			hiveParentTenantQuota.minus(hiveChildrenTotalQuota);
-
-			// get request bsi quota
-			HiveServiceInstanceQuotaBean hiveRequestServiceInstanceQuota = HiveServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			hiveParentTenantQuota.minus(hiveRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = hiveParentTenantQuota.checkCanChangeInst();
-
-			break;
-		case "mapreduce":
-
-			// get all mapreduce children bsi quota
-			MapreduceServiceInstanceQuotaBean mapreduceChildrenTotalQuota = new MapreduceServiceInstanceQuotaBean(
-					backingServiceName, new HashMap<String, String>());
-
-			for (ServiceInstance inst : serviceInstances) {
-				MapreduceServiceInstanceQuotaBean quota = new MapreduceServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				mapreduceChildrenTotalQuota.plus(quota);
-			}
-
-			MapreduceServiceInstanceQuotaBean mapreduceParentTenantQuota = new MapreduceServiceInstanceQuotaBean(
-					backingServiceName, parentTenantQuotaMap);
-
-			// calculate the left quota
-			mapreduceParentTenantQuota.minus(mapreduceChildrenTotalQuota);
-
-			// get request bsi quota
-			MapreduceServiceInstanceQuotaBean mapreduceRequestServiceInstanceQuota = MapreduceServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			mapreduceParentTenantQuota.minus(mapreduceRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = mapreduceParentTenantQuota.checkCanChangeInst();
-
-			break;
-		case "spark":
-
-			// get all mapreduce children bsi quota
-			SparkServiceInstanceQuotaBean sparkChildrenTotalQuota = new SparkServiceInstanceQuotaBean(
-					backingServiceName, new HashMap<String, String>());
-
-			for (ServiceInstance inst : serviceInstances) {
-				SparkServiceInstanceQuotaBean quota = new SparkServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				sparkChildrenTotalQuota.plus(quota);
-			}
-
-			SparkServiceInstanceQuotaBean sparkParentTenantQuota = new SparkServiceInstanceQuotaBean(backingServiceName,
-					parentTenantQuotaMap);
-
-			// calculate the left quota
-			sparkParentTenantQuota.minus(sparkChildrenTotalQuota);
-
-			// get request bsi quota
-			SparkServiceInstanceQuotaBean sparkRequestServiceInstanceQuota = SparkServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			sparkParentTenantQuota.minus(sparkRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = sparkParentTenantQuota.checkCanChangeInst();
-
-			break;
-		case "kafka":
-
-			// get all mapreduce children bsi quota
-			KafkaServiceInstanceQuotaBean kafkaChildrenTotalQuota = new KafkaServiceInstanceQuotaBean(
-					backingServiceName, new HashMap<String, String>());
-
-			for (ServiceInstance inst : serviceInstances) {
-				KafkaServiceInstanceQuotaBean quota = new KafkaServiceInstanceQuotaBean(backingServiceName,
-						inst.getQuota());
-				kafkaChildrenTotalQuota.plus(quota);
-			}
-
-			KafkaServiceInstanceQuotaBean kafkaParentTenantQuota = new KafkaServiceInstanceQuotaBean(backingServiceName,
-					parentTenantQuotaMap);
-
-			// calculate the left quota
-			kafkaParentTenantQuota.minus(kafkaChildrenTotalQuota);
-
-			// get request bsi quota
-			KafkaServiceInstanceQuotaBean kafkaRequestServiceInstanceQuota = KafkaServiceInstanceQuotaBean
-					.createDefaultServiceInstanceQuota();
-
-			// left quota minus request quota
-			kafkaParentTenantQuota.minus(kafkaRequestServiceInstanceQuota);
-
-			// check whether can create
-			checkRes = kafkaParentTenantQuota.checkCanChangeInst();
-
-			break;
-		default:
-			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.",
-					backingServiceName);
-		}
+		ServiceInstanceQuotaBean serviceInst = ServiceInstanceQuotaBean.createServiceInstance(backingServiceName);
+		checkRes = serviceInst.checkCanChangeInst(backingServiceName, tenantId);
 
 		return checkRes;
 	}
