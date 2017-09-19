@@ -454,6 +454,15 @@ public class TenantUtils {
 	public static TenantQuotaCheckerResponse canCreateTenant(Tenant tenant) {
 		logger.debug("TenantUtils -> canCreateTenant -> check create tenant");
 
+		TenantQuotaCheckerResponse checkRes = null;
+		// if the tenant is root tenant create directly
+		if (tenant.getParentId() == null || tenant.getParentId().isEmpty()) {
+			checkRes = new TenantQuotaCheckerResponse();
+			checkRes.setCanChange(true);
+			checkRes.setMessages("This is root tenant, can create directly.");
+			return checkRes;
+		}
+
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
 
@@ -475,7 +484,7 @@ public class TenantUtils {
 		// left quota minus request quota
 		parentTenantQuota.minusOtherTenantQuota(currentTenantQuota);
 
-		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
+		checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
 
 		return checkRes;
 	}
@@ -488,9 +497,20 @@ public class TenantUtils {
 	 */
 	public static TenantQuotaCheckerResponse canUpdateTenant(Tenant tenant) {
 		logger.debug("TenantUtils -> canUpdateTenant -> check update tenant");
+
+		TenantQuotaCheckerResponse checkRes = null;
+
 		// origin tenant quota
 		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
 		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
+
+		// if the tenant is root tenant update directly
+		if (originTenant.getParentId() == null || originTenant.getParentId().isEmpty()) {
+			checkRes = new TenantQuotaCheckerResponse();
+			checkRes.setCanChange(true);
+			checkRes.setMessages("This is root tenant, can update directly.");
+			return checkRes;
+		}
 
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(originTenant.getParentId());
 		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
@@ -520,7 +540,7 @@ public class TenantUtils {
 		// left quota minus request quota
 		parentTenantQuota.minusOtherTenantQuota(requestTenantQuota);
 
-		TenantQuotaCheckerResponse checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
+		checkRes = TenantQuotaUtils.checkCanChangeTenant(parentTenantQuota);
 
 		return checkRes;
 	}
