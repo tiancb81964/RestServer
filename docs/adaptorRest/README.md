@@ -895,31 +895,66 @@ POST /ocmanager/v1/api/tenant
 __request body:__
 ```
 {
-    "id": "09367148-c72a-413f-b1de-5a23b566d809",
-    "name": "createTenant001",
-    "description": "create tenant 001",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+    "id": "00001",
+    "name": "test00001",
+    "description": "test00001",
+    "parentId": "111",
+     "quota":"{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
 }
+
 ```
 
 
 __response:__
 ```
 {
-  "dataFoundryInfo": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"09367148-c72a-413f-b1de-5a23b566d809\",\"selfLink\":\"/oapi/v1/projectrequests/09367148-c72a-413f-b1de-5a23b566d809\",\"uid\":\"9767c526-8622-11e7-bf73-fa163efdbea8\",\"resourceVersion\":\"22589952\",\"creationTimestamp\":\"2017-08-21T03:41:18Z\",\"annotations\":{\"openshift.io/description\":\"create tenant 001\",\"openshift.io/display-name\":\"createTenant001\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c11,c5\",\"openshift.io/sa.scc.supplemental-groups\":\"1000120000/10000\",\"openshift.io/sa.scc.uid-range\":\"1000120000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
+  "dataFoundryInfo": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"00001\",\"selfLink\":\"/oapi/v1/projectrequests/00001\",\"uid\":\"0392f637-9ce7-11e7-b071-fa163efdbea8\",\"resourceVersion\":\"24885069\",\"creationTimestamp\":\"2017-09-19T03:02:46Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"test00001\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c36,c25\",\"openshift.io/sa.scc.supplemental-groups\":\"1001310000/10000\",\"openshift.io/sa.scc.uid-range\":\"1001310000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
   "databaseInfo": {
-    "description": "create tenant 001",
-    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "description": "test00001",
+    "id": "00001",
     "level": 0,
-    "name": "createTenant001",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+    "name": "test00001",
+    "parentId": "111",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
   }
 }
 ``` 
 
 
+2. 更新租户
+```
+PUT /ocmanager/v1/api/tenant
+```
 
-2. 获取所有租户
+__request body:__
+```
+{
+    "id": "777",
+    "description": "test7777",
+    "parentId": "111",
+     "quota":"{\"hdfs\": {\"nameSpaceQuota\": 501,\"storageSpaceQuota\": 4096},\"hbase\": {\"maximumTablesQuota\": 2,\"maximumRegionsQuota\": 2},\"hive\": {\"storageSpaceQuota\": 2,\"yarnQueueQuota\": 2},\"mapreduce\": {\"yarnQueueQuota\": 2},\"spark\": {\"yarnQueueQuota\":2},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":2 ,\"partitionSize\": 1}}"
+}
+
+```
+
+__response:__
+```
+{
+  "dataFoundryInfo": "no dataFoundryInfo",
+  "databaseInfo": {
+    "description": "test7777",
+    "id": "777",
+    "level": 0,
+    "name": "test777",
+    "parentId": "111",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 501,\"storageSpaceQuota\": 4096},\"hbase\": {\"maximumTablesQuota\": 2,\"maximumRegionsQuota\": 2},\"hive\": {\"storageSpaceQuota\": 2,\"yarnQueueQuota\": 2},\"mapreduce\": {\"yarnQueueQuota\": 2},\"spark\": {\"yarnQueueQuota\":2},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":2 ,\"partitionSize\": 1}}"
+  }
+}
+
+```
+
+
+3. 获取所有租户
 ```
 GET /ocmanager/v1/api/tenant
 ```
@@ -927,39 +962,44 @@ __response:__
 ```
 [
   {
-    "description": "create tenant 001",
-    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "description": "test111",
+    "id": "111",
     "level": 0,
-    "name": "createTenant001",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+    "name": "test111",
+    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 5000,\"storageSpaceQuota\": 5000},\"hbase\": {\"maximumTablesQuota\": 5000,\"maximumRegionsQuota\": 5000},\"hive\": {\"storageSpaceQuota\": 5000,\"yarnQueueQuota\": 100},\"mapreduce\": {\"yarnQueueQuota\": 100},\"spark\": {\"yarnQueueQuota\": 100},\"kafka\": {\"topicTTL\": 120960000000,\"topicQuota\": 100,\"partitionSize\": 100}}"
   },
   {
-    "description": "root tenant",
-    "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-    "level": 1,
-    "name": "root.tenant"
+    "description": "test222",
+    "id": "222",
+    "level": 0,
+    "name": "test222",
+    "parentId": "111",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 200,\"storageSpaceQuota\": 100},\"hbase\": {\"maximumTablesQuota\": 200,\"maximumRegionsQuota\": 100},\"hive\": {\"storageSpaceQuota\": 100,\"yarnQueueQuota\": 5},\"mapreduce\": {\"yarnQueueQuota\": 6},\"spark\": {\"yarnQueueQuota\": 7},\"kafka\": {\"topicTTL\": 604800000,\"topicQuota\": 10,\"partitionSize\": 10}}"
   },
   ...
 ]
 ```
 
 
-3. 获取单个租户
+4. 获取单个租户
 ```
 GET /ocmanager/v1/api/tenant/{id}
 ```
 __response:__
 ```
 {
-  "description": "root tenant",
-  "id": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-  "level": 1,
-  "name": "root.tenant"
+  "description": "test222",
+  "id": "222",
+  "level": 0,
+  "name": "test222",
+  "parentId": "111",
+  "quota": "{\"hdfs\": {\"nameSpaceQuota\": 200,\"storageSpaceQuota\": 100},\"hbase\": {\"maximumTablesQuota\": 200,\"maximumRegionsQuota\": 100},\"hive\": {\"storageSpaceQuota\": 100,\"yarnQueueQuota\": 5},\"mapreduce\": {\"yarnQueueQuota\": 6},\"spark\": {\"yarnQueueQuota\": 7},\"kafka\": {\"topicTTL\": 604800000,\"topicQuota\": 10,\"partitionSize\": 10}}"
 }
 
 ```
 
-4. 获取指定租户的所有子租户
+5. 获取指定租户的所有子租户
 ```
 GET /ocmanager/v1/api/tenant/{id}/children
 ```
@@ -967,18 +1007,20 @@ __response:__
 ```
 [
   {
-    "description": "create tenant 001",
-    "id": "09367148-c72a-413f-b1de-5a23b566d809",
+    "description": "test222",
+    "id": "222",
     "level": 0,
-    "name": "createTenant001",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+    "name": "test222",
+    "parentId": "111",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 200,\"storageSpaceQuota\": 100},\"hbase\": {\"maximumTablesQuota\": 200,\"maximumRegionsQuota\": 100},\"hive\": {\"storageSpaceQuota\": 100,\"yarnQueueQuota\": 5},\"mapreduce\": {\"yarnQueueQuota\": 6},\"spark\": {\"yarnQueueQuota\": 7},\"kafka\": {\"topicTTL\": 604800000,\"topicQuota\": 10,\"partitionSize\": 10}}"
   },
   {
-    "description": "zhaoyimLevel1",
-    "id": "51cadf67-7b37-11e7-aa10-fa163ed7d0ae",
-    "level": 2,
-    "name": "zhaoyimLevel1",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae"
+    "description": "test6666",
+    "id": "333",
+    "level": 0,
+    "name": "test333",
+    "parentId": "111",
+    "quota": "{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 2},\"hbase\": {\"maximumTablesQuota\": 2,\"maximumRegionsQuota\": 2},\"hive\": {\"storageSpaceQuota\": 2,\"yarnQueueQuota\": 2},\"mapreduce\": {\"yarnQueueQuota\": 2},\"spark\": {\"yarnQueueQuota\":2},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":2 ,\"partitionSize\": 1}}"
   },
   ...
 ]
@@ -987,7 +1029,7 @@ __response:__
 
 
 
-5. 在租户下创建服务实例
+6. 在租户下创建服务实例
 ```
 POST /ocmanager/v1/api/tenant/{id}/service/instance
 ```
@@ -1056,7 +1098,7 @@ __response:__
 ``` 
 
 
-6. 获取租户下所有服务实例
+7. 获取租户下所有服务实例
 ```
 GET /ocmanager/v1/api/tenant/{id}/service/instances
 ```
@@ -1077,7 +1119,7 @@ __response:__
 ```
 
 
-7. 删除租户下某个服务实例
+8. 删除租户下某个服务实例
 ```
 DELETE /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
 ```
@@ -1134,7 +1176,7 @@ __response:__
 ```
 
 
-8. 绑定租户，用户和角色
+9. 绑定租户，用户和角色
 ```
 POST /ocmanager/v1/api/tenant/{id}/user/role/assignment
 ```
@@ -1158,7 +1200,7 @@ __response:__
 ``` 
 
 
-9. 获取租户下所有用户以及用户角色
+10. 获取租户下所有用户以及用户角色
 ```
 GET /ocmanager/v1/api/tenant/{id}/users
 ```
@@ -1191,7 +1233,7 @@ __response:__
 ```
 
 
-10. 更新租户中用户的角色
+11. 更新租户中用户的角色
 ```
 PUT /ocmanager/v1/api/tenant/{id}/user/role/assignment
 ```
@@ -1215,7 +1257,7 @@ __response:__
 ``` 
 
 
-11. 解除租户，用户和角色的绑定
+12. 解除租户，用户和角色的绑定
 ```
 DELETE /ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment
 ```
@@ -1229,7 +1271,7 @@ __response:__
 ``` 
 
 
-12. 删除租户
+13. 删除租户
 ```
 DELETE /ocmanager/v1/api/tenant/{id}
 ```
@@ -1248,7 +1290,7 @@ __response:__
 ```
 
 
-13. 获取服务实例访问信息
+14. 获取服务实例访问信息
 ```
 GET /ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info
 ```
@@ -1316,7 +1358,7 @@ __response:__
 }
 ```
 
-14. 更新租户单个服务实例
+15. 更新租户单个服务实例
 ```
 PUT /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
 ```
@@ -1396,7 +1438,7 @@ __response:__
 ``` 
 
 
-15. 获取角色根据租户和用户名
+16. 获取角色根据租户和用户名
 ```
 GET /ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role
 ```
