@@ -281,17 +281,17 @@ public class TenantResource {
 			}
 
 			TenantLockerPool.getInstance().register(tenant);
-			TenantResponse tenantRes = TenantUtils.createTenant(tenant);
-
-			if (!tenantRes.getCheckerRes().isCanChange()) {
-				logger.error("exceed the parent tenant quota, can NOT create.");
-				TenantLockerPool.getInstance().unregister(tenant);
-				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-						.build();
+			synchronized (TenantLockerPool.getInstance().getLocker(tenant)) {
+				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
+				if (!tenantRes.getCheckerRes().isCanChange()) {
+					logger.error("exceed the parent tenant quota, can NOT create.");
+					TenantLockerPool.getInstance().unregister(tenant);
+					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+							.build();
+				}
+				return Response.ok().entity(tenantRes.getTenantBean()).build();
 			}
-			return Response.ok().entity(tenantRes.getTenantBean()).build();
-
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createTenant hit exception -> ", e);
@@ -394,20 +394,21 @@ public class TenantResource {
 			}
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
+			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
+				ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
+						tenantId);
+				serviceInstRes.setCheckerRes(checkRes);
 
-			ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
-					tenantId);
-			serviceInstRes.setCheckerRes(checkRes);
+				if (!serviceInstRes.getCheckerRes().isCanChange()) {
+					logger.error("exceed the parent tenant quota, can NOT create bsi.");
+					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+							serviceInstRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+							.build();
+				}
 
-			if (!serviceInstRes.getCheckerRes().isCanChange()) {
-				logger.error("exceed the parent tenant quota, can NOT create bsi.");
-				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						serviceInstRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-						.build();
+				String resBody = ServiceInstanceUtils.createBsi(tenantId, reqBodyJson);
+				serviceInstRes.setResBody(resBody);
 			}
-
-			String resBody = ServiceInstanceUtils.createBsi(tenantId, reqBodyJson);
-			serviceInstRes.setResBody(resBody);
 
 			return Response.ok().entity(serviceInstRes.getResBody()).build();
 
@@ -477,60 +478,62 @@ public class TenantResource {
 			JsonElement parameterJon = new JsonParser().parse(parametersStr);
 			JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
 
-			// check whether parameters format is legal
-			try {
-				Iterator<Entry<String, JsonElement>> iterator = parameterObj.entrySet().iterator();
-				while (iterator.hasNext()) {
-					Entry<String, JsonElement> entry = iterator.next();
-					if (!isChanged(tenantId, instanceName, entry)) {
-						// remove unchanged parameters
-						logger.warn("Removing request parameter [" + entry.getKey()
-								+ "], coz it's equivalent to current value: " + entry.getValue());
-						iterator.remove();
+			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
+				// check whether parameters format is legal
+				try {
+					Iterator<Entry<String, JsonElement>> iterator = parameterObj.entrySet().iterator();
+					while (iterator.hasNext()) {
+						Entry<String, JsonElement> entry = iterator.next();
+						if (!isChanged(tenantId, instanceName, entry)) {
+							// remove unchanged parameters
+							logger.warn("Removing request parameter [" + entry.getKey()
+									+ "], coz it's equivalent to current value: " + entry.getValue());
+							iterator.remove();
+						}
 					}
+					ServiceType type = getInstanceType(tenantId, instanceName);
+					validateParameter(tenantId, type, toMap(parameterObj.entrySet()));
+				} catch (Exception e) {
+					logger.error("Parameter checking error: ", e);
+
+					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+							.build();
+
 				}
-				ServiceType type = getInstanceType(tenantId, instanceName);
-				validateParameter(tenantId, type, toMap(parameterObj.entrySet()));
-			} catch (Exception e) {
-				logger.error("Parameter checking error: ", e);
 
-				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-						.build();
+				// add into the update json
+				provisioning.add("parameters", parameterObj);
 
-			}
+				// add the patch Updating into the request body
+				JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
+				status.addProperty("patch", Constant.UPDATE);
 
-			// add into the update json
-			provisioning.add("parameters", parameterObj);
+				logger.info("updateServiceInstanceInTenant -> update start");
+				ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
+						serviceInstanceJson.toString());
 
-			// add the patch Updating into the request body
-			JsonObject status = serviceInstanceJson.getAsJsonObject().getAsJsonObject("status");
-			status.addProperty("patch", Constant.UPDATE);
-
-			logger.info("updateServiceInstanceInTenant -> update start");
-			ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
-					serviceInstanceJson.toString());
-
-			String quota = null;
-			if (responseBean.getResCodel() == 200) {
-				logger.info("updateServiceInstanceInTenant -> update successfully");
-				JsonElement resBodyJson = new JsonParser().parse(responseBean.getMessage());
-				JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
-				if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
-						.isJsonNull())) {
-					logger.error(
-							"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
-									+ instanceName + ", parameters " + parametersStr);
-					throw new RuntimeException("parameters returned by DF is null!");
-				} else {
-					quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-							.getAsJsonObject("provisioning").get("parameters").toString();
+				String quota = null;
+				if (responseBean.getResCodel() == 200) {
+					logger.info("updateServiceInstanceInTenant -> update successfully");
+					JsonElement resBodyJson = new JsonParser().parse(responseBean.getMessage());
+					JsonObject resBodyJsonObj = resBodyJson.getAsJsonObject();
+					if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
+							.isJsonNull())) {
+						logger.error(
+								"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
+										+ instanceName + ", parameters " + parametersStr);
+						throw new RuntimeException("parameters returned by DF is null!");
+					} else {
+						quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
+								.getAsJsonObject("provisioning").get("parameters").toString();
+					}
+					ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
+							quotaString(parametersStr));
 				}
-				ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
-						quotaString(parametersStr));
-			}
 
-			return Response.ok().entity(responseBean.getMessage()).build();
+				return Response.ok().entity(responseBean.getMessage()).build();
+			}
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("updateServiceInstanceInTenant hit exception -> ", e);
@@ -658,77 +661,79 @@ public class TenantResource {
 				}
 			}
 
-			String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
-			JsonElement resBodyJson = new JsonParser().parse(getInstanceResBody);
-			JsonObject instance = resBodyJson.getAsJsonObject();
-			String serviceName = instance.getAsJsonObject("spec").getAsJsonObject("provisioning")
-					.get("backingservice_name").getAsString();
-			// get status phase
-			String phase = instance.getAsJsonObject("status").get("phase").getAsString();
+			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
+				String getInstanceResBody = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
+				JsonElement resBodyJson = new JsonParser().parse(getInstanceResBody);
+				JsonObject instance = resBodyJson.getAsJsonObject();
+				String serviceName = instance.getAsJsonObject("spec").getAsJsonObject("provisioning")
+						.get("backingservice_name").getAsString();
+				// get status phase
+				String phase = instance.getAsJsonObject("status").get("phase").getAsString();
 
-			if (phase.equals(Constant.PROVISIONING)) {
-				logger.info(
-						"deleteServiceInstanceInTenant -> The instance can not be deleted when it is Provisioning!");
-				return Response.status(Status.BAD_REQUEST)
-						.entity("The instance can not be deleted when it is Provisioning!").build();
-			}
+				if (phase.equals(Constant.PROVISIONING)) {
+					logger.info(
+							"deleteServiceInstanceInTenant -> The instance can not be deleted when it is Provisioning!");
+					return Response.status(Status.BAD_REQUEST)
+							.entity("The instance can not be deleted when it is Provisioning!").build();
+				}
 
-			// get binding info
-			JsonObject spec = instance.getAsJsonObject("spec");
-			JsonElement binding = spec.get("binding");
+				// get binding info
+				JsonObject spec = instance.getAsJsonObject("spec");
+				JsonElement binding = spec.get("binding");
 
-			// if the instance is Failure do not need to unbound
-			if (!phase.equals(Constant.FAILURE)) {
-				if (Constant.list.contains(serviceName.toLowerCase())) {
-					if (!binding.isJsonNull()) {
-						JsonArray bindingArray = spec.getAsJsonArray("binding");
-						for (JsonElement je : bindingArray) {
-							String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-							logger.debug("deleteServiceInstanceInTenant -> userName" + userName);
-							logger.info("deleteServiceInstanceInTenant -> begin to unbinding");
-							ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
-									instanceName, userName);
+				// if the instance is Failure do not need to unbound
+				if (!phase.equals(Constant.FAILURE)) {
+					if (Constant.list.contains(serviceName.toLowerCase())) {
+						if (!binding.isJsonNull()) {
+							JsonArray bindingArray = spec.getAsJsonArray("binding");
+							for (JsonElement je : bindingArray) {
+								String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
+								logger.debug("deleteServiceInstanceInTenant -> userName" + userName);
+								logger.info("deleteServiceInstanceInTenant -> begin to unbinding");
+								ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
+										instanceName, userName);
 
-							if (unBindingRes.getResCodel() == 201) {
-								logger.info("deleteServiceInstanceInTenant -> wait unbinding complete");
-								TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
-								logger.info("deleteServiceInstanceInTenant -> unbinding complete");
+								if (unBindingRes.getResCodel() == 201) {
+									logger.info("deleteServiceInstanceInTenant -> wait unbinding complete");
+									TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
+									logger.info("deleteServiceInstanceInTenant -> unbinding complete");
+								}
 							}
 						}
 					}
 				}
-			}
 
-			// begin to delete the instance
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
+				// begin to delete the instance
+				String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+				String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+				String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+				SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
 
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpDelete httpDelete = new HttpDelete(dfRestUrl);
-				httpDelete.addHeader("Content-type", "application/json");
-				httpDelete.addHeader("Authorization", "bearer " + token);
-
-				logger.info("deleteServiceInstanceInTenant -> start delete");
-				CloseableHttpResponse response1 = httpclient.execute(httpDelete);
-
+				CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
 				try {
-					int statusCode = response1.getStatusLine().getStatusCode();
-					if (statusCode == 200) {
-						ServiceInstancePersistenceWrapper.deleteServiceInstance(tenantId, instanceName);
-						logger.info("deleteServiceInstanceInTenant -> delete successfully");
-					}
-					String bodyStr = EntityUtils.toString(response1.getEntity());
+					HttpDelete httpDelete = new HttpDelete(dfRestUrl);
+					httpDelete.addHeader("Content-type", "application/json");
+					httpDelete.addHeader("Authorization", "bearer " + token);
 
-					return Response.ok().entity(bodyStr).build();
+					logger.info("deleteServiceInstanceInTenant -> start delete");
+					CloseableHttpResponse response1 = httpclient.execute(httpDelete);
+
+					try {
+						int statusCode = response1.getStatusLine().getStatusCode();
+						if (statusCode == 200) {
+							ServiceInstancePersistenceWrapper.deleteServiceInstance(tenantId, instanceName);
+							logger.info("deleteServiceInstanceInTenant -> delete successfully");
+						}
+						String bodyStr = EntityUtils.toString(response1.getEntity());
+
+						return Response.ok().entity(bodyStr).build();
+					} finally {
+						response1.close();
+					}
 				} finally {
-					response1.close();
+					httpclient.close();
 				}
-			} finally {
-				httpclient.close();
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -778,14 +783,17 @@ public class TenantResource {
 				}
 			}
 
-			TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
+			synchronized (TenantLockerPool.getInstance().getLocker(tenant)) {
+				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 
-			if (!tenantRes.getCheckerRes().isCanChange()) {
-				logger.error("exceed the parent tenant quota, can NOT update.");
-				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-						.build();
+				if (!tenantRes.getCheckerRes().isCanChange()) {
+					logger.error("exceed the parent tenant quota, can NOT update.");
+					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
+							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+							.build();
+				}
 			}
+
 			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
 
 			// // check whether can update the tenant based on the quota
@@ -842,39 +850,42 @@ public class TenantResource {
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
 
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
+			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
+				String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+				String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+				String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
 
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+				SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
 
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpDelete httpDelete = new HttpDelete(dfRestUrl);
-				httpDelete.addHeader("Content-type", "application/json");
-				httpDelete.addHeader("Authorization", "bearer " + token);
-
-				logger.info("deleteTenant -> delete start");
-				CloseableHttpResponse response1 = httpclient.execute(httpDelete);
-
+				CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
 				try {
-					Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+					HttpDelete httpDelete = new HttpDelete(dfRestUrl);
+					httpDelete.addHeader("Content-type", "application/json");
+					httpDelete.addHeader("Authorization", "bearer " + token);
 
-					int statusCode = response1.getStatusLine().getStatusCode();
-					if (statusCode == 200) {
-						TenantPersistenceWrapper.deleteTenant(tenantId);
-						logger.info("deleteTenant -> delete successfully");
-						TenantLockerPool.getInstance().unregister(tenant);
+					logger.info("deleteTenant -> delete start");
+					CloseableHttpResponse response1 = httpclient.execute(httpDelete);
+
+					try {
+						Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+
+						int statusCode = response1.getStatusLine().getStatusCode();
+						if (statusCode == 200) {
+							TenantPersistenceWrapper.deleteTenant(tenantId);
+							logger.info("deleteTenant -> delete successfully");
+							TenantLockerPool.getInstance().unregister(tenant);
+						}
+						String bodyStr = EntityUtils.toString(response1.getEntity());
+
+						return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
+					} finally {
+						response1.close();
 					}
-					String bodyStr = EntityUtils.toString(response1.getEntity());
-
-					return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 				} finally {
-					response1.close();
+					httpclient.close();
 				}
-			} finally {
-				httpclient.close();
 			}
+			
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("deleteTenant hit exception -> ", e);

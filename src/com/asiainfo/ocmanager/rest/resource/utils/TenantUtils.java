@@ -40,7 +40,6 @@ import com.google.gson.JsonParser;
 public class TenantUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(TenantUtils.class);
-	private static TenantLockerPool locker = TenantLockerPool.getInstance();
 
 	/**
 	 * 
@@ -537,74 +536,72 @@ public class TenantUtils {
 	 */
 	public static TenantResponse createTenant(Tenant tenant)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		synchronized (locker.getLocker(tenant)) {
-			logger.debug("TenantUtils -> createTenant -> check can create tenant.");
-			TenantResponse tenantRes = new TenantResponse();
-			TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+		logger.debug("TenantUtils -> createTenant -> check can create tenant.");
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
 
-			tenantRes.setCheckerRes(checkRes);
+		tenantRes.setCheckerRes(checkRes);
 
-			logger.debug("TenantUtils -> createTenant -> check can create tenant complete.");
-			if (!checkRes.isCanChange()) {
-				logger.debug("TenantUtils -> createTenant -> check can create tenant is false.");
-				return tenantRes;
-			}
-
-			logger.debug("TenantUtils -> createTenant -> parepare the params for create.");
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-			String dfRestUrl = url + "/oapi/v1/projectrequests";
-
-			JsonObject jsonObj1 = new JsonObject();
-			jsonObj1.addProperty("apiVersion", "v1");
-			jsonObj1.addProperty("kind", "ProjectRequest");
-			// mapping DF tenant display name with adapter tenant name
-			jsonObj1.addProperty("displayName", tenant.getName());
-			if (tenant.getDescription() != null) {
-				jsonObj1.addProperty("description", tenant.getDescription());
-			}
-
-			JsonObject jsonObj2 = new JsonObject();
-			jsonObj2.addProperty("name", tenant.getId());
-			jsonObj1.add("metadata", jsonObj2);
-			String reqBody = jsonObj1.toString();
-
-			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-			try {
-				HttpPost httpPost = new HttpPost(dfRestUrl);
-				httpPost.addHeader("Content-type", "application/json");
-				httpPost.addHeader("Authorization", "bearer " + token);
-
-				StringEntity se = new StringEntity(reqBody);
-				se.setContentType("application/json");
-				se.setContentEncoding("utf-8");
-				httpPost.setEntity(se);
-
-				logger.debug("TenantUtils -> createTenant -> call df to start create.");
-				CloseableHttpResponse response2 = httpclient.execute(httpPost);
-
-				try {
-					int statusCode = response2.getStatusLine().getStatusCode();
-
-					if (statusCode == 201) {
-						logger.debug("TenantUtils -> createTenant -> create successfully in df.");
-						TenantPersistenceWrapper.createTenant(tenant);
-						logger.debug("TenantUtils -> createTenant -> create successfully in ocm rest.");
-					}
-					String bodyStr = EntityUtils.toString(response2.getEntity());
-
-					tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
-				} finally {
-					response2.close();
-				}
-			} finally {
-				httpclient.close();
-			}
-
+		logger.debug("TenantUtils -> createTenant -> check can create tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> createTenant -> check can create tenant is false.");
 			return tenantRes;
 		}
+
+		logger.debug("TenantUtils -> createTenant -> parepare the params for create.");
+		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String dfRestUrl = url + "/oapi/v1/projectrequests";
+
+		JsonObject jsonObj1 = new JsonObject();
+		jsonObj1.addProperty("apiVersion", "v1");
+		jsonObj1.addProperty("kind", "ProjectRequest");
+		// mapping DF tenant display name with adapter tenant name
+		jsonObj1.addProperty("displayName", tenant.getName());
+		if (tenant.getDescription() != null) {
+			jsonObj1.addProperty("description", tenant.getDescription());
+		}
+
+		JsonObject jsonObj2 = new JsonObject();
+		jsonObj2.addProperty("name", tenant.getId());
+		jsonObj1.add("metadata", jsonObj2);
+		String reqBody = jsonObj1.toString();
+
+		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+
+		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		try {
+			HttpPost httpPost = new HttpPost(dfRestUrl);
+			httpPost.addHeader("Content-type", "application/json");
+			httpPost.addHeader("Authorization", "bearer " + token);
+
+			StringEntity se = new StringEntity(reqBody);
+			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
+			httpPost.setEntity(se);
+
+			logger.debug("TenantUtils -> createTenant -> call df to start create.");
+			CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+			try {
+				int statusCode = response2.getStatusLine().getStatusCode();
+
+				if (statusCode == 201) {
+					logger.debug("TenantUtils -> createTenant -> create successfully in df.");
+					TenantPersistenceWrapper.createTenant(tenant);
+					logger.debug("TenantUtils -> createTenant -> create successfully in ocm rest.");
+				}
+				String bodyStr = EntityUtils.toString(response2.getEntity());
+
+				tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
+			} finally {
+				response2.close();
+			}
+		} finally {
+			httpclient.close();
+		}
+
+		return tenantRes;
 	}
 
 	/**
@@ -614,24 +611,22 @@ public class TenantUtils {
 	 * @return
 	 */
 	public static TenantResponse updateTenant(Tenant tenant) {
-		synchronized (locker.getLocker(tenant)) {
-			logger.debug("TenantUtils -> updateTenant -> check can update tenant.");
-			TenantResponse tenantRes = new TenantResponse();
-			TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant.");
+		TenantResponse tenantRes = new TenantResponse();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
 
-			tenantRes.setCheckerRes(checkRes);
+		tenantRes.setCheckerRes(checkRes);
 
-			logger.debug("TenantUtils -> updateTenant -> check can update tenant complete.");
-			if (!checkRes.isCanChange()) {
-				logger.debug("TenantUtils -> updateTenant -> check can update tenant is false.");
-				return tenantRes;
-			}
-
-			TenantPersistenceWrapper.updateTenant(tenant);
-			logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
-
+		logger.debug("TenantUtils -> updateTenant -> check can update tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils -> updateTenant -> check can update tenant is false.");
 			return tenantRes;
 		}
+
+		TenantPersistenceWrapper.updateTenant(tenant);
+		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
+
+		return tenantRes;
 	}
 
 }

@@ -73,7 +73,7 @@ public class TenantLockerPool implements LockerPool<Tenant>{
 		}
 		LOG.warn("Tenant already registered in LockerPoll: " + tenant.getId());
 	}
-
+	
 	@Override
 	public void unregister(Tenant tenant) {
 		synchronized(POOL) {
@@ -89,6 +89,12 @@ public class TenantLockerPool implements LockerPool<Tenant>{
 		}
 		LOG.error("Tenant not registered in LockerPool: " + tenant.getId());
 		throw new RuntimeException("Tenant not registered in LockerPool: " + tenant.getId());
+	}
+	
+	public Locker getLocker(String tenantID) {
+		Tenant t = new Tenant();
+		t.setId(tenantID);
+		return getLocker(t);
 	}
 
 }
