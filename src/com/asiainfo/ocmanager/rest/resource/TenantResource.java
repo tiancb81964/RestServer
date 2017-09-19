@@ -495,11 +495,8 @@ public class TenantResource {
 					validateParameter(tenantId, type, toMap(parameterObj.entrySet()));
 				} catch (Exception e) {
 					logger.error("Parameter checking error: ", e);
-
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-							.build();
-
+						e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 				}
 
 				// add into the update json
@@ -577,7 +574,8 @@ public class TenantResource {
 			long free = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
 			long quota = entry.getValue();
 			if (free < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]", entry.getKey(), total.getQuotas().get(entry.getKey()), free, quota);
+				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]",
+						entry.getKey(), total.getQuotas().get(entry.getKey()), free, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
 		}
@@ -795,22 +793,6 @@ public class TenantResource {
 			}
 
 			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).build();
-
-			// // check whether can update the tenant based on the quota
-			// TenantQuotaCheckerResponse checkRes =
-			// TenantUtils.canUpdateTenant(tenant);
-			// if (!checkRes.isCanChange()) {
-			// logger.error("exceed the parent tenant quota, can NOT update.");
-			// return Response.status(Status.NOT_ACCEPTABLE).entity(new
-			// ResourceResponseBean("operation failed",
-			// checkRes.getMessages(),
-			// ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
-			// }
-			//
-			// TenantPersistenceWrapper.updateTenant(tenant);
-			// logger.info("updateTenant -> update complete");
-			// return Response.ok().entity(new TenantBean(tenant, "no
-			// dataFoundryInfo")).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
