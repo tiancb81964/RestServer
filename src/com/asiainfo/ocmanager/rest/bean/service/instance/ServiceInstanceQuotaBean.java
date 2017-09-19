@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
+import com.google.gson.JsonObject;
 
 /**
  * 
@@ -22,7 +23,8 @@ public abstract class ServiceInstanceQuotaBean {
 	 * @param tenantId
 	 * @return
 	 */
-	public abstract ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId);
+	public abstract ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId,
+			JsonObject parameters);
 
 	public String getServiceType() {
 		return serviceType;
@@ -39,27 +41,27 @@ public abstract class ServiceInstanceQuotaBean {
 	 */
 	public static ServiceInstanceQuotaBean createServiceInstance(String service) {
 
-		if (service.toLowerCase().equals("hdfs")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HDFS)) {
 			return new HdfsServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals("hbase")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HBASE)) {
 			return new HbaseServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals("hive")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HIVE)) {
 			return new HiveServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals("mapreduce")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.MAPREDUCE)) {
 			return new MapreduceServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals("spark")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.SPARK)) {
 			return new SparkServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals("kafka")) {
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.KAFKA)) {
 			return new KafkaServiceInstanceQuotaBean();
 		}
 

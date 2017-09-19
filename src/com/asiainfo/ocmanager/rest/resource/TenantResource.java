@@ -395,17 +395,20 @@ public class TenantResource {
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-				ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
-						tenantId);
-				serviceInstRes.setCheckerRes(checkRes);
+				if (Constant.list.contains(backingServiceName.toLowerCase())) {
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
+							tenantId, parameters);
+					serviceInstRes.setCheckerRes(checkRes);
 
-				if (!serviceInstRes.getCheckerRes().isCanChange()) {
-					logger.error("exceed the parent tenant quota, can NOT create bsi.");
-					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-							serviceInstRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
-							.build();
+					if (!serviceInstRes.getCheckerRes().isCanChange()) {
+						logger.error("exceed the parent tenant quota, can NOT create bsi.");
+						return Response.status(Status.NOT_ACCEPTABLE)
+								.entity(new ResourceResponseBean("operation failed",
+										serviceInstRes.getCheckerRes().getMessages(),
+										ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+								.build();
+					}
 				}
-
 				String resBody = ServiceInstanceUtils.createBsi(tenantId, reqBodyJson);
 				serviceInstRes.setResBody(resBody);
 			}
@@ -496,7 +499,7 @@ public class TenantResource {
 				} catch (Exception e) {
 					logger.error("Parameter checking error: ", e);
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
-						e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
+							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 				}
 
 				// add into the update json
@@ -867,7 +870,7 @@ public class TenantResource {
 					httpclient.close();
 				}
 			}
-			
+
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("deleteTenant hit exception -> ", e);

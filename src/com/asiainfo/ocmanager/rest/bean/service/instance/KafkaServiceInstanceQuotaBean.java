@@ -13,6 +13,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
+import com.google.gson.JsonObject;
 
 /**
  * 
@@ -20,6 +21,10 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  *
  */
 public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
+
+	public final static String TOPICTTL = "topicTTL";
+	public final static String TOPICQUOTA = "topicQuota";
+	public final static String PARTITIONSIZE = "partitionSize";
 
 	private long topicTTL;
 	private long topicQuota;
@@ -32,40 +37,69 @@ public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public KafkaServiceInstanceQuotaBean(String serviceType, String quotaStr) {
 		this.serviceType = serviceType;
 		Map<String, String> hdfsQuotaMap = ServiceInstanceQuotaUtils.getServiceInstanceQuota(serviceType, quotaStr);
-		this.topicTTL = hdfsQuotaMap.get("topicTTL") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("topicTTL")).longValue();
-		this.topicQuota = hdfsQuotaMap.get("topicQuota") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("topicQuota")).longValue();
-		this.partitionSize = hdfsQuotaMap.get("partitionSize") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("partitionSize")).longValue();
+		this.topicTTL = hdfsQuotaMap.get(TOPICTTL) == null ? 0 : Long.valueOf(hdfsQuotaMap.get(TOPICTTL)).longValue();
+		this.topicQuota = hdfsQuotaMap.get(TOPICQUOTA) == null ? 0
+				: Long.valueOf(hdfsQuotaMap.get(TOPICQUOTA)).longValue();
+		this.partitionSize = hdfsQuotaMap.get(PARTITIONSIZE) == null ? 0
+				: Long.valueOf(hdfsQuotaMap.get(PARTITIONSIZE)).longValue();
 	}
 
 	public KafkaServiceInstanceQuotaBean(String serviceType, Map<String, String> quotaMap) {
 		this.serviceType = serviceType;
-		this.topicTTL = quotaMap.get("topicTTL") == null ? 0 : Long.valueOf(quotaMap.get("topicTTL")).longValue();
-		this.topicQuota = quotaMap.get("topicQuota") == null ? 0 : Long.valueOf(quotaMap.get("topicQuota")).longValue();
-		this.partitionSize = quotaMap.get("partitionSize") == null ? 0
-				: Long.valueOf(quotaMap.get("partitionSize")).longValue();
+		this.topicTTL = quotaMap.get(TOPICTTL) == null ? 0 : Long.valueOf(quotaMap.get(TOPICTTL)).longValue();
+		this.topicQuota = quotaMap.get(TOPICQUOTA) == null ? 0 : Long.valueOf(quotaMap.get(TOPICQUOTA)).longValue();
+		this.partitionSize = quotaMap.get(PARTITIONSIZE) == null ? 0
+				: Long.valueOf(quotaMap.get(PARTITIONSIZE)).longValue();
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	public static KafkaServiceInstanceQuotaBean createDefaultServiceInstanceQuota() {
+	public static KafkaServiceInstanceQuotaBean createDefaultServiceInstanceQuota(JsonObject parameters) {
 		KafkaServiceInstanceQuotaBean defaultServiceInstanceQuota = new KafkaServiceInstanceQuotaBean();
 		defaultServiceInstanceQuota.setServiceType("kafka");
-		defaultServiceInstanceQuota
-				.setTopicTTL(ServicesDefaultQuotaConf.getInstance().get("kafka").get("topicTTL").getDefaultQuota());
-		defaultServiceInstanceQuota
-				.setTopicQuota(ServicesDefaultQuotaConf.getInstance().get("kafka").get("topicQuota").getDefaultQuota());
-		defaultServiceInstanceQuota.setPartitionSize(
-				ServicesDefaultQuotaConf.getInstance().get("kafka").get("partitionSize").getDefaultQuota());
+
+		// if passby the params use the params otherwise use the default
+		if (parameters == null) {
+			defaultServiceInstanceQuota
+					.setTopicTTL(ServicesDefaultQuotaConf.getInstance().get("kafka").get(TOPICTTL).getDefaultQuota());
+			defaultServiceInstanceQuota.setTopicQuota(
+					ServicesDefaultQuotaConf.getInstance().get("kafka").get(TOPICQUOTA).getDefaultQuota());
+			defaultServiceInstanceQuota.setPartitionSize(
+					ServicesDefaultQuotaConf.getInstance().get("kafka").get(PARTITIONSIZE).getDefaultQuota());
+		} else {
+			if (parameters.get(TOPICTTL) == null || parameters.get(TOPICTTL).isJsonNull()
+					|| parameters.get(TOPICTTL).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setTopicTTL(
+						ServicesDefaultQuotaConf.getInstance().get("kafka").get(TOPICTTL).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setTopicTTL(parameters.get(TOPICTTL).getAsLong());
+			}
+
+			if (parameters.get(TOPICQUOTA) == null || parameters.get(TOPICQUOTA).isJsonNull()
+					|| parameters.get(TOPICQUOTA).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setTopicQuota(
+						ServicesDefaultQuotaConf.getInstance().get("kafka").get(TOPICQUOTA).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setTopicQuota(parameters.get(TOPICQUOTA).getAsLong());
+			}
+
+			if (parameters.get(PARTITIONSIZE) == null || parameters.get(PARTITIONSIZE).isJsonNull()
+					|| parameters.get(PARTITIONSIZE).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setPartitionSize(
+						ServicesDefaultQuotaConf.getInstance().get("kafka").get(PARTITIONSIZE).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setPartitionSize(parameters.get(PARTITIONSIZE).getAsLong());
+			}
+		}
+
 		return defaultServiceInstanceQuota;
 	}
 
 	@Override
-	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId) {
+	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId,
+			JsonObject parameters) {
 
 		List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
 				.getServiceInstanceByServiceType(tenantId, backingServiceName);
@@ -92,7 +126,7 @@ public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// get request bsi quota
 		KafkaServiceInstanceQuotaBean kafkaRequestServiceInstanceQuota = KafkaServiceInstanceQuotaBean
-				.createDefaultServiceInstanceQuota();
+				.createDefaultServiceInstanceQuota(parameters);
 
 		// left quota minus request quota
 		kafkaParentTenantQuota.minus(kafkaRequestServiceInstanceQuota);
@@ -107,15 +141,15 @@ public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// kafka
 		if (this.topicTTL < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.topicTTL, "topicTTL", "kafka"));
+			resStr.append(QuotaCommonUtils.logAndResStr(this.topicTTL, TOPICTTL, "kafka"));
 			canChange = false;
 		}
 		if (this.topicQuota < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.topicQuota, "topicQuota", "kafka"));
+			resStr.append(QuotaCommonUtils.logAndResStr(this.topicQuota, TOPICQUOTA, "kafka"));
 			canChange = false;
 		}
 		if (this.partitionSize < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.partitionSize, "partitionSize", "kafka"));
+			resStr.append(QuotaCommonUtils.logAndResStr(this.partitionSize, PARTITIONSIZE, "kafka"));
 			canChange = false;
 		}
 
