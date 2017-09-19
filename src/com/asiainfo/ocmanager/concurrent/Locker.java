@@ -1,13 +1,16 @@
 package com.asiainfo.ocmanager.concurrent;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class Locker extends Object {
 	private boolean busy = false;
 	private long epoch = -1l;
+	private String id;
 	
 	public Locker() {
 		super();
+		this.id = UUID.randomUUID().toString();
 	}
 	
 	public void lock() {
@@ -25,6 +28,6 @@ public class Locker extends Object {
 	}
 	
 	public String toString() {
-		return "busy:" + String.valueOf(this.busy) + "#" + "epoch:" + String.valueOf(this.epoch);
+		return "id:" +this.id + "busy:" + String.valueOf(this.busy) + "#" + "epoch:" + String.valueOf(this.epoch);
 	}
 }
