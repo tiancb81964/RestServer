@@ -44,11 +44,18 @@ public class ServiceInstanceUtils {
 	 * @param parentTenant
 	 * @return
 	 */
-	public static ServiceInstanceQuotaCheckerResponse canCreateBsi(String backingServiceName, String tenantId) {
+	public static ServiceInstanceQuotaCheckerResponse canCreateBsi(String backingServiceName, String tenantId,
+			JsonObject parameters) {
 
 		ServiceInstanceQuotaCheckerResponse checkRes = new ServiceInstanceQuotaCheckerResponse();
 		ServiceInstanceQuotaBean serviceInst = ServiceInstanceQuotaBean.createServiceInstance(backingServiceName);
-		checkRes = serviceInst.checkCanChangeInst(backingServiceName, tenantId);
+
+		if (serviceInst == null) {
+			checkRes.setCanChange(false);
+			checkRes.setMessages("Can NOT find the service in the OCM, please check with the admin.");
+		} else {
+			checkRes = serviceInst.checkCanChangeInst(backingServiceName, tenantId, parameters);
+		}
 
 		return checkRes;
 	}

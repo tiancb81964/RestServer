@@ -13,6 +13,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
+import com.google.gson.JsonObject;
 
 /**
  * 
@@ -20,6 +21,9 @@ import com.asiainfo.ocmanager.utils.ServicesDefaultQuotaConf;
  *
  */
 public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
+
+	public final static String MAXIMUMTABLESQUOTA = "maximumTablesQuota";
+	public final static String MAXIMUMREGIONSQUOTA = "maximumRegionsQuota";
 
 	private long maximumTablesQuota;
 	private long maximumRegionsQuota;
@@ -36,10 +40,10 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public HbaseServiceInstanceQuotaBean(String serviceType, String quotaStr) {
 		this.serviceType = serviceType;
 		Map<String, String> hdfsQuotaMap = ServiceInstanceQuotaUtils.getServiceInstanceQuota(serviceType, quotaStr);
-		this.maximumTablesQuota = hdfsQuotaMap.get("maximumTablesQuota") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("maximumTablesQuota")).longValue();
-		this.maximumRegionsQuota = hdfsQuotaMap.get("maximumRegionsQuota") == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get("maximumRegionsQuota")).longValue();
+		this.maximumTablesQuota = hdfsQuotaMap.get(MAXIMUMTABLESQUOTA) == null ? 0
+				: Long.valueOf(hdfsQuotaMap.get(MAXIMUMTABLESQUOTA)).longValue();
+		this.maximumRegionsQuota = hdfsQuotaMap.get(MAXIMUMREGIONSQUOTA) == null ? 0
+				: Long.valueOf(hdfsQuotaMap.get(MAXIMUMREGIONSQUOTA)).longValue();
 
 	}
 
@@ -50,10 +54,10 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 */
 	public HbaseServiceInstanceQuotaBean(String serviceType, Map<String, String> quotaMap) {
 		this.serviceType = serviceType;
-		this.maximumTablesQuota = quotaMap.get("maximumTablesQuota") == null ? 0
-				: Long.valueOf(quotaMap.get("maximumTablesQuota")).longValue();
-		this.maximumRegionsQuota = quotaMap.get("maximumRegionsQuota") == null ? 0
-				: Long.valueOf(quotaMap.get("maximumRegionsQuota")).longValue();
+		this.maximumTablesQuota = quotaMap.get(MAXIMUMTABLESQUOTA) == null ? 0
+				: Long.valueOf(quotaMap.get(MAXIMUMTABLESQUOTA)).longValue();
+		this.maximumRegionsQuota = quotaMap.get(MAXIMUMREGIONSQUOTA) == null ? 0
+				: Long.valueOf(quotaMap.get(MAXIMUMREGIONSQUOTA)).longValue();
 
 	}
 
@@ -61,18 +65,40 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * 
 	 * @return
 	 */
-	public static HbaseServiceInstanceQuotaBean createDefaultServiceInstanceQuota() {
+	public static HbaseServiceInstanceQuotaBean createDefaultServiceInstanceQuota(JsonObject parameters) {
 		HbaseServiceInstanceQuotaBean defaultServiceInstanceQuota = new HbaseServiceInstanceQuotaBean();
 		defaultServiceInstanceQuota.setServiceType("hbase");
-		defaultServiceInstanceQuota.setMaximumTablesQuota(
-				ServicesDefaultQuotaConf.getInstance().get("hbase").get("maximumTablesQuota").getDefaultQuota());
-		defaultServiceInstanceQuota.setMaximumRegionsQuota(
-				ServicesDefaultQuotaConf.getInstance().get("hbase").get("maximumRegionsQuota").getDefaultQuota());
+
+		// if passby the params use the params otherwise use the default
+		if (parameters == null) {
+			defaultServiceInstanceQuota.setMaximumTablesQuota(
+					ServicesDefaultQuotaConf.getInstance().get("hbase").get(MAXIMUMTABLESQUOTA).getDefaultQuota());
+			defaultServiceInstanceQuota.setMaximumRegionsQuota(
+					ServicesDefaultQuotaConf.getInstance().get("hbase").get(MAXIMUMREGIONSQUOTA).getDefaultQuota());
+		} else {
+			if (parameters.get(MAXIMUMTABLESQUOTA) == null || parameters.get(MAXIMUMTABLESQUOTA).isJsonNull()
+					|| parameters.get(MAXIMUMTABLESQUOTA).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setMaximumTablesQuota(
+						ServicesDefaultQuotaConf.getInstance().get("hbase").get(MAXIMUMTABLESQUOTA).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setMaximumTablesQuota(parameters.get(MAXIMUMTABLESQUOTA).getAsLong());
+			}
+
+			if (parameters.get(MAXIMUMREGIONSQUOTA) == null || parameters.get(MAXIMUMREGIONSQUOTA).isJsonNull()
+					|| parameters.get(MAXIMUMREGIONSQUOTA).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setMaximumRegionsQuota(
+						ServicesDefaultQuotaConf.getInstance().get("hbase").get(MAXIMUMREGIONSQUOTA).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setMaximumRegionsQuota(parameters.get(MAXIMUMREGIONSQUOTA).getAsLong());
+			}
+		}
+
 		return defaultServiceInstanceQuota;
 	}
 
 	@Override
-	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId) {
+	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId,
+			JsonObject parameters) {
 
 		List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
 				.getServiceInstanceByServiceType(tenantId, backingServiceName);
@@ -99,7 +125,7 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// get request bsi quota
 		HbaseServiceInstanceQuotaBean hbaseRequestServiceInstanceQuota = HbaseServiceInstanceQuotaBean
-				.createDefaultServiceInstanceQuota();
+				.createDefaultServiceInstanceQuota(parameters);
 
 		// left quota minus request quota
 		hbaseParentTenantQuota.minus(hbaseRequestServiceInstanceQuota);
@@ -115,11 +141,11 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// hbase
 		if (this.maximumTablesQuota < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.maximumTablesQuota, "maximumTablesQuota", "hbase"));
+			resStr.append(QuotaCommonUtils.logAndResStr(this.maximumTablesQuota, MAXIMUMTABLESQUOTA, "hbase"));
 			canChange = false;
 		}
 		if (this.maximumRegionsQuota < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.maximumRegionsQuota, "maximumRegionsQuota", "hbase"));
+			resStr.append(QuotaCommonUtils.logAndResStr(this.maximumRegionsQuota, MAXIMUMREGIONSQUOTA, "hbase"));
 			canChange = false;
 		}
 

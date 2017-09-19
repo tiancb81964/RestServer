@@ -21,7 +21,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.concurrent.TenantLockerPool;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;

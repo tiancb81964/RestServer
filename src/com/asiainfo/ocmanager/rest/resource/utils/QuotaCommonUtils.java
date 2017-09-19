@@ -85,7 +85,7 @@ public class QuotaCommonUtils {
 	}
 
 	public static String logAndResStr(long quota, String param, String service) {
-		logger.info("NOT enough " + service + " " + param + ", it need more: {}", quota);
-		return "NOT enough " + service + " " + param + " to crteate the tenant, it need more quota: " + quota;
+		logger.info("NOT enough " + service + " " + param + ", it need more: {}\n", -quota);
+		return "NOT enough " + service + " " + param + " to crteate the tenant, it need more quota: " + (-quota) + "; ";
 	}
 }
