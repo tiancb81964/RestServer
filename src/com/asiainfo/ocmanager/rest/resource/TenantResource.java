@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
+import com.asiainfo.ocmanager.concurrent.TenantLockerPool;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
@@ -279,10 +280,12 @@ public class TenantResource {
 						.build();
 			}
 
+			TenantLockerPool.getInstance().register(tenant);
 			TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 
 			if (!tenantRes.getCheckerRes().isCanChange()) {
 				logger.error("exceed the parent tenant quota, can NOT create.");
+				TenantLockerPool.getInstance().unregister(tenant);
 				return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 						tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 						.build();
@@ -861,6 +864,7 @@ public class TenantResource {
 					if (statusCode == 200) {
 						TenantPersistenceWrapper.deleteTenant(tenantId);
 						logger.info("deleteTenant -> delete successfully");
+						TenantLockerPool.getInstance().unregister(tenant);
 					}
 					String bodyStr = EntityUtils.toString(response1.getEntity());
 
