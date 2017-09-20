@@ -105,7 +105,6 @@ public class TenantQuotaUtils {
 		Map<String, String> quotaMap = new HashMap<String, String>();
 
 		if (!TenantJsonParserUtils.isValidJsonString(quotaStr)) {
-			logger.error("TenantQuotaUtils -> Invalid json string, return empty map");
 			return quotaMap;
 		}
 
@@ -113,7 +112,8 @@ public class TenantQuotaUtils {
 		JsonObject serviceQuota = quotaJson.getAsJsonObject().getAsJsonObject(service);
 
 		if (serviceQuota == null || serviceQuota.isJsonNull()) {
-			logger.error("The tenant did NOT have the {} service quota, please check with admin.", service);
+			logger.debug("The tenant did NOT have the {} service quota, please check with admin.", service);
+			return quotaMap;
 		}
 
 		quotaMap = QuotaCommonUtils.parserQuota(service, serviceQuota);
