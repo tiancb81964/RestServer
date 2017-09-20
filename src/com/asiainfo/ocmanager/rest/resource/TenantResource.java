@@ -784,7 +784,17 @@ public class TenantResource {
 				}
 			}
 
-			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
+			Tenant origin = TenantPersistenceWrapper.getTenantById(tenant.getId());
+
+			if (origin == null) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(new ResourceResponseBean("operation failed",
+								"the tenant is NOT existed in the OCManager, please input a correct one.",
+								ResponseCodeConstant.BAD_REQUEST))
+						.build();
+			}
+
+			synchronized (TenantLockerPool.getInstance().getLocker(origin.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("exceed the parent tenant quota, can NOT update.");
