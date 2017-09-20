@@ -931,7 +931,6 @@ __request body:__
 {
     "id": "777",
     "description": "test7777",
-    "parentId": "111",
      "quota":"{\"hdfs\": {\"nameSpaceQuota\": 501,\"storageSpaceQuota\": 4096},\"hbase\": {\"maximumTablesQuota\": 2,\"maximumRegionsQuota\": 2},\"hive\": {\"storageSpaceQuota\": 2,\"yarnQueueQuota\": 2},\"mapreduce\": {\"yarnQueueQuota\": 2},\"spark\": {\"yarnQueueQuota\":2},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":2 ,\"partitionSize\": 1}}"
 }
 

@@ -496,7 +496,7 @@ public class TenantResource {
 						}
 					}
 					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-					validateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
 				} catch (Exception e) {
 					logger.error("Failed to update bsi due to exceeded tenant quota: ", e.getMessage());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
@@ -559,10 +559,10 @@ public class TenantResource {
 	 * @param tenantId
 	 * @param entry
 	 */
-	private void validateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
+	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
 		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, bsi.getSecond());
 		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(), bsi.getSecond());
-		validate(total, allocated, toBean(bsi.getSecond(), parameters));
+		checkQuotas(total, allocated, toBean(bsi.getSecond(), parameters));
 	}
 
 	private QuotaBean2 toBean(ServiceType type, Map<String, String> parameters) {
@@ -573,7 +573,7 @@ public class TenantResource {
 		return new QuotaBean2(type, map);
 	}
 
-	private void validate(QuotaBean2 total, QuotaBean2 allocated, QuotaBean2 parameters) {
+	private void checkQuotas(QuotaBean2 total, QuotaBean2 allocated, QuotaBean2 parameters) {
 		for (Entry<String, Long> entry : parameters.getQuotas().entrySet()) {
 			long available = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
 			long quota = entry.getValue();
