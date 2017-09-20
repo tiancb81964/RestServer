@@ -280,16 +280,16 @@ public class TenantResource {
 						.build();
 			}
 
-			TenantLockerPool.getInstance().register(tenant);
-			synchronized (TenantLockerPool.getInstance().getLocker(tenant)) {
+			// lock parent tenant
+			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("exceed the parent tenant quota, can NOT create.");
-					TenantLockerPool.getInstance().unregister(tenant);
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
 				}
+				TenantLockerPool.getInstance().register(tenant);
 				return Response.ok().entity(tenantRes.getTenantBean()).build();
 			}
 		} catch (Exception e) {
@@ -784,9 +784,8 @@ public class TenantResource {
 				}
 			}
 
-			synchronized (TenantLockerPool.getInstance().getLocker(tenant)) {
+			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
-
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("exceed the parent tenant quota, can NOT update.");
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
