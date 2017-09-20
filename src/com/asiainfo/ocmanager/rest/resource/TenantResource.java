@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.hadoop.hbase.util.Pair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -284,7 +285,7 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("exceed the parent tenant quota, can NOT create.");
+					logger.error("Failed to create tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -401,7 +402,7 @@ public class TenantResource {
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("exceed the parent tenant quota, can NOT create bsi.");
+						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -494,10 +495,10 @@ public class TenantResource {
 							iterator.remove();
 						}
 					}
-					ServiceType type = getInstanceType(tenantId, instanceName);
-					validateParameter(tenantId, type, toMap(parameterObj.entrySet()));
+					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
+					validateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
 				} catch (Exception e) {
-					logger.error("Parameter checking error: ", e);
+					logger.error("Failed to update bsi due to exceeded tenant quota: ", e.getMessage());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 				}
@@ -558,10 +559,10 @@ public class TenantResource {
 	 * @param tenantId
 	 * @param entry
 	 */
-	private void validateParameter(String tenantId, ServiceType type, Map<String, String> parameters) {
-		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, type);
-		QuotaBean2 allocated = TenantQuotaUtils.getAllocatedQuotaByService(tenantId, type);
-		validate(total, allocated, toBean(type, parameters));
+	private void validateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
+		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, bsi.getSecond());
+		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(), bsi.getSecond());
+		validate(total, allocated, toBean(bsi.getSecond(), parameters));
 	}
 
 	private QuotaBean2 toBean(ServiceType type, Map<String, String> parameters) {
@@ -574,19 +575,20 @@ public class TenantResource {
 
 	private void validate(QuotaBean2 total, QuotaBean2 allocated, QuotaBean2 parameters) {
 		for (Entry<String, Long> entry : parameters.getQuotas().entrySet()) {
-			long free = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
+			long available = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
 			long quota = entry.getValue();
-			if (free < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], free [{}], requested [{}]",
-						entry.getKey(), total.getQuotas().get(entry.getKey()), free, quota);
+			if (available < quota) {
+				logger.error("Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
+						entry.getKey(), total.getQuotas().get(entry.getKey()), available, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
 		}
 	}
 
-	private ServiceType getInstanceType(String tenantId, String instanceName) {
+	private Pair<String, ServiceType> getInstanceIDandType(String tenantId, String instanceName) {
 		ServiceInstance bsi = ServiceInstancePersistenceWrapper.getServiceInstance(tenantId, instanceName);
-		return ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
+		ServiceType type = ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
+		return new Pair<String, ServiceType>(bsi.getId(), type);
 	}
 
 	private String quotaString(String parametersStr) {
@@ -787,7 +789,7 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("exceed the parent tenant quota, can NOT update.");
+					logger.error("Failed to update tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();

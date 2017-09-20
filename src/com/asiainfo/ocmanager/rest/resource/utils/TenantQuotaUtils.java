@@ -44,16 +44,21 @@ public class TenantQuotaUtils {
 	}
 	
 	/**
-	 * Get all allocated quotas of a tenant. Only the specified 
+	 * Get all allocated quotas of a tenant, except the specified BSI. Only the specified 
 	 * service type quota will be returned.
 	 * @param tenantID
+	 * @param string 
+	 * @param instanceName 
 	 * @param type
 	 * @return
 	 */
-	public static QuotaBean2 getAllocatedQuotaByService(String tenantID, ServiceType type){
+	public static QuotaBean2 getMinimumAllocatedQuotaByService(String tenantID, String instanceID, ServiceType type){
 		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstanceByServiceType(tenantID, type.serviceType());
 		QuotaBean2 bean = new QuotaBean2(type);
 		for (ServiceInstance bsi : instances) {
+			if (bsi.getId().equals(instanceID)) {
+				continue;
+			}
 			QuotaBean2 allocated = QuotaParser.parseBSIQuota(bsi.getQuota(), type);
 			bean.plus(allocated);
 		}
