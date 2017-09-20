@@ -69,6 +69,7 @@ public class TenantLockerPool implements LockerPool<Tenant>{
 			synchronized(POOL) {
 				POOL.put(tenant.getId(), new Locker());
 				LOG.debug("Tenant registered in LockerPool: " + tenant.getId());
+				return;
 			}
 		}
 		LOG.warn("Tenant already registered in LockerPoll: " + tenant.getId());
