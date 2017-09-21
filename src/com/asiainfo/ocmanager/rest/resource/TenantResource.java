@@ -498,7 +498,7 @@ public class TenantResource {
 					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
 					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
 				} catch (Exception e) {
-					logger.error("Failed to update bsi due to exceeded tenant quota: ", e.getMessage());
+					logger.error("Failed to update bsi due to exceeded tenant quota: " + e.getMessage());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 				}
