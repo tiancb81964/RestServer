@@ -29,10 +29,16 @@ public class AuthScheduller {
 	}
 
 	private class AuthRunnable implements Runnable {
+		private boolean firstTime = true;
 
 		@Override
 		public void run() {
-			SecurityManager.getInstance().login();
+			if (this.firstTime) {
+				SecurityManager.getInstance().login();
+				firstTime = false;
+				return;
+			}
+			SecurityManager.getInstance().relogin();
 		}
 
 	}
