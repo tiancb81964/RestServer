@@ -42,6 +42,7 @@ public class KrbModule implements SecurityModule{
 	@Override
 	public void login() throws Exception {
 		try {
+			LOG.info("Going to login as " + principal + " with keytab " + keytab);
 	        UserGroupInformation.loginUserFromKeytab(principal, keytab);
 	        LOG.info("Kerberos module login successful.");
 		} catch (Exception e) {
@@ -53,10 +54,12 @@ public class KrbModule implements SecurityModule{
 	@Override
 	public void relogin() throws Exception {
 		try {
-	        UserGroupInformation.loginUserFromKeytab(principal, keytab);
+			UserGroupInformation user = UserGroupInformation.getLoginUser();
+			LOG.info("Going to relogin: " + user.getUserName());
+			user.reloginFromKeytab();
 	        LOG.info("Kerberos module relogin successful.");
 		} catch (Exception e) {
-			LOG.error("Relogin failed by: " + principal + ", " + keytab, e);
+			LOG.error("Relogin failed by: " +  UserGroupInformation.getLoginUser(), e);
 			throw e;
 		}
 	}
