@@ -495,8 +495,21 @@ public class TenantResource {
 							iterator.remove();
 						}
 					}
-					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+//					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
+//					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(provisioning.get("backingservice_name").getAsString(),
+							tenantId, parameterObj);
+					serviceInstRes.setCheckerRes(checkRes);
+
+					if (!serviceInstRes.getCheckerRes().isCanChange()) {
+						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						return Response.status(Status.NOT_ACCEPTABLE)
+								.entity(new ResourceResponseBean("operation failed",
+										serviceInstRes.getCheckerRes().getMessages(),
+										ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+								.build();
+					}
 				} catch (Exception e) {
 					logger.error("Failed to update bsi due to exceeded tenant quota: " + e.getMessage());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
