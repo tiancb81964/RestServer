@@ -298,6 +298,10 @@
               <directory>database</directory>
               <targetPath>WEB-INF/database</targetPath>
             </resource>
+            <resource>
+              <directory>scripts</directory>
+              <targetPath>WEB-INF/scripts</targetPath>
+            </resource>
           </webResources>
           <webXml>WebContent/WEB-INF/web.xml</webXml>
           <failOnMissingWebXml>false</failOnMissingWebXml>
