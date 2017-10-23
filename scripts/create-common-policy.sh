@@ -1,4 +1,4 @@
-﻿#！/bin/sh
+#！/bin/sh
 helpMsg(){
 	echo "USAGE: sh $0 clusterName rangerIP rangerUser rangerPassword" 
 	echo " e.g.: sh $0 mycluster 127.0.0.1 admin admin" 
