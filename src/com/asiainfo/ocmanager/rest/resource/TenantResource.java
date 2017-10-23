@@ -495,8 +495,21 @@ public class TenantResource {
 							iterator.remove();
 						}
 					}
-					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+//					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
+//					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(provisioning.get("backingservice_name").getAsString(),
+							tenantId, parameterObj);
+					serviceInstRes.setCheckerRes(checkRes);
+
+					if (!serviceInstRes.getCheckerRes().isCanChange()) {
+						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						return Response.status(Status.NOT_ACCEPTABLE)
+								.entity(new ResourceResponseBean("operation failed",
+										serviceInstRes.getCheckerRes().getMessages(),
+										ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
+								.build();
+					}
 				} catch (Exception e) {
 					logger.error("Failed to update bsi due to exceeded tenant quota: " + e.getMessage());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
@@ -773,17 +786,12 @@ public class TenantResource {
 
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
-				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser,
-						tenant.getId());
-				if (!privileged(role)) {
-					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenant.getId()
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
-					return Response.status(Status.UNAUTHORIZED)
-							.entity(new ResourceResponseBean("operation failed",
-									"Current user has no privilege to do the operations.",
-									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-							.build();
-				}
+				logger.error("Only System Admin is privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+				return Response.status(Status.UNAUTHORIZED)
+				.entity(new ResourceResponseBean("operation failed",
+						"Current user has no privilege to do the operations.",
+						ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+				.build();
 			}
 
 			Tenant origin = TenantPersistenceWrapper.getTenantById(tenant.getId());
