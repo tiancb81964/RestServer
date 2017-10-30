@@ -71,7 +71,7 @@ public class Constant {
 	/***************** kerberos properties const *********************/
 	/*****************************************************************/
 	public static final String KERBEROS_USER_PRINCIPAL="kerberos.user.principal";
-	public static final String KERBEROS_KEYTAB_LOCATION="kerberos.keytab.location";
+	public static final String KERBEROS_KEYTAB_LOCATION="kerberos.krb5.location";
 	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
 	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
 	public static final String KERBEROS_REALM="kerberos.realm";
