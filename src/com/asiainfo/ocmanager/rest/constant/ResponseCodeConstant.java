@@ -36,10 +36,13 @@ public class ResponseCodeConstant {
 	public final static int NOT_SYSTEM_ADMIN = 4019;
 
 	// 404 extend
+	// keytab
 	public final static int CAN_NOT_FIND_KRB_KEYTAB_FILE = 4041;
 	// service
 	public final static int SERVICE_PLAN_NOT_FOUND = 4042;
 	public final static int USER_NOT_FOUND = 4043;
+	// krb5
+	public final static int CAN_NOT_FIND_KRB5_CONF_FILE = 4044;
 
 	// 406 extend
 	public final static int EXCEED_PARENT_TENANT_QUOTA = 4061;

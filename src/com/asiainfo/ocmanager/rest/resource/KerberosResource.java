@@ -32,7 +32,36 @@ public class KerberosResource {
 	private static Logger logger = Logger.getLogger(KerberosResource.class);
 
 	private static final String PATH = KerberosResource.class.getResource("/").getPath() + ".." + File.separator
-			+ "keytabs" + File.separator + "oc.{$username}.keytab";;
+			+ "keytabs" + File.separator + "oc.{$username}.keytab";
+	private static final String KRB5PATH = KerberosConfiguration.getConf()
+			.getProperty(Constant.KERBEROS_KEYTAB_LOCATION);
+
+	@GET
+	@Path("krb5")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getKrb5File() {
+		try {
+
+			File file = new File(KRB5PATH);
+
+			if (!file.exists()) {
+				logger.error("File not found: " + file.getPath());
+				return Response.status(Response.Status.NOT_FOUND)
+						.entity(new ResourceResponseBean("download keytab failed!",
+								"krb5.conf is NOT exist, please check with admin,"
+										+ " and make sure kerberos client is installed on the OCM server.",
+								ResponseCodeConstant.CAN_NOT_FIND_KRB5_CONF_FILE))
+						.build();
+			}
+
+			return Response.ok(file).header("Content-disposition", "attachment;filename=" + "krb5.conf")
+					.header("Cache-Control", "no-cache").build();
+
+		} catch (Exception e) {
+			logger.error("getKrb5File hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
 
 	@GET
 	@Path("keytab/{userName}")
