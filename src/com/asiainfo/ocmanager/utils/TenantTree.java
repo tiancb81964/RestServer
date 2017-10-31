@@ -92,6 +92,15 @@ public class TenantTree {
 		initChildren(originTenant);
 		initParent(originTenant);
 	}
+	
+	/**
+	 * Get parents of origin tenant.
+	 */
+	public List<TenantTreeNode> listOriginParents() {
+		List<TenantTreeNode> list = new ArrayList<>();
+		listParentsNames(list, this.originTenant);
+		return list;
+	}
 
 	/**
 	 * initiate parent node of specified node.
@@ -176,8 +185,8 @@ public class TenantTree {
 		}
 
 		/**
-		 * Get the level of current node. eg: root node is in level 1 , 2nd
-		 * layer of nodes corresponds to level 2, etc.
+		 * Get the level of current node. eg: root node is in level 1 , 2nd layer of
+		 * nodes corresponds to level 2, etc.
 		 * 
 		 * @return
 		 */
