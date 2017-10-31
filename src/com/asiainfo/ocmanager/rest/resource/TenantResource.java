@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.IsAdminBean;
 import com.asiainfo.ocmanager.rest.bean.QuotaBean2;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
@@ -59,6 +61,9 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.utils.TenantTree;
+import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -156,7 +161,13 @@ public class TenantResource {
 		}
 	}
 
-	private UserRoleView getRole(String tenantId, String userName) {
+	/**
+	 * Get user role on the tenant, based on recursive route upper to root.
+	 * @param tenantId
+	 * @param userName
+	 * @return
+	 */
+	private UserRoleView getRecursiveRole(String tenantId, String userName) {
 
 		UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(userName, tenantId);
 		if (role == null) {
@@ -169,7 +180,7 @@ public class TenantResource {
 			if (tenant.getParentId() == null) {
 				return null;
 			} else {
-				role = getRole(tenant.getParentId(), userName);
+				role = getRecursiveRole(tenant.getParentId(), userName);
 			}
 		}
 		return role;
@@ -187,7 +198,7 @@ public class TenantResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response getRoleByTenantUserName(@PathParam("id") String tenantId, @PathParam("userName") String userName) {
 		try {
-			UserRoleView role = getRole(tenantId, userName);
+			UserRoleView role = getRecursiveRole(tenantId, userName);
 			if (role != null) {
 				// set the tenant id to the passed tenant id
 				role.setTenantId(tenantId);
@@ -275,10 +286,14 @@ public class TenantResource {
 
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
-				logger.error("Only sysadmin can do this operation. User: " + loginUser);
-				return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean("operation failed",
-						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
-						.build();
+				if (!isAdminOnRecursive(loginUser, tenant.getId())) {
+					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					return Response.status(Status.UNAUTHORIZED)
+					.entity(new ResourceResponseBean("operation failed",
+							"Current user has no privilege to do the operations.",
+							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+					.build();
+				}
 			}
 
 			// lock parent tenant
@@ -786,12 +801,14 @@ public class TenantResource {
 
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
-				logger.error("Only System Admin is privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
-				return Response.status(Status.UNAUTHORIZED)
-				.entity(new ResourceResponseBean("operation failed",
-						"Current user has no privilege to do the operations.",
-						ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-				.build();
+				if (!isAdminOnRecursive(loginUser, tenant.getId())) {
+					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					return Response.status(Status.UNAUTHORIZED)
+					.entity(new ResourceResponseBean("operation failed",
+							"Current user has no privilege to do the operations.",
+							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+					.build();
+				}
 			}
 
 			Tenant origin = TenantPersistenceWrapper.getTenantById(tenant.getId());
@@ -821,6 +838,21 @@ public class TenantResource {
 			logger.error("updateTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	/**
+	 * If user is admin on parent tenants of specified tenant tree.
+	 * @param loginUser
+	 * @param tenantId 
+	 * @return
+	 */
+	private boolean isAdminOnRecursive(String loginUser, String tenantId) {
+		UserRoleView role = getRecursiveRole(tenantId, loginUser);
+		if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+			return true;
+		}
+		logger.debug("User [{}] has no system/tenant admin privilege on parents of tenant: {}", loginUser, tenantId);
+		return false;
 	}
 
 	/**
