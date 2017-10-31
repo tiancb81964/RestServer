@@ -17,6 +17,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.log4j.Logger;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
+
 /**
  * LDAP context
  * 
@@ -47,6 +49,22 @@ public class LdapWrapper {
 			LOG.error(e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Get the properties in the ldap.properties file
+	 * 
+	 * @return
+	 */
+	public static Properties getProps() {
+		if (props == null) {
+			synchronized (LdapWrapper.class) {
+				if (props == null) {
+					new LdapWrapper();
+				}
+			}
+		}
+		return props;
 	}
 
 	private static void initClz() {
