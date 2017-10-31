@@ -798,10 +798,9 @@ public class TenantResource {
 			if (tenant.getId() == null) {
 				return Response.status(Status.BAD_REQUEST).entity("tenant id is null").build();
 			}
-
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
-				if (!isAdminOnRecursive(loginUser, tenant.getId())) {
+				if (!isAdminOnParents(loginUser, tenant.getId())) {
 					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
 					return Response.status(Status.UNAUTHORIZED)
 					.entity(new ResourceResponseBean("operation failed",
@@ -841,9 +840,27 @@ public class TenantResource {
 	}
 
 	/**
-	 * If user is admin on parent tenants of specified tenant tree.
+	 * Is user admin on parent tenants(excluding specified tenant itself).
 	 * @param loginUser
-	 * @param tenantId 
+	 * @param tenantId
+	 * @return
+	 */
+	private boolean isAdminOnParents(String loginUser, String tenantId) {
+		for (TenantTreeNode node : TenantTreeUtil.constructTree(tenantId).listOriginParents()) {
+			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, node.getId());
+			if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+				return true;
+			}
+		}
+		logger.debug("User [{}] is neither system nor tenant admin on all Parents of tenant: " + tenantId);
+		return false;
+	}
+
+	/**
+	 * Is user admin on specified tenant or parent tenants.
+	 * @param loginUser
+	 * @param tenantId
+	 * @param include whether to include the specified tenant itself
 	 * @return
 	 */
 	private boolean isAdminOnRecursive(String loginUser, String tenantId) {

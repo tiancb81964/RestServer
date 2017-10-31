@@ -94,11 +94,10 @@ public class TenantTree {
 	}
 	
 	/**
-	 * Get parents of origin tenant, including origin tenant itself.
+	 * Get parents of origin tenant.
 	 */
 	public List<TenantTreeNode> listOriginParents() {
 		List<TenantTreeNode> list = new ArrayList<>();
-		list.add(this.originTenant);
 		listParentsNames(list, this.originTenant);
 		return list;
 	}
