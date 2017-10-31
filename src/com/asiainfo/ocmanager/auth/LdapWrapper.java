@@ -17,8 +17,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.log4j.Logger;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
-
 /**
  * LDAP context
  * 
