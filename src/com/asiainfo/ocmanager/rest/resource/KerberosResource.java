@@ -34,7 +34,7 @@ public class KerberosResource {
 	private static final String PATH = KerberosResource.class.getResource("/").getPath() + ".." + File.separator
 			+ "keytabs" + File.separator + "oc.{$username}.keytab";
 	private static final String KRB5PATH = KerberosConfiguration.getConf()
-			.getProperty(Constant.KERBEROS_KEYTAB_LOCATION);
+			.getProperty(Constant.KERBEROS_KRB5_LOCATION);
 
 	@GET
 	@Path("krb5")

@@ -1602,7 +1602,7 @@ __response:__
 ```
 
 
-### Create and download Kerberos keytab APIs (should configure the KDC server info in the rest server)
+### Create and download Kerberos keytab and krb5.conf APIs (should configure the KDC server info in the rest server)
 1. 创建Kerberos keytab
 ```
 POST /ocmanager/v1/api/kerberos/create/keytab
@@ -1631,6 +1631,7 @@ GET /ocmanager/v1/api/kerberos/keytab/{userName}
 ```
 
 __response:__
+
 ```
 ### it should down load the keytab file. for example: you can use curl to download the keytab file:
 curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/kerberos/keytab/{userName}
@@ -1639,6 +1640,80 @@ eg:
 curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim
 ``` 
 
+3. 下载krb5.conf
+```
+GET /ocmanager/v1/api/kerberos/krb5
+```
+
+__response:__
+```
+### it should down load the krb5.conf file. for example: you can use curl to download the keytab file:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/kerberos/krb5
+
+eg:
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/krb5.conf http://10.1.236.95:8080/ocmanager/v1/api/kerberos/krb5
+```
+
+
+### Get OCManager ldap configuration information APIs
+1. 获取OCM链接ldap的配置信息
+
+```
+GET /ocmanager/v1/api/ldap/configuration
+```
+__response:__
+```
+{
+  "ldap.base.name": "ou=People,dc=asiainfo,dc=com",
+  "ldap.url": "ldap://10.1.236.146:389",
+  "ldap.search.filter": "objectClass=account"
+}
+```
+
+
+### Get OCManager Ambari configuration and configuration files APIs
+1. 下载ambari yarn cleint configuration files
+```
+GET /ocmanager/v1/api/ambari/yarnclient?filename={filename}
+```
+
+__response:__
+```
+### it should down load the ambari yarn cleint configuration files. for example: you can use curl to download the configuration files:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/yarnclient?filename={filename}
+
+eg:
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/yarn.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/yarnclient?filename=yarn
+```
+
+
+2. 下载ambari hdfs cleint configuration files
+```
+GET /ocmanager/v1/api/ambari/hdfsclient?filename={filename}
+```
+
+__response:__
+```
+### it should down load the ambari hdfs cleint configuration files. for example: you can use curl to download the configuration files:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/hdfsclient?filename={filename}
+
+eg:
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hdfs.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/hdfsclient?filename=hdfs
+```
+
+3. 下载ambari spark cleint configuration files
+```
+GET /ocmanager/v1/api/ambari/sparkclient?filename={filename}
+```
+
+__response:__
+```
+### it should down load the ambari spark cleint configuration files. for example: you can use curl to download the configuration files:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/sparkclient?filename={filename}
+
+eg:
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/spark.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark
+```
 
 
 ### Dashboard Links APIs

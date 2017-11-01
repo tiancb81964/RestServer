@@ -38,9 +38,9 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  */
 
 @Path("/ambari")
-public class AmbariReousrce {
+public class AmbariResource {
 
-	private static Logger logger = Logger.getLogger(AmbariReousrce.class);
+	private static Logger logger = Logger.getLogger(AmbariResource.class);
 
 	private static String tarGz = ".tar.gz";
 

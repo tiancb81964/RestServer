@@ -49,6 +49,22 @@ public class LdapWrapper {
 		}
 	}
 
+	/**
+	 * Get the properties in the ldap.properties file
+	 * 
+	 * @return
+	 */
+	public static Properties getProps() {
+		if (props == null) {
+			synchronized (LdapWrapper.class) {
+				if (props == null) {
+					new LdapWrapper();
+				}
+			}
+		}
+		return props;
+	}
+
 	private static void initClz() {
 		InputStream inputStream = null;
 		try {

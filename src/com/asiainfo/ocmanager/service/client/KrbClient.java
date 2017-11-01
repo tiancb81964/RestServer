@@ -65,7 +65,7 @@ public class KrbClient {
 
 	private KrbClient() {
 		this.userPrincipal = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_USER_PRINCIPAL);
-		this.keytabLocation = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_KEYTAB_LOCATION);
+		this.keytabLocation = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_KRB5_LOCATION);
 		this.adminPwd = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_ADMIN_PASSWORD);
 		this.kdcHost = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_KDC_HOST);
 		this.realm = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_REALM);
