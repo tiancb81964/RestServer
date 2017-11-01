@@ -23,7 +23,7 @@ public class ExternalFileResource {
 	@GET
 	@Path("hosts")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response getKrb5File() {
+	public Response getHostsFile() {
 		try {
 			String path = BASE + "hosts";
 			File file = new File(path);
