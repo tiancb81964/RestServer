@@ -41,7 +41,7 @@ public class ExternalFileResource {
 					.header("Cache-Control", "no-cache").build();
 
 		} catch (Exception e) {
-			logger.error("getKrb5File hit exception -> ", e);
+			logger.error("Get external file exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
