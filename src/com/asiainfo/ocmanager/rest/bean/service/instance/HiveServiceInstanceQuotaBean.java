@@ -23,10 +23,7 @@ import com.google.gson.JsonObject;
 public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	public final static String STORAGESPACEQUOTA = "storageSpaceQuota";
-	public final static String YARNQUEUEQUOTA = "yarnQueueQuota";
-
 	private long storageSpaceQuota;
-	private long yarnQueueQuota;
 
 	public HiveServiceInstanceQuotaBean() {
 
@@ -37,15 +34,11 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		Map<String, String> hdfsQuotaMap = ServiceInstanceQuotaUtils.getServiceInstanceQuota(serviceType, quotaStr);
 		this.storageSpaceQuota = hdfsQuotaMap.get(STORAGESPACEQUOTA) == null ? 0
 				: Long.valueOf(hdfsQuotaMap.get(STORAGESPACEQUOTA)).longValue();
-		this.yarnQueueQuota = hdfsQuotaMap.get(YARNQUEUEQUOTA) == null ? 0
-				: Long.valueOf(hdfsQuotaMap.get(YARNQUEUEQUOTA)).longValue();
 
 	}
 
 	public HiveServiceInstanceQuotaBean(String serviceType, Map<String, String> quotaMap) {
 		this.serviceType = serviceType;
-		this.yarnQueueQuota = quotaMap.get(YARNQUEUEQUOTA) == null ? 0
-				: Long.valueOf(quotaMap.get(YARNQUEUEQUOTA)).longValue();
 		this.storageSpaceQuota = quotaMap.get(STORAGESPACEQUOTA) == null ? 0
 				: Long.valueOf(quotaMap.get(STORAGESPACEQUOTA)).longValue();
 
@@ -61,19 +54,9 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// if passby the params use the params otherwise use the default
 		if (parameters == null) {
-			defaultServiceInstanceQuota.setYarnQueueQuota(
-					ServicesDefaultQuotaConf.getInstance().get("hive").get(YARNQUEUEQUOTA).getDefaultQuota());
 			defaultServiceInstanceQuota.setStorageSpaceQuota(
 					ServicesDefaultQuotaConf.getInstance().get("hive").get(STORAGESPACEQUOTA).getDefaultQuota());
 		} else {
-			if (parameters.get(YARNQUEUEQUOTA) == null || parameters.get(YARNQUEUEQUOTA).isJsonNull()
-					|| parameters.get(YARNQUEUEQUOTA).getAsString().isEmpty()) {
-				defaultServiceInstanceQuota.setYarnQueueQuota(
-						ServicesDefaultQuotaConf.getInstance().get("hive").get(YARNQUEUEQUOTA).getDefaultQuota());
-			} else {
-				defaultServiceInstanceQuota.setYarnQueueQuota(parameters.get(YARNQUEUEQUOTA).getAsLong());
-			}
-
 			if (parameters.get(STORAGESPACEQUOTA) == null || parameters.get(STORAGESPACEQUOTA).isJsonNull()
 					|| parameters.get(STORAGESPACEQUOTA).getAsString().isEmpty()) {
 				defaultServiceInstanceQuota.setStorageSpaceQuota(
@@ -128,10 +111,6 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		boolean canChange = true;
 
 		// hive
-		if (this.yarnQueueQuota < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(this.yarnQueueQuota, YARNQUEUEQUOTA, "hive"));
-			canChange = false;
-		}
 		if (this.storageSpaceQuota < 0) {
 			resStr.append(QuotaCommonUtils.logAndResStr(this.storageSpaceQuota, STORAGESPACEQUOTA, "hive"));
 			canChange = false;
@@ -153,7 +132,6 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * @param otherServiceInstanceQuota
 	 */
 	public void plus(HiveServiceInstanceQuotaBean otherServiceInstanceQuota) {
-		this.yarnQueueQuota = this.yarnQueueQuota + otherServiceInstanceQuota.getYarnQueueQuota();
 		this.storageSpaceQuota = this.storageSpaceQuota + otherServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
@@ -162,7 +140,6 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * @param otherServiceInstanceQuota
 	 */
 	public void minus(HiveServiceInstanceQuotaBean otherServiceInstanceQuota) {
-		this.yarnQueueQuota = this.yarnQueueQuota - otherServiceInstanceQuota.getYarnQueueQuota();
 		this.storageSpaceQuota = this.storageSpaceQuota - otherServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
@@ -174,18 +151,9 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		this.storageSpaceQuota = storageSpaceQuota;
 	}
 
-	public long getYarnQueueQuota() {
-		return yarnQueueQuota;
-	}
-
-	public void setYarnQueueQuota(long yarnQueueQuota) {
-		this.yarnQueueQuota = yarnQueueQuota;
-	}
-
 	@Override
 	public String toString() {
-		return "HiveServiceInstanceQuotaBean [storageSpaceQuota: " + storageSpaceQuota + ", yarnQueueQuota: "
-				+ yarnQueueQuota + ", serviceType: " + serviceType + "]";
+		return "HiveServiceInstanceQuotaBean [storageSpaceQuota: " + storageSpaceQuota + ", serviceType: " + serviceType + "]";
 	}
 
 }

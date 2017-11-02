@@ -136,9 +136,8 @@ public class QuotaResource {
 	public Response getHiveQuota(@PathParam("dbname") String dbname, @Context HttpServletRequest request) {
 		try {
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(HiveResourcePeeker.class);
-			String queuename = request.getParameter("queue");
 			String path = "/apps/hive/warehouse/" + dbname + ".db";
-			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queuename, path)));
+			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);

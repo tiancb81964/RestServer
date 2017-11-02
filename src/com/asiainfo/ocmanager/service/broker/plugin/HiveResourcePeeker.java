@@ -10,8 +10,6 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.HDFSClient;
-import com.asiainfo.ocmanager.service.client.YarnClient;
-import com.google.gson.JsonObject;
 
 /**
  * Hive resource monitor.
@@ -21,31 +19,15 @@ import com.google.gson.JsonObject;
  */
 public class HiveResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(HiveResourcePeeker.class);
-	private YarnClient yarn;
 	private FileSystem hdfs;
 
 	@Override
 	protected void setup() {
 		this.hdfs = HDFSClient.getFileSystem();
-		this.yarn = YarnClient.getInstance();
 	}
 
 	@Override
 	protected void cleanup() {
-	}
-
-	@Override
-	protected boolean isMapping(String type, String resource) {
-		if (isHDFSPath(resource)) {
-			// resource is HDFS path
-			return type.equals("storageSpaceQuota");
-		}
-		// otherwise, resource is queueName
-		return type.equals("yarnQueueQuota");
-	}
-
-	private boolean isHDFSPath(String resource) {
-		return resource.startsWith("/apps/hive/warehouse") && resource.endsWith(".db");
 	}
 
 	@Override
@@ -54,11 +36,6 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 			if (resourceType.equals("storageSpaceQuota")) {
 				ContentSummary resource = this.hdfs.getContentSummary(new Path(resourceName));
 				return resource.getSpaceQuota();
-			} else if (resourceType.equals("yarnQueueQuota")) {
-				double capacity = this.yarn.fetchQueueInfoByName(resourceName).get("absoluteCapacity").getAsDouble()
-						/ 100;
-				double total = Double.valueOf(this.yarn.fetchMetircs().get("totalMB"));
-				return new Double(capacity * total).longValue();
 			} else {
 				LOG.error("Unknown resourceType: " + resourceType);
 				throw new RuntimeException("Unknown resourceType: " + resourceType);
@@ -75,10 +52,6 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 			if (resourceType.equals("storageSpaceQuota")) {
 				ContentSummary resource = this.hdfs.getContentSummary(new Path(resourceName));
 				return resource.getSpaceConsumed();
-			} else if (resourceType.equals("yarnQueueQuota")) {
-				JsonObject resource = this.yarn.fetchQueueInfoByName(resourceName);
-				long used = resource.getAsJsonObject("resourcesUsed").getAsJsonPrimitive("memory").getAsLong();
-				return used;
 			} else {
 				LOG.error("Unknown resourceType: " + resourceType);
 				throw new RuntimeException("Unknown resourceType: " + resourceType);
@@ -91,7 +64,7 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	public List<String> resourceTypes() {
-		return Arrays.asList("storageSpaceQuota", "yarnQueueQuota");
+		return Arrays.asList("storageSpaceQuota");
 	}
 
 }
