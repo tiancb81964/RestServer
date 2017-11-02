@@ -14,14 +14,14 @@ import org.apache.log4j.Logger;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 
-@Path("/external")
+@Path("/file")
 public class ExternalFileResource {
 	private static Logger logger = Logger.getLogger(ExternalFileResource.class);
 	private static final String BASE = ExternalFileResource.class.getResource("/").getPath() + ".." + File.separator
 			+ "external" + File.separator;
 
 	@GET
-	@Path("hosts")
+	@Path("/clusterHosts")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response getHostsFile() {
 		try {
