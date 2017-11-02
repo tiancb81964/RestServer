@@ -162,13 +162,19 @@ kerberos.kdc.host=10.1.236.146
 kerberos.realm=ASIAINFO.COM
 ```
 
+14. If you need to run build-in hadoop "Hello World" examples(eg. Mapreduce Pi / SparkPi), you have to be granted the 'rwx' privileges of the Jar path on HDFS. We've provided the automatic shell script to do the job for you. Find file __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/scripts/create-common-policy.sh__, run script:
+```
+sh create-common-policy.sh clusterName rangerIP rangerUser rangerPassword
+example:
+sh create-common-policy.sh mycluster 127.0.0.1 admin admin
+```
 
-14. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
+15. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
 __Attention: user should be appended to the first policy under all services__.
 
-15. Restart the tomcat server
+16. Restart the tomcat server
 
-16. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
+17. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
 
 
 __NOTE: More rest api, please access the link:__  https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest

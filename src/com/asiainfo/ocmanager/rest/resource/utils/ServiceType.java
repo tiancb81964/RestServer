@@ -9,7 +9,7 @@ public enum ServiceType {
 	hdfs("hdfs", "nameSpaceQuota", "storageSpaceQuota"),
 	hbase("hbase", "maximumTablesQuota", "maximumRegionsQuota"),
 	mapreduce("mapreduce", "yarnQueueQuota"),
-	hive("hive", "storageSpaceQuota", "yarnQueueQuota"),
+	hive("hive", "storageSpaceQuota"),
 	kafka("kafka", "topicTTL", "topicQuota", "partitionSize"),
 	spark("spark", "yarnQueueQuota"),
 	storm("storm"),

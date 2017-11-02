@@ -43,6 +43,7 @@ public class ResponseCodeConstant {
 	public final static int USER_NOT_FOUND = 4043;
 	// krb5
 	public final static int CAN_NOT_FIND_KRB5_CONF_FILE = 4044;
+	public final static int CAN_NOT_FIND_EXTERNAL_FILE = 4045;
 
 	// 406 extend
 	public final static int EXCEED_PARENT_TENANT_QUOTA = 4061;

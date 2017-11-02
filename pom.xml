@@ -295,6 +295,10 @@
               <targetPath>WEB-INF/keytabs</targetPath>
             </resource>
             <resource>
+              <directory>WebContent/WEB-INF/external</directory>
+              <targetPath>WEB-INF/external</targetPath>
+            </resource>
+            <resource>
               <directory>database</directory>
               <targetPath>WEB-INF/database</targetPath>
             </resource>
