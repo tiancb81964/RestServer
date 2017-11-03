@@ -1601,6 +1601,20 @@ __response:__
 }
 ```
 
+### Download cluster hosts file
+1. 下载集群主机列表（hosts 文件）
+```
+GET /ocmanager/v1/api/file/clusterHosts
+```
+
+__response:__
+```
+### it should down load the hosts file. for example: you can use curl to download hosts file:
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/file/clusterHosts
+
+eg:
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hosts http://10.1.236.95:8080/ocmanager/v1/api/file/clusterHosts
+```
 
 ### Create and download Kerberos keytab and krb5.conf APIs (should configure the KDC server info in the rest server)
 1. 创建Kerberos keytab
@@ -1638,7 +1652,7 @@ curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest s
 
 eg:
 curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim
-``` 
+```  
 
 3. 下载krb5.conf
 ```
