@@ -14,7 +14,9 @@ import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.auth.LdapWrapper;
 import com.asiainfo.ocmanager.auth.constant.AuthConstant;
+import com.asiainfo.ocmanager.rest.bean.LdapBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
 /**
  * 
@@ -37,7 +39,6 @@ public class LdapResource {
 	public Response getLdapConfigurations() {
 		try {
 			Map<String, String> ldapConf = new HashMap<String, String>();
-
 			ldapConf.put(AuthConstant.LDAP_URL, LdapWrapper.getProps().getProperty(AuthConstant.LDAP_URL).trim());
 			ldapConf.put(AuthConstant.LDAP_BASE_NAME,
 					LdapWrapper.getProps().getProperty(AuthConstant.LDAP_BASE_NAME).trim());
@@ -48,6 +49,20 @@ public class LdapResource {
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("getLdapConfigurations -> " + e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+	
+	@GET
+	@Path("status")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	public Response ldapEnabled() {
+		try {
+			String auth = ServerConfiguration.getConf().getProperty(Constant.AUTHTYPE).trim();
+			boolean enable = auth.equals("ldap");
+			return Response.ok().entity(new LdapBean().withStatus(enable)).build();
+		} catch (Exception e) {
+			logger.error("kerberosEnabled hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}

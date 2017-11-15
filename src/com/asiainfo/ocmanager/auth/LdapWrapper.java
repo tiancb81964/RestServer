@@ -17,6 +17,9 @@ import javax.naming.ldap.LdapContext;
 import org.apache.log4j.Logger;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 
+import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
+
 /**
  * LDAP context
  * 
@@ -28,6 +31,11 @@ public class LdapWrapper {
 	private static Properties props;
 	private static SearchControls cons;
 	private static JndiLdapContextFactory factory;
+	
+	public static boolean isLdapEnabled() {
+		String type = ServerConfiguration.getConf().getProperty(Constant.AUTHTYPE).trim();
+		return type.equals("ldap");
+	}
 
 	/**
 	 * Get available users in Ldap server.
