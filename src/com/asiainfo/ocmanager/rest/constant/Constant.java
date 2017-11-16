@@ -75,5 +75,7 @@ public class Constant {
 	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
 	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
 	public static final String KERBEROS_REALM="kerberos.realm";
+	
+	public static final String KAFKA_SERVICENAME = "oc.kafka.serviceName";
 
 }
