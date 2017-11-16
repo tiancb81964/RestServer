@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,8 +25,11 @@ public class MetricsResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	public Response kafkaServiceName() {
 		try {
+			Map<String, String> map = new HashMap<String, String>();
 			String name = ServerConfiguration.getConf().getProperty(Constant.KAFKA_SERVICENAME).trim();
-			return Response.ok().entity(name).build();
+			map.put(Constant.KAFKA_SERVICENAME, name);
+			System.out.println(">>> map: " + map);
+			return Response.ok().entity(map).build();
 		} catch (Exception e) {
 			LOG.error("kafkaServiceName hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
