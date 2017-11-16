@@ -28,7 +28,6 @@ public class MetricsResource {
 			Map<String, String> map = new HashMap<String, String>();
 			String name = ServerConfiguration.getConf().getProperty(Constant.KAFKA_SERVICENAME).trim();
 			map.put(Constant.KAFKA_SERVICENAME, name);
-			System.out.println(">>> map: " + map);
 			return Response.ok().entity(map).build();
 		} catch (Exception e) {
 			LOG.error("kafkaServiceName hit exception -> ", e);
