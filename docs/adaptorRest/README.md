@@ -1729,6 +1729,18 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/spark.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark
 ```
 
+### Get OCManager metrics APIs
+1. 获取Kafka serviceName
+
+```
+GET /ocmanager/v1/api/metrics/kafka/serviceName
+```
+__response:__
+```
+{
+    "oc.kafka.serviceName": "ocdp"
+}
+```
 
 ### Dashboard Links APIs
 1. 添加多租户平台首页连接
