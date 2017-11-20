@@ -1,6 +1,8 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -34,4 +36,25 @@ public class MetricsResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
+	
+	@GET
+	@Path("resourcemanager/addresses")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	public Response getResourceManager() {
+		try {
+			Map<String, String> map = new HashMap<String, String>();
+			String p = ServerConfiguration.getConf().getProperty(Constant.RM_HTTP).trim();
+			List<String> list = Arrays.asList(p.split(","));
+			StringBuilder rms = new StringBuilder();
+			for (String rm : list) {
+				rms.append(rm.substring(rm.indexOf("http://") + 7)).append(",");
+			}
+			map.put("RM_ADDR", rms.toString().substring(0, rms.length()-1));
+			return Response.ok().entity(map).build();
+		} catch (Exception e) {
+			LOG.error("kafkaServiceName hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+	
 }
