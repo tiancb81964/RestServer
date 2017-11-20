@@ -16,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,7 +31,6 @@ import com.google.gson.JsonParser;
  */
 public class YarnClient {
 	private static YarnClient instance;
-	private static final String CONF_YARN = "oc.yarn.resourcemanager.http.url";
 	private CloseableHttpClient httpClient;
 	private String[] baseUrls; // active/standby rm.
 
@@ -186,6 +186,6 @@ public class YarnClient {
 
 	private YarnClient() {
 		httpClient = HttpClientBuilder.create().build();
-		baseUrls = ServerConfiguration.getConf().getProperty(CONF_YARN).split(",");
+		baseUrls = ServerConfiguration.getConf().getProperty(Constant.RM_HTTP).split(",");
 	}
 }

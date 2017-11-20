@@ -40,11 +40,8 @@ public class LdapResource {
 		try {
 			Map<String, String> ldapConf = new HashMap<String, String>();
 			ldapConf.put(AuthConstant.LDAP_URL, LdapWrapper.getProps().getProperty(AuthConstant.LDAP_URL).trim());
-			ldapConf.put(AuthConstant.LDAP_BASE_NAME,
-					LdapWrapper.getProps().getProperty(AuthConstant.LDAP_BASE_NAME).trim());
-			ldapConf.put(AuthConstant.LDAP_SEARCH_FILTER,
-					LdapWrapper.getProps().getProperty(AuthConstant.LDAP_SEARCH_FILTER).trim());
-
+			ldapConf.put(AuthConstant.LDAP_USER_TEMPLATE,
+					LdapWrapper.getProps().getProperty(AuthConstant.LDAP_USER_TEMPLATE).trim());
 			return Response.ok().entity(ldapConf).build();
 		} catch (Exception e) {
 			// system out the exception into the console log

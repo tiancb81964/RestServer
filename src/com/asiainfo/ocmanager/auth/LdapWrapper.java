@@ -77,7 +77,7 @@ public class LdapWrapper {
 		InputStream inputStream = null;
 		try {
 			String base = LdapWrapper.class.getResource("/").getPath() + ".." + File.separator;
-			String confpath = base + "conf" + File.separator + "ldap.properties";
+			String confpath = base + "conf" + File.separator + "shiroLdap.ini";
 			inputStream = new FileInputStream(new File(confpath));
 			props = new Properties();
 			props.load(inputStream);

@@ -77,5 +77,6 @@ public class Constant {
 	public static final String KERBEROS_REALM="kerberos.realm";
 	
 	public static final String KAFKA_SERVICENAME = "oc.kafka.serviceName";
+	public static final String RM_HTTP = "oc.yarn.resourcemanager.http.url";
 
 }
