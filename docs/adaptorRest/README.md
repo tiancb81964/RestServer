@@ -1668,6 +1668,19 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/krb5.conf http://10.1.236.95:8080/ocmanager/v1/api/kerberos/krb5
 ```
 
+4. OCM是否开启Kerberos
+```
+GET /ocmanager/v1/api/kerberos/status
+```
+
+__response:__
+
+```
+{
+  "ENABLE_KERBEROS": "true",
+}
+```  
+
 
 ### Get OCManager ldap configuration information APIs
 1. 获取OCM链接ldap的配置信息
@@ -1678,9 +1691,20 @@ GET /ocmanager/v1/api/ldap/configuration
 __response:__
 ```
 {
-  "ldap.base.name": "ou=People,dc=asiainfo,dc=com",
-  "ldap.url": "ldap://10.1.236.146:389",
-  "ldap.search.filter": "objectClass=account"
+  "LDAP_ADDR": "ldap://10.1.236.146:389",
+  "USER_DN_TEMPLATE": "uid={0},ou=People,dc=asiainfo,dc=com"
+}
+```
+
+2. OCM是否开启ldap
+
+```
+GET /ocmanager/v1/api/ldap/status
+```
+__response:__
+```
+{
+  "ENABLE_LDAP": "true",
 }
 ```
 
@@ -1739,6 +1763,18 @@ __response:__
 ```
 {
     "oc.kafka.serviceName": "ocdp"
+}
+```
+
+2. 获取RM连接信息
+
+```
+GET /ocmanager/v1/api/metrics/resourcemanager/addresses
+```
+__response:__
+```
+{
+    "RM_ADDR": "aicloud1.asiainfo.com:8088,aicloud2.asiainfo.com:8088"
 }
 ```
 
