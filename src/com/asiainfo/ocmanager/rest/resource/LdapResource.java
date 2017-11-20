@@ -39,9 +39,8 @@ public class LdapResource {
 	public Response getLdapConfigurations() {
 		try {
 			Map<String, String> ldapConf = new HashMap<String, String>();
-			ldapConf.put(AuthConstant.LDAP_URL, LdapWrapper.getProps().getProperty(AuthConstant.LDAP_URL).trim());
-			ldapConf.put(AuthConstant.LDAP_USER_TEMPLATE,
-					LdapWrapper.getProps().getProperty(AuthConstant.LDAP_USER_TEMPLATE).trim());
+			ldapConf.put("LDAP_ADDR", LdapWrapper.getProps().getProperty(AuthConstant.LDAP_URL).trim());
+			ldapConf.put("USER_DN_TEMPLATE", LdapWrapper.getProps().getProperty(AuthConstant.LDAP_USER_TEMPLATE).trim());
 			return Response.ok().entity(ldapConf).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
@@ -49,7 +48,7 @@ public class LdapResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
-	
+
 	@GET
 	@Path("status")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
