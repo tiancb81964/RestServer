@@ -17,6 +17,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.log4j.Logger;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 
+import com.asiainfo.ocmanager.auth.constant.AuthConstant;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
@@ -37,6 +38,15 @@ public class LdapWrapper {
 		return type.equals("ldap");
 	}
 
+	/**
+	 * Get Ldap user template by configuration file
+	 * @return
+	 */
+	public static String getAssembledLdapTemplate() {
+		String baseName = props.getProperty(AuthConstant.LDAP_BASE).trim();
+		return "uid={0}," + baseName;
+	}
+	
 	/**
 	 * Get available users in Ldap server.
 	 * 
@@ -77,7 +87,7 @@ public class LdapWrapper {
 		InputStream inputStream = null;
 		try {
 			String base = LdapWrapper.class.getResource("/").getPath() + ".." + File.separator;
-			String confpath = base + "conf" + File.separator + "shiroLdap.ini";
+			String confpath = base + "conf" + File.separator + "ldap.properties";
 			inputStream = new FileInputStream(new File(confpath));
 			props = new Properties();
 			props.load(inputStream);
@@ -104,7 +114,8 @@ public class LdapWrapper {
 			cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			cons.setReturningAttributes(new String[] { "uid" });
 		} catch (Throwable e) {
-			LOG.error("Error while init class: ", e);
+			LOG.error("Error while init Class", e);
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
