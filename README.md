@@ -64,6 +64,21 @@ mysql> source <TOMCAT_HOME>/webapps/ocmanager/WEB-INF/database/mysql/initOCManag
 
 #Either 'ldap' or 'mysql' is supposed to specify where users should be added from	
 oc.server.user.source=ldap
+
+#OCDP cluster information, it used to get the components info
+oc.ambari.hostname=10.1.236.116
+oc.ambari.port=8080
+oc.ambari.protocol=http
+oc.ambari.username=admin
+oc.ambari.password=admin
+oc.ambari.clustername=ochadoop_mycluster
+
+#Ranger config
+oc.ranger.hosts=aicloud1.asiainfo.com
+oc.ranger.port=6080
+oc.ranger.admin=admin
+oc.ranger.admin.password=admin
+
 #Period(in seconds) of authentication action	
 oc.server.security.scheduler.period.seconds=85800
 #If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
