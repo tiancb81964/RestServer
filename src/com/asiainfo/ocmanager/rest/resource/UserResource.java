@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.http.client.HttpClient;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.auth.Authenticator;
@@ -39,6 +40,8 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
+import com.asiainfo.ocmanager.service.client.RangerClient;
+import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
 import com.asiainfo.ocmanager.utils.TenantTree;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
@@ -241,6 +244,11 @@ public class UserResource {
 						.build();
 			}
 
+			if (!appendUser2Ranger(user)) {
+				logger.error("Failed to append user to Ranger: " + user);
+				return Response.status(Status.BAD_REQUEST).entity("Failed to append user to Ranger: " + user).build();
+			}
+
 			user = UserPersistenceWrapper.createUser(user);
 			return Response.ok().entity(user).build();
 
@@ -259,6 +267,25 @@ public class UserResource {
 			logger.error("createUser hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 
+		}
+	}
+
+	private boolean appendUser2Ranger(User user) throws Exception {
+		try {
+			/*
+			 * 1. user not exist in ranger and append succeed 
+			 * 2. user not exist and append exception 
+			 * 3. user existed in ranger and append failed
+			 */
+			return RangerClient.getInstance().addUser(user);
+		}
+		catch (UserExistedException e) {
+			logger.warn("User already existed: " + user);
+			return true;
+		}
+		catch (Exception e) {
+			logger.error("Failed to append user to ranger: ", e);
+			throw e;
 		}
 	}
 
@@ -381,11 +408,10 @@ public class UserResource {
 
 			if (!(userName.equals(loginUser))) {
 				if (role == null || !(role.getRoleName().equals(Constant.SYSADMIN))) {
-					return Response.status(Status.UNAUTHORIZED)
-							.entity(new ResourceResponseBean("update user password failed",
-									"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
-									ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION))
-							.build();
+					return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean(
+							"update user password failed",
+							"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
+							ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION)).build();
 				}
 			}
 
