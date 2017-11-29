@@ -65,7 +65,7 @@ public class MetricsResource {
 			map.put("HDP_VERSION", version);
 			return Response.ok().entity(map).build();
 		} catch (Exception e) {
-			LOG.error("kafkaServiceName hit exception -> ", e);
+			LOG.error("Get HDP_VERSION hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
