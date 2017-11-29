@@ -55,4 +55,19 @@ public class MetricsResource {
 		}
 	}
 	
+	@GET
+	@Path("hdp/version")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	public Response hdpVersions() {
+		try {
+			Map<String, String> map = new HashMap<String, String>();
+			String version = ServerConfiguration.getConf().getProperty(Constant.HDP_VERSION).trim();
+			map.put("HDP_VERSION", version);
+			return Response.ok().entity(map).build();
+		} catch (Exception e) {
+			LOG.error("kafkaServiceName hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+	
 }

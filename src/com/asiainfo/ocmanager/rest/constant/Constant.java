@@ -83,5 +83,7 @@ public class Constant {
 	public static final String RANGER_PORT = "oc.ranger.port";
 	public static final String RANGER_ADMIN = "oc.ranger.admin";
 	public static final String RANGER_PASSWD = "oc.ranger.admin.password";
+	
+	public static final String HDP_VERSION = "oc.hdp.version";
 
 }
