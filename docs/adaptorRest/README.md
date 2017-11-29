@@ -1778,6 +1778,18 @@ __response:__
 }
 ```
 
+3. 获取hdp版本信息
+
+```
+GET /ocmanager/v1/api/metrics/hdp/version
+```
+__response:__
+```
+{
+    "HDP_VERSION": "2.6.0.3-8"
+}
+```
+
 ### Dashboard Links APIs
 1. 添加多租户平台首页连接
 ```
