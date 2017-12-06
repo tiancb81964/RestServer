@@ -1,26 +1,84 @@
-## OCManager Adapter REST APIs
+
+# OCManager Adapter REST APIs
 
 __NOTE: All the rest request should set__ _Accept: application/json_ __and__ _Content-Type: application/json_
 
 
-### Authentication APIs
 
-1. 用户认证
-```
-POST ocmanager/v1/api/authc/login
+# 1.文档说明
+
+## 1.1.请求路径  
+
+
 
 ```
+http://{ip}:{port}/{productName}/{versionNum}/{object}/{oper}/
+示例: http://127.0.0.1:8080/ocmanager/v1/api/authc/login/
+```
+
+- productName: 产品名称(必须遵守)
+- versionNum: 版本号(必须遵守)
+- object: 对象名称
+- oper: 操作
+
+> 路径最后一定需要斜线结束
+
+## 1.2.请求类型
+`http`
+
+## 1.3.请求头
+```
+Content-Type:application/json;charset=UTF-8
+Charset:utf-8
+```
+
+## 1.4 状态返回
+原则上不需要在返回的json数据里面携带状态字段,而是用过状态码来确认是否调用成功。在失败的调用下可以在json数据里面携带errCode和errMsg字段用于描述错误原因。
+- 200: 成功
+- 501: 失败 (调用失败一定不要使用200，方式某些网页调用导致浏览器缓存)
+
+# 2.接口列表
+
+## 2.1 Authentication APIs
+
+### 2.1.1用户认证（/ocmanager/v1/api/authc/login/） 
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/login/
+    请求方式：POST
+
+#### 2.1.1.1请求参数
+
+##### 2.1.1.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+username| String | 用户名|是|
+password| String | 密码|是| 
+
+#### 2.1.1.2返回参数
+
+##### 2.1.1.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message| String | 返回的消息|
+resCode| int | 响应返回码|200为正常
+status | String | 状态|返回登陆状态
+token | String | 令牌|
+
+#### 2.1.1.3报文示例
+
+##### 2.1.1.3.1请求报文示例
+
 __request body:__
+
 ```
 {
     "username": "u1",
     "password": "password1"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-username| String | 用户名|是|
-password| String | 密码|是| 
+
+##### 2.1.1.3.2返回报文示例
 
 __response__
 ```
@@ -31,17 +89,34 @@ __response__
     "token": "u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3"
 }
 ```
+
+
+### 2.1.2用户注销(/ocmanager/v1/api/authc/logout/username/)
+
+    示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/logout/username/
+    请求方式：DELETE
+
+
+
+#### 2.1.2.1返回参数
+
+##### 2.1.2.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-message| String | 返回的消息|
 resCode| int | 响应返回码|200为正常
-status | String | 状态|返回登陆状态
-token | String | 令牌|
+status| String | 状态|返回登出状态
 
-2. 用户注销
+#### 2.1.2.2报文示例
+
+##### 2.1.2.2.1请求报文示例
+
 ```
-DELETE -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/logout/username
+ http://127.0.0.1:8080/ocmanager/v1/api/authc/logout/username/
 ```
+
+##### 2.1.2.2.2返回报文示例
+
 __response__
 ```
 {
@@ -49,33 +124,81 @@ __response__
     "status": "Logout successful!"
 }
 ```
+
+
+
+### 2.1.3获取认证类型（/ocmanager/v1/api/authc/type/） 
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/type/
+    请求方式：GET
+
+
+
+#### 2.1.3.1返回参数
+
+##### 2.1.3.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-resCode| int | 响应返回码|200为正常
-status| String | 状态|返回登出状态
-3. 获取认证类型 (0:ldap, 1:mysql)
+type| int | 认证类型|0为ldap，1为mysql
+
+#### 2.1.3.2报文示例
+
+##### 2.1.3.2.1请求报文示例
+
 ```
-GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/type
+http://127.0.0.1:8080/ocmanager/v1/api/authc/type/
 ```
 
+##### 2.1.3.2.2返回报文示例
+
 __response__
+
 ```
 {
     "type": 0
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-type| int | 认证类型|0为ldap，1为mysql
-#### __NOTE: All the API call should add the http request header with the authc token. For example:__
+
+### 2.1.4 How to use token（/ocmanager/v1/api/user/）
+
+__NOTE: All the API call should add the http request header with the authc token. For example:__
+
 ```
 'token: admin_2D05DA23B89F65C04646A0330752ED26FE59BF7F451700846872438A2023C6E1'
 ```
-#### How to use token
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+    请求方式：GET
+
+
+#### 2.1.4.1返回参数
+
+##### 2.1.4.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime|String|创建时间
+description|String|描述
+email|String|电子邮件
+id|String|用户id
+password|String|用户密码
+phone|String|用户电话
+username|String|用户名
+platformRoleId|String|平台角色id
+
+#### 2.1.4.2报文示例
+
+##### 2.1.4.2.1请求报文示例
+
 ```
-GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/user
+http://127.0.0.1:8080/ocmanager/v1/api/user/
 ```
+
+##### 2.1.4.2.2返回报文示例
+
 __response__
+
+
 ```
 {
     "createTime": "2017-07-27 14:03:29.0",
@@ -91,14 +214,43 @@ __response__
 
 
 
-### Users APIs
 
-1. 获取所有用户
+## 2.2 Users APIs
+
+### 2.2.1获取所有用户（/ocmanager/v1/api/user/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+    请求方式：GET
+
+
+#### 2.2.1.1返回参数
+
+##### 2.2.1.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
+
+#### 2.2.1.2报文示例
+
+##### 2.2.1.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user
+ http://127.0.0.1:8080/ocmanager/v1/api/user/
 ```
+
+##### 2.2.1.2.2返回报文示例
+
 
 __response:__
+
+
 ```
 [
   {
@@ -113,6 +265,24 @@ __response:__
   ...
 ]
 ```
+
+### 2.2.2通过用户id获取单个用户（/ocmanager/v1/api/user/id/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
+    请求方式：GET
+
+#### 2.2.2.1请求参数
+
+##### 2.2.2.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String |用户id|是|
+
+#### 2.2.2.2返回参数
+
+##### 2.2.2.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 createTime| String | 创建时间|
@@ -122,12 +292,21 @@ id| String |用户id|
 password| String |密码|
 phone| String |电话|
 username| String |用户名|
-2. 通过用户id获取单个用户
+
+#### 2.2.2.3报文示例
+
+##### 2.2.2.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/id/{id}
+ http://127.0.0.1:8080/ocmanager/v1/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
 ```
 
+##### 2.2.2.3.2返回报文示例
+
+
 __response:__
+
+
 ```
 {
   "createTime": "2017-08-02 15:15:13.0",
@@ -139,6 +318,24 @@ __response:__
   "username": "admin"
 }
 ```
+
+### 2.2.3通过用户名字获取单个用户（/ocmanager/v1/api/user/name/{userName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/admin/
+    请求方式：GET
+
+#### 2.2.3.1请求参数
+
+##### 2.2.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userName| String |用户名|是|
+
+#### 2.2.3.2返回参数
+
+##### 2.2.3.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 createTime| String | 创建时间|
@@ -148,11 +345,19 @@ id| String |用户id|
 password| String |密码|
 phone| String |电话|
 username| String |用户名|
-3. 通过用户名字获取单个用户
+
+#### 2.2.3.3报文示例
+
+##### 2.2.3.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/name/{userName}
+http://127.0.0.1:8080/ocmanager/v1/api/user/name/admin/ 
 ```
+
+##### 2.2.3.3.2返回报文示例
+
 __response:__
+
 ```
 {
   "createTime": "2017-08-02 15:15:13.0",
@@ -164,30 +369,16 @@ __response:__
   "username": "admin"
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-createTime| String | 创建时间|
-description| String| 用户描述| 
-email| String |电子邮件|
-id| String |用户id|
-password| String |密码|
-phone| String |电话|
-username| String |用户名|
-4. 创建用户
-```
-POST /ocmanager/v1/api/user
-```
 
-__request body:__
-```
-{
-    "username": "createUser001",
-    "email": "createUser001@com",
-    "description": "createUser001 description",
-    "password": "createUser001 password",
-    "phone": "1234567890"
-}
-```
+### 2.2.4创建用户（/ocmanager/v1/api/user/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+    请求方式：POST
+
+#### 2.2.4.1请求参数
+
+##### 2.2.4.1.1基本参数
+
 字段|类型|描述|是否必填|备注
 ----------|----------------|----|--------|------------|
 username| String |用户名|是|
@@ -195,18 +386,11 @@ email| String |电子邮件|否|
 description| String| 创建用户描述|否| 
 password| String |密码|是|
 phone| String |电话|否|
-__response:__
-```
-{
-  "createTime": "2017-08-18 16:13:13.0",
-  "description": "createUser001 description",
-  "email": "createUser001@com",
-  "id": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
-  "password": "*1580C3237E7227E56B4A3304E7D9F8255CA47253",
-  "phone": "1234567890",
-  "username": "createUser001"
-}
-```
+
+#### 2.2.4.2返回参数
+
+##### 2.2.4.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 createTime| String | 创建时间|
@@ -218,12 +402,77 @@ phone| String |电话|
 username| String |用户名|
 
 
-5. 通过用户id更新用户
-```
-PUT /ocmanager/v1/api/user/id/{id}
-```
+#### 2.2.4.3报文示例
+
+##### 2.2.4.3.1请求报文示例
+
 
 __request body:__
+
+```
+{
+    "username": "createUser001",
+    "email": "createUser001@com",
+    "description": "createUser001 description",
+    "password": "createUser001 password",
+    "phone": "1234567890"
+}
+ 
+```
+
+##### 2.2.4.3.2返回报文示例
+
+__response:__
+
+```
+{
+  "createTime": "2017-08-18 16:13:13.0",
+  "description": "createUser001 description",
+  "email": "createUser001@com",
+  "id": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
+  "password": "*1580C3237E7227E56B4A3304E7D9F8255CA47253",
+  "phone": "1234567890",
+  "username": "createUser001"
+}
+```
+
+
+### 2.2.5通过用户id更新用户（/ocmanager/v1/api/user/id/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/6afd6428-2468-4069-ac6e-ce5b8b56650e/
+    请求方式：PUT
+
+#### 2.2.5.1请求参数
+
+##### 2.2.5.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+description| String| 更新用户描述| 否
+email| String |电子邮件|否
+phone| String |电话|否
+id| String |用户id|是
+
+#### 2.2.5.2返回参数
+
+##### 2.2.5.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 更新用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
+
+#### 2.2.5.3报文示例
+
+##### 2.2.5.3.1请求报文示例
+
+__request body:__
+
 ```
 
 {
@@ -232,14 +481,12 @@ __request body:__
   "phone": "111111111"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-description| String| 更新用户描述| 否
-email| String |电子邮件|否
-phone| String |电话|否
+
+##### 2.2.5.3.2返回报文示例
 
 
 __response:__
+
 ```
 {
   "createTime": "2017-08-18 16:13:13.0",
@@ -251,6 +498,27 @@ __response:__
   "username": "createUser001"
 }
 ```
+
+### 2.2.6通过用户名更新用户（/ocmanager/v1/api/user/name/{userName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/createUser001/
+    请求方式：PUT
+
+#### 2.2.6.1请求参数
+
+##### 2.2.6.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+description| String| 更新用户描述| 否
+email| String |电子邮件|否
+phone| String |电话|否
+userName| String |用户名|是
+
+#### 2.2.6.2返回参数
+
+##### 2.2.6.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 createTime| String | 创建时间|
@@ -260,12 +528,13 @@ id| String |用户id|
 password| String |密码|
 phone| String |电话|
 username| String |用户名|
-6. 通过用户名更新用户
-```
-PUT /ocmanager/v1/api/user/name/{userName}
-```
+
+#### 2.2.6.3报文示例
+
+##### 2.2.6.3.1请求报文示例
 
 __request body:__
+
 ```
 {
   "description": "createUser001 description 33333 update",
@@ -273,14 +542,11 @@ __request body:__
   "phone": "33333333"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-description| String| 更新用户描述| 否
-email| String |电子邮件|否
-phone| String |电话|否
 
+##### 2.2.6.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "createTime": "2017-08-18 16:13:13.0",
@@ -292,23 +558,42 @@ __response:__
   "username": "createUser001"
 }
 ```
+
+### 2.2.7删除用户（/ocmanager/v1/api/user/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/
+    请求方式：DELETE
+
+#### 2.2.7.1请求参数
+
+##### 2.2.7.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id| String |用户id|是|
+
+#### 2.2.7.2返回参数
+
+##### 2.2.7.2.1基本参数
+
 字段|类型|描述|备注
-----------|----------------|----|------------|
-createTime| String | 创建时间|
-description| String| 更新用户描述| 
-email| String |电子邮件|
-id| String |用户id|
-password| String |密码|
-phone| String |电话|
-username| String |用户名|
+----------|----------------|----|--------|------------|
+message| String | 返回的消息|返回用户id
+resCode| int| 响应返回码|200为正常 
+status| String |状态|返回删除用户状态
 
-7. 删除用户
+#### 2.2.7.3报文示例
+
+##### 2.2.7.3.1请求报文示例
+
 ```
-DELETE /ocmanager/v1/api/user/{id}
-``` 
+http://127.0.0.1:8080/ocmanager/v1/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/ 
+```
 
+##### 2.2.7.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "message": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
@@ -316,29 +601,49 @@ __response:__
   "status": "delete user success"
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|--------|------------|
-message| String | 返回的消息|返回用户id
-resCode| int| 响应返回码|200为正常 
-status| String |状态|返回删除用户状态
 
-8. 修改用户密码（__NOTE:只在enbale mysql 认证后可用__）
-```
-PUT /ocmanager/v1/api/user/{userName}/password
-```
+### 2.2.8修改用户密码（/ocmanager/v1/api/user/{userName}/password/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/username001/password/
+    请求方式：PUT
+
+__NOTE:只在enbale mysql 认证后可用__
+
+#### 2.2.8.1请求参数
+
+##### 2.2.8.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+password| String | 用户新密码|是|
+userName| String |用户名|是|
+
+#### 2.2.8.2返回参数
+
+##### 2.2.8.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message| String | 返回的消息|返回用户名
+resCode| int|响应返回码|200为正常 
+status| String |状态|返回更新密码状态
+
+#### 2.2.8.3报文示例
+
+##### 2.2.8.3.1请求报文示例
 
 __request body:__
+
 ```
 {
   "password": "1234567890"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-password| String | 用户新密码|是|
 
+##### 2.2.8.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "message": "username001",
@@ -346,35 +651,85 @@ __response:__
   "status": "update user password success"
 }
 ```
+
+### 2.2.9检查用户是否是系统管理员（/ocmanager/v1/api/user/is/admin/{userName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/is/admin/admin/
+    请求方式：GET
+
+#### 2.2.9.1请求参数
+
+##### 2.2.9.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+username| String | 用户名|是|
+
+#### 2.2.9.2返回参数
+
+##### 2.2.9.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-message| String | 返回的消息|返回用户名
-resCode| int|响应返回码|200为正常 
-status| String |状态|返回更新密码状态
+admin| boolean	 | 是否为系统管理员|true为是，false为不是
+username| String | 用户名|
 
-9. 检查用户是否是系统管理员
+#### 2.2.9.3报文示例
+
+##### 2.2.9.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/is/admin/{userName}
+http://127.0.0.1:8080/ocmanager/v1/api/user/is/admin/admin/ 
 ```
+
+##### 2.2.9.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "admin": true,
   "userName": "admin"
 }
 ```
+
+### 2.2.10通过用户名获取此用户可访问的租户（/ocmanager/v1/api/user/name/{name}/all/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/root/all/tenants/
+    请求方式：GET
+
+#### 2.2.10.1请求参数
+
+##### 2.2.10.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+name|String|用户名|是|
+
+#### 2.2.10.2返回参数
+
+##### 2.2.10.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-admin| boolean	 | 是否为系统管理员|true为是，false为不是
-username| String | 用户名|
-10. 通过用户名获取次用户可访问的租户
+description|String|租户描述|
+id|String|租户id|
+level| int|租户级别|内部保留字段
+name|String|租户名|
+parentId|String|父租户id|
+
+#### 2.2.10.3报文示例
+
+##### 2.2.10.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/name/{name}/all/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/name/root/all/tenants/ 
 ```
 
+##### 2.2.10.3.2返回报文示例
 
 __response:__
+
 ```
 [
   {
@@ -392,6 +747,24 @@ __response:__
   }
 ]
 ```
+
+### 2.2.11通过用户id获取此用户可访问的租户（/ocmanager/v1/api/user/id/{id}/all/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/111ad1/all/tenants/
+    请求方式：GET
+
+#### 2.2.11.1请求参数
+
+##### 2.2.11.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|用户id|是|
+
+#### 2.2.11.2返回参数
+
+##### 2.2.11.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 description|String|租户描述|
@@ -399,12 +772,19 @@ id|String|租户id|
 level| int|租户级别|内部保留字段
 name|String|租户名|
 parentId|String|父租户id|
-11. 通过用户id获取此用户可访问的租户
+
+#### 2.2.11.3报文示例
+
+##### 2.2.11.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/id/{id}/all/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/id/111ad1/all/tenants/ 
 ```
 
+##### 2.2.11.3.2返回报文示例
+
 __response:__
+
 ```
 [
   {
@@ -422,6 +802,25 @@ __response:__
   }
 ]
 ```
+
+### 2.2.12通过用户名和租户id获取该租户中此用户可访问的租户（/ocmanager/v1/api/user/name/{name}/tenant/{tenantId}/children/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
+    请求方式：GET
+
+#### 2.2.12.1请求参数
+
+##### 2.2.12.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+name|String|用户名|是|
+
+#### 2.2.12.2返回参数
+
+##### 2.2.12.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 description|String|租户描述|
@@ -430,12 +829,18 @@ level| int|租户级别|内部保留字段
 name|String|租户名|
 parentId|String|父租户id|
 
-12. 通过用户名和租户id获取该租户中此用户可访问的租户
+#### 2.2.12.3报文示例
+
+##### 2.2.12.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/name/{name}/tenant/{tenantId}/children/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
 ```
 
+##### 2.2.12.3.2返回报文示例
+
 __response:__
+
 ```
 [
   {
@@ -454,6 +859,25 @@ __response:__
   }
 ]
 ```
+
+### 2.2.13通过用户id和租户id获取该租户中此用户可访问的租户（/ocmanager/v1/api/user/id/{id}/tenant/{tenantId}/children/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/1111/tenant/1cadf67/children/tenants/
+    请求方式：GET
+
+#### 2.2.13.1请求参数
+
+##### 2.2.13.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+id|String|用户id|是|
+
+#### 2.2.13.2返回参数
+
+##### 2.2.13.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 description|String|租户描述|
@@ -462,12 +886,18 @@ level| int|租户级别|内部保留字段
 name|String|租户名|
 parentId|String|父租户id|
 
-13. 通过用户id和租户id获取该租户中此用户可访问的租户
+#### 2.2.13.3报文示例
+
+##### 2.2.13.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/id/{id}/tenant/{tenantId}/children/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/id/1111/tenant/1cadf67/children/tenants/
 ```
 
+##### 2.2.13.3.2返回报文示例
+
 __response:__
+
 ```
 [
   {
@@ -486,21 +916,45 @@ __response:__
   }
 ]
 ```
+
+### 2.2.14获取所有用户以及该用户关联的租户（/ocmanager/v1/api/user/with/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/with/tenants/
+    请求方式：GET
+
+
+#### 2.2.14.1返回参数
+
+##### 2.2.14.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-description|String|租户描述|
-id|String|租户id|
-level| int|租户级别|内部保留字段
-name|String|租户名|
-parentId|String|父租户id|
+description|String|描述|
+email|String|邮件
+id|String|用户id
+password|String|密码
+username|String|用户名
+urv|array|用户租户权限视图|内容见以下字段
+roleId|String|角色id|urv字段
+roleName|String|角色名|urv字段
+tenantId|String|租户id|urv字段
+tenantName|String|租户名|urv字段
+userDescription|String|用户描述|urv字段
+userId|String|用户id|urv字段
 
-14. 获取所有用户以及该用户关联的租户
+#### 2.2.14.2报文示例
+
+##### 2.2.14.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/with/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/with/tenants/ 
 ```
 
+##### 2.2.14.2.2返回报文示例
 
 __response:__
+
+
 ```
 [
  {
@@ -524,6 +978,24 @@ __response:__
   ...
 ]
 ```
+
+### 2.2.15根据用户id获取用户以及该用户关联的租户（/ocmanager/v1/api/user/{id}/with/tenants/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
+    请求方式：GET
+
+#### 2.2.15.1请求参数
+
+##### 2.2.15.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|用户id|是|
+
+#### 2.2.15.2返回参数
+
+##### 2.2.15.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 description|String|描述|
@@ -535,16 +1007,23 @@ urv|array|用户租户权限视图|内容见以下字段
 roleId|String|角色id|urv字段
 roleName|String|角色名|urv字段
 tenantId|String|租户id|urv字段
-tenantName|String|租户名|urv字段
+tenantName|String|租户名称|urv字段
 userDescription|String|用户描述|urv字段
 userId|String|用户id|urv字段
+parentTenantName|String|父租户名|urv字段
 
-15. 根据用户id获取用户以及该用户关联的租户
+#### 2.2.15.3报文示例
+
+##### 2.2.15.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/{id}/with/tenants
+http://127.0.0.1:8080/ocmanager/v1/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
 ```
+
+##### 2.2.15.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "description": "",
@@ -585,28 +1064,38 @@ __response:__
   ]
 }
 ```
+
+### 2.2.16获取ldap服务其上所有用户（/ocmanager/v1/api/user/ldap/） 
+
+__NOTE:只在enbale ldap 认证后可用__
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/ldap/
+    请求方式：GET
+
+
+
+#### 2.2.16.1返回参数
+
+##### 2.2.16.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-description|String|描述|
-email|String|邮件
-id|String|用户id
-password|String|密码
-username|String|用户名
-urv|array|用户租户权限视图|内容见以下字段
-roleId|String|角色id|urv字段
-roleName|String|角色名|urv字段
-tenantId|String|租户id|urv字段
-tenantName|String|租户名称|urv字段
-userDescription|String|用户描述|urv字段
-userId|String|用户id|urv字段
-parentTenantName|String|父租户名|urv字段
+||array||此处返回的是用户名称列表
 
-16. 获取ldap服务其上所有用户（__NOTE:只在enbale ldap 认证后可用__）
+#### 2.2.16.2报文示例
+
+##### 2.2.16.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/ldap
+http://127.0.0.1:8080/ocmanager/v1/api/user/ldap/ 
 ```
+
+##### 2.2.16.2.2返回报文示例
+
 __response:__
+
 ```
+
 [
   "ethanwang",
   "admin",
@@ -617,17 +1106,43 @@ __response:__
   ...
 ]
 ```
+
+### 2.2.17根据用户名获取此用户在给定租户下的服务实例授权是否成功（/ocmanager/v1/api/user/name/{userName}/tenant/{tenantId}/assignments/info/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/zzzz/tenant/abbd34/assignments/info/
+    请求方式：GET
+
+#### 2.2.17.1请求参数
+
+##### 2.2.17.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userName|String|用户名|是
+tenantId|String|租户Id|是
+
+#### 2.2.17.2返回参数
+
+##### 2.2.17.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-array||此处返回的是用户名称列表
+assignmentStatus|String|授权状态|返回授权状态
+instanceName|String|实例名
 
+#### 2.2.17.3报文示例
 
-17. 根据用户名获取此用户在给定租户下的服务实例授权是否成功
+##### 2.2.17.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/user/name/{userName}/tenant/{tenantId}/assignments/info
+http://127.0.0.1:8080/ocmanager/v1/api/user/name/zzzz/tenant/abbd34/assignments/info/ 
 ```
+
+##### 2.2.17.3.2返回报文示例
+
 
 __response:__
+
 ```
 [
   {
@@ -641,20 +1156,39 @@ __response:__
   ...
 ]
 ```
+
+## 2.3 Services APIs
+
+### 2.3.1获取所有服务（/ocmanager/v1/api/service/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/
+    请求方式：GET
+
+
+#### 2.3.1.1返回参数
+
+##### 2.3.1.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-assignmentStatus|String|授权状态|返回授权状态
-instanceName|String|实例名
+description|String|服务描述
+id|String|服务id
+origin|String|来源于哪个service broker
+servicename|String|服务名
 
+#### 2.3.1.2报文示例
 
+##### 2.3.1.2.1请求报文示例
 
-### Services APIs
-1. 获取所有服务
 ```
-GET /ocmanager/v1/api/service
+http://127.0.0.1:8080/ocmanager/v1/api/service/ 
 ```
+
+##### 2.3.1.2.2返回报文示例
+
 
 __response:__
+
 ```
 [
   {
@@ -672,18 +1206,43 @@ __response:__
   ...
 ]
 ```
+
+### 2.3.2获取单个服务（/ocmanager/v1/api/service/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/
+    请求方式：GET
+
+#### 2.3.2.1请求参数
+
+##### 2.3.2.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|服务id|是|
+
+#### 2.3.2.2返回参数
+
+##### 2.3.2.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 description|String|服务描述
 id|String|服务id
 origin|String|来源于哪个service broker
 servicename|String|服务名
-2. 获取单个服务
+
+#### 2.3.2.3报文示例
+
+##### 2.3.2.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/service/{id}
+http://127.0.0.1:8080/ocmanager/v1/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/ 
 ```
 
+##### 2.3.2.3.2返回报文示例
+
 __response:__
+
 ```
 {
   "description": "A Hadoop hbase service broker implementation",
@@ -692,18 +1251,56 @@ __response:__
   "servicename": "hbase"
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-description|String|服务描述
-id|String|服务id
-origin|String|来源于哪个service broker
-servicename|String|服务名
-3. 添加Service broker（添加服务,服务是注册在service broker 里面的,因此会添加service broker 中注册的所有服务）
-```
-POST /ocmanager/v1/api/service/broker
-```
+
+### 2.3.3添加Service broker（/ocmanager/v1/api/service/broker/） 
+
+NOTE: 添加服务,服务是注册在service broker里面的,因此会添加service broker 中注册的所有服务
+
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/broker/
+    请求方式：POST
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|是|其内容见以下字段|否
+name|String|Service broker的名字|是|metadata字段|否
+spec|json|指定参数|是|其内容见以下字段|否
+url|String|Service broker服务的网址|是|spec字段|否
+username|String|Service broker用户名|是|spec字段|否
+password|String|Service broker密码|是|spec字段|否
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|Service broker的名字|metadata字段|否
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+url|String|Service broker服务的网址|spec字段|否
+username|String|Service broker用户名|spec字段|否
+password|String|Service broker密码|spec字段|否
+status|json|状态|其内容见以下字段|否
+phase|String|阶段|（status字段）new表示新添加服务|否
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
 
 __request body:__
+
 ```
 {
   "kind":"ServiceBroker",
@@ -720,18 +1317,11 @@ __request body:__
     }
 }
 ```
-字段|类型|描述|是否必填|备注|是否常量|
-----------|----------------|----|--------|------------|---|
-kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|是|其内容见以下字段|否
-name|String|Service broker的名字|是|metadata字段|否
-spec|json|指定参数|是|其内容见以下字段|否
-url|String|Service broker服务的网址|是|spec字段|否
-username|String|Service broker用户名|是|spec字段|否
-password|String|Service broker密码|是|spec字段|否
+
+##### 2.3.3.3.2返回报文示例
 
 __response:__
+
 ```
 {
   "kind": "ServiceBroker",
@@ -754,6 +1344,26 @@ __response:__
   }
 }
 ```
+
+### 2.3.4删除Service broker（/ocmanager/v1/api/service/broker/{name}/） 
+
+NOTE： 删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务
+
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/broker/111aw2/
+    请求方式：DELETE
+
+#### 2.3.4.1请求参数
+
+##### 2.3.4.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+name|String|service broker名字|是|
+
+#### 2.3.4.2返回参数
+
+##### 2.3.4.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 kind|String||内部使用字段，使用者可不关心，必须唯一|是
@@ -764,18 +1374,30 @@ selfLink|String||(metadata字段)内部使用字段，使用者可不关心，�
 uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
 resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
 creationTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||(metadata字段，其内容见以下字段)|否
+ServiceBroker/LastPing|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+ServiceBroker/NewRetryTimes|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
 spec|json|指定参数|其内容见以下字段|否
 url|String|Service broker服务的网址|spec字段|否
 username|String|Service broker用户名|spec字段|否
 password|String|Service broker密码|spec字段|否
 status|json|状态|其内容见以下字段|否
-phase|String|阶段|（status字段）new表示新添加服务|否
-4. 删除Service broker（删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务）
+phase|String|阶段|(status字段)Deleting表示删除服务|否
+
+#### 2.3.4.3报文示例
+
+##### 2.3.4.3.1请求报文示例
+
 ```
-DELETE /ocmanager/v1/api/service/broker/{name}
+http://127.0.0.1:8080/ocmanager/v1/api/service/broker/111aw2/
 ```
 
+##### 2.3.4.3.2返回报文示例
+
 __response:__
+
+
 ```
 {
   "kind": "ServiceBroker",
@@ -803,6 +1425,17 @@ __response:__
   }
 }
 ```
+
+### 2.3.5获取Data Foundry服务列表（/ocmanager/v1/api/service/df/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/df/
+    请求方式：GET
+
+
+#### 2.3.5.1返回参数
+
+##### 2.3.5.1.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 kind|String||内部使用字段，使用者可不关心，必须唯一|是
@@ -810,26 +1443,74 @@ apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
 metadata|json|源数据|其内容见以下字段|否
 name|String|Service broker的名字|metadata字段|否
 selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
 resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-creationTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-annotations|json||(metadata字段，其内容见以下字段)|否
-ServiceBroker/LastPing|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
-ServiceBroker/NewRetryTimes|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
-spec|json|指定参数|其内容见以下字段|否
-url|String|Service broker服务的网址|spec字段|否
-username|String|Service broker用户名|spec字段|否
-password|String|Service broker密码|spec字段|否
-status|json|状态|其内容见以下字段|否
-phase|String|阶段|(status字段)Deleting表示删除服务|否
+items|array|条目|其内容见以下字段|否
+metadata|json|源数据|(items字段，其内容见以下字段)|否
+name|String|服务名|metadata字段|否
+generateName|String|架构名称|（metadata字段)HBase是hadoop架构的服务|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+labels|json||（metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+asiainfo.io/servicebroker|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|(items字段，其内容见以下字段)|否
+name|String|服务名|spec字段|否
+id|String|服务id|spec字段|否
+description|String|服务描述|spec字段|否
+bindable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+plan_updateable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+tags|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+requires|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+metadata|json||spec字段,其内容见以下字段|否
+displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+documentationUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+imageUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+longDescription|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+providerDisplayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+supportUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+plans|array|plan套餐|spec字段,其内容见以下字段|否
+name|String|plan名|plans字段|否
+id|String|plan的id|plans字段|否
+description|String|plan描述|plans字段|否
+metadata|json||(plans字段,其内容见以下字段)|否
+bullets|array||(metadata字段,其内容见以下字段)|否
+Name Space Quota|int|HDFS目录允许创建的最大文件数目|bullet字段|否
+Storage Space Quota(GB)|int|HDFS目录的最大存储容量|bullet字段|否
+HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
+HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
+costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
+unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
+customize|json||(metadata字段,其内容见以下字段)|否
+maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
+maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
+nameSpaceQuota|json|HDFS目录允许创建的最大文件数限额列表|customize字段|否
+storageSpaceQuota|json|HDFS目录的最大存储容量限额列表|customize字段|否
+default|int|默认值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+max|int|最大值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+price|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+step|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+unit|String|单位，HDFS存储容量单位为GB|storageSpaceQuota字段|否
+free|boolean||(plans字段)内部使用字段，使用者可不关心，必须唯一|是
+dashboard_client|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|状态|(items字段，其内容见以下字段)|否
+phase|String|阶段|(status字段)Active表示服务处于启动状态|否
 
-5. 获取Data Foundry服务列表
+#### 2.3.5.2报文示例
+
+##### 2.3.5.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/service/df
+http://127.0.0.1:8080/ocmanager/v1/api/service/df/
 ```
+
+##### 2.3.5.2.2返回报文示例
 
 __response:__
+
 ```
 {
   "kind": "BackingServiceList",
@@ -998,75 +1679,40 @@ __response:__
   ]
 }
 ```
-字段|类型|描述|备注|是否常量|
-----------|----------------|----|------------|---|
-kind|String||内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|其内容见以下字段|否
-name|String|Service broker的名字|metadata字段|否
-selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-items|array|条目|其内容见以下字段|否
-metadata|json|源数据|(items字段，其内容见以下字段)|否
-name|String|服务名|metadata字段|否
-generateName|String|架构名称|（metadata字段)HBase是hadoop架构的服务|否
-namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-labels|json||（metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-asiainfo.io/servicebroker|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-spec|json|指定参数|(items字段，其内容见以下字段)|否
-name|String|服务名|spec字段|否
-id|String|服务id|spec字段|否
-description|String|服务描述|spec字段|否
-bindable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-plan_updateable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-tags|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-requires|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-metadata|json||spec字段,其内容见以下字段|否
-displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-documentationUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-imageUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-longDescription|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-providerDisplayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-supportUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-plans|array|plan套餐|spec字段,其内容见以下字段|否
-name|String|plan名|plans字段|否
-id|String|plan的id|plans字段|否
-description|String|plan描述|plans字段|否
-metadata|json||(plans字段,其内容见以下字段)|否
-bullets|array||(metadata字段,其内容见以下字段)|否
-Name Space Quota|int|HDFS目录允许创建的最大文件数目|bullet字段|否
-Storage Space Quota(GB)|int|HDFS目录的最大存储容量|bullet字段|否
-HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
-HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
-costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
-unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
-customize|json||(metadata字段,其内容见以下字段)|否
-maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
-maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
-nameSpaceQuota|json|HDFS目录允许创建的最大文件数限额列表|customize字段|否
-storageSpaceQuota|json|HDFS目录的最大存储容量限额列表|customize字段|否
-default|int|默认值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
-max|int|最大值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
-price|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
-step|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
-desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
-unit|String|单位，HDFS存储容量单位为GB|storageSpaceQuota字段|否
-free|boolean||(plans字段)内部使用字段，使用者可不关心，必须唯一|是
-dashboard_client|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-status|json|状态|(items字段，其内容见以下字段)|否
-phase|String|阶段|(status字段)Active表示服务处于启动状态|否
 
-6. 获取多租户平台上所有服务实例列表
+### 2.3.6获取多租户平台上所有服务实例列表（/ocmanager/v1/api/service/all/instances/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/all/instances/
+    请求方式：GET
+
+
+#### 2.3.6.1返回参数
+
+##### 2.3.6.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+id|String|实例id|
+instanceName|String|实例名
+quota|String|配额|返回Hive数据库的最大存储容量，Yarn队列的最大容量。注意格式
+serviceTypeId|String|服务类型id
+serviceTypeName|String|服务类型名
+status|String|服务实例状态
+tenantId|String|租户id
+
+#### 2.3.6.2报文示例
+
+##### 2.3.6.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/service/all/instances
+http://127.0.0.1:8080/ocmanager/v1/api/service/all/instances/
 ```
+
+##### 2.3.6.2.2返回报文示例
 
 __response:__
+
+
 ```
 [
   {
@@ -1089,22 +1735,60 @@ __response:__
   ...
 ]  
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-id|String|实例id|
-instanceName|String|实例名
-quota|String|配额|返回Hive数据库的最大存储容量，Yarn队列的最大容量。注意格式
-serviceTypeId|String|服务类型id
-serviceTypeName|String|服务类型名
-status|String|服务实例状态
-tenantId|String|租户id
 
-7. 获取指定服务的plan套餐
+### 2.3.7获取指定服务的plan套餐（/ocmanager/v1/api/service/{serviceName}/plan/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/HBase/plan/
+    请求方式：GET
+
+#### 2.3.7.1请求参数
+
+##### 2.3.7.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+serviceName|String|服务名|是|
+
+#### 2.3.7.2返回参数
+
+##### 2.3.7.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+name|String|plan名||否
+id|String|planid||否
+description|String|plan描述||否
+metadata|json|源数据|其内容见以下字段|否
+bullets|array||(metadata字段,其内容见以下字段)|否
+HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
+HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
+costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
+unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
+displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+customize|json||(metadata字段,其内容见以下字段)|否
+maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
+maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
+default|int|默认值|maximumRegionsQuota、maximumTablesQuota共有字段|否
+max|int|最大值|maximumRegionsQuota、maximumTablesQuota共有字段|否
+price|int||(maximumRegionsQuota、maximumTablesQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+step|int||(maximumRegionsQuota、maximumTablesQuota共有字段共有字段)内部使用字段，使用者可不关心，必须唯一|是
+desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota共有字段|否
+free|boolean||内部使用字段，使用者可不关心，必须唯一|是
+
+#### 2.3.7.3报文示例
+
+##### 2.3.7.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/service/{serviceName}/plan
+http://127.0.0.1:8080/ocmanager/v1/api/service/HBase/plan/
 ```
+
+##### 2.3.7.3.2返回报文示例
 
 __response:__
+
 ```
 [
   {
@@ -1146,39 +1830,42 @@ __response:__
   }
 ]
 ```
-字段|类型|描述|备注|是否常量|
-----------|----------------|----|------------|---|
-name|String|plan名||否
-id|String|planid||否
-description|String|plan描述||否
-metadata|json|源数据|其内容见以下字段|否
-bullets|array||(metadata字段,其内容见以下字段)|否
-HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
-HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
-costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
-unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
-displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-customize|json||(metadata字段,其内容见以下字段)|否
-maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
-maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
-default|int|默认值|maximumRegionsQuota、maximumTablesQuota共有字段|否
-max|int|最大值|maximumRegionsQuota、maximumTablesQuota共有字段|否
-price|int||(maximumRegionsQuota、maximumTablesQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
-step|int||(maximumRegionsQuota、maximumTablesQuota共有字段共有字段)内部使用字段，使用者可不关心，必须唯一|是
-desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota共有字段|否
-free|boolean||内部使用字段，使用者可不关心，必须唯一|是
 
 
 
-### Roles APIs
-1. 获取所有服务角色
+## 2.4 Roles APIs
+
+### 2.4.1获取所有服务角色（/ocmanager/v1/api/role/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/role/
+    请求方式：GET
+
+
+
+#### 2.4.1.1返回参数
+
+##### 2.4.1.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|服务角色的描述
+id|String|服务角色id
+permission|String|权限|允许该服务角色具备的权限
+rolename|String|服务角色名称
+
+#### 2.4.1.2报文示例
+
+##### 2.4.1.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/role
+http://127.0.0.1:8080/ocmanager/v1/api/role/ 
 ```
+
+##### 2.4.1.2.2返回报文示例
 
 __response:__
+
+
 ```
 [
   {
@@ -1201,20 +1888,48 @@ __response:__
   }
 ]
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-description|String|服务角色的描述
-id|String|服务角色id
-permission|String|权限|允许该服务角色具备的权限
-rolename|String|服务角色名称
 
-### Tenants APIs
-1. 创建租户
-```
-POST /ocmanager/v1/api/tenant
-```
+## 2.5 Tenants APIs
+
+### 2.5.1创建租户（/ocmanager/v1/api/tenant/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+    请求方式：POST
+
+#### 2.5.1.1请求参数
+
+##### 2.5.1.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+name|String|租户名称|是|
+description|String|租户描述|否|
+parentId|String|父租户id|是|
+quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
+
+#### 2.5.1.2返回参数
+
+##### 2.5.1.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
+databaseInfo|json|数据库信息|其内容见以下字段|否
+description|String|租户描述|databaseInfo字段|否
+id|String|租户id|databaseInfo字段|否
+level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称|databaseInfo字段|否
+parentId|String|父租户id|databaseInfo字段|否
+quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
+
+#### 2.5.1.3报文示例
+
+##### 2.5.1.3.1请求报文示例
 
 __request body:__
+
+
 ```
 {
     "id": "00001",
@@ -1225,16 +1940,14 @@ __request body:__
 }
 
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-id|String|租户id|是|
-name|String|租户名称|是|
-description|String|租户描述|否|
-parentId|String|父租户id|是|
-quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
+
+##### 2.5.1.3.2返回报文示例
+
 
 
 __response:__
+
+
 ```
 {
   "dataFoundryInfo": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"00001\",\"selfLink\":\"/oapi/v1/projectrequests/00001\",\"uid\":\"0392f637-9ce7-11e7-b071-fa163efdbea8\",\"resourceVersion\":\"24885069\",\"creationTimestamp\":\"2017-09-19T03:02:46Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"test00001\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c36,c25\",\"openshift.io/sa.scc.supplemental-groups\":\"1001310000/10000\",\"openshift.io/sa.scc.uid-range\":\"1001310000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
@@ -1248,6 +1961,27 @@ __response:__
   }
 }
 ``` 
+
+### 2.5.2更新租户（/ocmanager/v1/api/tenant/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+    请求方式：PUT
+
+
+#### 2.5.2.1请求参数
+
+##### 2.5.2.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+name|String|租户名称|是|
+quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
+
+#### 2.5.2.2返回参数
+
+##### 2.5.2.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
@@ -1259,12 +1993,12 @@ name|String|租户名称|databaseInfo字段|否
 parentId|String|父租户id|databaseInfo字段|否
 quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
-2. 更新租户
-```
-PUT /ocmanager/v1/api/tenant
-```
+#### 2.5.2.3报文示例
+
+##### 2.5.2.3.1请求报文示例
 
 __request body:__
+
 ```
 {
     "id": "777",
@@ -1273,13 +2007,13 @@ __request body:__
 }
 
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-id|String|租户id|是|
-name|String|租户名称|是|
-quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
+
+##### 2.5.2.3.2返回报文示例
+
+
 
 __response:__
+
 ```
 {
   "dataFoundryInfo": "no dataFoundryInfo",
@@ -1296,25 +2030,39 @@ __response:__
 ```
 
 
+### 2.5.3获取所有租户（/ocmanager/v1/api/tenant/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+    请求方式：GET
 
+
+#### 2.5.3.1返回参数
+
+##### 2.5.3.1.1基本参数
 
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
-dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
-databaseInfo|json|数据库信息|其内容见以下字段|否
-description|String|租户描述|databaseInfo字段|否
-id|String|租户id|databaseInfo字段|否
-level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
-name|String|租户名称|databaseInfo字段|否
-parentId|String|父租户id|databaseInfo字段|否
-quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
+description|String|租户描述|租户名|否
+id|String|租户id||否
+level|int|租户级别|内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称||否
+parentId|String|父租户id||否
+quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
-3. 获取所有租户
+#### 2.5.3.2报文示例
+
+##### 2.5.3.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/
 ```
+
+
+##### 2.5.3.2.2返回报文示例
 
 __response:__
+
+
 ```
 [
   {
@@ -1336,6 +2084,24 @@ __response:__
   ...
 ]
 ```
+
+### 2.5.4获取单个租户（/ocmanager/v1/api/tenant/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/222/
+    请求方式：GET
+
+#### 2.5.4.1请求参数
+
+##### 2.5.4.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是
+
+#### 2.5.4.2返回参数
+
+##### 2.5.4.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 description|String|租户描述|租户名|否
@@ -1345,12 +2111,19 @@ name|String|租户名称||否
 parentId|String|父租户id||否
 quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
-4. 获取单个租户
+#### 2.5.4.3报文示例
+
+##### 2.5.4.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{id}
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/222/
 ```
 
+##### 2.5.4.3.2返回报文示例
+
+
 __response:__
+
 ```
 {
   "description": "test222",
@@ -1362,6 +2135,24 @@ __response:__
 }
 
 ```
+
+### 2.5.5获取指定租户的所有子租户（/ocmanager/v1/api/tenant/{id}/children/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/111/children/
+    请求方式：GET
+
+#### 2.5.5.1请求参数
+
+##### 2.5.5.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|父租户id|是|
+
+#### 2.5.5.2返回参数
+
+##### 2.5.5.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 description|String|租户描述|租户名|否
@@ -1370,12 +2161,20 @@ level|int|租户级别|内部使用字段，使用者可不关心，必须唯一
 name|String|租户名称||否
 parentId|String|父租户id||否
 quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
-5. 获取指定租户的所有子租户
+
+#### 2.5.5.3报文示例
+
+##### 2.5.5.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{id}/children
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/111/children/
 ```
 
+##### 2.5.5.3.2返回报文示例
+
+
 __response:__
+
 ```
 [
   {
@@ -1398,23 +2197,75 @@ __response:__
 ]
 
 ```
+
+
+### 2.5.6在租户下创建服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/1111/service/instance/
+    请求方式：POST
+
+#### 2.5.6.1请求参数
+
+##### 2.5.6.1.1请求参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+id|String|租户id|是
+kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|是|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|是|metadata字段|否
+spec|json|指定参数|是|具体内容参见以下字段|否
+provisioning|json||是|(spec字段)具体内容参见以下字段,内部使用字段，使用者可不关心|否
+backingservice_name|String|backingservice名称|是|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|是|(provisioning字段)与backingservice_plan_guid一一对应|否
+parameters|json||是|(provisioning字段,其内容见以下字段)|否
+cuzBsiName|String|后端服务的真实名字|是|(parameters字段)|否
+maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|是|(parameters字段)|否
+maximumTablesQuota|String|Base命名空间允许的最大的表数目|是|(parameters字段)|否
+
+#### 2.5.6.2返回参数
+
+##### 2.5.6.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
-description|String|租户描述|租户名|否
-id|String|租户id||否
-level|int|租户级别|内部使用字段，使用者可不关心，必须唯一|是
-name|String|租户名称||否
-parentId|String|父租户id||否
-quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+cuzBsiName|String|后端服务的真实名字|(parameters字段)|否
+maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|(parameters字段)|否
+maximumTablesQuota|String|Base命名空间允许的最大的表数目|(parameters字段)|否
+credentials|||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|服务实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|status字段|否
 
+#### 2.5.6.3报文示例
 
-6. 在租户下创建服务实例
-```
-POST /ocmanager/v1/api/tenant/{id}/service/instance
-```
-
+##### 2.5.6.3.1请求报文示例
 
 __request body:__
+
 ```
 {
   "kind":"BackingServiceInstance",
@@ -1434,21 +2285,12 @@ __request body:__
     }
 }
 ```
-字段|类型|描述|是否必填|备注|是否常量|
-----------|----------------|----|--------|------------|---|
-kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|是|其内容见以下字段|否
-name|String|ClusterManage的服务实例名称的名字|是|metadata字段|否
-spec|json|指定参数|是|具体内容参见以下字段|否
-provisioning|json||是|(spec字段)具体内容参见以下字段,内部使用字段，使用者可不关心|否
-backingservice_name|String|backingservice名称|是|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_plan_guid|String|backingservice唯一标识符|是|(provisioning字段)与backingservice_plan_guid一一对应|否
-parameters|json||是|(provisioning字段,其内容见以下字段)|否
-cuzBsiName|String|后端服务的真实名字|是|(parameters字段)|否
-maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|是|(parameters字段)|否
-maximumTablesQuota|String|Base命名空间允许的最大的表数目|是|(parameters字段)|否
+
+##### 2.5.6.3.2返回报文示例
+
+
 __response:__
+
 ```
 {
   "kind": "BackingServiceInstance",
@@ -1488,44 +2330,48 @@ __response:__
   }
 }
 ``` 
-字段|类型|描述|备注|是否常量|
-----------|----------------|----|------------|---|
-kind|String||内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|其内容见以下字段|否
-name|String|ClusterManage的服务实例名称的名字|metadata字段|否
-namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-spec|json|指定参数|其内容见以下字段|否
-provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-parameters|json||(provisioning字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-cuzBsiName|String|后端服务的真实名字|(parameters字段)|否
-maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|(parameters字段)|否
-maximumTablesQuota|String|Base命名空间允许的最大的表数目|(parameters字段)|否
-credentials|||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
-binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-instance_id|String|服务实例id|(spec字段)|否
-tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-status|json|服务实例状态|其内容见以下字段|否
-phase|String|阶段|status字段|否
 
-7. 获取租户下所有服务实例
+### 2.5.7获取租户下所有服务实例（/ocmanager/v1/api/tenant/{id}/service/instances/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
+    请求方式：GET
+
+#### 2.5.7.1请求参数
+
+##### 2.5.7.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+
+#### 2.5.7.2返回参数
+
+##### 2.5.7.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+id|String|服务实例id
+instanceName|String|服务实例名称
+quota|String|配额|返回Kafka该服务实例的Topic 的最大存活时间,Topic 的分区数,Topic 的每一个分区最大存储容量信息
+serviceTypeId|String|服务类型id
+serviceTypeName|String|服务类型名称
+status|String|服务实例状态|Unbound表示实例运行异常即已删除
+tenantId|String|租户id
+
+#### 2.5.7.3报文示例
+
+##### 2.5.7.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{id}/service/instances
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
 ```
+
+##### 2.5.7.3.2返回报文示例
+
 
 __response:__
+
+
 ```
 [
   {
@@ -1540,22 +2386,79 @@ __response:__
   ...
 ]
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-id|String|服务实例id
-instanceName|String|服务实例名称
-quota|String|配额|返回Kafka该服务实例的Topic 的最大存活时间,Topic 的分区数,Topic 的每一个分区最大存储容量信息
-serviceTypeId|String|服务类型id
-serviceTypeName|String|服务类型名称
-status|String|服务实例状态|Unbound表示实例运行异常即已删除
-tenantId|String|租户id
 
-8. 删除租户下某个服务实例
+### 2.5.8删除租户下某个服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
+    请求方式：DELETE
+
+#### 2.5.8.1请求参数
+
+##### 2.5.8.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+instanceName|String|实例名是|
+
+#### 2.5.8.2返回参数
+
+##### 2.5.8.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)|否
+instance_id|String|Kafka实例id|parameters字段|否
+partitionSize|String|KafkaTopic的每一个分区最大存储容量|parameters字段|否
+topicQuota|String|Kafka Topic的分区数|parameters字段|否
+topicTTL|String|KafkaTopic的最大存活时间|parameters字段|否
+credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+ZooKeeper_URI|String|ZooKeeper网址|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+topic|String|Kafka Topic|credentials字段|否
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Unbound表示实例运行异常即已删除，bound表示实例运行正常|否
+action|String|动作|(status字段)_ToDelete表示删除租户下的某个服务实例|否
+
+#### 2.5.8.3报文示例
+
+##### 2.5.8.3.1请求报文示例
+
 ```
-DELETE /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
 ```
+
+##### 2.5.8.3.2返回报文示例
 
 __response:__
+
+
 ```
 {
   "kind": "BackingServiceInstance",
@@ -1606,65 +2509,54 @@ __response:__
   }
 }
 ```
-字段|类型|描述|备注|是否常量|
-----------|----------------|----|------------|---|
-kind|String||内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|其内容见以下字段|否
-name|String|ClusterManage的服务实例名称的名字|metadata字段|否
-namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-annotations|json||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
-spec|json|指定参数|其内容见以下字段|否
-provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-parameters|json||(provisioning字段,其内容见以下字段)|否
-instance_id|String|Kafka实例id|parameters字段|否
-partitionSize|String|KafkaTopic的每一个分区最大存储容量|parameters字段|否
-topicQuota|String|Kafka Topic的分区数|parameters字段|否
-topicTTL|String|KafkaTopic的最大存活时间|parameters字段|否
-credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-ZooKeeper_URI|String|ZooKeeper网址|credentials字段|否
-host|String|主机|credentials字段|否
-port|String|端口|credentials字段|否
-topic|String|Kafka Topic|credentials字段|否
-userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
-binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-instance_id|String|实例id|(spec字段)|否
-tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-status|json|服务实例状态|其内容见以下字段|否
-phase|String|阶段|(status字段)Unbound表示实例运行异常即已删除，bound表示实例运行正常|否
-action|String|动作|(status字段)_ToDelete表示删除租户下的某个服务实例|否
 
-9. 绑定租户，用户和角色
-```
-POST /ocmanager/v1/api/tenant/{id}/user/role/assignment
-```
+### 2.5.9绑定租户，用户和角色（/ocmanager/v1/api/tenant/{id}/user/role/assignment/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/011ea988-abc2-4267-9215-cacf111716d1/user/role/assignment/
+    请求方式：POST
+
+#### 2.5.9.1请求参数
+
+##### 2.5.9.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userId|String|用户id|是
+roleId|String|角色id|是
+id|String|用户id|是
+
+#### 2.5.9.2返回参数
+
+##### 2.5.9.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+roleId|String|角色id|
+tenantId|String|租户id
+userId|String|用户id|
+
+#### 2.5.9.3报文示例
+
+##### 2.5.9.3.1请求报文示例
+
 
 __request body:__
+
 ```
 {
     "userId": "011ea988-abc2-4267-9215-cacf111716d1",
     "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-userId|String|用户id|是
-roleId|String|角色id|是
+
+
+##### 2.5.9.3.2返回报文示例
+
+
 
 __response:__
+
+
 ```
 {
   "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
@@ -1672,18 +2564,49 @@ __response:__
   "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
+
+### 2.5.10获取租户下所有用户以及用户角色（/ocmanager/v1/api/tenant/{id}/users/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
+    请求方式：GET
+
+#### 2.5.10.1请求参数
+
+##### 2.5.10.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+
+#### 2.5.10.2返回参数
+
+##### 2.5.10.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 roleId|String|角色id|
+roleName|String|角色名称
 tenantId|String|租户id
+userDescription|String|用户描述
+userEmail|String|用户电子邮件
 userId|String|用户id|
+userName|String|用户名
+userPassword|String|用户密码
+userPhone|String|用户电话
 
-10. 获取租户下所有用户以及用户角色
+#### 2.5.10.3报文示例
+
+##### 2.5.10.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{id}/users
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
 ```
+
+##### 2.5.10.3.2返回报文示例
 
 __response:__
+
+
 ```
 [
   {
@@ -1710,36 +2633,46 @@ __response:__
   ...
 ]
 ```
+
+### 2.5.11更新租户中用户的角色（/ocmanager/v1/api/tenant/{id}/user/role/assignment/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
+    请求方式：PUT
+
+#### 2.5.11.1请求参数
+
+##### 2.5.11.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+String|租户id|是|
+userId|String|用户id|是
+roleId|String|角色id|是
+id|String|租户id|是
+
+#### 2.5.11.2返回参数
+
+##### 2.5.11.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 roleId|String|角色id|
-roleName|String|角色名称
 tenantId|String|租户id
-userDescription|String|用户描述
-userEmail|String|用户电子邮件
 userId|String|用户id|
-userName|String|用户名
-userPassword|String|用户密码
-userPhone|String|用户电话
 
-11. 更新租户中用户的角色
+#### 2.5.11.3报文示例
+
+##### 2.5.11.3.1请求报文示例
+
 ```
-PUT /ocmanager/v1/api/tenant/{id}/user/role/assignment
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
 ```
 
-__request body:__
-```
-{
-    "userId": "011ea988-abc2-4267-9215-cacf111716d1",
-    "roleId": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae"
-}
-```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-userId|String|用户id|是
-roleId|String|角色id|是
+##### 2.5.11.3.2返回报文示例
 
 __response:__
+
+
 ```
 {
   "roleId": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae",
@@ -1747,17 +2680,45 @@ __response:__
   "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
+
+### 2.5.12解除租户，用户和角色的绑定（/ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
+    请求方式：DELETE
+
+#### 2.5.12.1请求参数
+
+##### 2.5.12.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userId|String|用户id|是|
+id|String|租户id|是|
+
+#### 2.5.12.2返回参数
+
+##### 2.5.12.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-roleId|String|角色id|
-tenantId|String|租户id
-userId|String|用户id|
-12. 解除租户，用户和角色的绑定
+message|String|返回的消息|返回用户id
+resCode|int|响应返回码|200为正常
+status|String|状态|返回解除状态，delete success表示解除成功
+
+#### 2.5.12.3报文示例
+
+##### 2.5.12.3.1请求报文示例
+
 ```
-DELETE /ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
 ```
 
+##### 2.5.12.3.2返回报文示例
+
+
 __response:__
+
+
 ```
 {
   "message": "011ea988-abc2-4267-9215-cacf111716d1",
@@ -1765,18 +2726,48 @@ __response:__
   "status": "delete success"
 }
 ``` 
-字段|类型|描述|备注
-----------|----------------|----|------------|
-message|String|返回的消息|返回用户id
-resCode|int|响应返回码|200为正常
-status|String|状态|返回解除状态，delete success表示解除成功
 
-13. 删除租户
+### 2.5.13删除租户（/ocmanager/v1/api/tenant/{id}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
+    请求方式：DELETE
+
+#### 2.5.13.1请求参数
+
+##### 2.5.13.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+
+#### 2.5.13.2返回参数
+
+##### 2.5.13.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
+databaseInfo|json|数据库信息|其内容见以下字段|否
+description|String|租户描述|databaseInfo字段|否
+id|String|租户id|databaseInfo字段|否
+level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称|databaseInfo字段|否
+parentId|String|父租户id|databaseInfo字段|否
+
+#### 2.5.13.3报文示例
+
+##### 2.5.13.3.1请求报文示例
+
 ```
-DELETE /ocmanager/v1/api/tenant/{id}
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
 ```
+
+##### 2.5.13.3.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
   "dataFoundryInfo": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n",
@@ -1789,22 +2780,88 @@ __response:__
   }
 }
 ```
+
+### 2.5.14获取服务实例访问信息（/ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
+    请求方式：GET
+
+#### 2.5.14.1请求参数
+
+##### 2.5.14.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+serviceInstanceName|String|实例名称|是|
+
+#### 2.5.14.2返回参数
+
+##### 2.5.14.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
-dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
-databaseInfo|json|数据库信息|其内容见以下字段|否
-description|String|租户描述|databaseInfo字段|否
-id|String|租户id|databaseInfo字段|否
-level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
-name|String|租户名称|databaseInfo字段|否
-parentId|String|父租户id|databaseInfo字段|否
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||metadata字段,其内容见以下字段|否
+datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|(其内容见以下字段)|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)|否
+accesses|String|访问权限|(parameters字段)read,write,execute表示可读可写可执行|否
+instance_id|String|租户名称|parameters字段|否
+nameSpaceQuota|String|HDFS目录允许创建的最大文件数目|parameters字段|否
+storageSpaceQuota|String|HDFS目录的最大存储容量|parameters字段|否
+user_name|String|用户名|parameters字段|否
+credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound_time|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_uuid|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_hadoop_user|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+credentials|||(binding字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+user_name|String|用户名|credentials字段|否
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Unbound表示实例运行异常即删除，bound表示实例运行正常|否
 
-14. 获取服务实例访问信息
+#### 2.5.14.3报文示例
+
+##### 2.5.14.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
 ```
+
+##### 2.5.14.3.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
   "kind": "BackingServiceInstance",
@@ -1867,6 +2924,28 @@ __response:__
   }
 }
 ```
+
+### 2.5.15更新租户单个服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/
+    请求方式：PUT
+
+#### 2.5.15.1请求参数
+
+##### 2.5.15.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+instanceName|String|实例名|是|
+parameters|json|内容见以下字段|是
+hiveStorageQuota|String|(parameters字段)Hive数据库的最大存储容量|是
+yarnQueueQuota|String|(parameters字段)Yarn队列的最大容量|是
+
+#### 2.5.15.2返回参数
+
+##### 2.5.15.2.1基本参数
+
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 kind|String||内部使用字段，使用者可不关心，必须唯一|是
@@ -1878,7 +2957,7 @@ selfLink|String||(metadata字段)内部使用字段，使用者可不关心，�
 uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
 resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
 creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-annotations|json||metadata字段,其内容见以下字段|否
+annotations|json||(metadata字段)其内容见以下字段|否
 datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
 spec|json|指定参数|(其内容见以下字段)|否
 provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
@@ -1888,11 +2967,8 @@ backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字�
 backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
 backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
 parameters|json||(provisioning字段,其内容见以下字段)|否
-accesses|String|访问权限|(parameters字段)read,write,execute表示可读可写可执行|否
-instance_id|String|租户名称|parameters字段|否
-nameSpaceQuota|String|HDFS目录允许创建的最大文件数目|parameters字段|否
-storageSpaceQuota|String|HDFS目录的最大存储容量|parameters字段|否
-user_name|String|用户名|parameters字段|否
+hiveStorageQuota|String|Hive数据库的最大存储容量|parameters字段|否
+yarnQueueQuota|String|Yarn队列的最大容量|parameters字段|否
 credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
 HDFS Path|String|HDFS路径|credentials字段|否
 host|String|主机|credentials字段|否
@@ -1914,13 +2990,16 @@ bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一
 instance_id|String|实例id|(spec字段)|否
 tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
 status|json|服务实例状态|其内容见以下字段|否
-phase|String|阶段|(status字段)Unbound表示实例运行异常即删除，bound表示实例运行正常|否
-15. 更新租户单个服务实例
-```
-PUT /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
-```
+phase|String|阶段|(status字段)Unbound表示实例运行异常，bound表示实例运行正常|否
+patch|String|补丁|(status字段)Update为更新实例|否
+
+#### 2.5.15.3报文示例
+
+##### 2.5.15.3.1请求报文示例
+
 
 __request body:__
+
 ```
 {      
     "parameters": 
@@ -1930,13 +3009,13 @@ __request body:__
         }
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-parameters|json|内容见以下字段|是
-hiveStorageQuota|String|(parameters字段)Hive数据库的最大存储容量|是
-yarnQueueQuota|String|(parameters字段)Yarn队列的最大容量|是
+
+##### 2.5.15.3.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
   "kind": "BackingServiceInstance",
@@ -1997,59 +3076,47 @@ __response:__
   }
 }
 ``` 
-字段|类型|描述|备注|是否常量|
-----------|----------------|----|------------|---|
-kind|String||内部使用字段，使用者可不关心，必须唯一|是
-apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
-metadata|json|源数据|其内容见以下字段|否
-name|String|ClusterManage的服务实例名称的名字|metadata字段|否
-namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
-annotations|json||(metadata字段)其内容见以下字段|否
-datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
-spec|json|指定参数|(其内容见以下字段)|否
-provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
-backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
-parameters|json||(provisioning字段,其内容见以下字段)|否
-hiveStorageQuota|String|Hive数据库的最大存储容量|parameters字段|否
-yarnQueueQuota|String|Yarn队列的最大容量|parameters字段|否
-credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-HDFS Path|String|HDFS路径|credentials字段|否
-host|String|主机|credentials字段|否
-port|String|端口|credentials字段|否
-url|String|HDFS网址|credentials字段|否
-userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
-credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
-binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-bound_time|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
-bind_uuid|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
-bind_hadoop_user|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
-credentials|||(binding字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
-HDFS Path|String|HDFS路径|credentials字段|否
-host|String|主机|credentials字段|否
-port|String|端口|credentials字段|否
-url|String|HDFS网址|credentials字段|否
-user_name|String|用户名|credentials字段|否
-bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-instance_id|String|实例id|(spec字段)|否
-tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
-status|json|服务实例状态|其内容见以下字段|否
-phase|String|阶段|(status字段)Unbound表示实例运行异常，bound表示实例运行正常|否
-patch|String|补丁|(status字段)Update为更新实例|否
 
-16. 获取角色根据租户和用户名
+### 2.5.16获取角色根据租户和用户名（/ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
+    请求方式：GET
+
+#### 2.5.16.1请求参数
+
+##### 2.5.16.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+userName|String|用户名称|是|
+
+#### 2.5.16.2返回参数
+
+##### 2.5.16.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+permission|String|该角色权限
+roleId|String|角色id
+roleName|String|角色名称
+tenantId|String|租户id
+userId|String|用户id
+userName|String|用户名称
+
+#### 2.5.16.3报文示例
+
+##### 2.5.16.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
 ```
+
+##### 2.5.16.3.2返回报文示例
+
 
 __response:__
+
 ```
 {
   "permission": "{createUser: true, updateUser: true, deleteUser: true, addService: true, deleteService: true, grant: true}",
@@ -2060,23 +3127,49 @@ __response:__
   "userName": "zhaoyim"
 }
 ```
+
+## 2.6 OCDP service instances quota APIs
+
+### 2.6.1获取大数据平台HDFS服务实例用量（/ocmanager/v1/api/quota/hdfs?path={HDFS Path}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/
+    请求方式：GET
+
+#### 2.6.1.1请求参数
+
+##### 2.6.1.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+HDFS Path|String|HDFS路径|是
+
+#### 2.6.1.2返回参数
+
+##### 2.6.1.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-permission|String|该角色权限
-roleId|String|角色id
-roleName|String|角色名称
-tenantId|String|租户id
-userId|String|用户id
-userName|String|用户名称
+items|array|项|内容见以下字段
+available|String|HDFS服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|HDFS服务实例用量名称，其中nameSpaceQuota表示HDFS目录允许创建的最大文件数目；storageSpaceQuota表示HDFS目录的最大存储容量|items字段
+size|String|HDFS服务实例分配资源的总数|(items字段)对应name
+used|String|HDFS服务实例已使用的资源数|(items字段)
 
-### OCDP service instances quota APIs
-1. 获取大数据平台HDFS服务实例用量
+#### 2.6.1.3报文示例
+
+##### 2.6.1.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/hdfs?path={HDFS Path}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/ 
 ```
+
+##### 2.6.1.3.2返回报文示例
+
 
 
 __response:__
+
 ```
 {
   "items": [
@@ -2097,20 +3190,46 @@ __response:__
   ]
 }
 ```
+
+### 2.6.2获取大数据平台Hbase服务实例用量（/ocmanager/v1/api/quota/hbase/{HBaseNameSpace}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
+    请求方式：GET
+
+#### 2.6.2.1请求参数
+
+##### 2.6.2.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+HBaseNameSpace|String|Hbase服务实例名|是
+
+#### 2.6.2.2返回参数
+
+##### 2.6.2.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 items|array|项|内容见以下字段
-available|String|HDFS服务实例可用资源的数量|items字段
+available|String|Hbase服务实例可用资源的数量|items字段
 desc|String|描述|items字段
-name|String|HDFS服务实例用量名称，其中nameSpaceQuota表示HDFS目录允许创建的最大文件数目；storageSpaceQuota表示HDFS目录的最大存储容量|items字段
-size|String|HDFS服务实例分配资源的总数|(items字段)对应name
-used|String|HDFS服务实例已使用的资源数|(items字段)
-2. 获取大数据平台Hbase服务实例用量
+name|String|Hbase服务实例用量名称，其中maximumRegionsQuota表示HBase命名空间允许的最大的region数目；maximumTablesQuota表示HBase命名空间允许的最大的表数目|items字段
+size|String|Hbase服务实例分配资源的总数|(items字段)对应name
+used|String|Hbase服务实例已使用的资源数|(items字段)
+
+#### 2.6.2.3报文示例
+
+##### 2.6.2.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/hbase/{HBaseNameSpace}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
 ```
 
+##### 2.6.2.3.2返回报文示例
+
+
 __response:__
+
 ```
 {
   "items": [
@@ -2131,21 +3250,47 @@ __response:__
   ]
 }
 ```
+
+### 2.6.3获取大数据平台kafka服务实例用量（/ocmanager/v1/api/quota/kafka/{topic}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/
+    请求方式：GET
+
+#### 2.6.3.1请求参数
+
+##### 2.6.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+topic|String|kafka服务实例名|是
+
+#### 2.6.3.2返回参数
+
+##### 2.6.3.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 items|array|项|内容见以下字段
-available|String|Hbase服务实例可用资源的数量|items字段
+available|String|Kafka服务实例可用资源的数量|items字段
 desc|String|描述|items字段
-name|String|Hbase服务实例用量名称，其中maximumRegionsQuota表示HBase命名空间允许的最大的region数目；maximumTablesQuota表示HBase命名空间允许的最大的表数目|items字段
-size|String|Hbase服务实例分配资源的总数|(items字段)对应name
-used|String|Hbase服务实例已使用的资源数|(items字段)
+name|String|Kafka服务实例用量名称，其中topicQuota表示KafkaTopic的分区数；partitionSize表示KafkaTopic的每一个分区最大存储容量|items字段
+size|String|Kafka服务实例分配资源的总数|(items字段)对应name
+used|String|Kafka服务实例已使用的资源数|(items字段)
 
-3. 获取大数据平台kafka服务实例用量
+#### 2.6.3.3报文示例
+
+##### 2.6.3.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/kafka/{topic}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/ 
 ```
+
+##### 2.6.3.3.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
   "items": [
@@ -2166,21 +3311,46 @@ __response:__
   ]
 }
 ```
+
+### 2.6.4获取大数据平台MapReduce服务实例用量（/ocmanager/v1/api/quota/mapreduce/{queuename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
+    请求方式：GET
+
+#### 2.6.4.1请求参数
+
+##### 2.6.4.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+queuename|String|MapReduce的Yarn队列名|是
+
+#### 2.6.4.2返回参数
+
+##### 2.6.4.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 items|array|项|内容见以下字段
-available|String|Kafka服务实例可用资源的数量|items字段
+available|String|MapReduce服务实例可用资源的数量|items字段
 desc|String|描述|items字段
-name|String|Kafka服务实例用量名称，其中topicQuota表示KafkaTopic的分区数；partitionSize表示KafkaTopic的每一个分区最大存储容量|items字段
-size|String|Kafka服务实例分配资源的总数|(items字段)对应name
-used|String|Kafka服务实例已使用的资源数|(items字段)
+name|String|MapReduce服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
+size|String|MapReduce服务实例分配资源的总数|(items字段)对应name
+used|String|MapReduce服务实例已使用的资源数|(items字段)
 
-4. 获取大数据平台MapReduce服务实例用量
+#### 2.6.4.3报文示例
+
+##### 2.6.4.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/mapreduce/{queuename}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
 ```
+
+##### 2.6.4.3.2返回报文示例
 
 __response:__
+
+
 ```
 {
   "items": [
@@ -2194,21 +3364,46 @@ __response:__
   ]
 }
 ```
+
+### 2.6.5获取大数据平台Spark服务实例用量（/ocmanager/v1/api/quota/spark/{queuename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
+    请求方式：GET
+
+#### 2.6.5.1请求参数
+
+##### 2.6.5.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+queuename|String|Spark的Yarn队列名|是
+
+#### 2.6.5.2返回参数
+
+##### 2.6.5.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 items|array|项|内容见以下字段
-available|String|MapReduce服务实例可用资源的数量|items字段
+available|String|Spark服务实例可用资源的数量|items字段
 desc|String|描述|items字段
-name|String|MapReduce服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
-size|String|MapReduce服务实例分配资源的总数|(items字段)对应name
-used|String|MapReduce服务实例已使用的资源数|(items字段)
+name|String|Spark服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
+size|String|Spark服务实例分配资源的总数|(items字段)对应name
+used|String|Spark服务实例已使用的资源数|(items字段)
 
-5. 获取大数据平台Spark服务实例用量
+#### 2.6.5.3报文示例
+
+##### 2.6.5.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/spark/{queuename}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
 ```
+
+##### 2.6.5.3.2返回报文示例
 
 __response:__
+
+
 ```
 {
   "items": [
@@ -2222,21 +3417,47 @@ __response:__
   ]
 }
 ```
+
+### 2.6.6获取大数据平台Hive服务实例用量（/ocmanager/v1/api/quota/hive/{dbname}?queue={queuename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
+    请求方式：GET
+
+#### 2.6.6.1请求参数
+
+##### 2.6.6.1.1基本参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+queuename|String|Hive的Yarn队列名|是
+dbname|String|hive数据库名
+
+#### 2.6.6.2返回参数
+
+##### 2.6.6.2.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
 items|array|项|内容见以下字段
-available|String|Spark服务实例可用资源的数量|items字段
+available|String|Hive服务实例可用资源的数量|items字段
 desc|String|描述|items字段
-name|String|Spark服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
-size|String|Spark服务实例分配资源的总数|(items字段)对应name
-used|String|Spark服务实例已使用的资源数|(items字段)
+name|String|Hive服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量;storageSpaceQuota表示Hive数据库的最大存储容量|items字段
+size|String|Hive服务实例分配资源的总数|(items字段)对应name
+used|String|Hive服务实例已使用的资源数|(items字段)
 
-6. 获取大数据平台Hive服务实例用量
+#### 2.6.6.3报文示例
+
+##### 2.6.6.3.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/quota/hive/{dbname}?queue={queuename}
+http://127.0.0.1:8080/ocmanager/v1/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
 ```
+
+##### 2.6.6.3.2返回报文示例
 
 __response:__
+
+
 ```
 {
   "items": [
@@ -2257,21 +3478,19 @@ __response:__
   ]
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-items|array|项|内容见以下字段
-available|String|Hive服务实例可用资源的数量|items字段
-desc|String|描述|items字段
-name|String|Hive服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量;storageSpaceQuota表示Hive数据库的最大存储容量|items字段
-size|String|Hive服务实例分配资源的总数|(items字段)对应name
-used|String|Hive服务实例已使用的资源数|(items字段)
-### Download cluster hosts file
-1. 下载集群主机列表（hosts 文件）
-```
-GET /ocmanager/v1/api/file/clusterHosts
-```
 
-__response:__
+## 2.7 Download cluster hosts file
+
+### 2.7.1下载集群主机列表(hosts 文件)（/ocmanager/v1/api/file/clusterHosts/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/file/clusterHosts/
+    请求方式：GET
+
+
+#### 2.7.1.1报文示例
+
+
+
 ```
 ### it should down load the hosts file. for example: you can use curl to download hosts file:
 curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/file/clusterHosts
@@ -2280,23 +3499,54 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hosts http://10.1.236.95:8080/ocmanager/v1/api/file/clusterHosts
 ```
 
-### Create and download Kerberos keytab and krb5.conf APIs (should configure the KDC server info in the rest server)
-1. 创建Kerberos keytab
-```
-POST /ocmanager/v1/api/kerberos/create/keytab
-```
+## 2.8 Create and download Kerberos keytab and krb5.conf APIs (should configure the KDC server info in the rest server)
+
+
+### 2.8.1创建Kerberos keytab（/ocmanager/v1/api/kerberos/create/keytab/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/create/keytab/
+    请求方式：POST
+
+#### 2.8.1.1请求参数
+
+##### 2.8.1.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+krbusername|String|Kerberos keytab名称|是
+
+#### 2.8.1.2返回参数
+
+##### 2.8.1.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息
+resCode|int|响应返回码|200为正常
+status|String|状态|返回创建状态
+
+#### 2.8.1.3报文示例
+
+##### 2.8.1.3.1请求报文示例
+
 
 __request body:__
+
+
 ```
 {
     "krbusername": "zhaoyim"
 }
 ```
-字段|类型|描述|是否必填|备注
-----------|----------------|----|--------|------------|
-krbusername|String|Kerberos keytab名称|是
+
+##### 2.8.1.3.2返回报文示例
+
+
+
 
 __response:__
+
+
 ```
 {
   "message": "zhaoyim.keytab created",
@@ -2304,15 +3554,16 @@ __response:__
   "status": "generate keytab successfully!"
 }
 ``` 
-字段|类型|描述|备注
-----------|----------------|----|------------|
-message|String|返回的消息
-resCode|int|响应返回码|200为正常
-status|String|状态|返回创建状态
-2. 下载Kerberos keytab
-```
-GET /ocmanager/v1/api/kerberos/keytab/{userName}
-```
+
+### 2.8.2下载Kerberos keytab（/ocmanager/v1/api/kerberos/keytab/{userName}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim/
+    请求方式：GET
+
+
+#### 2.8.2.1报文示例
+
+
 
 __response:__
 
@@ -2324,10 +3575,14 @@ eg:
 curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim
 ```  
 
-3. 下载krb5.conf
-```
-GET /ocmanager/v1/api/kerberos/krb5
-```
+### 2.8.3下载krb5.conf（/ocmanager/v1/api/kerberos/krb5/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/krb5/
+    请求方式：GET
+
+
+#### 2.8.3.1报文示例
+
 
 __response:__
 ```
@@ -2338,61 +3593,124 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/krb5.conf http://10.1.236.95:8080/ocmanager/v1/api/kerberos/krb5
 ```
 
-4. OCM是否开启Kerberos
+### 2.8.4 OCM是否开启Kerberos（/ocmanager/v1/api/kerberos/status/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/status/
+    请求方式：GET
+
+
+#### 2.8.4.1返回参数
+
+##### 2.8.4.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+ENABLE_KERBEROS|String|OCM是否开启Kerberos|true为已开启
+
+#### 2.8.4.2报文示例
+
+##### 2.8.4.2.1请求报文示例
+
 ```
-GET /ocmanager/v1/api/kerberos/status
+http://127.0.0.1:8080/ocmanager/v1/api/kerberos/status/
 ```
 
+##### 2.8.4.2.2返回报文示例
+
+
 __response:__
+
 
 ```
 {
   "ENABLE_KERBEROS": "true",
 }
 ```  
+
+## 2.9 Get OCManager ldap configuration information APIs
+
+### 2.9.1获取OCM链接ldap的配置信息（/ocmanager/v1/api/ldap/configuration/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/ldap/configuration/
+    请求方式：GET
+
+
+#### 2.9.1.1返回参数
+
+##### 2.9.1.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-ENABLE_KERBEROS|String|OCM是否开启Kerberos|true为已开启
+LDAP_ADDR|String|LDAP地址
+USER_DN_TEMPLATE|String|distinguished name模板
 
-### Get OCManager ldap configuration information APIs
-1. 获取OCM链接ldap的配置信息
+#### 2.9.1.2报文示例
+
+##### 2.9.1.2.1请求报文示例
 
 ```
-GET /ocmanager/v1/api/ldap/configuration
+http://127.0.0.1:8080/ocmanager/v1/api/ldap/configuration/
 ```
+
+##### 2.9.1.2.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
   "LDAP_ADDR": "ldap://10.1.236.146:389",
   "USER_DN_TEMPLATE": "uid={0},ou=People,dc=asiainfo,dc=com"
 }
 ```
+
+### 2.9.2 OCM是否开启ldap（/ocmanager/v1/api/ldap/status/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/ldap/status/
+    请求方式：GET
+
+
+#### 2.9.2.1返回参数
+
+##### 2.9.2.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-LDAP_ADDR|String|LDAP地址
-USER_DN_TEMPLATE|String|distinguished name模板
-2. OCM是否开启ldap
+ENABLE_LDAP|String|OCM是否开启ldap|true为已开启
+
+#### 2.9.2.2报文示例
+
+##### 2.9.2.2.1请求报文示例
 
 ```
-GET /ocmanager/v1/api/ldap/status
+http://127.0.0.1:8080/ocmanager/v1/api/ldap/status/
 ```
+
+##### 2.9.2.2.2返回报文示例
+
+
 
 __response:__
+
+
 ```
 {
   "ENABLE_LDAP": "true",
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-ENABLE_LDAP|String|OCM是否开启ldap|true为已开启
 
-### Get OCManager Ambari configuration and configuration files APIs
-1. 下载ambari yarn cleint configuration files
-```
-GET /ocmanager/v1/api/ambari/yarnclient?filename={filename}
-```
+## 2.10 Get OCManager Ambari configuration and configuration files APIs
+
+### 2.10.1下载ambari yarn cleint configuration files（/ocmanager/v1/api/ambari/yarnclient?filename={filename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/yarnclient?filename=yarn/
+    请求方式：GET
+
+
+#### 2.10.1.1报文示例
+
+
 
 __response:__
 ```
@@ -2403,13 +3721,18 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/yarn.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/yarnclient?filename=yarn
 ```
 
+### 2.10.2下载ambari yarn cleint configuration files（/ocmanager/v1/api/ambari/hdfsclient?filename={filename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/hdfsclient?filename=hdfs/
+    请求方式：GET
 
-2. 下载ambari hdfs cleint configuration files
-```
-GET /ocmanager/v1/api/ambari/hdfsclient?filename={filename}
-```
+
+#### 2.10.2.1报文示例
+
 
 __response:__
+
+
 ```
 ### it should down load the ambari hdfs cleint configuration files. for example: you can use curl to download the configuration files:
 curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/hdfsclient?filename={filename}
@@ -2418,10 +3741,14 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hdfs.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/hdfsclient?filename=hdfs
 ```
 
-3. 下载ambari spark cleint configuration files
-```
-GET /ocmanager/v1/api/ambari/sparkclient?filename={filename}
-```
+### 2.10.3下载ambari spark cleint configuration files（/ocmanager/v1/api/ambari/sparkclient?filename={filename}/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark/
+    请求方式：GET
+
+
+#### 2.10.3.1报文示例
+
 
 __response:__
 ```
@@ -2432,27 +3759,66 @@ eg:
 curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/spark.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark
 ```
 
-### Get OCManager metrics APIs
-1. 获取Kafka serviceName
+## 2.11 Get OCManager metrics APIs
+
+### 2.11.1获取Kafka serviceName（/ocmanager/v1/api/metrics/kafka/serviceName/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/metrics/kafka/serviceName/
+    请求方式：GET
+
+
+#### 2.11.1.1返回参数
+
+##### 2.11.1.1.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+oc.kafka.serviceName|String|返回Kafka的serviceName
+
+#### 2.11.1.2报文示例
+
+##### 2.11.1.2.1请求报文示例
 
 ```
-GET /ocmanager/v1/api/metrics/kafka/serviceName
+http://127.0.0.1:8080/ocmanager/v1/api/metrics/kafka/serviceName/
 ```
+
+##### 2.11.1.2.2返回报文示例
+
 
 __response:__
+
+
 ```
 {
     "oc.kafka.serviceName": "ocdp"
 }
 ```
+
+### 2.11.2获取RM连接信息（/ocmanager/v1/api/metrics/resourcemanager/addresses/） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/metrics/resourcemanager/addresses/
+    请求方式：GET
+
+
+#### 2.11.2.1返回参数
+
+##### 2.11.2.1.1基本参数
+
 字段|类型|描述|备注
 ----------|----------------|----|------------|
-oc.kafka.serviceName|String|返回Kafka的serviceName
-2. 获取RM连接信息
+RM_ADDR|String|ResourceManager连接地址
+
+#### 2.11.2.2报文示例
+
+##### 2.11.2.2.1请求报文示例
 
 ```
-GET /ocmanager/v1/api/metrics/resourcemanager/addresses
+http://127.0.0.1:8080/ocmanager/v1/api/metrics/resourcemanager/addresses/
 ```
+
+##### 2.11.2.2.2返回报文示例
+
 
 __response:__
 ```
@@ -2460,11 +3826,9 @@ __response:__
     "RM_ADDR": "aicloud1.asiainfo.com:8088,aicloud2.asiainfo.com:8088"
 }
 ```
-字段|类型|描述|备注
-----------|----------------|----|------------|
-RM_ADDR|String|ResourceManager连接地址
-### Dashboard Links APIs （此部分为内部使用，外部用户可忽略）
-1. 添加多租户平台首页连接
+
+## 2.12 Dashboard Links APIs （此部分为内部使用，外部用户可忽略）
+### 2.12.1添加多租户平台首页连接
 ```
 POST /ocmanager/v1/api/dashboard/link
 ```
@@ -2501,7 +3865,7 @@ __response:__
 message|String|返回的消息|添加成功
 resCode|int|响应返回码|200为正常
 status|String|状态|返回添加状态
-2. 获取多租户平台首页所有连接
+### 2.12.2获取多租户平台首页所有连接
 ```
 GET /ocmanager/v1/api/dashboard/link
 ```
@@ -2528,7 +3892,7 @@ href|String|首页链接|
 id|int|链接id
 imageUrl|String|图片|
 name|String|多租户平台名称|
-3. 获取多租户平台首页连接通过连接名
+### 2.12.3获取多租户平台首页连接通过连接名
 ```
 GET /ocmanager/v1/api/dashboard/link/{name}
 ```
@@ -2553,7 +3917,7 @@ id|int|链接id
 imageUrl|String|图片|
 name|String|多租户平台名称|
 
-4. 更新多租户平台首页连接通过id
+### 2.12.4更新多租户平台首页连接通过id
 ```
 PUT /ocmanager/v1/api/dashboard/link/{id}
 ```
@@ -2590,7 +3954,7 @@ __response:__
 message|String|返回的消息|更新成功
 resCode|int|响应返回码|200为正常
 status|String|状态|返回更新状态
-5. 删除多租户平台首页连接通过连接名
+### 2.12.5删除多租户平台首页连接通过连接名
 ```
 DELETE /ocmanager/v1/api/dashboard/link/{id}
 ```
@@ -2608,3 +3972,4 @@ __response:__
 message|String|返回的消息|删除成功
 resCode|int|响应返回码|200为正常
 status|String|状态|返回删除状态
+
