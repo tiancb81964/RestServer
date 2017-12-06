@@ -160,6 +160,7 @@ public class TenantResource {
 
 	/**
 	 * Get user role on the tenant, based on recursive route upper to root.
+	 * 
 	 * @param tenantId
 	 * @param userName
 	 * @return
@@ -284,12 +285,13 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				if (!isAdminOnRecursive(loginUser, tenant.getId())) {
-					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					logger.error("User not privileged to update tenants. Current user " + loginUser
+							+ " has no permission to update tenant " + tenant.getId());
 					return Response.status(Status.UNAUTHORIZED)
-					.entity(new ResourceResponseBean("operation failed",
-							"Current user has no privilege to do the operations.",
-							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-					.build();
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
 				}
 			}
 
@@ -297,7 +299,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to create tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to create tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -414,7 +417,8 @@ public class TenantResource {
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -507,15 +511,18 @@ public class TenantResource {
 							iterator.remove();
 						}
 					}
-//					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-//					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					// Pair<String, ServiceType> bsi =
+					// getInstanceIDandType(tenantId, instanceName);
+					// validateUpdateParameter(tenantId, bsi,
+					// toMap(parameterObj.entrySet()));
 					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
-					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(provisioning.get("backingservice_name").getAsString(),
-							tenantId, parameterObj);
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(
+							provisioning.get("backingservice_name").getAsString(), tenantId, parameterObj);
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -539,7 +546,6 @@ public class TenantResource {
 				ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
 						serviceInstanceJson.toString());
 
-				String quota = null;
 				if (responseBean.getResCodel() == 200) {
 					logger.info("updateServiceInstanceInTenant -> update successfully");
 					JsonElement resBodyJson = new JsonParser().parse(responseBean.getMessage());
@@ -550,12 +556,9 @@ public class TenantResource {
 								"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
 										+ instanceName + ", parameters " + parametersStr);
 						throw new RuntimeException("parameters returned by DF is null!");
-					} else {
-						quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("parameters").toString();
 					}
-					ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
-							quotaString(parametersStr));
+
+					this.updateOCMDatabase(parametersStr, tenantId, instanceName);
 				}
 
 				return Response.ok().entity(responseBean.getMessage()).build();
@@ -584,9 +587,11 @@ public class TenantResource {
 	 * @param tenantId
 	 * @param entry
 	 */
-	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
+	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi,
+			Map<String, String> parameters) {
 		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, bsi.getSecond());
-		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(), bsi.getSecond());
+		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(),
+				bsi.getSecond());
 		checkQuotas(total, allocated, toBean(bsi.getSecond(), parameters));
 	}
 
@@ -603,7 +608,8 @@ public class TenantResource {
 			long available = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
 			long quota = entry.getValue();
 			if (available < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
+				logger.error(
+						"Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
 						entry.getKey(), total.getQuotas().get(entry.getKey()), available, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
@@ -616,10 +622,28 @@ public class TenantResource {
 		return new Pair<String, ServiceType>(bsi.getId(), type);
 	}
 
-	private String quotaString(String parametersStr) {
+	private void updateOCMDatabase(String parametersStr, String tenantId, String instanceName) {
 		JsonElement parameterJon = new JsonParser().parse(parametersStr);
 		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
-		return parameterObj.toString();
+
+		Set<Entry<String, JsonElement>> entrySet = parameterObj.getAsJsonObject().entrySet();
+
+		JsonObject attributes = new JsonObject();
+		JsonObject quota = new JsonObject();
+
+		for (Entry<String, JsonElement> type : entrySet) {
+
+			if (type.getKey().startsWith(Constant.ATTRIBUTES)) {
+				attributes.add(type.getKey(), type.getValue());
+			} else {
+				quota.add(type.getKey(), type.getValue());
+			}
+		}
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quota.toString());
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceAttributes(tenantId, instanceName,
+				attributes.toString());
 	}
 
 	/**
@@ -798,12 +822,13 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				if (!isAdminOnParents(loginUser, tenant.getId())) {
-					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					logger.error("User not privileged to update tenants. Current user " + loginUser
+							+ " has no permission to update tenant " + tenant.getId());
 					return Response.status(Status.UNAUTHORIZED)
-					.entity(new ResourceResponseBean("operation failed",
-							"Current user has no privilege to do the operations.",
-							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-					.build();
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
 				}
 			}
 
@@ -820,7 +845,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(origin.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to update tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to update tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -838,6 +864,7 @@ public class TenantResource {
 
 	/**
 	 * Is user admin on parent tenants(excluding specified tenant itself).
+	 * 
 	 * @param loginUser
 	 * @param tenantId
 	 * @return
@@ -845,7 +872,8 @@ public class TenantResource {
 	private boolean isAdminOnParents(String loginUser, String tenantId) {
 		for (TenantTreeNode node : TenantTreeUtil.constructTree(tenantId).listOriginParents()) {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, node.getId());
-			if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+			if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN)
+					|| role.getRoleName().equals(Constant.SYSADMIN))) {
 				return true;
 			}
 		}
@@ -855,14 +883,17 @@ public class TenantResource {
 
 	/**
 	 * Is user admin on specified tenant or parent tenants.
+	 * 
 	 * @param loginUser
 	 * @param tenantId
-	 * @param include whether to include the specified tenant itself
+	 * @param include
+	 *            whether to include the specified tenant itself
 	 * @return
 	 */
 	private boolean isAdminOnRecursive(String loginUser, String tenantId) {
 		UserRoleView role = getRecursiveRole(tenantId, loginUser);
-		if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+		if (role != null
+				&& (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
 			return true;
 		}
 		logger.debug("User [{}] has no system/tenant admin privilege on parents of tenant: {}", loginUser, tenantId);
