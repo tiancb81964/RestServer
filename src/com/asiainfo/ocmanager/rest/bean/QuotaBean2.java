@@ -5,6 +5,11 @@ import java.util.Map;
 
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 
+/**
+ * Service quota of certain {@linkplain ServiceType}
+ * @author EthanWang
+ *
+ */
 public class QuotaBean2 {
 	private ServiceType type;
 	private Map<String, Long> quotas = new HashMap<>();

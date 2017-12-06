@@ -16,6 +16,8 @@ import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,6 +31,15 @@ public class TenantQuotaUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(TenantQuotaUtils.class);
 
+	/**
+	 * transform the passed service quota to {@linkplain QuotaBean2}
+	 * @param service
+	 * @param serviceQuotaJson
+	 * @return
+	 */
+	public static QuotaBean2 toQuotaBean2(ServiceType service, String serviceQuotaJson) {
+		return QuotaParser.parseBSIQuota(serviceQuotaJson, service);
+	}
 	
 	/**
 	 * Get tenant quota of specified service type. Only those quota 
@@ -41,6 +52,19 @@ public class TenantQuotaUtils {
 		Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantID);
 		QuotaBean2 tenantQuotas = QuotaParser.parseServiceQuotaFromTenant(tenant.getQuota(), type);
 		return tenantQuotas;
+	}
+	
+	/**
+	 * Get tenant quota and parse into a list of quotabeans of all kinds
+	 * of {@linkplain ServiceType}
+	 * @param tenantID
+	 * @return
+	 */
+	public static List<QuotaBean2> getTenantQuotas(String tenantID){
+		Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantID);
+		List<QuotaBean2> services = QuotaParser.parseTenantQuotas(tenant.getQuota());
+		return services;
+
 	}
 	
 	/**
@@ -93,6 +117,29 @@ public class TenantQuotaUtils {
 				}
 			});
 			return new QuotaBean2(serviceType, map);
+		}
+		
+		/**
+		 * Parse tenant quota string into quota list, with each element corresponding to
+		 * one type of service {@linkplain ServiceTypes}
+		 * @param tenantQuotaJson
+		 * @return
+		 */
+		private static List<QuotaBean2> parseTenantQuotas(String tenantQuotaJson){
+			JsonObject json = new JsonParser().parse(tenantQuotaJson).getAsJsonObject();
+			if (json == null) {
+				logger.error("No quota found in tenant [{}] ",  tenantQuotaJson);
+				throw new RuntimeException("No quota found in tenant " + tenantQuotaJson);
+			}
+			List<QuotaBean2> list = Lists.newArrayList();
+			json.entrySet().forEach(s -> {
+				HashMap<String, Long> map = Maps.newHashMap();
+				s.getValue().getAsJsonObject().entrySet().forEach(p -> {
+					map.put(p.getKey(), p.getValue().getAsLong());
+				});
+				list.add(new QuotaBean2(ServiceType.valueOf(s.getKey()), map));
+			});
+			return list;
 		}
 	}
 	

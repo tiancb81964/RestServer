@@ -1,7 +1,7 @@
 package com.asiainfo.ocmanager.rest.bean;
 
 /**
- * Quota of certain resource.
+ * Quota usage of certain resource.
  * 
  * @author EthanWang
  *

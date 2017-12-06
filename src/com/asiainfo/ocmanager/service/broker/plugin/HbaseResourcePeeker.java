@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.HbaseClient;
 
@@ -111,6 +112,11 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 	@Override
 	public List<String> resourceTypes() {
 		return Arrays.asList("maximumTablesQuota", "maximumRegionsQuota");
+	}
+
+	@Override
+	public ServiceType getType() {
+		return ServiceType.hbase;
 	}
 
 }
