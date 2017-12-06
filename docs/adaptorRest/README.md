@@ -17,6 +17,11 @@ __request body:__
     "password": "password1"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+username| String | 用户名|是|
+password| String | 密码|是| 
+
 __response__
 ```
 {
@@ -26,7 +31,12 @@ __response__
     "token": "u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message| String | 返回的消息|
+resCode| int | 响应返回码|200为正常
+status | String | 状态|返回登陆状态
+token | String | 令牌|
 
 2. 用户注销
 ```
@@ -39,18 +49,24 @@ __response__
     "status": "Logout successful!"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+resCode| int | 响应返回码|200为正常
+status| String | 状态|返回登出状态
 3. 获取认证类型 (0:ldap, 1:mysql)
 ```
 GET -H 'token:u1_06834FF564D57A53B88B0A64A02584BE24ED8E2954BBBCB935E88EA777BD77D3' ocmanager/v1/api/authc/type
 ```
+
 __response__
 ```
 {
     "type": 0
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+type| int | 认证类型|0为ldap，1为mysql
 #### __NOTE: All the API call should add the http request header with the authc token. For example:__
 ```
 'token: admin_2D05DA23B89F65C04646A0330752ED26FE59BF7F451700846872438A2023C6E1'
@@ -81,6 +97,7 @@ __response__
 ```
 GET /ocmanager/v1/api/user
 ```
+
 __response:__
 ```
 [
@@ -96,11 +113,20 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 2. 通过用户id获取单个用户
 ```
 GET /ocmanager/v1/api/user/id/{id}
 ```
+
 __response:__
 ```
 {
@@ -113,7 +139,15 @@ __response:__
   "username": "admin"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 3. 通过用户名字获取单个用户
 ```
 GET /ocmanager/v1/api/user/name/{userName}
@@ -130,11 +164,20 @@ __response:__
   "username": "admin"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 4. 创建用户
 ```
 POST /ocmanager/v1/api/user
 ```
+
 __request body:__
 ```
 {
@@ -145,7 +188,13 @@ __request body:__
     "phone": "1234567890"
 }
 ```
-
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+username| String |用户名|是|
+email| String |电子邮件|否|
+description| String| 创建用户描述|否| 
+password| String |密码|是|
+phone| String |电话|否|
 __response:__
 ```
 {
@@ -158,7 +207,15 @@ __response:__
   "username": "createUser001"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 创建用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 
 
 5. 通过用户id更新用户
@@ -168,12 +225,18 @@ PUT /ocmanager/v1/api/user/id/{id}
 
 __request body:__
 ```
+
 {
   "description": "createUser001 description 11111 update",
   "email": "createUser001____update@com",
   "phone": "111111111"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+description| String| 更新用户描述| 否
+email| String |电子邮件|否
+phone| String |电话|否
 
 
 __response:__
@@ -188,7 +251,15 @@ __response:__
   "username": "createUser001"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 更新用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 6. 通过用户名更新用户
 ```
 PUT /ocmanager/v1/api/user/name/{userName}
@@ -202,6 +273,11 @@ __request body:__
   "phone": "33333333"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+description| String| 更新用户描述| 否
+email| String |电子邮件|否
+phone| String |电话|否
 
 
 __response:__
@@ -216,20 +292,35 @@ __response:__
   "username": "createUser001"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+createTime| String | 创建时间|
+description| String| 更新用户描述| 
+email| String |电子邮件|
+id| String |用户id|
+password| String |密码|
+phone| String |电话|
+username| String |用户名|
 
 7. 删除用户
 ```
 DELETE /ocmanager/v1/api/user/{id}
 ``` 
+
+
 __response:__
 ```
 {
   "message": "6afd6428-2468-4069-ac6e-ce5b8b56650e",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "delete user success"
 }
 ```
+字段|类型|描述|备注
+----------|----------------|----|--------|------------|
+message| String | 返回的消息|返回用户id
+resCode| int| 响应返回码|200为正常 
+status| String |状态|返回删除用户状态
 
 8. 修改用户密码（__NOTE:只在enbale mysql 认证后可用__）
 ```
@@ -242,22 +333,30 @@ __request body:__
   "password": "1234567890"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+password| String | 用户新密码|是|
 
 
 __response:__
 ```
 {
   "message": "username001",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "update user password success"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message| String | 返回的消息|返回用户名
+resCode| int|响应返回码|200为正常 
+status| String |状态|返回更新密码状态
 
 9. 检查用户是否是系统管理员
 ```
 GET /ocmanager/v1/api/user/is/admin/{userName}
 ```
+
 __response:__
 ```
 {
@@ -265,13 +364,16 @@ __response:__
   "userName": "admin"
 }
 ```
-
-
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+admin| boolean	 | 是否为系统管理员|true为是，false为不是
+username| String | 用户名|
 10. 通过用户名获取次用户可访问的租户
 ```
 GET /ocmanager/v1/api/user/name/{name}/all/tenants
 ```
+
+
 __response:__
 ```
 [
@@ -290,11 +392,18 @@ __response:__
   }
 ]
 ```
-
-11. 通过用户id获取次用户可访问的租户
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|租户描述|
+id|String|租户id|
+level| int|租户级别|内部保留字段
+name|String|租户名|
+parentId|String|父租户id|
+11. 通过用户id获取此用户可访问的租户
 ```
 GET /ocmanager/v1/api/user/id/{id}/all/tenants
 ```
+
 __response:__
 ```
 [
@@ -313,12 +422,19 @@ __response:__
   }
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|租户描述|
+id|String|租户id|
+level| int|租户级别|内部保留字段
+name|String|租户名|
+parentId|String|父租户id|
 
 12. 通过用户名和租户id获取该租户中此用户可访问的租户
 ```
 GET /ocmanager/v1/api/user/name/{name}/tenant/{tenantId}/children/tenants
 ```
+
 __response:__
 ```
 [
@@ -338,12 +454,19 @@ __response:__
   }
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|租户描述|
+id|String|租户id|
+level| int|租户级别|内部保留字段
+name|String|租户名|
+parentId|String|父租户id|
 
 13. 通过用户id和租户id获取该租户中此用户可访问的租户
 ```
 GET /ocmanager/v1/api/user/id/{id}/tenant/{tenantId}/children/tenants
 ```
+
 __response:__
 ```
 [
@@ -363,12 +486,20 @@ __response:__
   }
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|租户描述|
+id|String|租户id|
+level| int|租户级别|内部保留字段
+name|String|租户名|
+parentId|String|父租户id|
 
 14. 获取所有用户以及该用户关联的租户
 ```
 GET /ocmanager/v1/api/user/with/tenants
 ```
+
+
 __response:__
 ```
 [
@@ -393,12 +524,26 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|描述|
+email|String|邮件
+id|String|用户id
+password|String|密码
+username|String|用户名
+urv|array|用户租户权限视图|内容见以下字段
+roleId|String|角色id|urv字段
+roleName|String|角色名|urv字段
+tenantId|String|租户id|urv字段
+tenantName|String|租户名|urv字段
+userDescription|String|用户描述|urv字段
+userId|String|用户id|urv字段
 
 15. 根据用户id获取用户以及该用户关联的租户
 ```
 GET /ocmanager/v1/api/user/{id}/with/tenants
 ```
+
 __response:__
 ```
 {
@@ -440,7 +585,21 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|描述|
+email|String|邮件
+id|String|用户id
+password|String|密码
+username|String|用户名
+urv|array|用户租户权限视图|内容见以下字段
+roleId|String|角色id|urv字段
+roleName|String|角色名|urv字段
+tenantId|String|租户id|urv字段
+tenantName|String|租户名称|urv字段
+userDescription|String|用户描述|urv字段
+userId|String|用户id|urv字段
+parentTenantName|String|父租户名|urv字段
 
 16. 获取ldap服务其上所有用户（__NOTE:只在enbale ldap 认证后可用__）
 ```
@@ -458,13 +617,16 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+array||此处返回的是用户名称列表
 
 
 17. 根据用户名获取此用户在给定租户下的服务实例授权是否成功
 ```
 GET /ocmanager/v1/api/user/name/{userName}/tenant/{tenantId}/assignments/info
 ```
+
 __response:__
 ```
 [
@@ -479,7 +641,10 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+assignmentStatus|String|授权状态|返回授权状态
+instanceName|String|实例名
 
 
 
@@ -488,6 +653,7 @@ __response:__
 ```
 GET /ocmanager/v1/api/service
 ```
+
 __response:__
 ```
 [
@@ -506,11 +672,17 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|服务描述
+id|String|服务id
+origin|String|来源于哪个service broker
+servicename|String|服务名
 2. 获取单个服务
 ```
 GET /ocmanager/v1/api/service/{id}
 ```
+
 __response:__
 ```
 {
@@ -520,11 +692,17 @@ __response:__
   "servicename": "hbase"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|服务描述
+id|String|服务id
+origin|String|来源于哪个service broker
+servicename|String|服务名
 3. 添加Service broker（添加服务,服务是注册在service broker 里面的,因此会添加service broker 中注册的所有服务）
 ```
 POST /ocmanager/v1/api/service/broker
 ```
+
 __request body:__
 ```
 {
@@ -542,6 +720,16 @@ __request body:__
     }
 }
 ```
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|是|其内容见以下字段|否
+name|String|Service broker的名字|是|metadata字段|否
+spec|json|指定参数|是|其内容见以下字段|否
+url|String|Service broker服务的网址|是|spec字段|否
+username|String|Service broker用户名|是|spec字段|否
+password|String|Service broker密码|是|spec字段|否
 
 __response:__
 ```
@@ -566,7 +754,22 @@ __response:__
   }
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|Service broker的名字|metadata字段|否
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+url|String|Service broker服务的网址|spec字段|否
+username|String|Service broker用户名|spec字段|否
+password|String|Service broker密码|spec字段|否
+status|json|状态|其内容见以下字段|否
+phase|String|阶段|（status字段）new表示新添加服务|否
 4. 删除Service broker（删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务）
 ```
 DELETE /ocmanager/v1/api/service/broker/{name}
@@ -600,12 +803,32 @@ __response:__
   }
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|Service broker的名字|metadata字段|否
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||(metadata字段，其内容见以下字段)|否
+ServiceBroker/LastPing|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+ServiceBroker/NewRetryTimes|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+url|String|Service broker服务的网址|spec字段|否
+username|String|Service broker用户名|spec字段|否
+password|String|Service broker密码|spec字段|否
+status|json|状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Deleting表示删除服务|否
 
 5. 获取Data Foundry服务列表
 ```
 GET /ocmanager/v1/api/service/df
 ```
+
 __response:__
 ```
 {
@@ -775,12 +998,74 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|Service broker的名字|metadata字段|否
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+items|array|条目|其内容见以下字段|否
+metadata|json|源数据|(items字段，其内容见以下字段)|否
+name|String|服务名|metadata字段|否
+generateName|String|架构名称|（metadata字段)HBase是hadoop架构的服务|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+labels|json||（metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+asiainfo.io/servicebroker|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|(items字段，其内容见以下字段)|否
+name|String|服务名|spec字段|否
+id|String|服务id|spec字段|否
+description|String|服务描述|spec字段|否
+bindable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+plan_updateable|boolean||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+tags|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+requires|array||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+metadata|json||spec字段,其内容见以下字段|否
+displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+documentationUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+imageUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+longDescription|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+providerDisplayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+supportUrl|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+plans|array|plan套餐|spec字段,其内容见以下字段|否
+name|String|plan名|plans字段|否
+id|String|plan的id|plans字段|否
+description|String|plan描述|plans字段|否
+metadata|json||(plans字段,其内容见以下字段)|否
+bullets|array||(metadata字段,其内容见以下字段)|否
+Name Space Quota|int|HDFS目录允许创建的最大文件数目|bullet字段|否
+Storage Space Quota(GB)|int|HDFS目录的最大存储容量|bullet字段|否
+HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
+HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
+costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
+unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
+customize|json||(metadata字段,其内容见以下字段)|否
+maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
+maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
+nameSpaceQuota|json|HDFS目录允许创建的最大文件数限额列表|customize字段|否
+storageSpaceQuota|json|HDFS目录的最大存储容量限额列表|customize字段|否
+default|int|默认值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+max|int|最大值|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+price|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+step|int||(maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota、nameSpaceQuota、storageSpaceQuota共有字段|否
+unit|String|单位，HDFS存储容量单位为GB|storageSpaceQuota字段|否
+free|boolean||(plans字段)内部使用字段，使用者可不关心，必须唯一|是
+dashboard_client|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|状态|(items字段，其内容见以下字段)|否
+phase|String|阶段|(status字段)Active表示服务处于启动状态|否
 
 6. 获取多租户平台上所有服务实例列表
 ```
 GET /ocmanager/v1/api/service/all/instances
 ```
+
 __response:__
 ```
 [
@@ -804,12 +1089,21 @@ __response:__
   ...
 ]  
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+id|String|实例id|
+instanceName|String|实例名
+quota|String|配额|返回Hive数据库的最大存储容量，Yarn队列的最大容量。注意格式
+serviceTypeId|String|服务类型id
+serviceTypeName|String|服务类型名
+status|String|服务实例状态
+tenantId|String|租户id
 
 7. 获取指定服务的plan套餐
 ```
 GET /ocmanager/v1/api/service/{serviceName}/plan
 ```
+
 __response:__
 ```
 [
@@ -852,7 +1146,29 @@ __response:__
   }
 ]
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+name|String|plan名||否
+id|String|planid||否
+description|String|plan描述||否
+metadata|json|源数据|其内容见以下字段|否
+bullets|array||(metadata字段,其内容见以下字段)|否
+HBase Maximun Tables|int|HBase命名空间允许的最大的表数目|bullet字段|否
+HBase Maximun Regions|int|HBase命名空间允许的最大的region数目|bullet字段|否
+costs|array||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+amount|json||(costs字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+usd|int||(amount字段)内部使用字段，使用者可不关心，必须唯一|是
+unit|String||(costs字段)内部使用字段，使用者可不关心，必须唯一|是
+displayName|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+customize|json||(metadata字段,其内容见以下字段)|否
+maximumRegionsQuota|json|HBase命名空间允许的最大的region限额列表|customize字段|否
+maximumTablesQuota|json|HBase命名空间允许的最大表限额列表|customize字段|否
+default|int|默认值|maximumRegionsQuota、maximumTablesQuota共有字段|否
+max|int|最大值|maximumRegionsQuota、maximumTablesQuota共有字段|否
+price|int||(maximumRegionsQuota、maximumTablesQuota共有字段)内部使用字段，使用者可不关心，必须唯一|是
+step|int||(maximumRegionsQuota、maximumTablesQuota共有字段共有字段)内部使用字段，使用者可不关心，必须唯一|是
+desc|String|配额描述|maximumRegionsQuota、maximumTablesQuota共有字段|否
+free|boolean||内部使用字段，使用者可不关心，必须唯一|是
 
 
 
@@ -861,6 +1177,7 @@ __response:__
 ```
 GET /ocmanager/v1/api/role
 ```
+
 __response:__
 ```
 [
@@ -884,7 +1201,12 @@ __response:__
   }
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|服务角色的描述
+id|String|服务角色id
+permission|String|权限|允许该服务角色具备的权限
+rolename|String|服务角色名称
 
 ### Tenants APIs
 1. 创建租户
@@ -903,6 +1225,13 @@ __request body:__
 }
 
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+name|String|租户名称|是|
+description|String|租户描述|否|
+parentId|String|父租户id|是|
+quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
 
 
 __response:__
@@ -919,7 +1248,16 @@ __response:__
   }
 }
 ``` 
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
+databaseInfo|json|数据库信息|其内容见以下字段|否
+description|String|租户描述|databaseInfo字段|否
+id|String|租户id|databaseInfo字段|否
+level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称|databaseInfo字段|否
+parentId|String|父租户id|databaseInfo字段|否
+quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
 2. 更新租户
 ```
@@ -935,6 +1273,11 @@ __request body:__
 }
 
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+id|String|租户id|是|
+name|String|租户名称|是|
+quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
 
 __response:__
 ```
@@ -953,10 +1296,24 @@ __response:__
 ```
 
 
+
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
+databaseInfo|json|数据库信息|其内容见以下字段|否
+description|String|租户描述|databaseInfo字段|否
+id|String|租户id|databaseInfo字段|否
+level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称|databaseInfo字段|否
+parentId|String|父租户id|databaseInfo字段|否
+quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
+
 3. 获取所有租户
 ```
 GET /ocmanager/v1/api/tenant
 ```
+
 __response:__
 ```
 [
@@ -979,12 +1336,20 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+description|String|租户描述|租户名|否
+id|String|租户id||否
+level|int|租户级别|内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称||否
+parentId|String|父租户id||否
+quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
 4. 获取单个租户
 ```
 GET /ocmanager/v1/api/tenant/{id}
 ```
+
 __response:__
 ```
 {
@@ -997,11 +1362,19 @@ __response:__
 }
 
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+description|String|租户描述|租户名|否
+id|String|租户id||否
+level|int|租户级别|内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称||否
+parentId|String|父租户id||否
+quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 5. 获取指定租户的所有子租户
 ```
 GET /ocmanager/v1/api/tenant/{id}/children
 ```
+
 __response:__
 ```
 [
@@ -1025,13 +1398,21 @@ __response:__
 ]
 
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+description|String|租户描述|租户名|否
+id|String|租户id||否
+level|int|租户级别|内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称||否
+parentId|String|父租户id||否
+quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 
 
 6. 在租户下创建服务实例
 ```
 POST /ocmanager/v1/api/tenant/{id}/service/instance
 ```
+
 
 __request body:__
 ```
@@ -1053,8 +1434,20 @@ __request body:__
     }
 }
 ```
-
-
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+kind|String||是|内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||是|内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|是|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|是|metadata字段|否
+spec|json|指定参数|是|具体内容参见以下字段|否
+provisioning|json||是|(spec字段)具体内容参见以下字段,内部使用字段，使用者可不关心|否
+backingservice_name|String|backingservice名称|是|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|是|(provisioning字段)与backingservice_plan_guid一一对应|否
+parameters|json||是|(provisioning字段,其内容见以下字段)|否
+cuzBsiName|String|后端服务的真实名字|是|(parameters字段)|否
+maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|是|(parameters字段)|否
+maximumTablesQuota|String|Base命名空间允许的最大的表数目|是|(parameters字段)|否
 __response:__
 ```
 {
@@ -1095,12 +1488,43 @@ __response:__
   }
 }
 ``` 
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+cuzBsiName|String|后端服务的真实名字|(parameters字段)|否
+maximumRegionsQuota|String|HBase命名空间允许的最大的region数目|(parameters字段)|否
+maximumTablesQuota|String|Base命名空间允许的最大的表数目|(parameters字段)|否
+credentials|||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|服务实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|status字段|否
 
 7. 获取租户下所有服务实例
 ```
 GET /ocmanager/v1/api/tenant/{id}/service/instances
 ```
+
 __response:__
 ```
 [
@@ -1116,12 +1540,21 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+id|String|服务实例id
+instanceName|String|服务实例名称
+quota|String|配额|返回Kafka该服务实例的Topic 的最大存活时间,Topic 的分区数,Topic 的每一个分区最大存储容量信息
+serviceTypeId|String|服务类型id
+serviceTypeName|String|服务类型名称
+status|String|服务实例状态|Unbound表示实例运行异常即已删除
+tenantId|String|租户id
 
 8. 删除租户下某个服务实例
 ```
 DELETE /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
 ```
+
 __response:__
 ```
 {
@@ -1173,7 +1606,46 @@ __response:__
   }
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+deletionTimestamp|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||(metadata字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|其内容见以下字段|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)|否
+instance_id|String|Kafka实例id|parameters字段|否
+partitionSize|String|KafkaTopic的每一个分区最大存储容量|parameters字段|否
+topicQuota|String|Kafka Topic的分区数|parameters字段|否
+topicTTL|String|KafkaTopic的最大存活时间|parameters字段|否
+credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+ZooKeeper_URI|String|ZooKeeper网址|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+topic|String|Kafka Topic|credentials字段|否
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Unbound表示实例运行异常即已删除，bound表示实例运行正常|否
+action|String|动作|(status字段)_ToDelete表示删除租户下的某个服务实例|否
 
 9. 绑定租户，用户和角色
 ```
@@ -1187,7 +1659,10 @@ __request body:__
     "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae"
 }
 ```
-
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userId|String|用户id|是
+roleId|String|角色id|是
 
 __response:__
 ```
@@ -1197,12 +1672,17 @@ __response:__
   "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+roleId|String|角色id|
+tenantId|String|租户id
+userId|String|用户id|
 
 10. 获取租户下所有用户以及用户角色
 ```
 GET /ocmanager/v1/api/tenant/{id}/users
 ```
+
 __response:__
 ```
 [
@@ -1230,7 +1710,17 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+roleId|String|角色id|
+roleName|String|角色名称
+tenantId|String|租户id
+userDescription|String|用户描述
+userEmail|String|用户电子邮件
+userId|String|用户id|
+userName|String|用户名
+userPassword|String|用户密码
+userPhone|String|用户电话
 
 11. 更新租户中用户的角色
 ```
@@ -1244,7 +1734,10 @@ __request body:__
     "roleId": "a12a84d0-524a-11e7-9dbb-fa163ed7d0ae"
 }
 ```
-
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+userId|String|用户id|是
+roleId|String|角色id|是
 
 __response:__
 ```
@@ -1254,26 +1747,35 @@ __response:__
   "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
 ``` 
-
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+roleId|String|角色id|
+tenantId|String|租户id
+userId|String|用户id|
 12. 解除租户，用户和角色的绑定
 ```
 DELETE /ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment
 ```
+
 __response:__
 ```
 {
   "message": "011ea988-abc2-4267-9215-cacf111716d1",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "delete success"
 }
 ``` 
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息|返回用户id
+resCode|int|响应返回码|200为正常
+status|String|状态|返回解除状态，delete success表示解除成功
 
 13. 删除租户
 ```
 DELETE /ocmanager/v1/api/tenant/{id}
 ```
+
 __response:__
 ```
 {
@@ -1287,12 +1789,21 @@ __response:__
   }
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+dataFoundryInfo|String|dataFoundry执行信息|内部使用字段，使用者可不关心，必须唯一|是
+databaseInfo|json|数据库信息|其内容见以下字段|否
+description|String|租户描述|databaseInfo字段|否
+id|String|租户id|databaseInfo字段|否
+level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不关心，必须唯一|是
+name|String|租户名称|databaseInfo字段|否
+parentId|String|父租户id|databaseInfo字段|否
 
 14. 获取服务实例访问信息
 ```
 GET /ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info
 ```
+
 __response:__
 ```
 {
@@ -1356,7 +1867,54 @@ __response:__
   }
 }
 ```
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||metadata字段,其内容见以下字段|否
+datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|(其内容见以下字段)|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)|否
+accesses|String|访问权限|(parameters字段)read,write,execute表示可读可写可执行|否
+instance_id|String|租户名称|parameters字段|否
+nameSpaceQuota|String|HDFS目录允许创建的最大文件数目|parameters字段|否
+storageSpaceQuota|String|HDFS目录的最大存储容量|parameters字段|否
+user_name|String|用户名|parameters字段|否
+credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound_time|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_uuid|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_hadoop_user|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+credentials|||(binding字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+user_name|String|用户名|credentials字段|否
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Unbound表示实例运行异常即删除，bound表示实例运行正常|否
 15. 更新租户单个服务实例
 ```
 PUT /ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}
@@ -1372,7 +1930,11 @@ __request body:__
         }
 }
 ```
-
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+parameters|json|内容见以下字段|是
+hiveStorageQuota|String|(parameters字段)Hive数据库的最大存储容量|是
+yarnQueueQuota|String|(parameters字段)Yarn队列的最大容量|是
 
 __response:__
 ```
@@ -1435,12 +1997,58 @@ __response:__
   }
 }
 ``` 
-
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+kind|String||内部使用字段，使用者可不关心，必须唯一|是
+apiVersion|String||内部使用字段，使用者可不关心，必须唯一|是
+metadata|json|源数据|其内容见以下字段|否
+name|String|ClusterManage的服务实例名称的名字|metadata字段|否
+namespace|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+selfLink|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+uid|String||(metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+resourceVersion|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+creationTimestamp|String||（metadata字段)内部使用字段，使用者可不关心，必须唯一|是
+annotations|json||(metadata字段)其内容见以下字段|否
+datafoundry.io/servicebroker|String||(annotations字段)内部使用字段，使用者可不关心，必须唯一|是
+spec|json|指定参数|(其内容见以下字段)|否
+provisioning|json||(spec字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+dashboard_url|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_name|String|backingservice名称|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_plan_guid|String|backingservice唯一标识符|(provisioning字段)与backingservice_plan_guid一一对应|否
+backingservice_spec_id|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+backingservice_plan_name|String||(provisioning字段)内部使用字段，使用者可不关心，必须唯一|是
+parameters|json||(provisioning字段,其内容见以下字段)|否
+hiveStorageQuota|String|Hive数据库的最大存储容量|parameters字段|否
+yarnQueueQuota|String|Yarn队列的最大容量|parameters字段|否
+credentials|||(provisioning字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+userprovidedservice|json||(spec字段,其内容见以下字段)内部使用字段，使用者可不关心|否
+credentials|||(userprovidedservice字段)内部使用字段，使用者可不关心，必须唯一|是
+binding|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+bound_time|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_uuid|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+bind_hadoop_user|String||(binding字段)内部使用字段，使用者可不关心，必须唯一|是
+credentials|||(binding字段,具体内容参见以下字段)内部使用字段，使用者可不关心|否
+HDFS Path|String|HDFS路径|credentials字段|否
+host|String|主机|credentials字段|否
+port|String|端口|credentials字段|否
+url|String|HDFS网址|credentials字段|否
+user_name|String|用户名|credentials字段|否
+bound|int||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+instance_id|String|实例id|(spec字段)|否
+tags|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
+status|json|服务实例状态|其内容见以下字段|否
+phase|String|阶段|(status字段)Unbound表示实例运行异常，bound表示实例运行正常|否
+patch|String|补丁|(status字段)Update为更新实例|否
 
 16. 获取角色根据租户和用户名
 ```
 GET /ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role
 ```
+
 __response:__
 ```
 {
@@ -1452,13 +2060,22 @@ __response:__
   "userName": "zhaoyim"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+permission|String|该角色权限
+roleId|String|角色id
+roleName|String|角色名称
+tenantId|String|租户id
+userId|String|用户id
+userName|String|用户名称
 
 ### OCDP service instances quota APIs
 1. 获取大数据平台HDFS服务实例用量
 ```
 GET /ocmanager/v1/api/quota/hdfs?path={HDFS Path}
 ```
+
+
 __response:__
 ```
 {
@@ -1480,11 +2097,19 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|HDFS服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|HDFS服务实例用量名称，其中nameSpaceQuota表示HDFS目录允许创建的最大文件数目；storageSpaceQuota表示HDFS目录的最大存储容量|items字段
+size|String|HDFS服务实例分配资源的总数|(items字段)对应name
+used|String|HDFS服务实例已使用的资源数|(items字段)
 2. 获取大数据平台Hbase服务实例用量
 ```
 GET /ocmanager/v1/api/quota/hbase/{HBaseNameSpace}
 ```
+
 __response:__
 ```
 {
@@ -1506,12 +2131,20 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|Hbase服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|Hbase服务实例用量名称，其中maximumRegionsQuota表示HBase命名空间允许的最大的region数目；maximumTablesQuota表示HBase命名空间允许的最大的表数目|items字段
+size|String|Hbase服务实例分配资源的总数|(items字段)对应name
+used|String|Hbase服务实例已使用的资源数|(items字段)
 
 3. 获取大数据平台kafka服务实例用量
 ```
 GET /ocmanager/v1/api/quota/kafka/{topic}
 ```
+
 __response:__
 ```
 {
@@ -1533,12 +2166,20 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|Kafka服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|Kafka服务实例用量名称，其中topicQuota表示KafkaTopic的分区数；partitionSize表示KafkaTopic的每一个分区最大存储容量|items字段
+size|String|Kafka服务实例分配资源的总数|(items字段)对应name
+used|String|Kafka服务实例已使用的资源数|(items字段)
 
 4. 获取大数据平台MapReduce服务实例用量
 ```
 GET /ocmanager/v1/api/quota/mapreduce/{queuename}
 ```
+
 __response:__
 ```
 {
@@ -1553,12 +2194,20 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|MapReduce服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|MapReduce服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
+size|String|MapReduce服务实例分配资源的总数|(items字段)对应name
+used|String|MapReduce服务实例已使用的资源数|(items字段)
 
 5. 获取大数据平台Spark服务实例用量
 ```
 GET /ocmanager/v1/api/quota/spark/{queuename}
 ```
+
 __response:__
 ```
 {
@@ -1573,12 +2222,20 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|Spark服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|Spark服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量|items字段
+size|String|Spark服务实例分配资源的总数|(items字段)对应name
+used|String|Spark服务实例已使用的资源数|(items字段)
 
 6. 获取大数据平台Hive服务实例用量
 ```
 GET /ocmanager/v1/api/quota/hive/{dbname}?queue={queuename}
 ```
+
 __response:__
 ```
 {
@@ -1600,7 +2257,14 @@ __response:__
   ]
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+items|array|项|内容见以下字段
+available|String|Hive服务实例可用资源的数量|items字段
+desc|String|描述|items字段
+name|String|Hive服务实例用量名称，其中yarnQueueQuota表示Yarn队列的最大容量;storageSpaceQuota表示Hive数据库的最大存储容量|items字段
+size|String|Hive服务实例分配资源的总数|(items字段)对应name
+used|String|Hive服务实例已使用的资源数|(items字段)
 ### Download cluster hosts file
 1. 下载集群主机列表（hosts 文件）
 ```
@@ -1628,17 +2292,23 @@ __request body:__
     "krbusername": "zhaoyim"
 }
 ```
-
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+krbusername|String|Kerberos keytab名称|是
 
 __response:__
 ```
 {
   "message": "zhaoyim.keytab created",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "generate keytab successfully!"
 }
 ``` 
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息
+resCode|int|响应返回码|200为正常
+status|String|状态|返回创建状态
 2. 下载Kerberos keytab
 ```
 GET /ocmanager/v1/api/kerberos/keytab/{userName}
@@ -1680,7 +2350,9 @@ __response:__
   "ENABLE_KERBEROS": "true",
 }
 ```  
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+ENABLE_KERBEROS|String|OCM是否开启Kerberos|true为已开启
 
 ### Get OCManager ldap configuration information APIs
 1. 获取OCM链接ldap的配置信息
@@ -1688,6 +2360,7 @@ __response:__
 ```
 GET /ocmanager/v1/api/ldap/configuration
 ```
+
 __response:__
 ```
 {
@@ -1695,19 +2368,25 @@ __response:__
   "USER_DN_TEMPLATE": "uid={0},ou=People,dc=asiainfo,dc=com"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+LDAP_ADDR|String|LDAP地址
+USER_DN_TEMPLATE|String|distinguished name模板
 2. OCM是否开启ldap
 
 ```
 GET /ocmanager/v1/api/ldap/status
 ```
+
 __response:__
 ```
 {
   "ENABLE_LDAP": "true",
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+ENABLE_LDAP|String|OCM是否开启ldap|true为已开启
 
 ### Get OCManager Ambari configuration and configuration files APIs
 1. 下载ambari yarn cleint configuration files
@@ -1759,38 +2438,32 @@ curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534
 ```
 GET /ocmanager/v1/api/metrics/kafka/serviceName
 ```
+
 __response:__
 ```
 {
     "oc.kafka.serviceName": "ocdp"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+oc.kafka.serviceName|String|返回Kafka的serviceName
 2. 获取RM连接信息
 
 ```
 GET /ocmanager/v1/api/metrics/resourcemanager/addresses
 ```
+
 __response:__
 ```
 {
     "RM_ADDR": "aicloud1.asiainfo.com:8088,aicloud2.asiainfo.com:8088"
 }
 ```
-
-3. 获取hdp版本信息
-
-```
-GET /ocmanager/v1/api/metrics/hdp/version
-```
-__response:__
-```
-{
-    "HDP_VERSION": "2.6.0.3-8"
-}
-```
-
-### Dashboard Links APIs
+字段|类型|描述|备注
+----------|----------------|----|------------|
+RM_ADDR|String|ResourceManager连接地址
+### Dashboard Links APIs （此部分为内部使用，外部用户可忽略）
 1. 添加多租户平台首页连接
 ```
 POST /ocmanager/v1/api/dashboard/link
@@ -1806,21 +2479,33 @@ __request body:__
   "name": "多租户管理平台"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+blank|boolean|是否空白|是|true为空白,false为非空白
+description|String|多租户平台首页描述|否
+href|String|首页链接|是|
+imageUrl|String|图片|是|
+name|String|多租户平台名称|是|
 
 
 __response:__
 ```
 {
   "message": "Add successfully",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "successful"
 }
 ``` 
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息|添加成功
+resCode|int|响应返回码|200为正常
+status|String|状态|返回添加状态
 2. 获取多租户平台首页所有连接
 ```
 GET /ocmanager/v1/api/dashboard/link
 ```
+
 __response:__
 ```
 [
@@ -1835,11 +2520,19 @@ __response:__
   ...
 ]
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+blank|boolean|是否空白|true为空白,false为非空白
+description|String|多租户平台首页描述
+href|String|首页链接|
+id|int|链接id
+imageUrl|String|图片|
+name|String|多租户平台名称|
 3. 获取多租户平台首页连接通过连接名
 ```
 GET /ocmanager/v1/api/dashboard/link/{name}
 ```
+
 __response:__
 ```
 {
@@ -1851,6 +2544,14 @@ __response:__
   "name": "多租户管理平台"
 }
 ```
+字段|类型|描述|备注
+----------|----------------|----|------------|
+blank|boolean|是否空白|true为空白,false为非空白
+description|String|多租户平台首页描述
+href|String|首页链接|
+id|int|链接id
+imageUrl|String|图片|
+name|String|多租户平台名称|
 
 4. 更新多租户平台首页连接通过id
 ```
@@ -1867,27 +2568,43 @@ __request body:__
   "name": "多租户管理平台_change"
 }
 ```
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+blank|boolean|是否空白|是|true为空白,false为非空白
+description|String|多租户平台首页描述|否
+href|String|首页链接|是|
+imageUrl|String|图片|是|
+name|String|多租户平台名称|是|
 
 
 __response:__
 ```
 {
   "message": "Update successfully",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "successful"
 }
 ``` 
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息|更新成功
+resCode|int|响应返回码|200为正常
+status|String|状态|返回更新状态
 5. 删除多租户平台首页连接通过连接名
 ```
 DELETE /ocmanager/v1/api/dashboard/link/{id}
 ```
+
 __response:__
 ```
 {
   "message": "Delete successfully",
-  "resCodel": 200,
+  "resCode": 200,
   "status": "successful"
 }
 ```
-
+字段|类型|描述|备注
+----------|----------------|----|------------|
+message|String|返回的消息|删除成功
+resCode|int|响应返回码|200为正常
+status|String|状态|返回删除状态
