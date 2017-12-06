@@ -1960,7 +1960,7 @@ __response:__
     "quota": "{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
   }
 }
-``` 
+```
 
 ### 2.5.2更新租户（/ocmanager/v1/api/tenant/） 
 	
@@ -2329,7 +2329,7 @@ __response:__
     "phase": "Provisioning"
   }
 }
-``` 
+```
 
 ### 2.5.7获取租户下所有服务实例（/ocmanager/v1/api/tenant/{id}/service/instances/） 
 	
@@ -2563,7 +2563,7 @@ __response:__
   "tenantId": "09367148-c72a-413f-b1de-5a23b566d809",
   "userId": "011ea988-abc2-4267-9215-cacf111716d1"
 }
-``` 
+```
 
 ### 2.5.10获取租户下所有用户以及用户角色（/ocmanager/v1/api/tenant/{id}/users/） 
 	
@@ -3075,7 +3075,7 @@ __response:__
     "patch": "Update"
   }
 }
-``` 
+```
 
 ### 2.5.16获取角色根据租户和用户名（/ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role/） 
 	
@@ -3125,6 +3125,146 @@ __response:__
   "tenantId": "zhaoyim-1502764945",
   "userId": "8f9adc49-bf64-4358-bb74-ad1a2c657c35",
   "userName": "zhaoyim"
+}
+```
+
+### 2.5.17获取租户资源使用明细（/ocmanager/v1/api/tenant/{tenantId}/quotas） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/admin-1512542444/quotas
+    请求方式：GET
+
+#### 2.5.17.1请求参数
+
+##### 2.5.17.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+
+#### 2.5.17.2返回参数
+
+##### 2.5.17.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+id|String|租户id
+services|Array|服务列表	
+type|String|服务类型
+limitations|JsonObject|服务资源限额
+instances|Array|服务实例列表
+instanceId|String|服务实例id
+usage|Array|服务实例资源使用情况
+name|String|服务实例资源名称
+size|String|服务实例分配资源大小
+used|String|服务实例已使用资源大小
+available|String|服务实例空闲资源大小
+desc|String|服务实例资源路径
+
+
+#### 2.5.17.3报文示例
+
+##### 2.5.17.3.1请求报文示例
+
+```
+http://127.0.0.1:8080/ocmanager/v1/api/tenant/admin-1512542444/quotas
+```
+
+##### 2.5.17.3.2返回报文示例
+
+
+__response:__
+
+```
+{
+    "id": "admin-1512542444",
+    "services": [
+        {
+            "instances": [],
+            "limitations": {
+                "quotas": {
+                    "yarnQueueQuota": 0
+                },
+                "type": "mapreduce"
+            },
+            "type": "mapreduce"
+        },
+        {
+            "instances": [
+                {
+                    "instanceId": "084ad5c0-da51-11e7-988e-fa163efdbea8",
+                    "type": "hdfs",
+                    "usage": [
+                        {
+                            "available": "1000",
+                            "desc": "/testTenantQuota",
+                            "name": "nameSpaceQuota",
+                            "size": "1000",
+                            "used": "0"
+                        },
+                        {
+                            "available": "1024000000000",
+                            "desc": "/testTenantQuota",
+                            "name": "storageSpaceQuota",
+                            "size": "1024000000000",
+                            "used": "0"
+                        }
+                    ]
+                }
+            ],
+            "limitations": {
+                "quotas": {
+                    "storageSpaceQuota": 1500,
+                    "nameSpaceQuota": 1500
+                },
+                "type": "hdfs"
+            },
+            "type": "hdfs"
+        },
+        {
+            "instances": [],
+            "limitations": {
+                "quotas": {
+                    "maximumRegionsQuota": 0,
+                    "maximumTablesQuota": 0
+                },
+                "type": "hbase"
+            },
+            "type": "hbase"
+        },
+        {
+            "instances": [],
+            "limitations": {
+                "quotas": {
+                    "partitionSize": 0,
+                    "topicQuota": 0,
+                    "topicTTL": 0
+                },
+                "type": "kafka"
+            },
+            "type": "kafka"
+        },
+        {
+            "instances": [],
+            "limitations": {
+                "quotas": {
+                    "yarnQueueQuota": 0
+                },
+                "type": "spark"
+            },
+            "type": "spark"
+        },
+        {
+            "instances": [],
+            "limitations": {
+                "quotas": {
+                    "storageSpaceQuota": 0,
+                    "yarnQueueQuota": 0
+                },
+                "type": "hive"
+            },
+            "type": "hive"
+        }
+    ]
 }
 ```
 
