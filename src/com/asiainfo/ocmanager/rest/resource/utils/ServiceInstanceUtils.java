@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -154,11 +156,32 @@ public class ServiceInstanceUtils {
 					// get the latest status and insert into DB
 					if ((resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning").get("parameters")
 							.isJsonNull())) {
-						// TODO should get df service quota
+						logger.error(
+								"Abnormal response from DF, parameters returned by DF is null! CreateRquest: instanceName "
+										+ instanceName);
+						throw new RuntimeException("parameters returned by DF is null!");
 					} else {
-						// parameters are a json format should use to string
-						serviceInstance.setQuota(serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("parameters").toString());
+
+						JsonElement parameters = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
+								.getAsJsonObject("provisioning").getAsJsonObject("parameters");
+
+						Set<Entry<String, JsonElement>> entrySet = parameters.getAsJsonObject().entrySet();
+
+						JsonObject attributes = new JsonObject();
+						JsonObject quota = new JsonObject();
+
+						for (Entry<String, JsonElement> type : entrySet) {
+
+							if (type.getKey().startsWith(Constant.ATTRIBUTES)) {
+								attributes.add(type.getKey(), type.getValue());
+							} else {
+								quota.add(type.getKey(), type.getValue());
+							}
+						}
+
+						serviceInstance.setQuota(quota.toString());
+						serviceInstance.setAttributes(attributes.toString());
+
 					}
 					serviceInstance.setStatus(phase);
 					// set instance id, the id generated after Provisioning

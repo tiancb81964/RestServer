@@ -105,6 +105,7 @@ public class ServiceInstancePersistenceWrapper {
 	}
 
 	/**
+	 * update the service instance quota
 	 * 
 	 * @param tenantId
 	 * @param instanceName
@@ -116,6 +117,29 @@ public class ServiceInstancePersistenceWrapper {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
 
 			mapper.updateInstanceQuota(tenantId, instanceName, quota);
+
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * update the service instance attributes
+	 * 
+	 * @param tenantId
+	 * @param instanceName
+	 * @param attributes
+	 */
+	public static void updateServiceInstanceAttributes(String tenantId, String instanceName, String attributes) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
+
+			mapper.updateInstanceAttributes(tenantId, instanceName, attributes);
 
 			session.commit();
 		} catch (Exception e) {

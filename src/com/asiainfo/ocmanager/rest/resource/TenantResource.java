@@ -546,7 +546,6 @@ public class TenantResource {
 				ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
 						serviceInstanceJson.toString());
 
-				String quota = null;
 				if (responseBean.getResCodel() == 200) {
 					logger.info("updateServiceInstanceInTenant -> update successfully");
 					JsonElement resBodyJson = new JsonParser().parse(responseBean.getMessage());
@@ -557,12 +556,9 @@ public class TenantResource {
 								"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
 										+ instanceName + ", parameters " + parametersStr);
 						throw new RuntimeException("parameters returned by DF is null!");
-					} else {
-						quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("parameters").toString();
 					}
-					ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
-							quotaString(parametersStr));
+
+					this.updateOCMDatabase(parametersStr, tenantId, instanceName);
 				}
 
 				return Response.ok().entity(responseBean.getMessage()).build();
@@ -574,10 +570,31 @@ public class TenantResource {
 		}
 	}
 
-	private String quotaString(String parametersStr) {
+
+
+	private void updateOCMDatabase(String parametersStr, String tenantId, String instanceName) {
+
 		JsonElement parameterJon = new JsonParser().parse(parametersStr);
 		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
-		return parameterObj.toString();
+
+		Set<Entry<String, JsonElement>> entrySet = parameterObj.getAsJsonObject().entrySet();
+
+		JsonObject attributes = new JsonObject();
+		JsonObject quota = new JsonObject();
+
+		for (Entry<String, JsonElement> type : entrySet) {
+
+			if (type.getKey().startsWith(Constant.ATTRIBUTES)) {
+				attributes.add(type.getKey(), type.getValue());
+			} else {
+				quota.add(type.getKey(), type.getValue());
+			}
+		}
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quota.toString());
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceAttributes(tenantId, instanceName,
+				attributes.toString());
 	}
 
 	/**
