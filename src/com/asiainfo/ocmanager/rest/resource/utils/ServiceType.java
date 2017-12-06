@@ -13,7 +13,9 @@ public enum ServiceType {
 	kafka("kafka", "topicTTL", "topicQuota", "partitionSize"),
 	spark("spark", "yarnQueueQuota"),
 	storm("storm"),
-	redis("redis");
+	redis("redis"),
+	mongo("mongo", "volumeSize"),
+	greenpulm("greenpulm", "volumeSize");
 	
 	private String name;
 	private String[] quota;

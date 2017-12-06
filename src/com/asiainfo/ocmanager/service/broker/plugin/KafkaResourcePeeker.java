@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.KafkaClient;
 
@@ -56,6 +57,11 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 	@Override
 	public List<String> resourceTypes() {
 		return Arrays.asList("topicQuota", "partitionSize");
+	}
+
+	@Override
+	public ServiceType getType() {
+		return ServiceType.kafka;
 	}
 
 }

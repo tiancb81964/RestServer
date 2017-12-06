@@ -8,6 +8,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.HDFSClient;
 
@@ -65,6 +66,11 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 	@Override
 	public List<String> resourceTypes() {
 		return Arrays.asList("storageSpaceQuota");
+	}
+
+	@Override
+	public ServiceType getType() {
+		return ServiceType.hive;
 	}
 
 }
