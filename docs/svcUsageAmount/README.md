@@ -1,5 +1,52 @@
 ![Service Usage Amount API](serviceusageamount.png "Service Usage Amount API")
 
+
+
+## Restart instance API
+
+
+仅仅支持容器实例的重启。
+
+```
+PUT /sapi/v1/namespaces/:name/instances/:instance_name
+```
+
+### 路径参数
+
+<table>
+    <tr>
+        <td>参数名</td>
+        <td>描述</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>namespace 名称</td>
+    </tr>
+    <tr>
+        <td>instance_name</td>
+        <td>服务实例名称</td>
+    </tr>
+</table>
+
+### API响应
+
+* HTTP code: 200
+* Content-Type: application/json
+
+
+### 示例
+
+```
+PUT /sapi/v1/namespaces/san/instances/hbase-instance
+```
+```json
+{
+  "code": 200,
+  "message": ""
+}
+```
+
+
 ## Amount API
 
 Amount API 由前端／适配器调用，返回某个服务实例的资源统计信息。
