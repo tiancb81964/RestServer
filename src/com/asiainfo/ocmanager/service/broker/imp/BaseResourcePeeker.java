@@ -26,7 +26,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	public BaseResourcePeeker() {
 		setup();
 	}
-
+	
 	@Override
 	public List<String> getResourcesByType(String resourceType) {
 		return this.resources.getResources(resourceType);
@@ -67,7 +67,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	private void findUsage() {
 		fetchAction();
 	}
-
+	
 	/**
 	 * Will be called only once at the end of peeker lifetime to do cleanup
 	 * work.

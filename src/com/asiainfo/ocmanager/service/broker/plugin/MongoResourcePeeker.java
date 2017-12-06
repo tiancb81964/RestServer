@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 
+import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
 import com.asiainfo.ocmanager.service.client.MongoDBClient;
 import com.mongodb.client.MongoCursor;
@@ -54,6 +55,11 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 	@Override
 	public List<String> resourceTypes() {
 		return Arrays.asList("volumeSize");
+	}
+
+	@Override
+	public ServiceType getType() {
+		return ServiceType.mongo;
 	}
 
 }

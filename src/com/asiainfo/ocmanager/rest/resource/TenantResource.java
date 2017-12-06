@@ -1,11 +1,8 @@
 package com.asiainfo.ocmanager.rest.resource;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -21,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.hadoop.hbase.util.Pair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -37,9 +33,11 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.QuotaBean2;
+import com.asiainfo.ocmanager.rest.bean.QuotaBean;
+import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuota;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -58,9 +56,13 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaChec
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
+import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
+import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -160,6 +162,7 @@ public class TenantResource {
 
 	/**
 	 * Get user role on the tenant, based on recursive route upper to root.
+	 * 
 	 * @param tenantId
 	 * @param userName
 	 * @return
@@ -284,12 +287,13 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				if (!isAdminOnRecursive(loginUser, tenant.getId())) {
-					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					logger.error("User not privileged to update tenants. Current user " + loginUser
+							+ " has no permission to update tenant " + tenant.getId());
 					return Response.status(Status.UNAUTHORIZED)
-					.entity(new ResourceResponseBean("operation failed",
-							"Current user has no privilege to do the operations.",
-							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-					.build();
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
 				}
 			}
 
@@ -297,7 +301,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to create tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to create tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -414,7 +419,8 @@ public class TenantResource {
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -507,15 +513,16 @@ public class TenantResource {
 							iterator.remove();
 						}
 					}
-//					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-//					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					// Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
+					// validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
 					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
-					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(provisioning.get("backingservice_name").getAsString(),
-							tenantId, parameterObj);
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(
+							provisioning.get("backingservice_name").getAsString(), tenantId, parameterObj);
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -567,55 +574,6 @@ public class TenantResource {
 		}
 	}
 
-	private Map<String, String> toMap(Set<Entry<String, JsonElement>> entrySet) {
-		Map<String, String> map = new HashMap<>();
-		Iterator<Entry<String, JsonElement>> it = entrySet.iterator();
-		while (it.hasNext()) {
-			Entry<String, JsonElement> kv = it.next();
-			map.put(kv.getKey(), kv.getValue().getAsString());
-		}
-		return map;
-	}
-
-	/**
-	 * Checking whether volumn of parameters is valid. Exception will be thrown
-	 * if parameters exceeeded available maximum.
-	 * 
-	 * @param tenantId
-	 * @param entry
-	 */
-	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
-		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, bsi.getSecond());
-		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(), bsi.getSecond());
-		checkQuotas(total, allocated, toBean(bsi.getSecond(), parameters));
-	}
-
-	private QuotaBean2 toBean(ServiceType type, Map<String, String> parameters) {
-		Map<String, Long> map = new HashMap<>();
-		for (Entry<String, String> en : parameters.entrySet()) {
-			map.put(en.getKey(), Long.valueOf(en.getValue()));
-		}
-		return new QuotaBean2(type, map);
-	}
-
-	private void checkQuotas(QuotaBean2 total, QuotaBean2 allocated, QuotaBean2 parameters) {
-		for (Entry<String, Long> entry : parameters.getQuotas().entrySet()) {
-			long available = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
-			long quota = entry.getValue();
-			if (available < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
-						entry.getKey(), total.getQuotas().get(entry.getKey()), available, quota);
-				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
-			}
-		}
-	}
-
-	private Pair<String, ServiceType> getInstanceIDandType(String tenantId, String instanceName) {
-		ServiceInstance bsi = ServiceInstancePersistenceWrapper.getServiceInstance(tenantId, instanceName);
-		ServiceType type = ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
-		return new Pair<String, ServiceType>(bsi.getId(), type);
-	}
-
 	private String quotaString(String parametersStr) {
 		JsonElement parameterJon = new JsonParser().parse(parametersStr);
 		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
@@ -623,8 +581,8 @@ public class TenantResource {
 	}
 
 	/**
-	 * Filter request parameters, remove unchanged parameters for better
-	 * performance of backend services.
+	 * Filter request parameters, remove unchanged parameters for better performance
+	 * of backend services.
 	 * 
 	 * @param instanceName
 	 * @param instanceName2
@@ -798,12 +756,13 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				if (!isAdminOnParents(loginUser, tenant.getId())) {
-					logger.error("User not privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+					logger.error("User not privileged to update tenants. Current user " + loginUser
+							+ " has no permission to update tenant " + tenant.getId());
 					return Response.status(Status.UNAUTHORIZED)
-					.entity(new ResourceResponseBean("operation failed",
-							"Current user has no privilege to do the operations.",
-							ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-					.build();
+							.entity(new ResourceResponseBean("operation failed",
+									"Current user has no privilege to do the operations.",
+									ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+							.build();
 				}
 			}
 
@@ -820,7 +779,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(origin.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to update tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to update tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -838,6 +798,7 @@ public class TenantResource {
 
 	/**
 	 * Is user admin on parent tenants(excluding specified tenant itself).
+	 * 
 	 * @param loginUser
 	 * @param tenantId
 	 * @return
@@ -845,7 +806,8 @@ public class TenantResource {
 	private boolean isAdminOnParents(String loginUser, String tenantId) {
 		for (TenantTreeNode node : TenantTreeUtil.constructTree(tenantId).listOriginParents()) {
 			UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, node.getId());
-			if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+			if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN)
+					|| role.getRoleName().equals(Constant.SYSADMIN))) {
 				return true;
 			}
 		}
@@ -855,14 +817,17 @@ public class TenantResource {
 
 	/**
 	 * Is user admin on specified tenant or parent tenants.
+	 * 
 	 * @param loginUser
 	 * @param tenantId
-	 * @param include whether to include the specified tenant itself
+	 * @param include
+	 *            whether to include the specified tenant itself
 	 * @return
 	 */
 	private boolean isAdminOnRecursive(String loginUser, String tenantId) {
 		UserRoleView role = getRecursiveRole(tenantId, loginUser);
-		if (role != null && (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
+		if (role != null
+				&& (role.getRoleName().equals(Constant.TENANTADMIN) || role.getRoleName().equals(Constant.SYSADMIN))) {
 			return true;
 		}
 		logger.debug("User [{}] has no system/tenant admin privilege on parents of tenant: {}", loginUser, tenantId);
@@ -1133,4 +1098,33 @@ public class TenantResource {
 
 	}
 
+	@GET
+	@Path("{id}/quotas")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	public Response fetchResourceUsage(@PathParam("id") String tenantID) {
+		try {
+			TenantQuota rsp = getTenantQuota(tenantID);
+			List<ServiceInstance> bsiList = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantID);
+			for (ServiceInstance bsi : bsiList) {
+				ServiceType type = ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
+				rsp.appendUsage(type, bsi.getId(), getResourceUsage(type, bsi.getCuzBsiName()));
+			}
+			return Response.ok().entity(rsp).build();
+		} catch (Exception e) {
+			logger.error("Fetch resource usage error: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
+
+	private List<QuotaBean> getResourceUsage(ServiceType type, String resourceName) throws Exception {
+		ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(type);
+		QuotaResponse rsp = PeekerUtils.transform(peeker.peekOn(Lists.newArrayList(resourceName)));
+		return rsp.getItems();
+	}
+
+	private TenantQuota getTenantQuota(String tenantID) {
+		TenantQuota t = new TenantQuota(tenantID);
+		TenantQuotaUtils.getTenantQuotas(tenantID).forEach(e -> t.appendLimitation(e));
+		return t;
+	}
 }
