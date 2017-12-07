@@ -3184,15 +3184,15 @@ __response:__
                 "quotas": {
                     "yarnQueueQuota": 0
                 },
-                "type": "mapreduce"
+                "service": "mapreduce"
             },
-            "type": "mapreduce"
+            "service": "mapreduce"
         },
         {
             "instances": [
                 {
                     "instanceId": "084ad5c0-da51-11e7-988e-fa163efdbea8",
-                    "type": "hdfs",
+                    "service": "hdfs",
                     "usage": [
                         {
                             "available": "1000",
@@ -3216,9 +3216,9 @@ __response:__
                     "storageSpaceQuota": 1500,
                     "nameSpaceQuota": 1500
                 },
-                "type": "hdfs"
+                "service": "hdfs"
             },
-            "type": "hdfs"
+            "service": "hdfs"
         },
         {
             "instances": [],
@@ -3227,9 +3227,9 @@ __response:__
                     "maximumRegionsQuota": 0,
                     "maximumTablesQuota": 0
                 },
-                "type": "hbase"
+                "service": "hbase"
             },
-            "type": "hbase"
+            "service": "hbase"
         },
         {
             "instances": [],
@@ -3239,9 +3239,9 @@ __response:__
                     "topicQuota": 0,
                     "topicTTL": 0
                 },
-                "type": "kafka"
+                "service": "kafka"
             },
-            "type": "kafka"
+            "service": "kafka"
         },
         {
             "instances": [],
@@ -3249,9 +3249,9 @@ __response:__
                 "quotas": {
                     "yarnQueueQuota": 0
                 },
-                "type": "spark"
+                "service": "spark"
             },
-            "type": "spark"
+            "service": "spark"
         },
         {
             "instances": [],
@@ -3260,9 +3260,9 @@ __response:__
                     "storageSpaceQuota": 0,
                     "yarnQueueQuota": 0
                 },
-                "type": "hive"
+                "service": "hive"
             },
-            "type": "hive"
+            "service": "hive"
         }
     ]
 }
