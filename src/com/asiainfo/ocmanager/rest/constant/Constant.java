@@ -61,7 +61,7 @@ public class Constant {
 	public static final String SEMICOLON = ";";
 	
 	// prefix for parameters
-	public static final String ATTRIBUTES = "ATTR";
+	public static final String ATTRIBUTES = "ATTR_";
 
 	/*****************************************************************/
 	/******************* authentication const ************************/
