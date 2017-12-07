@@ -30,7 +30,7 @@ public class TenantQuota {
 	}
 	
 	public void appendLimitation(QuotaBean2 limitations) {
-		ServiceQuota service = new ServiceQuota(limitations.getType());
+		ServiceQuota service = new ServiceQuota(limitations.getService());
 		service.setLimitations(limitations);
 		if (services.contains(service)) {
 			throw new RuntimeException("Service already exist: " + service);
@@ -44,7 +44,7 @@ public class TenantQuota {
 	
 	public void appendUsage(ServiceType type, String instanceId, List<QuotaBean> usage) {
 		for(ServiceQuota s : services) {
-			if (s.getType().equals(type)) {
+			if (s.getService().equals(type)) {
 				s.appendUsage(instanceId, usage);
 				return;
 			}
@@ -56,7 +56,7 @@ public class TenantQuota {
 	}
 	
 	public static class ServiceQuota{
-		private ServiceType type;
+		private ServiceType serviceType;
 		private QuotaBean2 limitations;
 		private List<ServiceInstanceQuota> instances;
 		
@@ -77,7 +77,7 @@ public class TenantQuota {
 		}
 
 		public ServiceQuota (ServiceType type) {
-			this.type = type;
+			this.serviceType = type;
 			initService();
 		}
 
@@ -86,20 +86,20 @@ public class TenantQuota {
 		}
 		
 		public void appendUsage(String instanceId, List<QuotaBean> usage) {
-			ServiceInstanceQuota ins = new ServiceInstanceQuota(this.type, instanceId);
+			ServiceInstanceQuota ins = new ServiceInstanceQuota(this.serviceType, instanceId);
 			ins.setUsage(usage);
 			instances.add(ins);
 		}
 
-		public ServiceType getType() {
-			return type;
+		public ServiceType getService() {
+			return serviceType;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
 			return result;
 		}
 
@@ -112,7 +112,7 @@ public class TenantQuota {
 			if (getClass() != obj.getClass())
 				return false;
 			ServiceQuota other = (ServiceQuota) obj;
-			if (type != other.type)
+			if (serviceType != other.serviceType)
 				return false;
 			return true;
 		}

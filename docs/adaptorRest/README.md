@@ -3149,7 +3149,7 @@ tenantId|String|租户id|是|
 ----------|----------------|----|------------|
 id|String|租户id
 services|Array|服务列表	
-type|String|服务类型
+service|String|服务类型
 limitations|JsonObject|服务资源限额
 instances|Array|服务实例列表
 instanceId|String|服务实例id

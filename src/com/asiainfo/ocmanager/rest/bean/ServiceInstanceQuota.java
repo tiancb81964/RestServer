@@ -10,12 +10,12 @@ import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
  *
  */
 public class ServiceInstanceQuota {
-	private ServiceType type;
+	private ServiceType serviceType;
 	private String instanceId;
 	private List<QuotaBean> usage;
 	
 	public ServiceInstanceQuota (ServiceType type, String id) {
-		this.type = type;
+		this.serviceType = type;
 		this.instanceId = id;
 	}
 	public String getInstanceId() {
@@ -27,7 +27,7 @@ public class ServiceInstanceQuota {
 	public void setUsage(List<QuotaBean> usage) {
 		this.usage = usage;
 	}
-	public ServiceType getType() {
-		return type;
+	public ServiceType getService() {
+		return serviceType;
 	}
 }
