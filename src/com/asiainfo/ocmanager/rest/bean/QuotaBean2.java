@@ -11,26 +11,26 @@ import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
  *
  */
 public class QuotaBean2 {
-	private ServiceType type;
+	private ServiceType serviceType;
 	private Map<String, Long> quotas = new HashMap<>();
 	
 	public QuotaBean2(ServiceType type) {
-		this.type = type;
+		this.serviceType = type;
 		for (String key : type.quotaKeys()) {
 			quotas.put(key, 0l);
 		}
 	}
 	
 	public QuotaBean2(ServiceType type, Map<String, Long> quotas) {
-		this.type = type;
+		this.serviceType = type;
 		for (String key : type.quotaKeys()) {
 			this.quotas.put(key, 0l);
 		}
 		this.quotas.putAll(quotas);
 	}
 
-	public ServiceType getType() {
-		return type;
+	public ServiceType getService() {
+		return serviceType;
 	}
 
 	public Map<String, Long> getQuotas() {
