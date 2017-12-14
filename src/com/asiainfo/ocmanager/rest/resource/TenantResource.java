@@ -277,6 +277,11 @@ public class TenantResource {
 						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
 						.build();
 			}
+			
+			if (tenant.getParentId() == null || tenant.getParentId().isEmpty()) {
+				return Response.status(Status.NOT_ACCEPTABLE)
+						.entity("Parent tenant must be specified and parentID must not be null.").build();
+			}
 
 			// if the tenant have the instances
 			// can NOT create chlid tenant
