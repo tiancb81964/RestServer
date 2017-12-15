@@ -24,7 +24,7 @@ public class MapreduceServiceInstanceQuotaBean extends ServiceInstanceQuotaBean 
 
 	public final static String YARNQUEUEQUOTA = "yarnQueueQuota";
 
-	private long yarnQueueQuota;
+	private double yarnQueueQuota;
 
 	public MapreduceServiceInstanceQuotaBean() {
 
@@ -146,11 +146,11 @@ public class MapreduceServiceInstanceQuotaBean extends ServiceInstanceQuotaBean 
 
 	}
 
-	public long getYarnQueueQuota() {
+	public double getYarnQueueQuota() {
 		return yarnQueueQuota;
 	}
 
-	public void setYarnQueueQuota(long yarnQueueQuota) {
+	public void setYarnQueueQuota(double yarnQueueQuota) {
 		this.yarnQueueQuota = yarnQueueQuota;
 	}
 

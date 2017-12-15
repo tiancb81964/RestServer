@@ -25,8 +25,8 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public final static String MAXIMUMTABLESQUOTA = "maximumTablesQuota";
 	public final static String MAXIMUMREGIONSQUOTA = "maximumRegionsQuota";
 
-	private long maximumTablesQuota;
-	private long maximumRegionsQuota;
+	private double maximumTablesQuota;
+	private double maximumRegionsQuota;
 
 	public HbaseServiceInstanceQuotaBean() {
 
@@ -177,19 +177,19 @@ public class HbaseServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		this.maximumRegionsQuota = this.maximumRegionsQuota - otherServiceInstanceQuota.getMaximumRegionsQuota();
 	}
 
-	public long getMaximumTablesQuota() {
+	public double getMaximumTablesQuota() {
 		return maximumTablesQuota;
 	}
 
-	public void setMaximumTablesQuota(long maximumTablesQuota) {
+	public void setMaximumTablesQuota(double maximumTablesQuota) {
 		this.maximumTablesQuota = maximumTablesQuota;
 	}
 
-	public long getMaximumRegionsQuota() {
+	public double getMaximumRegionsQuota() {
 		return maximumRegionsQuota;
 	}
 
-	public void setMaximumRegionsQuota(long maximumRegionsQuota) {
+	public void setMaximumRegionsQuota(double maximumRegionsQuota) {
 		this.maximumRegionsQuota = maximumRegionsQuota;
 	}
 

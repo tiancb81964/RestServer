@@ -25,8 +25,8 @@ public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public final static String NAMESPACEQUOTA = "nameSpaceQuota";
 	public final static String STORAGESPACEQUOTA = "storageSpaceQuota";
 
-	private long nameSpaceQuota;
-	private long storageSpaceQuota;
+	private double nameSpaceQuota;
+	private double storageSpaceQuota;
 
 	/**
 	 * 
@@ -181,7 +181,7 @@ public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * 
 	 * @return
 	 */
-	public long getNameSpaceQuota() {
+	public double getNameSpaceQuota() {
 		return nameSpaceQuota;
 	}
 
@@ -189,7 +189,7 @@ public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * 
 	 * @param nameSpaceQuota
 	 */
-	public void setNameSpaceQuota(long nameSpaceQuota) {
+	public void setNameSpaceQuota(double nameSpaceQuota) {
 		this.nameSpaceQuota = nameSpaceQuota;
 	}
 
@@ -197,7 +197,7 @@ public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * 
 	 * @return
 	 */
-	public long getStorageSpaceQuota() {
+	public double getStorageSpaceQuota() {
 		return storageSpaceQuota;
 	}
 
@@ -205,7 +205,7 @@ public class HdfsServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	 * 
 	 * @param storageSpaceQuota
 	 */
-	public void setStorageSpaceQuota(long storageSpaceQuota) {
+	public void setStorageSpaceQuota(double storageSpaceQuota) {
 		this.storageSpaceQuota = storageSpaceQuota;
 	}
 

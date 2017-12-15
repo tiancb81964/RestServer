@@ -40,6 +40,7 @@ import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.QuotaBean2;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.service.instance.ServiceInstanceQuotaConst;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
@@ -396,7 +397,7 @@ public class TenantResource {
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-				if (Constant.list.contains(backingServiceName.toLowerCase())) {
+				if (ServiceInstanceQuotaConst.quotaCheckServices.contains(backingServiceName.toLowerCase())) {
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
 							tenantId, parameters);
 					serviceInstRes.setCheckerRes(checkRes);
