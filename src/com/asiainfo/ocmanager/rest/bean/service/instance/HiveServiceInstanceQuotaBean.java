@@ -25,8 +25,8 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public final static String STORAGESPACEQUOTA = "storageSpaceQuota";
 	public final static String YARNQUEUEQUOTA = "yarnQueueQuota";
 
-	private long storageSpaceQuota;
-	private long yarnQueueQuota;
+	private double storageSpaceQuota;
+	private double yarnQueueQuota;
 
 	public HiveServiceInstanceQuotaBean() {
 
@@ -166,19 +166,19 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		this.storageSpaceQuota = this.storageSpaceQuota - otherServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
-	public long getStorageSpaceQuota() {
+	public double getStorageSpaceQuota() {
 		return storageSpaceQuota;
 	}
 
-	public void setStorageSpaceQuota(long storageSpaceQuota) {
+	public void setStorageSpaceQuota(double storageSpaceQuota) {
 		this.storageSpaceQuota = storageSpaceQuota;
 	}
 
-	public long getYarnQueueQuota() {
+	public double getYarnQueueQuota() {
 		return yarnQueueQuota;
 	}
 
-	public void setYarnQueueQuota(long yarnQueueQuota) {
+	public void setYarnQueueQuota(double yarnQueueQuota) {
 		this.yarnQueueQuota = yarnQueueQuota;
 	}
 

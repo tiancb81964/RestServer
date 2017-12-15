@@ -77,6 +77,19 @@ public class QuotaCommonUtils {
 			quotaMap.put("topicQuota", topicQuota);
 			quotaMap.put("partitionSize", partitionSize);
 			break;
+
+		case "redis":
+
+			String memory = serviceQuota.get("memory") == null ? null : serviceQuota.get("memory").getAsString();
+			String nodes = serviceQuota.get("nodes") == null ? null : serviceQuota.get("nodes").getAsString();
+			String volumeSize = serviceQuota.get("volumeSize") == null ? null
+					: serviceQuota.get("volumeSize").getAsString();
+
+			quotaMap.put("memory", memory);
+			quotaMap.put("nodes", nodes);
+			quotaMap.put("volumeSize", volumeSize);
+			break;
+
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}
@@ -84,7 +97,7 @@ public class QuotaCommonUtils {
 		return quotaMap;
 	}
 
-	public static String logAndResStr(long quota, String param, String service) {
+	public static String logAndResStr(double quota, String param, String service) {
 		logger.info("NOT enough " + service + " " + param + ", it need more: {}\n", -quota);
 		return "NOT enough " + service + " " + param + " to crteate the tenant, it need more quota: " + (-quota) + "; ";
 	}
