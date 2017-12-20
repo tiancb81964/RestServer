@@ -66,12 +66,31 @@ public class RedisServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 		// if passby the params use the params otherwise use the default
 		if (parameters == null || parameters.isJsonNull() || parameters.size() == 0) {
-			defaultServiceInstanceQuota
-					.setMemory(ServicesDefaultQuotaConf.getInstance().get("redis").get(MEMORY).getDefaultQuota());
-			defaultServiceInstanceQuota
-					.setNodes(ServicesDefaultQuotaConf.getInstance().get("redis").get(NODES).getDefaultQuota());
-			defaultServiceInstanceQuota.setVolumeSize(
-					ServicesDefaultQuotaConf.getInstance().get("redis").get(VOLUMESIZE).getDefaultQuota());
+			if (ServicesDefaultQuotaConf.getInstance().get("redis") == null
+					|| ServicesDefaultQuotaConf.getInstance().get("redis").get(MEMORY) == null) {
+				// set default to 0, it means not limit
+				defaultServiceInstanceQuota.setMemory(0);
+			} else {
+				defaultServiceInstanceQuota
+						.setMemory(ServicesDefaultQuotaConf.getInstance().get("redis").get(MEMORY).getDefaultQuota());
+			}
+
+			if (ServicesDefaultQuotaConf.getInstance().get("redis") == null
+					|| ServicesDefaultQuotaConf.getInstance().get("redis").get(NODES) == null) {
+				// set default to 0, it means not limit
+				defaultServiceInstanceQuota.setNodes(0);
+			} else {
+				defaultServiceInstanceQuota
+						.setNodes(ServicesDefaultQuotaConf.getInstance().get("redis").get(NODES).getDefaultQuota());
+			}
+			if (ServicesDefaultQuotaConf.getInstance().get("redis") == null
+					|| ServicesDefaultQuotaConf.getInstance().get("redis").get(VOLUMESIZE) == null) {
+				// set default to 0, it means not limit
+				defaultServiceInstanceQuota.setVolumeSize(0);
+			} else {
+				defaultServiceInstanceQuota.setVolumeSize(
+						ServicesDefaultQuotaConf.getInstance().get("redis").get(VOLUMESIZE).getDefaultQuota());
+			}
 
 		} else {
 			if (parameters.get(MEMORY) == null || parameters.get(MEMORY).isJsonNull()
