@@ -23,7 +23,7 @@ import com.google.gson.JsonObject;
 public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	public final static String STORAGESPACEQUOTA = "storageSpaceQuota";
-	private long storageSpaceQuota;
+	private double storageSpaceQuota;
 
 	public HiveServiceInstanceQuotaBean() {
 
@@ -143,11 +143,11 @@ public class HiveServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		this.storageSpaceQuota = this.storageSpaceQuota - otherServiceInstanceQuota.getStorageSpaceQuota();
 	}
 
-	public long getStorageSpaceQuota() {
+	public double getStorageSpaceQuota() {
 		return storageSpaceQuota;
 	}
 
-	public void setStorageSpaceQuota(long storageSpaceQuota) {
+	public void setStorageSpaceQuota(double storageSpaceQuota) {
 		this.storageSpaceQuota = storageSpaceQuota;
 	}
 

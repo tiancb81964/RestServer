@@ -8,52 +8,52 @@ import com.google.gson.JsonObject;
  *
  */
 public class ServiceInstanceDefaultQuotaBean {
-	private long defaultQuota;
-	private long max;
-	private long price;
-	private long step;
+	private double defaultQuota;
+	private double max;
+	private double price;
+	private double step;
 	private String desc;
 
 	public ServiceInstanceDefaultQuotaBean() {
 	}
 
 	public ServiceInstanceDefaultQuotaBean(JsonObject jsonObj) {
-		this.defaultQuota = jsonObj.get("default").getAsLong();
-		this.max = jsonObj.get("max").getAsLong();
-		this.price = jsonObj.get("price").getAsLong();
-		this.step = jsonObj.get("step").getAsLong();
+		this.defaultQuota = jsonObj.get("default").getAsDouble();
+		this.max = jsonObj.get("max").getAsDouble();
+		this.price = jsonObj.get("price").getAsDouble();
+		this.step = jsonObj.get("step").getAsDouble();
 		this.desc = jsonObj.get("desc").getAsString();
 	}
 
-	public long getDefaultQuota() {
+	public double getDefaultQuota() {
 		return defaultQuota;
 	}
 
-	public void setDefaultQuota(long defaultQuota) {
+	public void setDefaultQuota(double defaultQuota) {
 		this.defaultQuota = defaultQuota;
 	}
 
-	public long getMax() {
+	public double getMax() {
 		return max;
 	}
 
-	public void setMax(long max) {
+	public void setMax(double max) {
 		this.max = max;
 	}
 
-	public long getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(long price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 
-	public long getStep() {
+	public double getStep() {
 		return step;
 	}
 
-	public void setStep(long step) {
+	public void setStep(double step) {
 		this.step = step;
 	}
 

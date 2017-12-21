@@ -52,12 +52,13 @@ public class ServicesDefaultQuotaConf {
 					String name = spec.get("name").getAsString();
 					JsonArray plan = spec.getAsJsonArray("plans");
 
-					JsonObject metadata = plan.get(0).getAsJsonObject().getAsJsonObject("metadata");
-					if (!metadata.get("customize").isJsonNull()) {
-						servicesDefaultQuota.put(name.toLowerCase(),
-								parserServiceQuota(name.toLowerCase(), metadata.getAsJsonObject("customize")));
+					for (int j = 0; j < plan.size(); j++) {
+						JsonObject metadata = plan.get(j).getAsJsonObject().getAsJsonObject("metadata");
+						if (!metadata.get("customize").isJsonNull()) {
+							servicesDefaultQuota.put(name.toLowerCase(),
+									parserServiceQuota(name.toLowerCase(), metadata.getAsJsonObject("customize")));
+						}
 					}
-
 				}
 			}
 		} catch (Exception e) {
@@ -73,8 +74,10 @@ public class ServicesDefaultQuotaConf {
 		switch (service.toLowerCase()) {
 		case "hdfs":
 
-			quotaMap.put("nameSpaceQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("nameSpaceQuota")));
-			quotaMap.put("storageSpaceQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
+			quotaMap.put("nameSpaceQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("nameSpaceQuota")));
+			quotaMap.put("storageSpaceQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
 
 			break;
 		case "hbase":
@@ -87,17 +90,21 @@ public class ServicesDefaultQuotaConf {
 			break;
 		case "hive":
 
-			quotaMap.put("storageSpaceQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
-			quotaMap.put("yarnQueueQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
+			quotaMap.put("storageSpaceQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
+			quotaMap.put("yarnQueueQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
 
 			break;
 		case "mapreduce":
-			quotaMap.put("yarnQueueQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
+			quotaMap.put("yarnQueueQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
 
 			break;
 		case "spark":
 
-			quotaMap.put("yarnQueueQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
+			quotaMap.put("yarnQueueQuota",
+					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
 
 			break;
 		case "kafka":
@@ -106,6 +113,12 @@ public class ServicesDefaultQuotaConf {
 			quotaMap.put("topicQuota", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("topicQuota")));
 			quotaMap.put("partitionSize", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("partitionSize")));
 
+			break;
+		case "redis":
+
+			quotaMap.put("memory", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("memory")));
+			quotaMap.put("nodes", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("nodes")));
+			quotaMap.put("volumeSize", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volumeSize")));
 			break;
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
