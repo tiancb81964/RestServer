@@ -114,6 +114,12 @@ public class ServicesDefaultQuotaConf {
 			quotaMap.put("partitionSize", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("partitionSize")));
 
 			break;
+		case "redis":
+
+			quotaMap.put("memory", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("memory")));
+			quotaMap.put("nodes", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("nodes")));
+			quotaMap.put("volumeSize", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volumeSize")));
+			break;
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}
