@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.rest.bean.service.instance;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 
  * @author zhaoyim
@@ -13,5 +16,9 @@ public class ServiceInstanceQuotaConst {
 	public final static String MAPREDUCE = "mapreduce";
 	public final static String SPARK = "spark";
 	public final static String KAFKA = "kafka";
+	public final static String REDIS = "redis";
+
+	public static final List<String> quotaCheckServices = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
+			"kafka", "redis");
 
 }

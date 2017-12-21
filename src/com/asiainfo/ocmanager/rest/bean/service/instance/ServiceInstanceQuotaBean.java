@@ -65,6 +65,10 @@ public abstract class ServiceInstanceQuotaBean {
 			return new KafkaServiceInstanceQuotaBean();
 		}
 
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.REDIS)) {
+			return new RedisServiceInstanceQuotaBean();
+		}
+
 		return null;
 
 	}

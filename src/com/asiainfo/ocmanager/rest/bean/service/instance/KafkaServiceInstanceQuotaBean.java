@@ -24,8 +24,8 @@ public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 
 	public final static String TOPICQUOTA = "topicQuota";
 	public final static String PARTITIONSIZE = "partitionSize";
-	private long topicQuota;
-	private long partitionSize;
+	private double topicQuota;
+	private double partitionSize;
 
 	public KafkaServiceInstanceQuotaBean() {
 
@@ -161,19 +161,19 @@ public class KafkaServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 		this.partitionSize = this.partitionSize - otherServiceInstanceQuota.getPartitionSize();
 	}
 
-	public long getTopicQuota() {
+	public double getTopicQuota() {
 		return topicQuota;
 	}
 
-	public void setTopicQuota(long topicQuota) {
+	public void setTopicQuota(double topicQuota) {
 		this.topicQuota = topicQuota;
 	}
 
-	public long getPartitionSize() {
+	public double getPartitionSize() {
 		return partitionSize;
 	}
 
-	public void setPartitionSize(long partitionSize) {
+	public void setPartitionSize(double partitionSize) {
 		this.partitionSize = partitionSize;
 	}
 
