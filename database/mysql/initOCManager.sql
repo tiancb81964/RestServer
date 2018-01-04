@@ -206,7 +206,7 @@ INSERT INTO `ocmanager`.`users` (id, username, password, email, phone, descripti
 -- Init the root tenant into `ocmanager`.`tenants`
 -- -----------------------------------------------------
 INSERT INTO `ocmanager`.`tenants`(id, name, level, description, quota)
-  VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","root.tenant", 1, "root tenant", '{"hdfs": {"nameSpaceQuota": 9223372036854775807,"storageSpaceQuota": 9223372036854775807},"hbase": {"maximumTablesQuota": 9223372036854775807,"maximumRegionsQuota": 9223372036854775807},"hive": {"storageSpaceQuota": 9223372036854775807},"mapreduce": {"yarnQueueQuota": 9223372036854775807},"spark": {"yarnQueueQuota": 9223372036854775807},"kafka": {"topicTTL": 9223372036854775807,"topicQuota": 9223372036854775807,"partitionSize": 9223372036854775807}}');
+  VALUES("ae783b6d-655a-11e7-aa10-fa163ed7d0ae","root.tenant", 1, "root tenant", '{"hdfs": {"nameSpaceQuota": 9223372036854775807,"storageSpaceQuota": 9223372036854775807},"hbase": {"maximumTablesQuota": 9223372036854775807,"maximumRegionsQuota": 9223372036854775807},"hive": {"storageSpaceQuota": 9223372036854775807},"mapreduce": {"yarnQueueQuota": 9223372036854775807},"spark": {"yarnQueueQuota": 9223372036854775807},"kafka": {"topicTTL": 9223372036854775807,"topicQuota": 9223372036854775807,"partitionSize": 9223372036854775807},"redis": {"memory": 9223372036854775807, "nodes":9223372036854775807 ,"volumeSize": 9223372036854775807}}');
 
 
 -- -----------------------------------------------------
