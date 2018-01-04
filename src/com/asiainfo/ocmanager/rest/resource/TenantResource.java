@@ -509,21 +509,12 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
 				// check whether parameters format is legal
 				try {
-					Iterator<Entry<String, JsonElement>> iterator = parameterObj.entrySet().iterator();
-					while (iterator.hasNext()) {
-						Entry<String, JsonElement> entry = iterator.next();
-						if (!isChanged(tenantId, instanceName, entry)) {
-							// remove unchanged parameters
-							logger.warn("Removing request parameter [" + entry.getKey()
-									+ "], coz it's equivalent to current value: " + entry.getValue());
-							iterator.remove();
-						}
-					}
+					JsonObject incrementalParameters = getIncremental(tenantId, instanceName, parameterObj);
 					// Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
 					// validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
 					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(
-							provisioning.get("backingservice_name").getAsString(), tenantId, parameterObj);
+							provisioning.get("backingservice_name").getAsString(), tenantId, incrementalParameters);
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
@@ -576,7 +567,55 @@ public class TenantResource {
 		}
 	}
 
-
+	/**
+	 * Get incremental value of parameters by the result of requested parameter
+	 * mimus current parameter value. Additionally, request parameters will be filtered
+	 * in some circumstances(eg. Kafka topicQuota parameter might be removed coz of 
+	 * kafka restriction).
+	 * 
+	 * @param instanceName
+	 * @param instanceName2
+	 * @param parameterObj
+	 * @return 
+	 */
+	private JsonObject getIncremental(String tenantID, String instanceName, JsonObject parameterObj) {
+		JsonObject incrementalObj = new JsonObject();
+		Iterator<Entry<String, JsonElement>> iterator = parameterObj.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<String, JsonElement> entry = iterator.next();
+			if (isKafkaTopicQuota(entry)) {
+				long quotaInDB = getKafkaTopicQuotaInDB(tenantID, instanceName);
+				long newQuota = entry.getValue().getAsLong();
+				if (newQuota < quotaInDB) {
+					logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: "
+							+ quotaInDB);
+					throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
+				} else if (newQuota == quotaInDB) {
+					logger.warn("Removing topicQuota parameter, coz it's equivalent to current value: " + quotaInDB);
+					iterator.remove();
+					continue;
+				}
+			}
+			long current = getCurrentQuota(tenantID, instanceName, entry);
+			long incremental = entry.getValue().getAsLong() - current;
+			incrementalObj.addProperty(entry.getKey(), new Long(incremental));
+		}
+		logger.info("Updating bsi {} by incremental quotas: {}", instanceName, incrementalObj);
+		return incrementalObj;
+	}
+	
+	private long getCurrentQuota(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
+		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
+		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
+		return jobj.get(entry.getKey()).getAsLong();
+	}
+	
+	private long getKafkaTopicQuotaInDB(String tenantID, String instanceName) {
+		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
+		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
+		long topicSize = jobj.get("topicQuota").getAsLong();
+		return topicSize;
+	}
 
 	private void updateOCMDatabase(String parametersStr, String tenantId, String instanceName) {
 
@@ -603,42 +642,8 @@ public class TenantResource {
 				attributes.toString());
 	}
 
-	/**
-	 * Filter request parameters, remove unchanged parameters for better performance
-	 * of backend services.
-	 * 
-	 * @param instanceName
-	 * @param instanceName2
-	 * @param entry
-	 */
-	private boolean isChanged(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
-		if (isKafkaTopicQuota(entry)) {
-			long quotaInDB = getQuotaInDB(tenantID, instanceName);
-			long newQuota = entry.getValue().getAsLong();
-			if (newQuota < quotaInDB) {
-				logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: "
-						+ quotaInDB);
-				throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
-			} else if (newQuota == quotaInDB) {
-				logger.debug("Kafka topicQuota parameter is equivalent to current value: " + quotaInDB);
-				return false;
-			} else {
-				return true;
-			}
-		}
-		// pass all other services except Kafka.
-		return true;
-	}
-
 	private boolean isKafkaTopicQuota(Entry<String, JsonElement> entry) {
 		return "topicQuota".equals(entry.getKey().trim());
-	}
-
-	private long getQuotaInDB(String tenantID, String instanceName) {
-		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
-		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
-		long topicSize = jobj.get("topicQuota").getAsLong();
-		return topicSize;
 	}
 
 	/**
