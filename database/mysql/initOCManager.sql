@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`service_instances` (
   `quota` MEDIUMTEXT NULL,
   `status` VARCHAR(64) NULL,
   `cuzBsiName` MEDIUMTEXT NULL,
-  `attributes` MEDIUMTEXT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_service_instances_tenants1_idx` (`tenantId` ASC),
   INDEX `fk_service_instances_services1_idx` (`serviceTypeName` ASC),
