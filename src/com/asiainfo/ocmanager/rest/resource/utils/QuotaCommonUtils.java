@@ -90,6 +90,18 @@ public class QuotaCommonUtils {
 			quotaMap.put("volumeSize", volumeSize);
 			break;
 
+		case "storm":
+
+			String stromMemory = serviceQuota.get("memory") == null ? null : serviceQuota.get("memory").getAsString();
+			String supervisors = serviceQuota.get("supervisors") == null ? null
+					: serviceQuota.get("supervisors").getAsString();
+			String workers = serviceQuota.get("workers") == null ? null : serviceQuota.get("workers").getAsString();
+
+			quotaMap.put("memory", stromMemory);
+			quotaMap.put("supervisors", supervisors);
+			quotaMap.put("workers", workers);
+			break;
+
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}
