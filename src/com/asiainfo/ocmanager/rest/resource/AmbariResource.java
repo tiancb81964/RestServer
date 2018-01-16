@@ -95,6 +95,10 @@ public class AmbariResource {
 			try {
 				HttpGet httpGet = new HttpGet(url);
 				CloseableHttpResponse response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					logger.error("Failed to get yarn files, return code: " + response1.getStatusLine().getStatusCode() + ", reason: " + response1.getEntity().toString());
+					return Response.status(Status.BAD_REQUEST).entity(response1.getEntity().toString()).build();
+				}
 				InputStream is = response1.getEntity().getContent();
 				try {
 					return Response.ok(this.readStream(is))
@@ -147,6 +151,10 @@ public class AmbariResource {
 			try {
 				HttpGet httpGet = new HttpGet(url);
 				CloseableHttpResponse response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					logger.error("Failed to get hdfs files, return code: " + response1.getStatusLine().getStatusCode() + ", reason: " + response1.getEntity().toString());
+					return Response.status(Status.BAD_REQUEST).entity(response1.getEntity().toString()).build();
+				}
 				InputStream is = response1.getEntity().getContent();
 				try {
 					return Response.ok(this.readStream(is))
@@ -199,6 +207,10 @@ public class AmbariResource {
 			try {
 				HttpGet httpGet = new HttpGet(url);
 				CloseableHttpResponse response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					logger.error("Failed to get spark files, return code: " + response1.getStatusLine().getStatusCode() + ", reason: " + response1.getEntity().toString());
+					return Response.status(Status.BAD_REQUEST).entity(response1.getEntity().toString()).build();
+				}
 				InputStream is = response1.getEntity().getContent();
 				try {
 					return Response.ok(this.readStream(is))
