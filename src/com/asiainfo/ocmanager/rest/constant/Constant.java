@@ -3,6 +3,8 @@ package com.asiainfo.ocmanager.rest.constant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
+
 public class Constant {
 
 	/*****************************************************************/
@@ -34,7 +36,8 @@ public class Constant {
 	/************************** adapter const ************************/
 	/*****************************************************************/
 	// ocdp service name list
-	public static final List<String> list = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark", "kafka");
+	public static final String OCDP_SERVICES = "oc.ocdp.services";
+	public static final List<String> list = Arrays.asList(ServerConfiguration.getConf().getProperty(OCDP_SERVICES).split(","));
 	public static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
 			"project.admin");
 
