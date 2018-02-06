@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.google.gson.JsonObject;
 
 /**
@@ -41,31 +42,32 @@ public abstract class ServiceInstanceQuotaBean {
 	 */
 	public static ServiceInstanceQuotaBean createServiceInstance(String service) {
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HDFS)) {
+		String lowerCaseType = Catalog.getInstance().getServiceType(service).toLowerCase();
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.HDFS)) {
 			return new HdfsServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HBASE)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.HBASE)) {
 			return new HbaseServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.HIVE)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.HIVE)) {
 			return new HiveServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.MAPREDUCE)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.MAPREDUCE)) {
 			return new MapreduceServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.SPARK)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.SPARK)) {
 			return new SparkServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.KAFKA)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.KAFKA)) {
 			return new KafkaServiceInstanceQuotaBean();
 		}
 
-		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.REDIS)) {
+		if (lowerCaseType.equals(ServiceInstanceQuotaConst.REDIS)) {
 			return new RedisServiceInstanceQuotaBean();
 		}
 
