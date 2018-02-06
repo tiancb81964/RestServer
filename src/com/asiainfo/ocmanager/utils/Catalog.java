@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.rest.resource.ServiceResource;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -56,7 +57,12 @@ public class Catalog {
 	 * @return
 	 */
 	public Set<String> listAllServices(){
-		return services.keySet();
+		Set<String> set = Sets.newHashSet();
+		for (JsonObject service : services.values()) {
+			JsonPrimitive name = service.getAsJsonObject("spec").getAsJsonPrimitive("name");
+			set.add(name.getAsString());
+		}
+		return set;
 	}
 	
 	private void parse() {
