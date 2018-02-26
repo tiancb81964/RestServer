@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.google.gson.JsonObject;
 
 /**
@@ -20,7 +21,7 @@ public class QuotaCommonUtils {
 	public static Map<String, String> parserQuota(String service, JsonObject serviceQuota) {
 		Map<String, String> quotaMap = new HashMap<String, String>();
 
-		switch (service.toLowerCase()) {
+		switch (Catalog.getInstance().getServiceType(service).toLowerCase()) {
 		case "hdfs":
 
 			String nameSpaceQuota = serviceQuota.get("nameSpaceQuota") == null ? null

@@ -405,8 +405,7 @@ public class TenantResource {
 			}
 
 			// check exist custom bsiName
-			if (cuzBsiNameJE != null
-					&& Constant.list.contains(Catalog.getInstance().getServiceType(backingServiceName).toLowerCase())) {
+			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
 				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName,
 						backingServiceName);
