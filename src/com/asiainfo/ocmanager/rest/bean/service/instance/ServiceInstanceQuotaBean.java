@@ -71,6 +71,10 @@ public abstract class ServiceInstanceQuotaBean {
 			return new RedisServiceInstanceQuotaBean();
 		}
 
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.STORM)) {
+			return new StormServiceInstanceQuotaBean();
+		}
+
 		return null;
 
 	}
