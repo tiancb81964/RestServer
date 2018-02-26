@@ -63,6 +63,7 @@ import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -404,7 +405,8 @@ public class TenantResource {
 			}
 
 			// check exist custom bsiName
-			if (cuzBsiNameJE != null && Constant.list.contains(backingServiceName.toLowerCase())) {
+			if (cuzBsiNameJE != null
+					&& Constant.list.contains(Catalog.getInstance().getServiceType(backingServiceName).toLowerCase())) {
 				String cuzBsiName = cuzBsiNameJE.getAsString();
 				ServiceInstance serInst = ServiceInstancePersistenceWrapper.getServiceInstanceByCuzBsiName(cuzBsiName,
 						backingServiceName);
@@ -420,7 +422,8 @@ public class TenantResource {
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-				if (ServiceInstanceQuotaConst.quotaCheckServices.contains(backingServiceName.toLowerCase())) {
+				if (ServiceInstanceQuotaConst.quotaCheckServices
+						.contains(Catalog.getInstance().getServiceType(backingServiceName).toLowerCase())) {
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
 							tenantId, parameters);
 					serviceInstRes.setCheckerRes(checkRes);
