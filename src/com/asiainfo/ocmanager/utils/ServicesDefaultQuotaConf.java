@@ -120,6 +120,13 @@ public class ServicesDefaultQuotaConf {
 			quotaMap.put("nodes", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("nodes")));
 			quotaMap.put("volumeSize", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volumeSize")));
 			break;
+		case "storm":
+
+			quotaMap.put("memory", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("memory")));
+			quotaMap.put("supervisors", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("supervisors")));
+			quotaMap.put("workers", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("workers")));
+
+			break;
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}
