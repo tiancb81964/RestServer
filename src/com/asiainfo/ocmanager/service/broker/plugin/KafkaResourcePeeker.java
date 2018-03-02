@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.KafkaClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.KafkaClient;
 
 /**
  * Kafka resource monitor.
@@ -17,12 +19,25 @@ import com.asiainfo.ocmanager.service.client.KafkaClient;
  */
 public class KafkaResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(KafkaResourcePeeker.class);
-
 	private KafkaClient client;
-
+	
+	public KafkaResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof KafkaClient)) {
+				LOG.error("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+				throw new RuntimeException("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+			}
+			this.client = (KafkaClient)cli;
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+	}
+	
 	@Override
 	protected void setup() {
-		this.client = KafkaClient.getInstance();
 	}
 
 	@Override
@@ -60,8 +75,8 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.kafka;
+	public Class<? extends ServiceClient> getClientClass() {
+		return KafkaClient.class;
 	}
 
 }

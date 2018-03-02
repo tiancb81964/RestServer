@@ -5,18 +5,34 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.YarnClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.YarnClient;
 import com.google.gson.JsonObject;
 
 public class SparkResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(SparkResourcePeeker.class);
 	private YarnClient client;
 
+	public SparkResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof YarnClient)) {
+				LOG.error("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+				throw new RuntimeException("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+			}
+			client = (YarnClient)cli;
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+	}
+
 	@Override
 	protected void setup() {
-		this.client = YarnClient.getInstance();
 	}
 
 	@Override
@@ -46,7 +62,7 @@ public class SparkResourcePeeker extends BaseResourcePeeker {
 	 */
 	private double totalMB() {
 		try {
-			String mb = YarnClient.getInstance().fetchMetircs().get("totalMB");
+			String mb = client.fetchMetircs().get("totalMB");
 			return Double.valueOf(mb);
 		} catch (Exception e) {
 			LOG.error("Error while fetch yarn metrics: ", e);
@@ -76,8 +92,8 @@ public class SparkResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.spark;
+	public Class<? extends ServiceClient> getClientClass() {
+		return YarnClient.class;
 	}
 
 }

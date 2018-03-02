@@ -9,9 +9,11 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.HbaseClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.HbaseClient;
 
 /**
  * Implementing broker of ResourcePeeker for Hbase service.
@@ -25,9 +27,23 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 	private static final String KEY_MAX_REGION = "hbase.namespace.quota.maxregions";
 	private HbaseClient client;
 
+	public HbaseResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof HbaseClient)) {
+				LOG.error("Client type error for serviceName: " + serviceName + ", error type: " + cli.getClass().getName());
+				throw new RuntimeException("Client type error for serviceName: " + serviceName + ", error type: " + cli.getClass().getName());
+			}
+			client = (HbaseClient)cli;
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+	}
+	
 	@Override
 	protected void setup() {
-		client = HbaseClient.getInstance();
 	}
 
 	@Override
@@ -114,9 +130,10 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 		return Arrays.asList("maximumTablesQuota", "maximumRegionsQuota");
 	}
 
+
 	@Override
-	public ServiceType getType() {
-		return ServiceType.hbase;
+	public Class<? extends ServiceClient> getClientClass() {
+		return HbaseClient.class;
 	}
 
 }

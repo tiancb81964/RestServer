@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.service.client;
+package com.asiainfo.ocmanager.service.client.v2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
+import javax.security.auth.Subject;
 
 /**
  * Greenplum client.
@@ -14,24 +14,28 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  * @author EthanWang
  *
  */
-public class GPClient {
-	private static GPClient instance;
+public class GPClient extends ServiceClient{
 	private Map<String, Connection> map = new ConcurrentHashMap<>();
 	private static String prefix_conn;
 	private static String user;
 	private static String password;
+	
+	public GPClient(String serviceName, Subject subject) {
+		super(serviceName, subject);
+		try {
+			Class.forName("org.postgresql.Driver");
+			user = this.serviceConfig.getProperty("oc.greenplum.user").trim();
+			password = this.serviceConfig.getProperty("oc.greenplum.password").trim();
+			String host = this.serviceConfig.getProperty("oc.greenplum.server.host").trim();
+			String port = this.serviceConfig.getProperty("oc.greenplum.server.port").trim();
+			prefix_conn = "jdbc:postgresql://" + host + ":" + port + "/";
 
-	public static GPClient getClient() {
-		if (instance == null) {
-			synchronized (GPClient.class) {
-				if (instance == null) {
-					instance = new GPClient();
-				}
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return instance;
 	}
-
+	
 	/**
 	 * Get connection of specified database.
 	 * 
@@ -69,18 +73,4 @@ public class GPClient {
 		this.map.put(db, conn);
 	}
 
-	private GPClient() {
-		try {
-			Class.forName("org.postgresql.Driver");
-			user = ServerConfiguration.getConf().getProperty("oc.greenplum.user").trim();
-			password = ServerConfiguration.getConf().getProperty("oc.greenplum.password").trim();
-			String host = ServerConfiguration.getConf().getProperty("oc.greenplum.server.host").trim();
-			String port = ServerConfiguration.getConf().getProperty("oc.greenplum.server.port").trim();
-			prefix_conn = "jdbc:postgresql://" + host + ":" + port + "/";
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
 }
