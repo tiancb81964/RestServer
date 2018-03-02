@@ -10,16 +10,18 @@ public class Service {
 	private String servicename;
 	private String description;
 	private String origin;
+	private String serviceType;
 
 	public Service() {
 
 	}
 
-	public Service(String id, String servicename, String description, String origin) {
+	public Service(String id, String servicename, String description, String origin, String serviceType) {
 		this.id = id;
 		this.servicename = servicename;
 		this.description = description;
 		this.origin = origin;
+		this.serviceType = serviceType;
 	}
 
 	public String getId() {
@@ -52,6 +54,14 @@ public class Service {
 
 	public void setOrigin(String origin) {
 		this.origin = origin;
+	}
+
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
 	}
 
 }

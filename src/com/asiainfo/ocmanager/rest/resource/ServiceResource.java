@@ -43,6 +43,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrappe
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -95,10 +96,12 @@ public class ServiceResource {
 							.get("asiainfo.io/servicebroker").getAsString();
 
 					if (servicesInDB.size() == 0) {
-						ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
+						ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
+								Catalog.getInstance().getServiceType(name).toLowerCase()));
 					} else {
 						if (!dbServiceNameList.contains(name.toLowerCase())) {
-							ServicePersistenceWrapper.addService(new Service(id, name, description, origin));
+							ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
+									Catalog.getInstance().getServiceType(name).toLowerCase()));
 						}
 					}
 
