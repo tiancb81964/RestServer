@@ -71,7 +71,7 @@ public class ServicesDefaultQuotaConf {
 
 		Map<String, ServiceInstanceDefaultQuotaBean> quotaMap = new HashMap<String, ServiceInstanceDefaultQuotaBean>();
 
-		switch (service.toLowerCase()) {
+		switch (Catalog.getInstance().getServiceType(service).toLowerCase()) {
 		case "hdfs":
 
 			quotaMap.put("nameSpaceQuota",

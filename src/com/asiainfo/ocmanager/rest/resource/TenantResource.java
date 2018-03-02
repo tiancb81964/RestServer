@@ -423,6 +423,7 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
 				if (ServiceInstanceQuotaConst.quotaCheckServices
 						.contains(Catalog.getInstance().getServiceType(backingServiceName).toLowerCase())) {
+
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
 							tenantId, parameters);
 					serviceInstRes.setCheckerRes(checkRes);
