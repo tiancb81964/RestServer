@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.utils;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,7 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.resource.ServiceResource;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -53,16 +56,28 @@ public class Catalog {
 	}
 
 	/**
-	 * List all available services names.
+	 * List all available services.
+	 * @return multimap with key=serviceType, value=servicesList
+	 */
+	public Multimap<String, String> listAllServices(){
+		Multimap<String, String> map = HashMultimap.create();
+		for (JsonObject service : services.values()) {
+			JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
+			JsonPrimitive type = sm.getAsJsonPrimitive("type");
+			JsonPrimitive name = service.getAsJsonObject("spec").getAsJsonPrimitive("name");
+			map.put(type.getAsString(), name.getAsString());
+		}
+		return map;
+	}
+	
+	/**
+	 * Get all services by the specified type
+	 * @param type
 	 * @return
 	 */
-	public Set<String> listAllServices(){
-		Set<String> set = Sets.newHashSet();
-		for (JsonObject service : services.values()) {
-			JsonPrimitive name = service.getAsJsonObject("spec").getAsJsonPrimitive("name");
-			set.add(name.getAsString());
-		}
-		return set;
+	public Set<String> getServices(String type){
+		Collection<String> ss = listAllServices().get(type);
+		return Sets.newHashSet(ss);
 	}
 	
 	private void parse() {
@@ -80,7 +95,7 @@ public class Catalog {
 	}
 
 	public static void main(String[] args) {
-		String type = Catalog.getInstance().getServiceType("HDFSon111");
+		String type = Catalog.getInstance().getType("HDFSon111");
 		System.out.println(">>> HDFSon111 service type: " + type);
 		
 		System.out.println(">>> all services： " + Catalog.getInstance().listAllServices());
@@ -104,7 +119,7 @@ public class Catalog {
 	 * @param serviceName
 	 * @return
 	 */
-	public String getServiceType(String serviceName) {
+	public String getType(String serviceName) {
 		JsonObject service = services.get(serviceName.toLowerCase());
 		if (service == null) {
 			LOG.error("Service [{}] not found in catalog.", serviceName);

@@ -42,7 +42,7 @@ public abstract class ServiceInstanceQuotaBean {
 	 */
 	public static ServiceInstanceQuotaBean createServiceInstance(String service) {
 
-		String lowerCaseType = Catalog.getInstance().getServiceType(service).toLowerCase();
+		String lowerCaseType = Catalog.getInstance().getType(service).toLowerCase();
 		if (lowerCaseType.equals(ServiceInstanceQuotaConst.HDFS)) {
 			return new HdfsServiceInstanceQuotaBean();
 		}

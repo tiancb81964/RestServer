@@ -34,11 +34,8 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.bean.QuotaBean;
-import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantQuota;
 import com.asiainfo.ocmanager.rest.bean.service.instance.ServiceInstanceQuotaConst;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
@@ -50,21 +47,15 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistence
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.ServiceInstanceUtils;
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
-import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
-import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
-import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -1127,33 +1118,4 @@ public class TenantResource {
 
 	}
 
-	@GET
-	@Path("{id}/quotas")
-	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	public Response fetchResourceUsage(@PathParam("id") String tenantID) {
-		try {
-			TenantQuota rsp = getTenantQuota(tenantID);
-			List<ServiceInstance> bsiList = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantID);
-			for (ServiceInstance bsi : bsiList) {
-				ServiceType type = ServiceType.valueOf(bsi.getServiceTypeName().toLowerCase());
-				rsp.appendUsage(type, bsi.getId(), getResourceUsage(type, bsi.getCuzBsiName()));
-			}
-			return Response.ok().entity(rsp).build();
-		} catch (Exception e) {
-			logger.error("Fetch resource usage error: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
-		}
-	}
-
-	private List<QuotaBean> getResourceUsage(ServiceType type, String resourceName) throws Exception {
-		ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(type);
-		QuotaResponse rsp = PeekerUtils.transform(peeker.peekOn(Lists.newArrayList(resourceName)));
-		return rsp.getItems();
-	}
-
-	private TenantQuota getTenantQuota(String tenantID) {
-		TenantQuota t = new TenantQuota(tenantID);
-		TenantQuotaUtils.getTenantQuotas(tenantID).forEach(e -> t.appendLimitation(e));
-		return t;
-	}
 }
