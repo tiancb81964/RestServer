@@ -8,19 +8,33 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.HDFSClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.HDFSClient;
 
 public class HDFSResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(HDFSResourcePeeker.class);
 	private FileSystem fs;
+	
+	public HDFSResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface client = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(client instanceof HDFSClient)) {
+				LOG.error("HDFS Client type error: " + client.getClass().getName());
+				throw new RuntimeException("HDFS Client type error: " + client.getClass().getName());
+			}
+			HDFSClient hdfs = (HDFSClient)client;
+			this.fs = hdfs.getFS();	
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
 
-	@Override
-	protected void setup() {
-		this.fs = HDFSClient.getFileSystem();
 	}
-
+	
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String path) {
 		switch (resourceType) {
@@ -103,8 +117,14 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.hdfs;
+	public Class<? extends ServiceClient> getClientClass() {
+		return HDFSClient.class;
+	}
+
+	@Override
+	protected void setup() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -216,7 +216,6 @@ public class ServiceInstanceUtils {
 					// only the OCDP services need to wait to assign the
 					// permission
 					if (Constant.list.contains(serviceName.toLowerCase())) {
-
 						TenantResourceCreateInstanceBindingExecutor runnable = new TenantResourceCreateInstanceBindingExecutor(
 								tenantId, serviceName, instanceName);
 						Thread thread = new Thread(runnable);

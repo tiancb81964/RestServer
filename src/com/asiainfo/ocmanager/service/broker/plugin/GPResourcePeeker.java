@@ -7,17 +7,33 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.GPClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.GPClient;
 
 public class GPResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(GPResourcePeeker.class);
 	private GPClient client;
-
+	
+	public GPResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof GPClient)) {
+				LOG.error("Client type error for serviceName: " + serviceName + ", error type: " + cli.getClass().getName());
+				throw new RuntimeException("Client type error for serviceName: " + serviceName + ", error type: " + cli.getClass().getName());
+			}
+			client = (GPClient)cli;
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+	}
+	
 	@Override
 	protected void setup() {
-		client = GPClient.getClient();
 	}
 
 	@Override
@@ -54,8 +70,8 @@ public class GPResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.greenpulm;
+	public Class<? extends ServiceClient> getClientClass() {
+		return GPClient.class;
 	}
 
 }

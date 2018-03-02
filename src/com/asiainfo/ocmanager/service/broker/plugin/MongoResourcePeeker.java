@@ -6,9 +6,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.MongoDBClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.MongoDBClient;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
@@ -22,9 +24,23 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(MongoResourcePeeker.class);
 	private MongoDBClient client;
 
+	public MongoResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof MongoDBClient)) {
+				LOG.error("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+				throw new RuntimeException("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+			}
+			client = (MongoDBClient)cli;
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+	}
+	
 	@Override
 	protected void setup() {
-		client = MongoDBClient.getInstance();
 	}
 
 	@Override
@@ -58,8 +74,8 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.mongo;
+	public Class<? extends ServiceClient> getClientClass() {
+		return MongoDBClient.class;
 	}
 
 }
