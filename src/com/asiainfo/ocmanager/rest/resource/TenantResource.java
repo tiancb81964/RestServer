@@ -55,6 +55,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -411,7 +412,9 @@ public class TenantResource {
 
 			ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-				if (ServiceInstanceQuotaConst.quotaCheckServices.contains(backingServiceName.toLowerCase())) {
+				if (ServiceInstanceQuotaConst.quotaCheckServices
+						.contains(Catalog.getInstance().getServiceType(backingServiceName).toLowerCase())) {
+
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(backingServiceName,
 							tenantId, parameters);
 					serviceInstRes.setCheckerRes(checkRes);

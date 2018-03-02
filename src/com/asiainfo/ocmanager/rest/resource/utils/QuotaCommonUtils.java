@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.google.gson.JsonObject;
 
 /**
@@ -20,7 +21,7 @@ public class QuotaCommonUtils {
 	public static Map<String, String> parserQuota(String service, JsonObject serviceQuota) {
 		Map<String, String> quotaMap = new HashMap<String, String>();
 
-		switch (service.toLowerCase()) {
+		switch (Catalog.getInstance().getServiceType(service).toLowerCase()) {
 		case "hdfs":
 
 			String nameSpaceQuota = serviceQuota.get("nameSpaceQuota") == null ? null
@@ -87,6 +88,18 @@ public class QuotaCommonUtils {
 			quotaMap.put("memory", memory);
 			quotaMap.put("nodes", nodes);
 			quotaMap.put("volumeSize", volumeSize);
+			break;
+
+		case "storm":
+
+			String stromMemory = serviceQuota.get("memory") == null ? null : serviceQuota.get("memory").getAsString();
+			String supervisors = serviceQuota.get("supervisors") == null ? null
+					: serviceQuota.get("supervisors").getAsString();
+			String workers = serviceQuota.get("workers") == null ? null : serviceQuota.get("workers").getAsString();
+
+			quotaMap.put("memory", stromMemory);
+			quotaMap.put("supervisors", supervisors);
+			quotaMap.put("workers", workers);
 			break;
 
 		default:
