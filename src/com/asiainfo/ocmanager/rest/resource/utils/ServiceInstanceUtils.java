@@ -26,6 +26,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaChec
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
+import com.asiainfo.ocmanager.utils.Catalog;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -181,6 +182,10 @@ public class ServiceInstanceUtils {
 
 						serviceInstance.setQuota(quota.toString());
 						serviceInstance.setAttributes(attributes.toString());
+
+						String serviceName1 = serviceInstance.getServiceTypeName();
+						String serviceType1 = Catalog.getInstance().getServiceType(serviceName1);
+						serviceInstance.setServiceType(serviceType1);
 
 					}
 					serviceInstance.setStatus(phase);

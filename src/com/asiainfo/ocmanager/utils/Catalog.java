@@ -17,8 +17,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Service catalog, including all available services and details of 
- * those services.
+ * Service catalog, including all available services and details of those
+ * services.
+ * 
  * @author EthanWang
  *
  */
@@ -28,10 +29,10 @@ public class Catalog {
 	private JsonObject obj;
 	// Map<serviceName, serviceObject>
 	private Map<String, JsonObject> services = Maps.newHashMap();
-	
+
 	public static Catalog getInstance() {
 		if (instance == null) {
-			synchronized(Catalog.class) {
+			synchronized (Catalog.class) {
 				if (instance == null) {
 					instance = new Catalog();
 				}
@@ -39,7 +40,7 @@ public class Catalog {
 		}
 		return instance;
 	}
-	
+
 	private Catalog() {
 		try {
 			String raw = ServiceResource.callDFToGetAllServices();
@@ -54,9 +55,10 @@ public class Catalog {
 
 	/**
 	 * List all available services names.
+	 * 
 	 * @return
 	 */
-	public Set<String> listAllServices(){
+	public Set<String> listAllServices() {
 		Set<String> set = Sets.newHashSet();
 		for (JsonObject service : services.values()) {
 			JsonPrimitive name = service.getAsJsonObject("spec").getAsJsonPrimitive("name");
@@ -64,7 +66,7 @@ public class Catalog {
 		}
 		return set;
 	}
-	
+
 	private void parse() {
 		Preconditions.checkNotNull(obj);
 		JsonArray array = obj.getAsJsonArray("items");
@@ -82,25 +84,28 @@ public class Catalog {
 	public static void main(String[] args) {
 		String type = Catalog.getInstance().getServiceType("HDFSon111");
 		System.out.println(">>> HDFSon111 service type: " + type);
-		
+
 		System.out.println(">>> all services： " + Catalog.getInstance().listAllServices());
 	}
-	
+
 	/**
 	 * Get service by the specified service name.
+	 * 
 	 * @param serviceName
 	 * @return
 	 */
 	public JsonObject getServiceByName(String serviceName) {
 		return services.get(serviceName);
 	}
-	
+
 	public JsonObject getJson() {
 		return obj;
 	}
-	
+
 	/**
-	 * Get service type by the specified service name.
+	 * Get service type by the specified service name. If can NOT find the
+	 * service type using the service name.
+	 * 
 	 * @param serviceName
 	 * @return
 	 */
@@ -112,10 +117,11 @@ public class Catalog {
 		}
 		JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
 		JsonPrimitive type = sm.getAsJsonPrimitive("type");
-		if (type == null) {
-			LOG.error("Can not find 'type' parameter under 'spec->metadata', make sure it's aright configured: " + service);
-			throw new RuntimeException("Can not find 'type' parameter under 'spec->metadata', make sure it's aright configured");
+		if (type != null) {
+			return type.getAsString().toLowerCase();
+		} else {
+			LOG.info("Can NOT find the service type in the Catalog, set the service type using the service name!");
+			return serviceName.toLowerCase();
 		}
-		return type.getAsString();
 	}
 }
