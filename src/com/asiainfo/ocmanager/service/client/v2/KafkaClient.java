@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.service.client;
+package com.asiainfo.ocmanager.service.client.v2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,11 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.Query;
-import javax.management.QueryExp;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.security.auth.Subject;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
@@ -27,7 +26,6 @@ import org.apache.kafka.common.security.JaasUtils;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.security.module.plugin.KrbModule;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.common.collect.Sets;
 
@@ -37,30 +35,78 @@ import scala.Tuple2;
 import scala.collection.JavaConversions;
 
 /**
- * Client for kafka.
- * 
- * @author EthanWang
+ * Kafka client
+ * @author Ethan
  *
  */
-public class KafkaClient {
+public class KafkaClient extends ServiceClient{
 	private static final Logger LOG = Logger.getLogger(KafkaClient.class);
-	private static KafkaClient instance;
 	private List<String> brokers = new ArrayList<>();
 	private int port = -1;
 	private ZkUtils zookeeper;
 	private SecurityProtocol protocol = SecurityProtocol.PLAINTEXT;
 
-	public static KafkaClient getInstance() {
-		if (instance == null) {
-			synchronized (KafkaClient.class) {
-				if (instance == null) {
-					instance = new KafkaClient();
-				}
-			}
+	protected KafkaClient(String serviceName, Subject subject) {
+		super(serviceName, subject);
+		init();
+	}
+	
+	/**
+	 * Get used size of specified topic in Bytes.
+	 * 
+	 * @param topic
+	 * @return
+	 */
+	public long fetchTopicSize(String topic) {
+		Set<Partition> partitions = getLeaderPartitions(topic);
+		long sizeBytes = 0l;
+		for (Partition par : partitions) {
+			sizeBytes = sizeBytes + partitionSize(par);
 		}
-		return instance;
+		return sizeBytes;
+	}
+	
+	private scala.collection.Set<String> toSet(String topic) {
+		return JavaConversions.asScalaSet(Sets.newHashSet(topic));
+	}
+	
+	/**
+	 * Get all the leader partitions of specified topic.
+	 * 
+	 * @param topicName
+	 * @return
+	 */
+	private Set<Partition> getLeaderPartitions(String topicName) {
+		Set<Partition> partitions = new HashSet<>();
+		scala.collection.Set<TopicMetadata> meta = AdminUtils.fetchTopicMetadataFromZk(toSet(topicName), zookeeper, protocol);
+		for(org.apache.kafka.common.requests.MetadataResponse.PartitionMetadata partition : meta.head().partitionMetadata()) {
+			partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
+		}
+		return partitions;
+	}
+	
+	private long partitionSize(Partition par) {
+		try {
+			if (par.getHost() == null || par.getHost().isEmpty()) {
+				LOG.error("Leader not found for topic: " + par.getTopic() + ", partition: " + par.getPar() + ". Partition size ungettable");
+				return 0l;
+			}
+			MBeanServerConnection conn = KafkaJMXPool.getConnection(par.getHost());
+			Object value = conn.getAttribute(MBeanName.name(par.getTopic(), par.getPar()), MBeanName.VALUE);
+			return (Long) value;
+		} catch (Exception e) {
+			LOG.error("Fetching partition size failed: " + par, e);
+			throw new RuntimeException("Fetching partition size failed: " + par, e);
+		}
 	}
 
+	private void init() {
+		String[] hosts = ServerConfiguration.getConf().getProperty("oc.kafka.brokers").trim().split(",");
+		this.brokers.addAll(Arrays.asList(hosts));
+		this.port = Integer.valueOf(ServerConfiguration.getConf().getProperty("oc.kafka.broker.port").trim());
+		initZK();		
+	}
+	
 	/**
 	 * Get partition number of specified topic.
 	 * 
@@ -77,11 +123,6 @@ public class KafkaClient {
 		return number;
 	}
 	
-
-	private scala.collection.Set<String> toSet(String topic) {
-		return JavaConversions.asScalaSet(Sets.newHashSet(topic));
-	}
-
 	/**
 	 * Get the retention size of each partition.
 	 * 
@@ -96,90 +137,16 @@ public class KafkaClient {
 		return Long.valueOf(retention);
 	}
 
-	/**
-	 * Get used size of specified topic in Bytes.
-	 * 
-	 * @param topic
-	 * @return
-	 */
-	public long fetchTopicSize(String topic) {
-		Set<Partition> partitions = getLeaderPartitions(topic);
-		long sizeBytes = 0l;
-		for (Partition par : partitions) {
-			sizeBytes = sizeBytes + partitionSize(par);
-		}
-		return sizeBytes;
+	public static void main(String[] args) {
+		int count = new KafkaClient("kafka", new Subject()).getPartitionCount("ethantest2");
+		System.out.println(">>>count: " + count);
 	}
-
-	private long partitionSize(Partition par) {
-		try {
-			if (par.getHost() == null || par.getHost().isEmpty()) {
-				LOG.error("Leader not found for topic: " + par.getTopic() + ", partition: " + par.getPar() + ". Partition size ungettable");
-				return 0l;
-			}
-			MBeanServerConnection conn = KafkaJMXPool.getConnection(par.getHost());
-			Object value = conn.getAttribute(MBeanName.name(par.getTopic(), par.getPar()), MBeanName.VALUE);
-			return (Long) value;
-		} catch (Exception e) {
-			LOG.error("Fetching partition size failed: " + par, e);
-			throw new RuntimeException("Fetching partition size failed: " + par, e);
-		}
-	}
-
-	/**
-	 * Get all the leader partitions of specified topic.
-	 * 
-	 * @param topicName
-	 * @return
-	 */
-	private Set<Partition> getLeaderPartitions(String topicName) {
-		Set<Partition> partitions = new HashSet<>();
-		scala.collection.Set<TopicMetadata> meta = AdminUtils.fetchTopicMetadataFromZk(toSet(topicName), zookeeper, protocol);
-		for(org.apache.kafka.common.requests.MetadataResponse.PartitionMetadata partition : meta.head().partitionMetadata()) {
-			partitions.add(new Partition(topicName, partition.partition(), partition.leader().host()));
-		}
-		return partitions;
-	}
-
-//	/**
-//	 * Put topic name in seq
-//	 * 
-//	 * @param topicName
-//	 * @return
-//	 */
-//	private Seq<String> topic(String topicName) {
-//		return toSeq(toList(topicName));
-//	}
-//
-//	private List<String> toList(String name) {
-//		return Arrays.asList(new String[] { name });
-//	}
-
-	private KafkaClient() {
-		String[] hosts = ServerConfiguration.getConf().getProperty("oc.kafka.brokers").trim().split(",");
-		this.brokers.addAll(Arrays.asList(hosts));
-		this.port = Integer.valueOf(ServerConfiguration.getConf().getProperty("oc.kafka.broker.port").trim());
-		initZK();
-	}
-
+	
 	private void initZK() {
-		if (secure()) {
-			String jaas = ServerConfiguration.getConf().getProperty("oc.kafka.security.jaas.file");
-			if (jaas == null || jaas.isEmpty()) {
-				throw new RuntimeException("Kafka jaas file not configured.");
-			}
-			System.setProperty("java.security.auth.login.config", jaas);
-			protocol = SecurityProtocol.SASL_PLAINTEXT;
-		}
 		boolean isSecure = JaasUtils.isZkSecurityEnabled();
 		LOG.info("Zookeeper isZkSecurityEnabled : " + isSecure);
 		Tuple2<ZkClient, ZkConnection> tuple = ZkUtils.createZkClientAndConnection(assembleZKStr(), 30000, 30000);
-		zookeeper = new ZkUtils(tuple._1, tuple._2, isSecure);
-	}
-
-	private boolean secure() {
-		String module = ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE).trim();
-		return module.equals(KrbModule.class.getName());
+		zookeeper = new ZkUtils(tuple._1, tuple._2, isSecure);		
 	}
 
 	private String assembleZKStr() {
@@ -194,50 +161,7 @@ public class KafkaClient {
 		LOG.info("Zookeeper connection string for KafkaClient: " + finalString);
 		return finalString;
 	}
-
-	/**
-	 * Kafka partition, consist of parent topic, partitionid and allocated host
-	 * of this partition.
-	 * 
-	 * @author EthanWang
-	 *
-	 */
-	private static class Partition {
-		private String topic;
-		private int par; // partition number.
-		private String host; // host at which partition locates.
-
-		public Partition(String topic, int partition, String host) {
-			this.par = partition;
-			this.host = host;
-			this.topic = topic;
-		}
-
-		public int getPar() {
-			return par;
-		}
-
-		public String getTopic() {
-			return topic;
-		}
-
-		public String getHost() {
-			return host;
-		}
-
-		public String toString() {
-			return topic + "-" + par + "@" + host;
-		}
-
-		public boolean equals(Object obj) {
-			return this.toString().equals(obj.toString());
-		}
-
-		public int hashCode() {
-			return -1;
-		}
-	}
-
+	
 	/**
 	 * JMX connections cache pool for Kafka.
 	 * 
@@ -301,7 +225,7 @@ public class KafkaClient {
 			}
 		}
 	}
-
+	
 	/**
 	 * MBean name constructor.
 	 * 
@@ -317,13 +241,47 @@ public class KafkaClient {
 					OBJECTSTR.replace("{%TOPIC}", topic).replace("{%PARTITION}", String.valueOf(partition)));
 		}
 	}
+	
+	/**
+	 * Kafka partition, consist of parent topic, partitionid and allocated host
+	 * of this partition.
+	 * 
+	 * @author EthanWang
+	 *
+	 */
+	private static class Partition {
+		private String topic;
+		private int par; // partition number.
+		private String host; // host at which partition locates.
 
-//	private <T> Seq<T> toSeq(List<T> list) {
-//		return JavaConversions.asScalaBuffer(list).seq();
-//	}
-//
-//	private <T> List<T> toList(Seq<T> seq) {
-//		return JavaConversions.asJavaList(seq);
-//	}
+		public Partition(String topic, int partition, String host) {
+			this.par = partition;
+			this.host = host;
+			this.topic = topic;
+		}
 
+		public int getPar() {
+			return par;
+		}
+
+		public String getTopic() {
+			return topic;
+		}
+
+		public String getHost() {
+			return host;
+		}
+
+		public String toString() {
+			return topic + "-" + par + "@" + host;
+		}
+
+		public boolean equals(Object obj) {
+			return this.toString().equals(obj.toString());
+		}
+
+		public int hashCode() {
+			return -1;
+		}
+	}
 }

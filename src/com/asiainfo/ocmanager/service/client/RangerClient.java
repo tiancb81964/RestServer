@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.User;
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
+import com.asiainfo.ocmanager.utils.ClusterConfig;
 
 /**
  * Ranger client
@@ -36,32 +36,30 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  */
 public class RangerClient {
 	private static final Logger LOG = LoggerFactory.getLogger(RangerClient.class);
-	private static RangerClient instance;
 	private CloseableHttpClient httpClient;
 	private HttpClientContext context;
 	private URI rangerURI;
 	private static final String TEMP = "{\"name\" : \"{$USER_NAME}\", \"firstName\" : \"{$FIRST_NAME}\", \"lastName\" : \"\", \"emailAddress\" : \"\", \"password\" : \"{$PASSWORD}\", \"description\" : \"by ocm at {$CREATE_TIME}\", \"groupIdList\" : null, \"status\" : 1, \"userRoleList\" : [\"ROLE_USER\"]}";
-
-	public static RangerClient getInstance() {
-		if (instance == null) {
-			synchronized (RangerClient.class) {
-				if (instance == null) {
-					instance = new RangerClient();
-				}
-			}
-		}
-		return instance;
-	}
-
+	private ClusterConfig conf;
 	public static void main(String[] args) throws Exception {
 		User user = new User();
 		user.setUsername("ethanwang7");
 //		user.setPassword("ethanwang3");
 //		user.setCreateTime(new Date(System.currentTimeMillis()).toString());
-		boolean rsp = RangerClient.getInstance().addUser(user);
-		System.out.println(">>> end of main: " + rsp);
 	}
 
+	protected RangerClient(ClusterConfig cluster) {
+		this.conf = cluster;
+		try {
+			this.context = HttpClientContext.create();
+			initContext();
+			this.httpClient = HttpClientBuilder.create().build();
+		} catch (Exception e) {
+			LOG.error("Error while init ranger client: ", e);
+			throw e;
+		}
+	}
+	
 	/**
 	 * Add user to ranger
 	 * 
@@ -139,30 +137,20 @@ public class RangerClient {
 		return entity;
 	}
 
-	private RangerClient() {
-		try {
-			this.context = HttpClientContext.create();
-			initContext();
-			this.httpClient = HttpClientBuilder.create().build();
-		} catch (Exception e) {
-			LOG.error("Error while init ranger client: ", e);
-			throw e;
-		}
-	}
-
 	private void initContext() {
+		//TODO: config to clusters.ini
 		CredentialsProvider provider = new BasicCredentialsProvider();
 		provider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
-				new UsernamePasswordCredentials(ServerConfiguration.getConf().getProperty(Constant.RANGER_ADMIN),
-						ServerConfiguration.getConf().getProperty(Constant.RANGER_PASSWD)));
+				new UsernamePasswordCredentials(conf.getProperty(Constant.RANGER_ADMIN),
+						conf.getProperty(Constant.RANGER_PASSWD)));
 		AuthCache authCache = new BasicAuthCache();
 		StringBuilder sb = new StringBuilder("http://");
-		sb.append(ServerConfiguration.getConf().getProperty(Constant.RANGER_HOSTS)).append(":")
-				.append(Integer.valueOf(ServerConfiguration.getConf().getProperty(Constant.RANGER_PORT)));
+		sb.append(conf.getProperty(Constant.RANGER_HOSTS)).append(":")
+				.append(Integer.valueOf(conf.getProperty(Constant.RANGER_PORT)));
 		this.rangerURI = URI.create(sb.toString());
 		authCache.put(
-				new HttpHost(ServerConfiguration.getConf().getProperty(Constant.RANGER_HOSTS),
-						Integer.valueOf(ServerConfiguration.getConf().getProperty(Constant.RANGER_PORT)), "http"),
+				new HttpHost(conf.getProperty(Constant.RANGER_HOSTS),
+						Integer.valueOf(conf.getProperty(Constant.RANGER_PORT)), "http"),
 				new BasicScheme());
 		this.context.setCredentialsProvider(provider);
 		this.context.setAuthCache(authCache);

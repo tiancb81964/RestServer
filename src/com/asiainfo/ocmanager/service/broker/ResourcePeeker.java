@@ -2,7 +2,8 @@ package com.asiainfo.ocmanager.service.broker;
 
 import java.util.List;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
+import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
 
 /**
  * Interface used to get service quota.
@@ -62,9 +63,10 @@ public interface ResourcePeeker extends Broker {
 	public List<String> getResourcesByType(String resourceType);
 	
 	/**
-	 * Get service type
+	 * Return the client type of current peeker. Used to
+	 * find peeker by {@link ResourcePeekerFactory}
 	 * @return
 	 */
-	public ServiceType getType();
+	public Class<? extends ServiceClient> getClientClass();
 	
 }

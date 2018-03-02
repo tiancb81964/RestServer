@@ -22,8 +22,13 @@ import com.google.common.collect.Table;
 public abstract class BaseResourcePeeker implements ResourcePeeker {
 	protected static Logger LOG = Logger.getLogger(BaseResourcePeeker.class);
 	private Resource resources;
-
-	public BaseResourcePeeker() {
+	
+	/**
+	 * Peeker will init using connection infos which could be 
+	 * located by the specified given servicename.
+	 * @param serviceName
+	 */
+	public BaseResourcePeeker(String serviceName) {
 		setup();
 	}
 	
@@ -124,7 +129,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	 * different types to different resources, you can override
 	 * {@link #isMapping(String, String)} to achieve.
 	 * 
-	 * @param type
+	 * @param serviceType
 	 * @return
 	 */
 	protected abstract Long fetchTotalQuota(String resourceType, String resourceName);
@@ -136,7 +141,7 @@ public abstract class BaseResourcePeeker implements ResourcePeeker {
 	 * different types to different resources, you can override
 	 * {@link #isMapping(String, String)} to achieve.
 	 * 
-	 * @param type
+	 * @param serviceType
 	 * @return
 	 */
 	protected abstract Long fetchUsedQuota(String resourceType, String resourceName);

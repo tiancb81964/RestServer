@@ -8,9 +8,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.resource.utils.ServiceType;
 import com.asiainfo.ocmanager.service.broker.imp.BaseResourcePeeker;
-import com.asiainfo.ocmanager.service.client.HDFSClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.service.client.v2.HDFSClient;
 
 /**
  * Hive resource monitor.
@@ -22,9 +24,24 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 	private static final Logger LOG = Logger.getLogger(HiveResourcePeeker.class);
 	private FileSystem hdfs;
 
+	public HiveResourcePeeker(String serviceName) {
+		super(serviceName);
+		try {
+			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
+			if (!(cli instanceof HDFSClient)) {
+				LOG.error("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+				throw new RuntimeException("Client type error: " + cli.getClass().getName() + " for " + this.getClass().getName());
+			}
+			hdfs = ((HDFSClient)cli).getFS();
+		} catch (Exception e) {
+			LOG.error("Exception when init peeker: ", e);
+			throw new RuntimeException("Exception when init peeker: ", e);
+		}
+
+	}
+	
 	@Override
 	protected void setup() {
-		this.hdfs = HDFSClient.getFileSystem();
 	}
 
 	@Override
@@ -69,8 +86,8 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 	}
 
 	@Override
-	public ServiceType getType() {
-		return ServiceType.hive;
+	public Class<? extends ServiceClient> getClientClass() {
+		return HDFSClient.class;
 	}
 
 }

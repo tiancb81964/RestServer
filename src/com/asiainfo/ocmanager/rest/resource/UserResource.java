@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.rest.resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -17,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.client.HttpClient;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.auth.Authenticator;
@@ -40,8 +40,11 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
+import com.asiainfo.ocmanager.service.client.ClusterFactory;
 import com.asiainfo.ocmanager.service.client.RangerClient;
 import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
+import com.asiainfo.ocmanager.utils.ClusterConfig;
+import com.asiainfo.ocmanager.utils.ClustersIni;
 import com.asiainfo.ocmanager.utils.TenantTree;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
@@ -244,7 +247,7 @@ public class UserResource {
 						.build();
 			}
 
-			if (!appendUser2Ranger(user)) {
+			if (!appendUser2Rangers(user)) {
 				logger.error("Failed to append user to Ranger: " + user);
 				return Response.status(Status.BAD_REQUEST).entity("Failed to append user to Ranger: " + user).build();
 			}
@@ -270,23 +273,36 @@ public class UserResource {
 		}
 	}
 
-	private boolean appendUser2Ranger(User user) throws Exception {
+	public static void main(String[] args) {
+		User user = new User();
+		user.setUsername("ethanwang1");
 		try {
+			new UserResource().appendUser2Rangers(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(">>>end of main.");
+	}
+	
+	private boolean appendUser2Rangers(User user) throws Exception {
+		Map<String, ClusterConfig> clusters = ClustersIni.getInstance().getClusters();
+		clusters.forEach((k,v) -> {
+			RangerClient ranger = ClusterFactory.getRanger(k);
 			/*
 			 * 1. user not exist in ranger and append succeed 
 			 * 2. user not exist and append exception 
 			 * 3. user existed in ranger and append failed
 			 */
-			return RangerClient.getInstance().addUser(user);
-		}
-		catch (UserExistedException e) {
-			logger.warn("User already existed: " + user);
-			return true;
-		}
-		catch (Exception e) {
-			logger.error("Failed to append user to ranger: ", e);
-			throw e;
-		}
+			try {
+				ranger.addUser(user);
+			} catch (UserExistedException e) {
+				logger.warn("User already existed: " + user);
+			} catch (Exception e) {
+				logger.error("Append user to ranger failed: ", e);
+				throw new RuntimeException(e);
+			}
+		});
+		return true;
 	}
 
 	/**
