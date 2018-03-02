@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`services` (
   `servicename` VARCHAR(64) NOT NULL,
   `description` MEDIUMTEXT NULL,
   `origin` VARCHAR(64) NULL,
+  `serviceType` VARCHAR(64) NULL,
   PRIMARY KEY (`servicename`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
 ENGINE = InnoDB;
@@ -171,12 +172,12 @@ INSERT INTO `ocmanager`.`roles`(id, rolename, description, permission) VALUES("a
 -- Init the ocdp services in the table `ocmanager`.`services`
 -- ocdp service is hard code in the catalog, so here we also hard code
 -- -----------------------------------------------------
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("ae67d4ba-5c4e-4937-a68b-5b47cfe356d8", "hdfs", "A Hadoop hdfs service broker implementation", "ocdp");
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("d9845ade-9410-4c7f-8689-4e032c1a8450", "hbase", "A Hadoop hbase service broker implementation", "ocdp");
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa3", "hive", "A Hadoop hive service broker implementation", "ocdp");
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("ae0f2324-27a8-415b-9c7f-64ab6cd88d40", "mapreduce", "A Hadoop mapreduce service broker implementation", "ocdp");
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("d3b9a485-f038-4605-9b9b-29792f5c61d1", "spark", "A Spark service broker implementation", "ocdp");
-INSERT INTO `ocmanager`.`services` (id, servicename, description, origin) VALUES("7b738c78-d412-422b-ac3e-43a9fc72a4a7", "kafka", "A Kafka service broker implementation", "ocdp");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("ae67d4ba-5c4e-4937-a68b-5b47cfe356d8", "hdfs", "A Hadoop hdfs service broker implementation", "ocdp", "hdfs");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("d9845ade-9410-4c7f-8689-4e032c1a8450", "hbase", "A Hadoop hbase service broker implementation", "ocdp", "hbase");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("2ef26018-003d-4b2b-b786-0481d4ee9fa3", "hive", "A Hadoop hive service broker implementation", "ocdp", "hive");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("ae0f2324-27a8-415b-9c7f-64ab6cd88d40", "mapreduce", "A Hadoop mapreduce service broker implementation", "ocdp", "mapreduce");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("d3b9a485-f038-4605-9b9b-29792f5c61d1", "spark", "A Spark service broker implementation", "ocdp", "spark");
+INSERT INTO `ocmanager`.`services` (id, servicename, description, origin, serviceType) VALUES("7b738c78-d412-422b-ac3e-43a9fc72a4a7", "kafka", "A Kafka service broker implementation", "ocdp", "kafka");
 
 -- -----------------------------------------------------
 -- Init the role service permission mapping

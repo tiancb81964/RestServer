@@ -13,7 +13,7 @@ public class TestService {
 		SqlSession session = TestDBConnectorFactory.getSession();
 		try {
 			ServiceMapper mapper = session.getMapper(ServiceMapper.class);
-			mapper.insertService(new Service("700", "hdfs17", "hdfs description", "ocdp"));
+			mapper.insertService(new Service("700", "hdfs17", "hdfs description", "ocdp", "hdfs"));
 			session.commit();
 			List<Service> services = mapper.selectAllServices();
 			System.out.println("=== All services ===");
