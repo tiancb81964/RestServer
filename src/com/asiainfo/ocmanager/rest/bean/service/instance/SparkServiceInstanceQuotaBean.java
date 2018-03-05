@@ -85,7 +85,7 @@ public class SparkServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 			JsonObject parameters) {
 
 		List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
-				.getServiceInstanceByServiceType(tenantId, backingServiceName);
+				.getServiceInstanceByServiceName(tenantId, backingServiceName);
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
 
 		// get all mapreduce children bsi quota

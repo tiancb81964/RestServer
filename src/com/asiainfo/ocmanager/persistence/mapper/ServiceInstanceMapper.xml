@@ -10,8 +10,8 @@
     <!-- create service instance -->
     <insert id="insertServiceInstance" keyProperty="id"
         parameterType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
-        insert into service_instances (id, instanceName, tenantId, serviceTypeId, serviceTypeName, quota, status, cuzBsiName, attributes, serviceType)
-            values (#{id}, #{instanceName}, #{tenantId}, #{serviceTypeId}, #{serviceTypeName}, #{quota}, #{status}, #{cuzBsiName}, #{attributes}, #{serviceType})
+        insert into service_instances (id, instanceName, tenantId, serviceId, serviceName, quota, status, cuzBsiName, attributes, serviceType)
+            values (#{id}, #{instanceName}, #{tenantId}, #{serviceId}, #{serviceName}, #{quota}, #{status}, #{cuzBsiName}, #{attributes}, #{serviceType})
     </insert>
 	<!-- delete service instance -->
 	<delete id="deleteServiceInstance">
@@ -39,10 +39,10 @@
     </select>
     <!-- get service instance by instanceName -->
     <select id="selectServiceInstanceByCuzBsiName" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
-        select * from service_instances where cuzBsiName = #{cuzBsiName} and upper(serviceTypeName) = upper(#{serviceType})
+        select * from service_instances where cuzBsiName = #{cuzBsiName} and upper(serviceName) = upper(#{serviceName})
     </select>
     <!-- get service instance by instanceName -->
-    <select id="selectServiceInstanceByServiceType" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
-        select * from service_instances where tenantId = #{tenantId} and upper(serviceTypeName) = upper(#{serviceType})
+    <select id="selectServiceInstanceByServiceName" resultType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
+        select * from service_instances where tenantId = #{tenantId} and upper(serviceName) = upper(#{serviceName})
     </select>
 </mapper>

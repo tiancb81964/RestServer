@@ -123,7 +123,7 @@ public class StormServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public ServiceInstanceQuotaCheckerResponse checkCanChangeInst(String backingServiceName, String tenantId,
 			JsonObject parameters) {
 		List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
-				.getServiceInstanceByServiceType(tenantId, backingServiceName);
+				.getServiceInstanceByServiceName(tenantId, backingServiceName);
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenantId);
 
 		// get all storm children bsi quota

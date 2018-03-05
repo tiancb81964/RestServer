@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`service_instances` (
   `id` VARCHAR(64) NOT NULL,
   `instanceName` VARCHAR(64) NOT NULL,
   `tenantId` VARCHAR(64) NOT NULL,
-  `serviceTypeId` VARCHAR(64) NULL,
-  `serviceTypeName` VARCHAR(64) NOT NULL,
+  `serviceId` VARCHAR(64) NULL,
+  `serviceName` VARCHAR(64) NOT NULL,
   `quota` MEDIUMTEXT NULL,
   `status` VARCHAR(64) NULL,
   `cuzBsiName` MEDIUMTEXT NULL,
@@ -78,14 +78,14 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`service_instances` (
   `serviceType` VARCHAR(64) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_service_instances_tenants1_idx` (`tenantId` ASC),
-  INDEX `fk_service_instances_services1_idx` (`serviceTypeName` ASC),
+  INDEX `fk_service_instances_services1_idx` (`serviceName` ASC),
   CONSTRAINT `fk_service_instances_tenants1`
     FOREIGN KEY (`tenantId`)
     REFERENCES `ocmanager`.`tenants` (`id`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT,
   CONSTRAINT `fk_service_instances_services1`
-    FOREIGN KEY (`serviceTypeName`)
+    FOREIGN KEY (`serviceName`)
     REFERENCES `ocmanager`.`services` (`servicename`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT)

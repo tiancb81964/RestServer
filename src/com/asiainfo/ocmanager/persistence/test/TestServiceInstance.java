@@ -37,14 +37,14 @@ public class TestServiceInstance {
 
 			for (ServiceInstance si : sis) {
 				System.out.println(si.getId());
-				System.out.println(si.getServiceTypeName());
+				System.out.println(si.getServiceName());
 			}
 
 			List<ServiceInstance> sis1 = mapper.selectAllServiceInstances();
 
 			for (ServiceInstance si : sis1) {
 				System.out.println(si.getId());
-				System.out.println(si.getServiceTypeName());
+				System.out.println(si.getServiceName());
 			}
 
 			
