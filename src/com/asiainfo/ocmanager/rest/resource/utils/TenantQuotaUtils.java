@@ -77,7 +77,7 @@ public class TenantQuotaUtils {
 	 * @return
 	 */
 	public static QuotaBean2 getMinimumAllocatedQuotaByService(String tenantID, String instanceID, ServiceType type){
-		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstanceByServiceType(tenantID, type.serviceType());
+		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstanceByServiceName(tenantID, type.serviceType());
 		QuotaBean2 bean = new QuotaBean2(type);
 		for (ServiceInstance bsi : instances) {
 			if (bsi.getId().equals(instanceID)) {

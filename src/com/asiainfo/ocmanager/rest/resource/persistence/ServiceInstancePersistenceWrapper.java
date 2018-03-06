@@ -191,17 +191,17 @@ public class ServiceInstancePersistenceWrapper {
 	}
 
 	/**
-	 * Get serviceInstance by service type
+	 * Get serviceInstance by service name
 	 * 
 	 * @param tenantId
-	 * @param serviceType
+	 * @param serviceName
 	 * @return
 	 */
-	public static List<ServiceInstance> getServiceInstanceByServiceType(String tenantId, String serviceType) {
+	public static List<ServiceInstance> getServiceInstanceByServiceName(String tenantId, String serviceName) {
 		SqlSession session = DBConnectorFactory.getSession();
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
-			List<ServiceInstance> serviceInstances = mapper.selectServiceInstanceByServiceType(tenantId, serviceType);
+			List<ServiceInstance> serviceInstances = mapper.selectServiceInstanceByServiceName(tenantId, serviceName);
 			return serviceInstances;
 		} catch (Exception e) {
 			throw e;

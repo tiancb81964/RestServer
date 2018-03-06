@@ -10,8 +10,8 @@ public class ServiceInstance {
 	private String id;
 	private String instanceName;
 	private String tenantId;
-	private String serviceTypeId;
-	private String serviceTypeName;
+	private String serviceId;
+	private String serviceName;
 	private String quota;
 	private String status;
 	private String cuzBsiName;
@@ -22,14 +22,14 @@ public class ServiceInstance {
 
 	}
 
-	public ServiceInstance(String id, String instanceName, String tenantId, String serviceTypeId,
-			String serviceTypeName, String quota, String status, String cuzBsiName, String attributes,
+	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId,
+			String serviceName, String quota, String status, String cuzBsiName, String attributes,
 			String serviceType) {
 		this.id = id;
 		this.instanceName = instanceName;
 		this.tenantId = tenantId;
-		this.serviceTypeId = serviceTypeId;
-		this.serviceTypeName = serviceTypeName;
+		this.serviceId = serviceId;
+		this.serviceName = serviceName;
 		this.quota = quota;
 		this.status = status;
 		this.cuzBsiName = cuzBsiName;
@@ -37,13 +37,13 @@ public class ServiceInstance {
 		this.serviceType = serviceType;
 	}
 
-	public ServiceInstance(String id, String instanceName, String tenantId, String serviceTypeId,
-			String serviceTypeName, String quota, String status) {
+	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId,
+			String serviceName, String quota, String status) {
 		this.id = id;
 		this.instanceName = instanceName;
 		this.tenantId = tenantId;
-		this.serviceTypeId = serviceTypeId;
-		this.serviceTypeName = serviceTypeName;
+		this.serviceId = serviceId;
+		this.serviceName = serviceName;
 		this.quota = quota;
 		this.status = status;
 	}
@@ -72,20 +72,20 @@ public class ServiceInstance {
 		this.tenantId = tenantId;
 	}
 
-	public String getServiceTypeId() {
-		return serviceTypeId;
+	public String getServiceId() {
+		return serviceId;
 	}
 
-	public void setServiceTypeId(String serviceTypeId) {
-		this.serviceTypeId = serviceTypeId;
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId;
 	}
 
-	public String getServiceTypeName() {
-		return serviceTypeName;
+	public String getServiceName() {
+		return serviceName;
 	}
 
-	public void setServiceTypeName(String serviceTypeName) {
-		this.serviceTypeName = serviceTypeName;
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
 	}
 
 	public String getQuota() {

@@ -109,9 +109,9 @@ public class ServiceInstanceUtils {
 					serviceInstance
 							.setInstanceName(resBodyJsonObj.getAsJsonObject("metadata").get("name").getAsString());
 					serviceInstance.setTenantId(tenantId);
-					serviceInstance.setServiceTypeId(resBodyJsonObj.getAsJsonObject("spec")
+					serviceInstance.setServiceId(resBodyJsonObj.getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("backingservice_spec_id").getAsString());
-					serviceInstance.setServiceTypeName(resBodyJsonObj.getAsJsonObject("spec")
+					serviceInstance.setServiceName(resBodyJsonObj.getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("backingservice_name").getAsString());
 
 					JsonElement resCuzBsiNameJE = resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning")
@@ -183,7 +183,7 @@ public class ServiceInstanceUtils {
 						serviceInstance.setQuota(quota.toString());
 						serviceInstance.setAttributes(attributes.toString());
 
-						String serviceName1 = serviceInstance.getServiceTypeName();
+						String serviceName1 = serviceInstance.getServiceName();
 						String serviceType1 = Catalog.getInstance().getServiceType(serviceName1);
 						serviceInstance.setServiceType(serviceType1);
 
