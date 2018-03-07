@@ -18,13 +18,13 @@ import com.asiainfo.ocmanager.utils.ServicesIni;
  */
 public abstract class ServiceClient implements ServiceClientInterface {
 	protected String serviceName;
-	private Connector connctor;
+	private Delegator delegator;
 	protected Properties serviceConfig;
 	public static final String CLIENT_CLASS = "client.class";
 	
 	public ServiceClient(String serviceName, Subject subject) {
 		this.serviceName = serviceName;
-		this.connctor = new Connector(subject) {};
+		this.delegator = new Delegator(subject) {};
 		this.serviceConfig = ServicesIni.getInstance().getProperties(serviceName);
 	}
 	
@@ -48,7 +48,7 @@ public abstract class ServiceClient implements ServiceClientInterface {
 	}
 
 	public Subject getSubject() {
-		return this.connctor.getSubject();
+		return this.delegator.getSubject();
 	}
 	
 	public String getServiceName() {
@@ -62,7 +62,7 @@ public abstract class ServiceClient implements ServiceClientInterface {
 	 * @throws IOException
 	 */
 	public final <T> T doPrivileged(SomeAction<T> action) throws Exception {
-		return this.connctor.doAsPrivileged(action);
+		return this.delegator.doAsPrivileged(action);
 	}
 	
 }

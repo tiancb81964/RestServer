@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
  * @author Ethan
  *
  */
-public abstract class Connector {
-	private static final Logger LOG = LoggerFactory.getLogger(Connector.class);
+public abstract class Delegator {
+	private static final Logger LOG = LoggerFactory.getLogger(Delegator.class);
 	private Subject subject; // identity of current connector
 
-	public Connector(Subject subject) {
+	public Delegator(Subject subject) {
 		this.subject = subject;
 	}
 
