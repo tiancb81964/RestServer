@@ -10,8 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract connector of certain service. Each service should customize its
- * own conncetor accordingly. Moreover, privileged actions can be 
+ * Proxy delegator, by which service would perform actions. Moreover, privileged actions can be 
  * performed by calling {@link #doAsPrivileged(SomeAction)}
  * 
  * @author Ethan
