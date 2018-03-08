@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.security.auth.Subject;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -22,7 +20,7 @@ public class HDFSClient extends ServiceClient{
 	private static final Logger LOG = Logger.getLogger(HDFSClient.class);
 	private FileSystem fs;
 
-	protected HDFSClient(String serviceName, Subject subject) {
+	protected HDFSClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		try {
 			init();
@@ -55,7 +53,7 @@ public class HDFSClient extends ServiceClient{
 	}
 	
 	public static void main(String[] args) {
-		Subject sub = new Subject();
+		Delegator sub = new Delegator(null);
 		FileSystem filesys = new HDFSClient("hdfs", sub).getFS();
 		try {
 			FileStatus[] files = filesys.listStatus(new Path("/"));

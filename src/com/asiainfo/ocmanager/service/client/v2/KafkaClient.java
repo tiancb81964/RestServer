@@ -16,7 +16,6 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.security.auth.Subject;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
@@ -26,7 +25,6 @@ import org.apache.kafka.common.security.JaasUtils;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.common.collect.Sets;
 
 import kafka.admin.AdminUtils;
@@ -46,7 +44,7 @@ public class KafkaClient extends ServiceClient{
 	private ZkUtils zookeeper;
 	private SecurityProtocol protocol = SecurityProtocol.PLAINTEXT;
 
-	protected KafkaClient(String serviceName, Subject subject) {
+	protected KafkaClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		init();
 	}
@@ -101,9 +99,9 @@ public class KafkaClient extends ServiceClient{
 	}
 
 	private void init() {
-		String[] hosts = ServerConfiguration.getConf().getProperty("oc.kafka.brokers").trim().split(",");
+		String[] hosts = this.serviceConfig.getProperty("oc.kafka.brokers").trim().split(",");
 		this.brokers.addAll(Arrays.asList(hosts));
-		this.port = Integer.valueOf(ServerConfiguration.getConf().getProperty("oc.kafka.broker.port").trim());
+		this.port = Integer.valueOf(this.serviceConfig.getProperty("oc.kafka.broker.port").trim());
 		initZK();		
 	}
 	
@@ -138,7 +136,7 @@ public class KafkaClient extends ServiceClient{
 	}
 
 	public static void main(String[] args) {
-		int count = new KafkaClient("kafka", new Subject()).getPartitionCount("ethantest2");
+		int count = new KafkaClient("kafka", new Delegator(null)).getPartitionCount("ethantest2");
 		System.out.println(">>>count: " + count);
 	}
 	
@@ -150,8 +148,8 @@ public class KafkaClient extends ServiceClient{
 	}
 
 	private String assembleZKStr() {
-		String[] zk = ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER).split(",");
-		String port = ServerConfiguration.getConf().getProperty(Constant.ZOOKEEPER_PORT);
+		String[] zk = this.serviceConfig.getProperty(Constant.ZOOKEEPER).split(",");
+		String port = this.serviceConfig.getProperty(Constant.ZOOKEEPER_PORT);
 		StringBuilder sb = new StringBuilder();
 		for (String item : zk) {
 			sb.append(item).append(":").append(port).append(",");

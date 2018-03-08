@@ -1,7 +1,5 @@
 package com.asiainfo.ocmanager.service.client.v2;
 
-import javax.security.auth.Subject;
-
 /**
  * Hive client
  * @author Ethan
@@ -9,7 +7,7 @@ import javax.security.auth.Subject;
  */
 public class HiveClient extends HDFSClient{
 
-	protected HiveClient(String serviceName, Subject subject) {
+	protected HiveClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 	}
 

@@ -1,35 +1,55 @@
 package com.asiainfo.ocmanager.service.client.v2;
 
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.security.PrivilegedActionException;
 
 import javax.security.auth.Subject;
 
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Proxy delegator, by which service would perform actions. Moreover, privileged actions can be 
- * performed by calling {@link #doAsPrivileged(SomeAction)}
+ * Delegator, by which service would perform actions. Moreover, privileged
+ * actions can be performed by calling {@link #doAsPrivileged(SomeAction)}
  * 
  * @author Ethan
  *
  */
-public abstract class Delegator {
+public class Delegator {
 	private static final Logger LOG = LoggerFactory.getLogger(Delegator.class);
-	private Subject subject; // identity of current connector
+	private Object subject; // identity of current connector
+	private boolean isUGI = false;
 
-	public Delegator(Subject subject) {
-		this.subject = subject;
+	/**
+	 * Construct a new delegator with the given subject which can be instance of
+	 * either {@link Subject} or {@link UserGroupInformation}
+	 * 
+	 * @param subject
+	 */
+	public Delegator(Object subject) {
+		if (subject == null) {
+			subject = new Subject();
+		}
+		if (subject instanceof Subject) {
+			this.subject = subject;
+			this.isUGI = false;
+		} else if (subject instanceof UserGroupInformation) {
+			this.subject = subject;
+			this.isUGI = true;
+		} else {
+			LOG.error("Error: illegal subject type: " + subject.getClass().getName());
+			throw new RuntimeException("illegal subject type: " + subject.getClass().getName());
+		}
 	}
 
-	public Subject getSubject() {
-		return subject;
-	}
-
-	public void setSubject(Subject subject) {
-		this.subject = subject;
+	/**
+	 * If the delegator is ugi
+	 * 
+	 * @return
+	 */
+	public boolean isUGI() {
+		return isUGI;
 	}
 
 	/**
@@ -41,34 +61,25 @@ public abstract class Delegator {
 	 */
 	public final <T> T doAsPrivileged(SomeAction<T> action) throws InterruptedException, IOException {
 		if (subject == null) {
-			LOG.error("Subject of connector [{}] is null.", this.toString());
+			LOG.error("Subject is null.", this.toString());
 			throw new RuntimeException("Subject is null.");
 		}
-		try {
-			return Subject.doAs(subject, action);
-		} catch (PrivilegedActionException e) {
-			Throwable cause = e.getCause();
-			if (cause instanceof IOException) {
-				LOG.error("Exception while do action: ", cause);
-				throw (IOException) cause;
-			} else if (cause instanceof Error) {
-				LOG.error("Exception while do action: ", cause);
-				throw (Error) cause;
-			} else if (cause instanceof RuntimeException) {
-				LOG.error("Exception while do action: ", cause);
-				throw (RuntimeException) cause;
-			} else if (cause instanceof InterruptedException) {
-				LOG.error("Exception while do action: ", cause);
-				throw (InterruptedException) cause;
-			} else {
-				LOG.error("Exception while do action: ", cause);
-				throw new UndeclaredThrowableException(cause);
+		if (isUGI) {
+			UserGroupInformation ugi = (UserGroupInformation) subject;
+			return ugi.doAs(action);
+		} else {
+			Subject sub = (Subject) subject;
+			try {
+				return Subject.doAs(sub, action);
+			} catch (PrivilegedActionException e) {
+				LOG.error("Exception while doAs: ", e);
+				throw new IOException("Exception while doAs: ", e);
 			}
 		}
 	}
 
 	public String toString() {
-		return "subject=" + subject;
+		return "Delegator=[isUGI=" + this.isUGI + "	subject=" + this.subject;
 	}
 
 }
