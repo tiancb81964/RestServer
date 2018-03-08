@@ -1,8 +1,7 @@
 package com.asiainfo.ocmanager.auth;
-import com.asiainfo.ocmanager.auth.utils.AESUtils;
-import com.asiainfo.ocmanager.auth.utils.CacheUtils;
-import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
+import java.io.File;
+import java.util.Date;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -14,12 +13,14 @@ import org.apache.shiro.util.Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Date;
+import com.asiainfo.ocmanager.auth.utils.AESUtils;
+import com.asiainfo.ocmanager.auth.utils.CacheUtils;
+import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
 /**
  * Created by gq on 17/7/18.
- */
+ */	
 public class Authenticator {
     static Logger logger = LoggerFactory.getLogger(Authenticator.class.getName());
 

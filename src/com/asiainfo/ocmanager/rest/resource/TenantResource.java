@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.rest.resource;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -36,6 +37,8 @@ import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaResponse;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaResponse.ServiceInstanceQuotaResponse;
 import com.asiainfo.ocmanager.rest.bean.service.instance.ServiceInstanceQuotaConst;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
@@ -53,9 +56,12 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaChec
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
+import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
+import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
+import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.Catalog;
+import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -270,7 +276,7 @@ public class TenantResource {
 						"tenant quota is invalid json format, please correct.", ResponseCodeConstant.BAD_REQUEST))
 						.build();
 			}
-			
+
 			if (tenant.getParentId() == null || tenant.getParentId().isEmpty()) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("Parent tenant must be specified and parentID must not be null.").build();
@@ -564,14 +570,14 @@ public class TenantResource {
 
 	/**
 	 * Get incremental value of parameters by the result of requested parameter
-	 * mimus current parameter value. Additionally, request parameters will be filtered
-	 * in some circumstances(eg. Kafka topicQuota parameter might be removed coz of 
-	 * kafka restriction).
+	 * mimus current parameter value. Additionally, request parameters will be
+	 * filtered in some circumstances(eg. Kafka topicQuota parameter might be
+	 * removed coz of kafka restriction).
 	 * 
 	 * @param instanceName
 	 * @param instanceName2
 	 * @param parameterObj
-	 * @return 
+	 * @return
 	 */
 	private JsonObject getIncremental(String tenantID, String instanceName, JsonObject parameterObj) {
 		JsonObject incrementalObj = new JsonObject();
@@ -582,8 +588,8 @@ public class TenantResource {
 				long quotaInDB = getKafkaTopicQuotaInDB(tenantID, instanceName);
 				long newQuota = entry.getValue().getAsLong();
 				if (newQuota < quotaInDB) {
-					logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: "
-							+ quotaInDB);
+					logger.error("Kafka topicQuota parameter [" + newQuota
+							+ "] must NOT be smaller than current value: " + quotaInDB);
 					throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
 				} else if (newQuota == quotaInDB) {
 					logger.warn("Removing topicQuota parameter, coz it's equivalent to current value: " + quotaInDB);
@@ -598,13 +604,13 @@ public class TenantResource {
 		logger.info("Updating bsi {} by incremental quotas: {}", instanceName, incrementalObj);
 		return incrementalObj;
 	}
-	
+
 	private long getCurrentQuota(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
 		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
 		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
 		return jobj.get(entry.getKey()).getAsLong();
 	}
-	
+
 	private long getKafkaTopicQuotaInDB(String tenantID, String instanceName) {
 		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
 		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
@@ -1119,6 +1125,49 @@ public class TenantResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
+	}
+
+	/**
+	 * Get quota usage of the specified tenant
+	 * 
+	 * @param tenantId
+	 * @return
+	 */
+	@GET
+	@Path("{tenantId}/quotas")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	public Response getTenantQuotas(@PathParam("tenantId") String tenantId) {
+		try {
+			TenantQuotaResponse rsp = new TenantQuotaResponse(tenantId);
+			List<ServiceInstance> instances = getInstances(tenantId);
+			instances.forEach(e -> {
+				try {
+					ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(e.getServiceName());
+					ResourcePeeker quota = peeker.peekOn(Arrays.asList(e.getCuzBsiName()));
+					ServiceInstanceQuotaResponse insQuota = toInstanceQuotaBean(e.getId(), quota);
+					rsp.addInstance(insQuota);
+				} catch (Exception e2) {
+					logger.error("Exception while getting tenant quota: ", e2);
+					throw new RuntimeException("Exception while getting tenant quota: ", e2);
+				}
+			});
+			return Response.ok().entity(rsp).build();
+		} catch (Exception e) {
+			logger.error("getTenantQuotas hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+
+	}
+
+	private ServiceInstanceQuotaResponse toInstanceQuotaBean(String instanceId, ResourcePeeker quota) {
+		ServiceInstanceQuotaResponse insQuota = new ServiceInstanceQuotaResponse(instanceId);
+		insQuota.setItems(PeekerUtils.transformToBeans(quota));
+		return insQuota;
+	}
+
+	private List<ServiceInstance> getInstances(String tenantId) {
+		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
+		return instances;
 	}
 
 }

@@ -15,16 +15,13 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.directory.server.kerberos.shared.keytab.Keytab;
 import org.apache.log4j.Logger;
 
-import com.asiainfo.ocmanager.rest.bean.KerberosBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.utils.UUIDFactory;
-import com.asiainfo.ocmanager.security.module.plugin.KrbModule;
 import com.asiainfo.ocmanager.service.client.KrbClient;
 import com.asiainfo.ocmanager.service.exception.KerberosOperationException;
 import com.asiainfo.ocmanager.utils.KerberosConfiguration;
-import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -38,20 +35,6 @@ public class KerberosResource {
 			+ "keytabs" + File.separator + "oc.{$username}.keytab";
 	private static final String KRB5PATH = KerberosConfiguration.getConf()
 			.getProperty(Constant.KERBEROS_KRB5_LOCATION);
-	
-	@GET
-	@Path("status")
-	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	public Response kerberosEnabled() {
-		try {
-			String module = ServerConfiguration.getConf().getProperty(Constant.SECURITY_MODULE).trim();
-			boolean enable = module.equals(KrbModule.class.getName());
-			return Response.ok().entity(new KerberosBean().withStatus(enable)).build();
-		} catch (Exception e) {
-			logger.error("kerberosEnabled hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
-		}
-	}
 	
 	@GET
 	@Path("krb5")

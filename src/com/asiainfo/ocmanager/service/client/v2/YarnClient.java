@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.security.auth.Subject;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,7 +31,7 @@ public class YarnClient extends ServiceClient{
 	private CloseableHttpClient httpClient;
 	private String[] baseUrls; // active/standby rm.
 
-	protected YarnClient(String serviceName, Subject subject) {
+	protected YarnClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		init();
 	}
@@ -46,7 +44,7 @@ public class YarnClient extends ServiceClient{
 	public static void main(String[] args) {
 		String info = null;
 		try {
-			info = new YarnClient("yarnon111", new Subject()).fetchQueuesInfo();
+			info = new YarnClient("yarnon111", new Delegator(null)).fetchQueuesInfo();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
