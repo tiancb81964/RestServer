@@ -13,8 +13,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
- * AuthenticatorManager deals with client authentications. Each client can be
- * continuous authenticated, appliable for both insecure and secure cluster.
+ * AuthenticatorManager is responsible for client authenticating. Each service
+ * client(in <code> ../conf/services.ini</code> section) will create an
+ * {@linkplain Authenticator} and then be registered in
+ * AuthenticatorManager. Moreover, all registered {@linkplain Authenticator} will be
+ * continuous authenticated under certain stategy(Simple mode or Kerberos mode)
  * 
  * @author Ethan
  * @param <T>
@@ -42,9 +45,9 @@ public class AuthenticatorManager {
 	}
 
 	private void init() {
-		ServicesIni.getInstance().getAllProperties().forEach((k,v) -> {
+		ServicesIni.getInstance().getAllProperties().forEach((k, v) -> {
 			register(k);
-		});		
+		});
 	}
 
 	/**
@@ -69,8 +72,9 @@ public class AuthenticatorManager {
 		}
 	}
 
-	private AuthenticatorInterface newAuthenticator(String serviceName) throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	private AuthenticatorInterface newAuthenticator(String serviceName)
+			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException {
 		String classname = ServicesIni.getInstance().getProperty(serviceName, ServiceClient.AUTH_CLASS);
 		Preconditions.checkNotNull(classname,
 				"[auth.class] parameter is null of service: " + serviceName + " in services.ini config file");
