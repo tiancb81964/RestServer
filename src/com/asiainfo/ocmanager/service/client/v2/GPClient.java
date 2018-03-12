@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.security.auth.Subject;
-
 /**
  * Greenplum client.
  * 
@@ -20,7 +18,7 @@ public class GPClient extends ServiceClient{
 	private static String user;
 	private static String password;
 	
-	public GPClient(String serviceName, Subject subject) {
+	public GPClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		try {
 			Class.forName("org.postgresql.Driver");

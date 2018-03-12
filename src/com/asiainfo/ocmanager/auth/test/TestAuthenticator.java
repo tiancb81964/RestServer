@@ -1,15 +1,15 @@
 package com.asiainfo.ocmanager.auth.test;
 
-import com.asiainfo.ocmanager.auth.utils.AESUtils;
-import com.asiainfo.ocmanager.auth.Authenticator;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.auth.utils.AESUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Created by gq on 17/7/19.

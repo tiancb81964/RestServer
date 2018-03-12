@@ -30,5 +30,19 @@ public class PeekerUtils {
 		QuotaResponse res = new QuotaResponse(list);
 		return res;
 	}
+	
+	public static List<QuotaBean> transformToBeans(ResourcePeeker peeker) {
+		List<QuotaBean> list = new ArrayList<>();
+		for (String type : peeker.resourceTypes()) {
+			for (String resource : peeker.getResourcesByType(type)) {
+				QuotaBean bean = new QuotaBean(type, resource);
+				bean.setSize(String.valueOf(peeker.getTotalQuota(type, resource)));
+				bean.setUsed(String.valueOf(peeker.getUsedQuota(type, resource)));
+				bean.setAvailable(String.valueOf(peeker.getFreeQuota(type, resource)));
+				list.add(bean);
+			}
+		}
+		return list;
+	}
 
 }

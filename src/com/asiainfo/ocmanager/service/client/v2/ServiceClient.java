@@ -3,8 +3,6 @@ package com.asiainfo.ocmanager.service.client.v2;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.security.auth.Subject;
-
 import com.asiainfo.ocmanager.utils.ServicesIni;
 
 /**
@@ -18,20 +16,17 @@ import com.asiainfo.ocmanager.utils.ServicesIni;
  */
 public abstract class ServiceClient implements ServiceClientInterface {
 	protected String serviceName;
-	private Connector connctor;
+	private Delegator delegator;
 	protected Properties serviceConfig;
 	public static final String CLIENT_CLASS = "client.class";
+	public static final String AUTH_CLASS = "auth.class";
 	
-	public ServiceClient(String serviceName, Subject subject) {
+	public ServiceClient(String serviceName, Delegator subject) {
 		this.serviceName = serviceName;
-		this.connctor = new Connector(subject) {};
+		this.delegator = subject;
 		this.serviceConfig = ServicesIni.getInstance().getProperties(serviceName);
 	}
 	
-	/**
-	 * Get configs of this client from file <code>../conf/services.ini</code>
-	 * @return
-	 */
 	public Properties getServiceConfigs() {
 		return this.serviceConfig;
 	}
@@ -47,8 +42,8 @@ public abstract class ServiceClient implements ServiceClientInterface {
 		}
 	}
 
-	public Subject getSubject() {
-		return this.connctor.getSubject();
+	public Delegator getDelegator() {
+		return this.delegator;
 	}
 	
 	public String getServiceName() {
@@ -62,7 +57,7 @@ public abstract class ServiceClient implements ServiceClientInterface {
 	 * @throws IOException
 	 */
 	public final <T> T doPrivileged(SomeAction<T> action) throws Exception {
-		return this.connctor.doAsPrivileged(action);
+		return this.delegator.doAsPrivileged(action);
 	}
 	
 }

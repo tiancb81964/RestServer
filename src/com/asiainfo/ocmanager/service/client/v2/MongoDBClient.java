@@ -1,7 +1,5 @@
 package com.asiainfo.ocmanager.service.client.v2;
 
-import javax.security.auth.Subject;
-
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
@@ -16,7 +14,7 @@ public class MongoDBClient extends ServiceClient{
 	private static final String PORT = "oc.mongo.server.port";
 	private MongoClient mongo;
 
-	public MongoDBClient(String serviceName, Subject subject) {
+	public MongoDBClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		String host = this.serviceConfig.getProperty(HOST).trim();
 		String port = this.serviceConfig.getProperty(PORT).trim();

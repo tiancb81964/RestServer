@@ -3,8 +3,6 @@ package com.asiainfo.ocmanager.service.client.v2;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.security.auth.Subject;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
@@ -17,7 +15,7 @@ public class HbaseClient extends ServiceClient{
 	private static final Logger LOG = LoggerFactory.getLogger(HbaseClient.class);
 	private Connection conn;
 
-	protected HbaseClient(String serviceName, Subject subject) {
+	protected HbaseClient(String serviceName, Delegator subject) {
 		super(serviceName, subject);
 		try {
 			init();
@@ -48,7 +46,7 @@ public class HbaseClient extends ServiceClient{
 	
 	public static void main(String[] args) {
 		try {
-			Admin admin = new HbaseClient("hbase", new Subject()).createAdmin();
+			Admin admin = new HbaseClient("hbase", new Delegator(null)).createAdmin();
 			boolean exist = admin.tableExists(TableName.valueOf("demo001"));
 			System.out.println(">>> exist: " + exist);
 		} catch (Exception e) {

@@ -1,9 +1,8 @@
 package com.asiainfo.ocmanager.auth;
 
-import com.asiainfo.ocmanager.persistence.model.UserRoleView;
-import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
-import com.google.gson.Gson;
-import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -11,9 +10,12 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
+import org.apache.log4j.Logger;
+
+import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.google.gson.Gson;
 
 @Provider
 @PageAuth

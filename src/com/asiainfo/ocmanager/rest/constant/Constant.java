@@ -41,10 +41,6 @@ public class Constant {
 	public static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
 			"project.admin");
 
-	public static final String KRB_KEYTAB = "oc.hadoop.krb.keytab";
-	public static final String KRB_PRINCIPAL = "oc.hadoop.krb.pricipal";
-	public static final String KRB_CONF = "oc.hadoop.krb.conf";
-
 	public static final String ADMIN = "admin";
 	public static final String ADMINID = "2ef26018-003d-4b2b-b786-0481d4ee9fa8";
 	public static final String ADMINROLEID = "a10170cb-524a-11e7-9dbb-fa163ed7d0ae";
@@ -56,8 +52,6 @@ public class Constant {
 
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
-	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
-	public static final String SECURITY_PERIOD = "oc.server.security.scheduler.period.seconds";
 	
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";
