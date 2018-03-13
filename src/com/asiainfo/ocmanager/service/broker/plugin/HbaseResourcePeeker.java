@@ -29,6 +29,7 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 
 	public HbaseResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof HbaseClient)) {

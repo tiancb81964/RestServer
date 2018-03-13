@@ -26,6 +26,7 @@ public class MongoResourcePeeker extends BaseResourcePeeker {
 
 	public MongoResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof MongoDBClient)) {

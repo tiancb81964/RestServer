@@ -29,6 +29,7 @@ public class MapRedResourcePeeker extends BaseResourcePeeker {
 
 	public MapRedResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof YarnClient)) {
@@ -40,10 +41,6 @@ public class MapRedResourcePeeker extends BaseResourcePeeker {
 			LOG.error("Exception when init peeker: ", e);
 			throw new RuntimeException("Exception when init peeker: ", e);
 		}
-	}
-	
-	@Override
-	protected void setup() {
 		try {
 			this.queuesInfo = client.fetchQueuesInfo();
 		} catch (Exception e) {
@@ -51,7 +48,7 @@ public class MapRedResourcePeeker extends BaseResourcePeeker {
 			throw new RuntimeException("Error while fetching queue info from RM: ", e);
 		}
 	}
-
+	
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String queueName) {
 		if (!resourceType.equals("yarnQueueQuota")) {
@@ -126,6 +123,11 @@ public class MapRedResourcePeeker extends BaseResourcePeeker {
 	@Override
 	public Class<? extends ServiceClient> getClientClass() {
 		return YarnClient.class;
+	}
+
+	@Override
+	protected void setup() {
+		
 	}
 
 }

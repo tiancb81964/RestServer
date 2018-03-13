@@ -59,8 +59,9 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 			LOG.error("krb.conf file not found: " + file);
 			throw new RuntimeException("krb.conf file not found: " + file);
 		}
-		LOG.info("krb.conf set to: " + file);
+		LOG.info("java.security.krb5.conf set to: " + file);
 		System.setProperty("java.security.krb5.conf", file);
+		
 		Configuration conf = new Configuration();
 		conf.set("hadoop.security.authentication", "KERBEROS");
 		UserGroupInformation.setConfiguration(conf);

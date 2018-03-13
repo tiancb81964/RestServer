@@ -23,6 +23,7 @@ public class KafkaResourcePeeker extends BaseResourcePeeker {
 	
 	public KafkaResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof KafkaClient)) {

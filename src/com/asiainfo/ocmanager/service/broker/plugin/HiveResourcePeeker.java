@@ -13,6 +13,7 @@ import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
 import com.asiainfo.ocmanager.service.client.v2.ServiceClientInterface;
 import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
 import com.asiainfo.ocmanager.service.client.v2.HDFSClient;
+import com.asiainfo.ocmanager.service.client.v2.HiveClient;
 
 /**
  * Hive resource monitor.
@@ -26,6 +27,7 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 
 	public HiveResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof HDFSClient)) {
@@ -87,7 +89,7 @@ public class HiveResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	public Class<? extends ServiceClient> getClientClass() {
-		return HDFSClient.class;
+		return HiveClient.class;
 	}
 
 }
