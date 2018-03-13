@@ -22,7 +22,6 @@ import com.google.common.collect.Table;
 public abstract class BaseResourcePeeker implements ResourcePeeker {
 	protected static Logger LOG = Logger.getLogger(BaseResourcePeeker.class);
 	private Resource resources;
-	
 	/**
 	 * Peeker will init using connection infos which could be 
 	 * located by the specified given servicename.

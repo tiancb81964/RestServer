@@ -20,6 +20,7 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 	
 	public HDFSResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface client = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(client instanceof HDFSClient)) {
@@ -123,7 +124,6 @@ public class HDFSResourcePeeker extends BaseResourcePeeker {
 
 	@Override
 	protected void setup() {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Constructor;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +26,14 @@ import scala.collection.mutable.StringBuilder;
 public class ResourcePeekerFactory {
 	private static final Logger LOG = LoggerFactory.getLogger(ResourcePeekerFactory.class);
 	// failed instance will not be added into mapping
-	private static Map<Class<? extends ServiceClient>, Class<ResourcePeeker>> cliPeekerMap = Maps.newHashMap();
+	private static Map<Class<ResourcePeeker>, Class<? extends ServiceClient>> peekeClirMap = Maps.newHashMap();
 	private static ServiceClientPool cliPool;
 	
 	static {
 		try {
 			cliPool = ServiceClientPool.getInstance();
 			initPeekers();
-			LOG.info("Available peekers been found: " + cliPeekerMap);
+			LOG.info("Available peekers been found: " + peekeClirMap);
 		} catch (Throwable  e) {
 			LOG.error("Error while init class: ", e);
 			throw new RuntimeException("Error while init class: ", e);
@@ -49,18 +50,23 @@ public class ResourcePeekerFactory {
 	 */
 	public static ResourcePeeker getPeeker(String serviceName) throws Exception {
 		Class<? extends ServiceClientInterface> cliclz = cliPool.getClient(serviceName).getClass();
-		if (!cliPeekerMap.containsKey(cliclz)) {
-			LOG.error("Peeker not found by service [{}={}]. All peekers: {}",  serviceName, cliclz, cliPeekerMap);
+		if (!peekeClirMap.values().contains(cliclz)) {
+			LOG.error("Peeker not found by service [{}]. All peekers: {}",  serviceName, peekeClirMap);
 			throw new Exception("Peeker not found by servicename: " + serviceName);
 		}
-		Class<ResourcePeeker> pkclz = cliPeekerMap.get(cliclz);
-		try {
-			Constructor<ResourcePeeker> con = pkclz.getDeclaredConstructor(String.class);
-			return con.newInstance(serviceName);
-		} catch (Exception e) {
-			LOG.error("Class instance of init Exception: " + pkclz.getName(), e);
-			throw e;
+		for (Entry<Class<ResourcePeeker>, Class<? extends ServiceClient>> en : peekeClirMap.entrySet()) {
+			if (en.getValue().equals(cliclz)) {
+				try {
+					Constructor<ResourcePeeker> con = en.getKey().getDeclaredConstructor(String.class);
+					return con.newInstance(serviceName);
+				} catch (Exception e) {
+					LOG.error("Class instance of init Exception: " + en.getKey().getName(), e);
+					throw e;
+				}
+			}
 		}
+		LOG.error("Peeker not found by client [{}]. All peekers: {}",  cliclz, peekeClirMap);
+		return null;
 	}
 	
 
@@ -94,7 +100,7 @@ public class ResourcePeekerFactory {
 							try {
 								Constructor<ResourcePeeker> cons = clz.getDeclaredConstructor(String.class);
 								ResourcePeeker ins = cons.newInstance("");// empty string to dummy instance
-								cliPeekerMap.put(ins.getClientClass(), clz);
+								peekeClirMap.put(clz, ins.getClientClass());
 								return true;
 							} catch (Exception e) {
 								// failed instance will not be added into mapping
