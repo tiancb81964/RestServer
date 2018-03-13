@@ -1,10 +1,7 @@
 package com.asiainfo.ocmanager.service.client.v2;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -39,8 +36,6 @@ import scala.collection.JavaConversions;
  */
 public class KafkaClient extends ServiceClient{
 	private static final Logger LOG = Logger.getLogger(KafkaClient.class);
-	private List<String> brokers = new ArrayList<>();
-	private int port = -1;
 	private ZkUtils zookeeper;
 	private SecurityProtocol protocol = SecurityProtocol.PLAINTEXT;
 
@@ -99,9 +94,6 @@ public class KafkaClient extends ServiceClient{
 	}
 
 	private void init() {
-		String[] hosts = this.serviceConfig.getProperty("oc.kafka.brokers").trim().split(",");
-		this.brokers.addAll(Arrays.asList(hosts));
-		this.port = Integer.valueOf(this.serviceConfig.getProperty("oc.kafka.broker.port").trim());
 		initZK();		
 	}
 	

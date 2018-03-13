@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
@@ -48,10 +49,13 @@ public class HbaseClient extends ServiceClient{
 	
 	public static void main(String[] args) {
 		try {
-			Delegator dd = AuthenticatorManager.getInstance().getAuthenticator("hbaseon111").getDelegator();
-			Admin admin = new HbaseClient("hbaseon111", dd).createAdmin();
+			Delegator dd = AuthenticatorManager.getInstance().getAuthenticator("hbase").getDelegator();
+			Admin admin = new HbaseClient("hbase", dd).createAdmin();
 			boolean exist = admin.tableExists(TableName.valueOf("demo001"));
 			System.out.println(">>> exist: " + exist);
+			NamespaceDescriptor des = admin.getNamespaceDescriptor("hbase");
+			String max = des.getConfigurationValue("hbase.namespace.quota.maxtables");
+			System.out.println(">>>end of main: " + max);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

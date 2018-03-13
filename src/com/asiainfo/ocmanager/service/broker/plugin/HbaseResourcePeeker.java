@@ -50,6 +50,14 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 	@Override
 	protected void cleanup() {
 	}
+	
+	public static void main(String[] args) {
+		HbaseResourcePeeker pp = new HbaseResourcePeeker("hbase");
+		System.out.println(">>>peeker init ready");
+		Long qq = pp.fetchTotalQuota("maximumTablesQuota", "hbase");
+		System.out.println(">>>end of main: " + qq);
+
+	}
 
 	@Override
 	protected Long fetchTotalQuota(String resourceType, String nsName) {
