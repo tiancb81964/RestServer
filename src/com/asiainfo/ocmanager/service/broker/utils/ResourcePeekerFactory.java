@@ -92,7 +92,8 @@ public class ResourcePeekerFactory {
 						Class<ResourcePeeker> clz = (Class<ResourcePeeker>) Class.forName(clzName);
 						if (ResourcePeeker.class.isAssignableFrom(clz)) {
 							try {
-								ResourcePeeker ins = clz.newInstance();
+								Constructor<ResourcePeeker> cons = clz.getDeclaredConstructor(String.class);
+								ResourcePeeker ins = cons.newInstance("");// empty string to dummy instance
 								cliPeekerMap.put(ins.getClientClass(), clz);
 								return true;
 							} catch (Exception e) {
