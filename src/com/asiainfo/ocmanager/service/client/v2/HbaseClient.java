@@ -11,6 +11,8 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.security.AuthenticatorManager;
+
 public class HbaseClient extends ServiceClient{
 	private static final Logger LOG = LoggerFactory.getLogger(HbaseClient.class);
 	private Connection conn;
@@ -46,7 +48,8 @@ public class HbaseClient extends ServiceClient{
 	
 	public static void main(String[] args) {
 		try {
-			Admin admin = new HbaseClient("hbase", new Delegator(null)).createAdmin();
+			Delegator dd = AuthenticatorManager.getInstance().getAuthenticator("hbaseon111").getDelegator();
+			Admin admin = new HbaseClient("hbaseon111", dd).createAdmin();
 			boolean exist = admin.tableExists(TableName.valueOf("demo001"));
 			System.out.println(">>> exist: " + exist);
 		} catch (Exception e) {
