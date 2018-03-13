@@ -18,6 +18,7 @@ public class SparkResourcePeeker extends BaseResourcePeeker {
 
 	public SparkResourcePeeker(String serviceName) {
 		super(serviceName);
+		if (serviceName.isEmpty()) return;
 		try {
 			ServiceClientInterface cli = ServiceClientPool.getInstance().getClient(serviceName);
 			if (!(cli instanceof YarnClient)) {
