@@ -10,8 +10,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -21,7 +23,7 @@ import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 
 @Path("/quota")
 public class QuotaResource {
-	private static final Logger LOG = Logger.getLogger(QuotaResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(QuotaResource.class);
 
 	@GET
 	@Path("hdfs")
@@ -30,12 +32,13 @@ public class QuotaResource {
 		try {
 			String service = request.getParameter("service");
 			String path = request.getParameter("path");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, path);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -45,12 +48,13 @@ public class QuotaResource {
 	public Response getYarnQuota(@PathParam("queuename") String queuename, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queuename);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queuename)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -60,12 +64,13 @@ public class QuotaResource {
 	public Response getHbaseQuota(@PathParam("namespace") String namespace, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, namespace);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(namespace)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -75,12 +80,13 @@ public class QuotaResource {
 	public Response getKafkaQuota(@PathParam("topic") String topic, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, topic);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(topic)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -90,12 +96,13 @@ public class QuotaResource {
 	public Response getGpQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -105,12 +112,13 @@ public class QuotaResource {
 	public Response getMongoQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -120,12 +128,13 @@ public class QuotaResource {
 	public Response getSparkQuota(@PathParam("queueName") String queueName, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queueName);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queueName)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching spark resource usage: ", e);
-			throw new RuntimeException("Error while fetching spark resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
@@ -135,13 +144,14 @@ public class QuotaResource {
 	public Response getHiveQuota(@PathParam("dbname") String dbname, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
+			LOG.info("Received quota request of service [{}], resource path: [{}]", service, dbname);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			String path = "/apps/hive/warehouse/" + dbname + ".db";
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			throw new RuntimeException("Error while fetching resource usage: ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 	}
 
