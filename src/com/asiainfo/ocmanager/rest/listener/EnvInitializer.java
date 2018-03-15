@@ -34,12 +34,6 @@ public class EnvInitializer implements ServletContextListener {
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		LOG.info("EnvInitializer re-initializing ...");
-		AuthenticatorManager.getInstance().start();
-		ServiceClientPool.getInstance();
-		try {
-			Class.forName(ResourcePeekerFactory.class.getName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		
 	}
 }
