@@ -1,13 +1,18 @@
 package com.asiainfo.ocmanager.security;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.auth.Authenticator;
+import com.asiainfo.ocmanager.service.client.v2.Delegator;
 import com.asiainfo.ocmanager.service.client.v2.ServiceClient;
+import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.asiainfo.ocmanager.utils.ServicesIni;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -15,18 +20,32 @@ import com.google.common.collect.Maps;
 /**
  * AuthenticatorManager is responsible for client authenticating. Each service
  * client(in <code> ../conf/services.ini</code> section) will create an
- * {@linkplain Authenticator} and then be registered in
- * AuthenticatorManager. Moreover, all registered {@linkplain Authenticator} will be
- * continuous authenticated under certain stategy(Simple mode or Kerberos mode)
+ * {@linkplain Authenticator} and then be registered in AuthenticatorManager.
+ * Moreover, all registered {@linkplain Authenticator} will be continuous
+ * authenticated under certain stategy(Simple mode or Kerberos mode)
  * 
  * @author Ethan
  * @param <T>
  *
  */
-public class AuthenticatorManager {
+public class AuthenticatorManager extends Thread {
 	private static final Logger LOG = LoggerFactory.getLogger(AuthenticatorManager.class);
 	private static AuthenticatorManager instance;
+	private static long periodsec;
 	private Map<String, AuthenticatorInterface> map;
+
+	static {
+		try {
+			// 70200(19h) and 86400(24h) is advised
+			String period = ServerConfiguration.getConf().getProperty("oc.authmgr.credential-refresh-period.seconds",
+					"82800");
+			periodsec = Long.valueOf(period);
+			LOG.info("[oc.authmgr.credential-refresh-period.seconds] set to " + periodsec);
+		} catch (Throwable e) {
+			LOG.error("Exception while init class: ", e);
+			throw new RuntimeException("Exception while init class: ", e);
+		}
+	}
 
 	public static AuthenticatorManager getInstance() {
 		if (instance == null) {
@@ -38,7 +57,7 @@ public class AuthenticatorManager {
 		}
 		return instance;
 	}
-	
+
 	private AuthenticatorManager() {
 		map = Maps.newConcurrentMap();
 		init();
@@ -92,6 +111,29 @@ public class AuthenticatorManager {
 		} catch (ClassNotFoundException e) {
 			LOG.error("Class not found: ", e);
 			throw new RuntimeException("Class not found: ", e);
+		}
+	}
+
+	@Override
+	public void run() {
+		while (true) {
+			try {
+				Thread.sleep(periodsec * 1000l);// seconds to millseconds
+				for (Entry<String, AuthenticatorInterface> en : map.entrySet()) {
+					try {
+						Delegator delegator = en.getValue().getDelegator();
+						LOG.info("Refreshing credential for service [{}] of delegator [{}]", en.getKey(), delegator);
+						delegator.refreshCredential();
+						LOG.info("Successfuly Refreshed credential for service [{}] of delegator [{}]", en.getKey(),
+								delegator);
+					} catch (IOException e) {
+						LOG.error("Exception while refreshing credential of [{}] for service [{}]: {}",
+								en.getValue().getDelegator(), en.getKey(), e);
+					}
+				}
+			} catch (Exception e) {
+				LOG.error("Unexpected exception catched in AuthenticatorManager-Thread: ", e);
+			}
 		}
 	}
 
