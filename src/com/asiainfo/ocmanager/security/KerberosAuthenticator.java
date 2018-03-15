@@ -25,8 +25,7 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 	public static final String PRINCIPAL = "auth.principal";
 	public static final String KEYTAB = "auth.keytab";
 	private Properties config;
-	private UserGroupInformation ugi;
-	private Delegator delegator;
+	private final Delegator delegator;
 
 	static {
 		try {
@@ -42,7 +41,7 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 		config = serviceConfig;
 		ensureKeytab();
 		try {
-			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(config.getProperty(PRINCIPAL),
+			UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(config.getProperty(PRINCIPAL),
 					config.getProperty(KEYTAB));
 			delegator = new Delegator(ugi);
 		} catch (IOException e) {
@@ -80,24 +79,21 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 	@Override
 	public void login(){
 		try {
-			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(config.getProperty(PRINCIPAL),
-					config.getProperty(KEYTAB));
-			delegator = new Delegator(ugi);
+			delegator.refreshCredential();
 		} catch (IOException e) {
-			LOG.error("Exception while login for principal [{}] with keytab [{}] ", config.getProperty(PRINCIPAL),
-					config.getProperty(KEYTAB));
-			throw new RuntimeException("Exception while login user from keytab: ", e);
+			LOG.error("Exception while login for delegator: " + delegator);
+			throw new RuntimeException("Exception while login for delegator: " + delegator, e);
 		}
 	}
 
 	@Override
 	public void relogin(){
 		try {
-			ugi.reloginFromKeytab();
+			delegator.refreshCredential();
 		} catch (IOException e) {
-			LOG.error("Exception while relogin for principal [{}] with keytab [{}] ", config.getProperty(PRINCIPAL),
-					config.getProperty(KEYTAB));
-			throw new RuntimeException("Exception while relogin user from keytab: ", e);
+			LOG.error("Exception while relogin for delegator: " + delegator);
+
+			throw new RuntimeException("Exception while relogin for delegator: " + delegator, e);
 		}
 	}
 

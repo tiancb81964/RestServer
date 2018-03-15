@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.security;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.hadoop.security.SaslRpcServer.AuthMethod;
@@ -14,7 +15,7 @@ import com.asiainfo.ocmanager.service.client.v2.Delegator;
  *
  */
 public class SimpleAthenticator extends BaseAuthenticator implements AuthenticatorInterface {
-	private Delegator delegator;
+	private final Delegator delegator;
 
 	public SimpleAthenticator(Properties serviceConfig) {
 		super(serviceConfig);
@@ -25,12 +26,22 @@ public class SimpleAthenticator extends BaseAuthenticator implements Authenticat
 
 	@Override
 	public void login() {
-
+		try {
+			delegator.refreshCredential();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("login exception for delegator: " + delegator);
+		}
 	}
 
 	@Override
 	public void relogin() {
-
+		try {
+			delegator.refreshCredential();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("relogin exception for delegator: " + delegator);
+		}
 	}
 
 	@Override
