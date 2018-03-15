@@ -80,9 +80,8 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 	@Override
 	public void login(){
 		try {
-			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(config.getProperty(PRINCIPAL),
-					config.getProperty(KEYTAB));
-			delegator = new Delegator(ugi);
+			ugi.checkTGTAndReloginFromKeytab();
+			LOG.info("Succcessfully login of user: " + ugi);
 		} catch (IOException e) {
 			LOG.error("Exception while login for principal [{}] with keytab [{}] ", config.getProperty(PRINCIPAL),
 					config.getProperty(KEYTAB));
@@ -93,7 +92,8 @@ public class KerberosAuthenticator extends BaseAuthenticator implements Authenti
 	@Override
 	public void relogin(){
 		try {
-			ugi.reloginFromKeytab();
+			ugi.checkTGTAndReloginFromKeytab();
+			LOG.info("Successfully relogin of user: " + ugi);
 		} catch (IOException e) {
 			LOG.error("Exception while relogin for principal [{}] with keytab [{}] ", config.getProperty(PRINCIPAL),
 					config.getProperty(KEYTAB));

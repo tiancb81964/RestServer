@@ -38,9 +38,9 @@ public class AuthenticatorManager {
 		}
 		return instance;
 	}
-
+	
 	private AuthenticatorManager() {
-		map = Maps.newHashMap();
+		map = Maps.newConcurrentMap();
 		init();
 	}
 
@@ -60,11 +60,11 @@ public class AuthenticatorManager {
 		return map.get(serviceName);
 	}
 
-	public void register(String serviceName) {
+	private void register(String serviceName) {
 		try {
 			AuthenticatorInterface authenticator = newAuthenticator(serviceName);
 			map.put(serviceName, authenticator);
-			LOG.info("Authenticator registered: [" + serviceName + "] -> " + authenticator);
+			LOG.info("Authenticator registered: [" + serviceName + "] -> " + authenticator.getDelegator());
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			LOG.error("Exception while register authenticator: ", e);
@@ -95,9 +95,10 @@ public class AuthenticatorManager {
 		}
 	}
 
-	public void unregister(String serviceName) {
+	@SuppressWarnings("unused")
+	private void unregister(String serviceName) {
 		map.remove(serviceName);
-		LOG.info("Authenticator unregistered for service: " + serviceName);
+		LOG.info("Authenticator unregistered: [" + serviceName + "]");
 	}
 
 }
