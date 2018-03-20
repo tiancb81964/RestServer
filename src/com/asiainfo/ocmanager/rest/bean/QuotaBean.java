@@ -11,11 +11,11 @@ public class QuotaBean {
 	private String size;
 	private String used;
 	private String available;
-	private String desc;
+	private String resource;
 
-	public QuotaBean(String name, String desc) {
+	public QuotaBean(String name, String resourcePath) {
 		this.name = name;
-		this.desc = desc;
+		this.resource = resourcePath;
 	}
 
 	public void setSize(String size) {
@@ -46,14 +46,14 @@ public class QuotaBean {
 		return available;
 	}
 
-	public String getDesc() {
-		return desc;
+	public String getResource() {
+		return resource;
 	}
 
 	@Override
 	public String toString() {
-		return "QuotaBean [name=" + name + ", size=" + size + ", used=" + used + ", available=" + available + ", desc="
-				+ desc + "]";
+		return "QuotaBean [name=" + name + ", size=" + size + ", used=" + used + ", available=" + available + ", resource="
+				+ resource + "]";
 	}
 
 }
