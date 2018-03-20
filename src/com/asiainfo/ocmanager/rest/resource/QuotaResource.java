@@ -34,7 +34,9 @@ public class QuotaResource {
 			String path = request.getParameter("path");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, path);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -50,7 +52,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queuename);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queuename)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -66,7 +70,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, namespace);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(namespace)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -82,7 +88,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, topic);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(topic)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -98,7 +106,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -114,7 +124,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
@@ -130,7 +142,9 @@ public class QuotaResource {
 			String service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queueName);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queueName)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching spark resource usage: ", e);
@@ -147,7 +161,9 @@ public class QuotaResource {
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, dbname);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			String path = "/apps/hive/warehouse/" + dbname + ".db";
+			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
+			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
 			return Response.ok().entity(response).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
