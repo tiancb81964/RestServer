@@ -194,7 +194,9 @@ public class KafkaClient extends ServiceClient{
 			try {
 				jmx.get(host).close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Excepiton when closing connection: " + conn, e);
+				}
 			}
 			jmx.remove(host);
 			jmx.put(host, conn);
