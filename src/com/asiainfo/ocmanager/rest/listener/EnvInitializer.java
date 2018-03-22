@@ -6,6 +6,10 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.security.AuthenticatorManager;
+import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
+import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+
 /**
  * Initialize env at start-up
  * 
@@ -17,11 +21,19 @@ public class EnvInitializer implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		LOG.info("EnvInitializer start.");
-		// auth scheduller
+		LOG.info("EnvInitializer initializing ...");
+		AuthenticatorManager.getInstance().start();
+		ServiceClientPool.getInstance();
+		try {
+			Class.forName(ResourcePeekerFactory.class.getName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
+		LOG.info("EnvInitializer re-initializing ...");
+		
 	}
 }

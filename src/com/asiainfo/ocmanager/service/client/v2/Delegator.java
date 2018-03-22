@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Delegator {
 	private static final Logger LOG = LoggerFactory.getLogger(Delegator.class);
-	private Object subject; // identity of current connector
+	private final Object subject; // identity of current connector
 	private boolean isUGI = false;
 
 	/**
@@ -40,6 +40,21 @@ public class Delegator {
 		} else {
 			LOG.error("Error: illegal subject type: " + subject.getClass().getName());
 			throw new RuntimeException("illegal subject type: " + subject.getClass().getName());
+		}
+	}
+	
+	public void refreshCredential() throws IOException {
+		if (isUGI) {
+			try {
+				UserGroupInformation ugi = (UserGroupInformation) subject;
+				ugi.checkTGTAndReloginFromKeytab();
+				LOG.info("Kerberos mode RefreshCredential triggered for " + ugi);
+			} catch (IOException e) {
+				LOG.error("RefreshCredential Exception: ", e);
+				throw new IOException("refreshCredential Exception: ", e);
+			}
+		} else {
+			LOG.info("Simple mode RefreshCredential triggered.");
 		}
 	}
 
