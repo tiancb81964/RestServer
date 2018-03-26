@@ -286,7 +286,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to create tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to create tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();
@@ -403,7 +404,8 @@ public class TenantResource {
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -487,15 +489,18 @@ public class TenantResource {
 				// check whether parameters format is legal
 				try {
 					JsonObject incrementalParameters = getIncremental(tenantId, instanceName, parameterObj);
-//					Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-//					validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					// Pair<String, ServiceType> bsi =
+					// getInstanceIDandType(tenantId, instanceName);
+					// validateUpdateParameter(tenantId, bsi,
+					// toMap(parameterObj.entrySet()));
 					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
-					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(provisioning.get("backingservice_name").getAsString(),
-							tenantId, incrementalParameters);
+					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(
+							provisioning.get("backingservice_name").getAsString(), tenantId, incrementalParameters);
 					serviceInstRes.setCheckerRes(checkRes);
 
 					if (!serviceInstRes.getCheckerRes().isCanChange()) {
-						logger.error("Failed to create bsi due to exceeded tenant quota: " + serviceInstRes.getCheckerRes().getMessages());
+						logger.error("Failed to create bsi due to exceeded tenant quota: "
+								+ serviceInstRes.getCheckerRes().getMessages());
 						return Response.status(Status.NOT_ACCEPTABLE)
 								.entity(new ResourceResponseBean("operation failed",
 										serviceInstRes.getCheckerRes().getMessages(),
@@ -519,7 +524,6 @@ public class TenantResource {
 				ResourceResponseBean responseBean = TenantUtils.updateTenantServiceInstanceInDf(tenantId, instanceName,
 						serviceInstanceJson.toString());
 
-				String quota = null;
 				if (responseBean.getResCodel() == 200) {
 					logger.info("updateServiceInstanceInTenant -> update successfully");
 					JsonElement resBodyJson = new JsonParser().parse(responseBean.getMessage());
@@ -530,12 +534,9 @@ public class TenantResource {
 								"Abnormal response from DF, parameters returned by DF is null! UpdateRquest: instanceName "
 										+ instanceName + ", parameters " + parametersStr);
 						throw new RuntimeException("parameters returned by DF is null!");
-					} else {
-						quota = serviceInstanceJson.getAsJsonObject().getAsJsonObject("spec")
-								.getAsJsonObject("provisioning").get("parameters").toString();
 					}
-					ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName,
-							quotaString(parametersStr));
+
+					this.updateOCMDatabase(parametersStr, tenantId, instanceName);
 				}
 
 				return Response.ok().entity(responseBean.getMessage()).build();
@@ -564,9 +565,11 @@ public class TenantResource {
 	 * @param tenantId
 	 * @param entry
 	 */
-	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi, Map<String, String> parameters) {
+	private void validateUpdateParameter(String tenantId, Pair<String, ServiceType> bsi,
+			Map<String, String> parameters) {
 		QuotaBean2 total = TenantQuotaUtils.getTenantQuotaByService(tenantId, bsi.getSecond());
-		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(), bsi.getSecond());
+		QuotaBean2 allocated = TenantQuotaUtils.getMinimumAllocatedQuotaByService(tenantId, bsi.getFirst(),
+				bsi.getSecond());
 		checkQuotas(total, allocated, toBean(bsi.getSecond(), parameters));
 	}
 
@@ -583,7 +586,8 @@ public class TenantResource {
 			long available = total.getQuotas().get(entry.getKey()) - allocated.getQuotas().get(entry.getKey());
 			long quota = entry.getValue();
 			if (available < quota) {
-				logger.error("Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
+				logger.error(
+						"Requested quota [{}] can not be satisfied while total [{}], max-available [{}], requested [{}]",
 						entry.getKey(), total.getQuotas().get(entry.getKey()), available, quota);
 				throw new RuntimeException("Requested quota exceed maximum available: " + entry.getKey());
 			}
@@ -596,22 +600,39 @@ public class TenantResource {
 		return new Pair<String, ServiceType>(bsi.getId(), type);
 	}
 
-	private String quotaString(String parametersStr) {
+	private void updateOCMDatabase(String parametersStr, String tenantId, String instanceName) {
 		JsonElement parameterJon = new JsonParser().parse(parametersStr);
 		JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
-		return parameterObj.toString();
+		Set<Entry<String, JsonElement>> entrySet = parameterObj.getAsJsonObject().entrySet();
+
+		JsonObject attributes = new JsonObject();
+		JsonObject quota = new JsonObject();
+
+		for (Entry<String, JsonElement> type : entrySet) {
+
+			if (type.getKey().startsWith(Constant.ATTRIBUTES)) {
+				attributes.add(type.getKey(), type.getValue());
+			} else {
+				quota.add(type.getKey(), type.getValue());
+			}
+		}
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceQuota(tenantId, instanceName, quota.toString());
+
+		ServiceInstancePersistenceWrapper.updateServiceInstanceAttributes(tenantId, instanceName,
+				attributes.toString());
 	}
 
 	/**
 	 * Get incremental value of parameters by the result of requested parameter
-	 * mimus current parameter value. Additionally, request parameters will be filtered
-	 * in some circumstances(eg. Kafka topicQuota parameter might be removed coz of 
-	 * kafka restriction).
+	 * mimus current parameter value. Additionally, request parameters will be
+	 * filtered in some circumstances(eg. Kafka topicQuota parameter might be
+	 * removed coz of kafka restriction).
 	 * 
 	 * @param instanceName
 	 * @param instanceName2
 	 * @param parameterObj
-	 * @return 
+	 * @return
 	 */
 	private JsonObject getIncremental(String tenantID, String instanceName, JsonObject parameterObj) {
 		JsonObject incrementalObj = new JsonObject();
@@ -622,8 +643,8 @@ public class TenantResource {
 				long quotaInDB = getKafkaTopicQuotaInDB(tenantID, instanceName);
 				long newQuota = entry.getValue().getAsLong();
 				if (newQuota < quotaInDB) {
-					logger.error("Kafka topicQuota parameter [" + newQuota + "] must NOT be smaller than current value: "
-							+ quotaInDB);
+					logger.error("Kafka topicQuota parameter [" + newQuota
+							+ "] must NOT be smaller than current value: " + quotaInDB);
 					throw new RuntimeException("Kafka topicQuota must not be smaller than current value: " + quotaInDB);
 				} else if (newQuota == quotaInDB) {
 					logger.warn("Removing topicQuota parameter, coz it's equivalent to current value: " + quotaInDB);
@@ -631,14 +652,16 @@ public class TenantResource {
 					continue;
 				}
 			}
-			long current = getCurrentQuota(tenantID, instanceName, entry);
-			long incremental = entry.getValue().getAsLong() - current;
-			incrementalObj.addProperty(entry.getKey(), new Long(incremental));
+			if (!entry.getKey().startsWith(Constant.ATTRIBUTES)) {
+				long current = getCurrentQuota(tenantID, instanceName, entry);
+				long incremental = entry.getValue().getAsLong() - current;
+				incrementalObj.addProperty(entry.getKey(), new Long(incremental));
+			}
 		}
 		logger.info("Updating bsi {} by incremental quotas: {}", instanceName, incrementalObj);
 		return incrementalObj;
 	}
-	
+
 	private long getCurrentQuota(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
 		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
 		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
@@ -794,12 +817,13 @@ public class TenantResource {
 
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
-				logger.error("Only System Admin is privileged to update tenants. Current user " + loginUser + " has no permission to update tenant " + tenant.getId());
+				logger.error("Only System Admin is privileged to update tenants. Current user " + loginUser
+						+ " has no permission to update tenant " + tenant.getId());
 				return Response.status(Status.UNAUTHORIZED)
-				.entity(new ResourceResponseBean("operation failed",
-						"Current user has no privilege to do the operations.",
-						ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
-				.build();
+						.entity(new ResourceResponseBean("operation failed",
+								"Current user has no privilege to do the operations.",
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+						.build();
 			}
 
 			Tenant origin = TenantPersistenceWrapper.getTenantById(tenant.getId());
@@ -815,7 +839,8 @@ public class TenantResource {
 			synchronized (TenantLockerPool.getInstance().getLocker(origin.getParentId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
-					logger.error("Failed to update tenant due to exceeded parent tenant quota: " + tenantRes.getCheckerRes().getMessages());
+					logger.error("Failed to update tenant due to exceeded parent tenant quota: "
+							+ tenantRes.getCheckerRes().getMessages());
 					return Response.status(Status.NOT_ACCEPTABLE).entity(new ResourceResponseBean("operation failed",
 							tenantRes.getCheckerRes().getMessages(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA))
 							.build();

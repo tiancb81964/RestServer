@@ -40,6 +40,7 @@ public interface ServiceInstanceMapper {
 	public List<ServiceInstance> selectAllServiceInstances();
 
 	/**
+	 * Update instance quota
 	 * 
 	 * @param tenantId
 	 * @param instanceName
@@ -47,6 +48,16 @@ public interface ServiceInstanceMapper {
 	 */
 	public void updateInstanceQuota(@Param("tenantId") String tenantId, @Param("instanceName") String instanceName,
 			@Param("quota") String quota);
+
+	/**
+	 * Update instance attributes
+	 * 
+	 * @param tenantId
+	 * @param instanceName
+	 * @param attributes
+	 */
+	public void updateInstanceAttributes(@Param("tenantId") String tenantId, @Param("instanceName") String instanceName,
+			@Param("attributes") String attributes);
 
 	/**
 	 * Get service instance by tenantID and serviceInstanceName

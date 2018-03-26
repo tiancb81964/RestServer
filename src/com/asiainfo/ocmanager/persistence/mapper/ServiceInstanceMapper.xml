@@ -10,8 +10,8 @@
     <!-- create service instance -->
     <insert id="insertServiceInstance" keyProperty="id"
         parameterType="com.asiainfo.ocmanager.persistence.model.ServiceInstance">
-        insert into service_instances (id, instanceName, tenantId, serviceTypeId, serviceTypeName, quota, status, cuzBsiName)
-            values (#{id}, #{instanceName}, #{tenantId}, #{serviceTypeId}, #{serviceTypeName}, #{quota}, #{status}, #{cuzBsiName})
+        insert into service_instances (id, instanceName, tenantId, serviceTypeId, serviceTypeName, quota, status, cuzBsiName, attributes)
+            values (#{id}, #{instanceName}, #{tenantId}, #{serviceTypeId}, #{serviceTypeName}, #{quota}, #{status}, #{cuzBsiName}, #{attributes})
     </insert>
 	<!-- delete service instance -->
 	<delete id="deleteServiceInstance">
@@ -25,6 +25,12 @@
 	<update id="updateInstanceQuota" parameterType="java.lang.String">
 		update service_instances set
 		quota = #{quota}
+		where tenantId = #{tenantId} and instanceName = #{instanceName}
+	</update>
+	<!-- update instance attributes -->
+	<update id="updateInstanceAttributes" parameterType="java.lang.String">
+		update service_instances set
+		attributes = #{attributes}
 		where tenantId = #{tenantId} and instanceName = #{instanceName}
 	</update>
 	<!-- get service instance by tenant id and instanceName -->
