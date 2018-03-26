@@ -15,13 +15,14 @@ public class ServiceInstance {
 	private String quota;
 	private String status;
 	private String cuzBsiName;
+	private String attributes;
 
 	public ServiceInstance() {
 
 	}
 
 	public ServiceInstance(String id, String instanceName, String tenantId, String serviceTypeId,
-			String serviceTypeName, String quota, String status, String cuzBsiName) {
+			String serviceTypeName, String quota, String status, String cuzBsiName, String attributes) {
 		this.id = id;
 		this.instanceName = instanceName;
 		this.tenantId = tenantId;
@@ -30,6 +31,7 @@ public class ServiceInstance {
 		this.quota = quota;
 		this.status = status;
 		this.cuzBsiName = cuzBsiName;
+		this.attributes = attributes;
 	}
 
 	public ServiceInstance(String id, String instanceName, String tenantId, String serviceTypeId,
@@ -107,4 +109,11 @@ public class ServiceInstance {
 		this.cuzBsiName = cuzBsiName;
 	}
 
+	public String getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(String attributes) {
+		this.attributes = attributes;
+	}
 }

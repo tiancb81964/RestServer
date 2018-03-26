@@ -55,10 +55,13 @@ public class Constant {
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
 	public static final String SECURITY_MODULE = "oc.server.security.mudule.class";
 	public static final String SECURITY_PERIOD = "oc.server.security.scheduler.period.seconds";
-	
+
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";
 	public static final String SEMICOLON = ";";
+
+	// prefix for parameters
+	public static final String ATTRIBUTES = "ATTR_";
 
 	/*****************************************************************/
 	/******************* authentication const ************************/
@@ -70,10 +73,10 @@ public class Constant {
 	/*****************************************************************/
 	/***************** kerberos properties const *********************/
 	/*****************************************************************/
-	public static final String KERBEROS_USER_PRINCIPAL="kerberos.user.principal";
-	public static final String KERBEROS_KEYTAB_LOCATION="kerberos.keytab.location";
-	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
-	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
-	public static final String KERBEROS_REALM="kerberos.realm";
+	public static final String KERBEROS_USER_PRINCIPAL = "kerberos.user.principal";
+	public static final String KERBEROS_KEYTAB_LOCATION = "kerberos.keytab.location";
+	public static final String KERBEROS_ADMIN_PASSWORD = "kerberos.admin.password";
+	public static final String KERBEROS_KDC_HOST = "kerberos.kdc.host";
+	public static final String KERBEROS_REALM = "kerberos.realm";
 
 }
