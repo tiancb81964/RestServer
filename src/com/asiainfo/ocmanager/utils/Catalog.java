@@ -134,7 +134,7 @@ public class Catalog {
 		if (type != null) {
 			return type.getAsString().toLowerCase();
 		} else {
-			LOG.info("Can NOT find the service type in the Catalog, set the service type using the service name!");
+			LOG.info("Can NOT find the service type in the Catalog, set the service type using the service name: " + serviceName);
 			return serviceName.toLowerCase();
 		}
 	}
