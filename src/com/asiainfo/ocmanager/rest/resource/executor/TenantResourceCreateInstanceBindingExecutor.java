@@ -96,6 +96,7 @@ public class TenantResourceCreateInstanceBindingExecutor implements Runnable {
 								userName, instanceName);
 					}
 				}
+				logger.warn("ACL is null for service [{}] of role [{}] by user [{}]", serviceName.toLowerCase(), u.getRoleName(), u.getUserName());
 			}
 
 		} catch (Exception e) {
