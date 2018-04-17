@@ -41,7 +41,7 @@ public class LifetimeManager {
 	private LifetimeManager() {
 		this.dueTenants = LifetimeDetector.getInstance().getDueTenants();
 		this.listeners.addAll(configuredListeners());
-		LOG.info("Loaded listeners for tenant lifetime management: " + this.listeners);
+		LOG.debug("Loaded listeners: " + this.listeners);
 	}
 
 	private Collection<? extends Listener> configuredListeners() {
@@ -93,7 +93,7 @@ public class LifetimeManager {
 	}
 
 	private void dealActions(TenantEvent tenant) {
-		LOG.warn("Dealing TenantEvent: " + tenant);
+		LOG.info("Dealing TenantEvent: " + tenant);
 		this.listeners.forEach(p -> {
 			p.handleDue(tenant);
 		});

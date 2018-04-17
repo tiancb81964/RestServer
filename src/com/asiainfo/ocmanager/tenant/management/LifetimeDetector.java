@@ -1,5 +1,8 @@
 package com.asiainfo.ocmanager.tenant.management;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.constant.Constant;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.common.collect.Lists;
 
@@ -55,17 +59,26 @@ public class LifetimeDetector {
 			public void run() {
 				Thread.currentThread().setName("Tenant-LifetimeDetector-Thread");
 				try {
-					LOG.info("Starting sync up tenants: " + tenants.getTenants());
+					LOG.debug("Starting sync up tenants: " + tenants.getTenants());
 					tenants.syncTenants();
-					LOG.info("Sync up tenants finished: " + tenants.getTenants());
+					LOG.debug("Sync up tenants finished: " + tenants.getTenants());
 					tenants.getTenants().forEach(t -> {
-						Date dueTime = tenantDueTime(t);
-						Date nowTime = dbNowTime();
-						if (nowTime.after(dueTime)) {
-							LOG.warn("Tenant [{}] exceeded lifetime [{}]", t, dueTime);
+						Calendar dueTime;
+						try {
+							dueTime = tenantDueTime(t);
+						} catch (ParseException e) {
+							LOG.error("Exception while parse tenant dueTime: " + t.getDueTime() + ", tenant: " + t.getName(), e);
+							return;
+						}
+						Calendar nowTime = dbNowTime();
+						long diff = dueTime.getTimeInMillis() - nowTime.getTimeInMillis();
+						if (diff <= 0) {
+							LOG.info("Tenant [{}] exceeded lifetime [{}]", t.getId() + "->" + t.getName(), dueTime.getTime());
 							dueTenants.add(TenantEvent.create(t, LifetimeFlag.DUE));
-						} else if (nowTime.compareTo(dueTime) >= -7) {
-							LOG.warn("Tenant [{}] is about to exceed lifetime [{}] within 7 days", t, dueTime);
+						} else if (diff > 0 && diff <= 604800000) {
+							// 604800000 mills = 7 days
+							LOG.info("Tenant [{}] is about to exceed lifetime [{}] within 7 days",
+									 t.getId() + "->" + t.getName(), dueTime.getTime());
 							dueTenants.add(TenantEvent.create(t, LifetimeFlag.ABT_DUE));
 						}
 					});
@@ -74,14 +87,22 @@ public class LifetimeDetector {
 				}
 			}
 
-			private Date dbNowTime() {
-				// TODO Auto-generated method stub
-				return new Date(2018, 04, 9);
+			private Calendar dbNowTime() {
+				return Calendar.getInstance();
 			}
 
-			private Date tenantDueTime(Tenant t) {
-				// TODO Auto-generated method stub
-				return new Date(2018, 04, 15);
+			private Calendar tenantDueTime(Tenant t) throws ParseException {
+				Calendar c = Calendar.getInstance();
+				if (t.getDueTime() == null) {
+					// no lifetime limit for current tenant
+					c.set(2099, 11, 31);
+					return c;
+				}
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date due = null;
+				due = df.parse(t.getDueTime());
+				c.setTime(due);
+				return c;
 			}
 		}, 3, Integer.valueOf(period), TimeUnit.SECONDS);
 		LOG.info("Period of tenant lifetime manager is set to: " + period + " seconds");
@@ -106,9 +127,8 @@ public class LifetimeDetector {
 		}
 
 		private void loadTenants() {
-			// TODO Auto-generated method stub
-			this.tenants.add(new Tenant("test", "test", "test", "test", 1));
-
+			List<Tenant> all = TenantPersistenceWrapper.getAllTenants();
+			this.tenants.addAll(all);
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Sync up tenants finished, new tenants: " + tenants);
 			}
@@ -151,12 +171,13 @@ public class LifetimeDetector {
 
 		@Override
 		public String toString() {
-			return "TenantEvent [tenant=" + tenant + ", flag=" + flag + "]";
+			return "TenantEvent [tenantID=" + tenant.getId() + ", createTime=" + tenant.getCreateTime() + ", dueTime="
+					+ tenant.getDueTime() + ", status=" + tenant.getStatus() + ", flag=" + flag + "]";
 		}
 	}
 
 	public enum LifetimeFlag {
-		DUE, //tenant is due on tenant lifetime
+		DUE, // tenant is due on tenant lifetime
 		ABT_DUE// tenant is about to due on tenant lifetime
 	}
 }

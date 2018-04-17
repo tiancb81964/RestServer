@@ -15,6 +15,9 @@ public class Tenant {
 	private String parentId;
 	private int level;
 	private String quota;
+	private String dueTime;
+	private String status;
+	private String createTime;
 
 	public Tenant() {
 
@@ -35,6 +38,30 @@ public class Tenant {
 		this.parentId = parentId;
 		this.level = level;
 		this.quota = quota;
+	}
+	
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getDueTime() {
+		return dueTime;
+	}
+
+	public void setDueTime(String dueTime) {
+		this.dueTime = dueTime;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getId() {
@@ -87,8 +114,9 @@ public class Tenant {
 
 	@Override
 	public String toString() {
-		return "Tenant: {id: " + id + " name: " + name + " description: " + description + " parentId: " + parentId
-				+ " level: " + level + " quota: " + quota + "}";
+		return "Tenant [id=" + id + ", name=" + name + ", description=" + description + ", parentId=" + parentId
+				+ ", level=" + level + ", quota=" + quota + ", dueTime=" + dueTime + ", status=" + status
+				+ ", createTime=" + createTime + "]";
 	}
 
 	@Override
