@@ -85,5 +85,7 @@ public class Constant {
 	public static final String RANGER_PASSWD = "oc.ranger.admin.password";
 	
 	public static final String HDP_VERSION = "oc.hdp.version";
-
+	
+	public static final String LIFETIME_PERIOD = "oc.tenant.lifetime.manager.period.seconds";
+	public static final String LIFETIME_LISTENERS = "oc.tenant.lifetime.manager.listeners";
 }
