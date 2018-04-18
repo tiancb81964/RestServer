@@ -193,7 +193,7 @@ public class LifetimeDetector {
 	public static enum LifetimeFlag {
 		/** tenant is due on lifetime */
 		DUE, 
-		/** tenant is about to due on lifetime */
+		/** tenant is about to due on lifetime in 7days */
 		ABT_DUE
 	}
 }
