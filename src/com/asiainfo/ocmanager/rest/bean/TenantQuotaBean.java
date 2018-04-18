@@ -152,7 +152,8 @@ public class TenantQuotaBean {
 	 * @param quotaStr
 	 */
 	public void tenantQuotaParser(String quotaStr) {
-
+		//TODO:
+		
 		Map<String, String> mapHdfs = TenantQuotaUtils.getTenantQuotaByService("hdfs", quotaStr);
 		this.nameSpaceQuotaHdfs = mapHdfs.get("nameSpaceQuota") == null ? 0
 				: Long.parseLong(mapHdfs.get("nameSpaceQuota"));

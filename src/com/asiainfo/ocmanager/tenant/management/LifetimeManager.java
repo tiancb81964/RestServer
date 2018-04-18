@@ -26,6 +26,8 @@ public class LifetimeManager {
 	private static LifetimeManager instance;
 	private BlockingQueue<TenantEvent> dueTenants;
 	private List<Listener> listeners = Lists.newArrayList();
+	public static final String DEACTIVE = "deactive";
+	public static final String ACTIVE = "active";
 
 	public static LifetimeManager getInstance() {
 		if (instance == null) {
@@ -93,6 +95,13 @@ public class LifetimeManager {
 	}
 
 	private void dealActions(TenantEvent tenant) {
+		if (tenant.getTenant().getStatus().equals(DEACTIVE)) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Tenant status is 'deactive' already, no need to deal.");
+			}
+			// no need to deal
+			return;
+		}
 		LOG.info("Dealing TenantEvent: " + tenant);
 		this.listeners.forEach(p -> {
 			p.handleDue(tenant);

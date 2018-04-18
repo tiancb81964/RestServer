@@ -1109,8 +1109,9 @@ public class TenantResource {
 
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
 			for (int i = 0; i < allServiceInstancesArray.size(); i++) {
+				JsonObject instance = allServiceInstancesArray.get(i).getAsJsonObject();
 				TenantResourceUnAssignRoleExecutor runnable = new TenantResourceUnAssignRoleExecutor(tenantId,
-						allServiceInstancesArray, userId, i);
+						instance, userId);
 				Thread thread = new Thread(runnable);
 				thread.start();
 			}
