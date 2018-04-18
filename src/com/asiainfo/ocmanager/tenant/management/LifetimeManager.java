@@ -95,13 +95,6 @@ public class LifetimeManager {
 	}
 
 	private void dealActions(TenantEvent tenant) {
-		if (tenant.getTenant().getStatus().equals(DEACTIVE)) {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Tenant status is 'deactive' already, no need to deal.");
-			}
-			// no need to deal
-			return;
-		}
 		LOG.info("Dealing TenantEvent: " + tenant);
 		this.listeners.forEach(p -> {
 			p.handleDue(tenant);

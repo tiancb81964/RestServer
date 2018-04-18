@@ -20,8 +20,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * Default policy for tenant lifetime management, which set tenant.status to
- * <code>deactive</code> and unbound user-list of out-date tenant.
+ * Default policy for tenant lifetime management, which unbind user-list of
+ * out-date tenant and set tenant.status to <code>deactive</code>.
  * 
  * @author Ethan
  *

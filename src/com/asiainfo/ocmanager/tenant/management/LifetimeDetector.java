@@ -74,7 +74,7 @@ public class LifetimeDetector {
 								dueTenants.add(TenantEvent.create(t, LifetimeFlag.DUE));
 							} else if (diff > 0 && diff <= 604800000) {
 								// 604800000 mills = 7 days
-								LOG.info("Tenant [{}] is about to exceed lifetime [{}] within 7 days",
+								LOG.info("Tenant [{}] is approaching lifetime [{}] within 7 days",
 										 t.getName(), dueTime.getTime());
 								dueTenants.add(TenantEvent.create(t, LifetimeFlag.ABT_DUE));
 							}
@@ -185,7 +185,7 @@ public class LifetimeDetector {
 
 		@Override
 		public String toString() {
-			return "TenantEvent [tenantID=" + tenant.getId() + ", createTime=" + tenant.getCreateTime() + ", dueTime="
+			return "TenantEvent [tenantName=" + tenant.getName() + ", createTime=" + tenant.getCreateTime() + ", dueTime="
 					+ tenant.getDueTime() + ", status=" + tenant.getStatus() + ", flag=" + flag + "]";
 		}
 	}
