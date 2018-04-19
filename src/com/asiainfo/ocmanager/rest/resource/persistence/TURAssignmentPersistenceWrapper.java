@@ -1,5 +1,7 @@
 package com.asiainfo.ocmanager.rest.resource.persistence;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 
 import com.asiainfo.ocmanager.persistence.mapper.TenantUserRoleAssignmentMapper;
@@ -77,5 +79,35 @@ public class TURAssignmentPersistenceWrapper {
 		}
 	}
 	
-
+	public static TenantUserRoleAssignment getTenantAdmin(String tenantId) {
+		SqlSession session = DBConnectorFactory.getSession();
+		TenantUserRoleAssignment assignment;
+		try {
+			TenantUserRoleAssignmentMapper mapper = session.getMapper(TenantUserRoleAssignmentMapper.class);
+			assignment = mapper.getTenantAdmin(tenantId);
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return assignment;
+	}
+	
+	public static List<TenantUserRoleAssignment> getUsers(String tenantId) {
+		SqlSession session = DBConnectorFactory.getSession();
+		List<TenantUserRoleAssignment> assignment;
+		try {
+			TenantUserRoleAssignmentMapper mapper = session.getMapper(TenantUserRoleAssignmentMapper.class);
+			assignment = mapper.getUsers(tenantId);
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return assignment;
+	}
 }
