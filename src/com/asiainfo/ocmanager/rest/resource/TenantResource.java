@@ -254,6 +254,33 @@ public class TenantResource {
 		}
 
 	}
+	
+	@PUT
+	@Path("{tenantId}/status")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response renewTenantLease(Tenant tenant, @Context HttpServletRequest request) {
+		try {
+			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
+			if (!isSysadmin(loginUser)) {
+				logger.error("Only system-admin allowed to renew tenant lease. Current user " + loginUser
+						+ " has no privilege.");
+				return Response.status(Status.UNAUTHORIZED)
+						.entity(new ResourceResponseBean("operation failed",
+								"Current user has no privilege to do the operations.",
+								ResponseCodeConstant.NO_PERMISSION_ON_TENANT))
+						.build();
+			}
+			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getId())) {
+				TenantPersistenceWrapper.updateStatus(tenant);
+				return Response.ok().entity("Renew tenant lease successful!").build();
+			}
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.error("createTenant hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
+	}
 
 	/**
 	 * Create a new tenant

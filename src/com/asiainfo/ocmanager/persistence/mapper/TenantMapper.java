@@ -84,5 +84,5 @@ public interface TenantMapper {
 	 * @param id
 	 * @param status
 	 */
-	public void updateTenantStatus(@Param("id") String id, @Param("status") String status);
+	public void updateTenantStatus(@Param("id") String id, @Param("dueTime") String dueTime, @Param("status") String status);
 }

@@ -48,7 +48,8 @@
 	<!-- update tenant status -->
 	<update id="updateTenantStatus" parameterType="java.lang.String">
 		update tenants set
-		status = #{status}
+		status = #{status},
+		dueTime = #{dueTime}
 		where id = #{id}
 	</update>
 	<!-- get tenants based on level -->

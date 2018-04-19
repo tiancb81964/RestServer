@@ -244,7 +244,7 @@ public class TenantPersistenceWrapper {
 		SqlSession session = DBConnectorFactory.getSession();
 		try {
 			TenantMapper mapper = session.getMapper(TenantMapper.class);
-			mapper.updateTenantStatus(tenant.getId(), tenant.getStatus());
+			mapper.updateTenantStatus(tenant.getId(), tenant.getDueTime(), tenant.getStatus());
 			session.commit();
 		} catch (Exception e) {
 			session.rollback();

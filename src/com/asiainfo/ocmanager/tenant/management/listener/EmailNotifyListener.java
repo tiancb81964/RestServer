@@ -90,7 +90,7 @@ public class EmailNotifyListener implements Listener {
 	 */
 	private static class BodyTemplateBuilder {
 		private String TEMP = "<font size=\"3\">${tenantAdmin}, 您好：</font>"
-				+ "<font size=\"3\"><br>&nbsp;&nbsp;&nbsp;&nbsp;您的下列租户${event}，过期后CM平台将回收该租户下所有实例的使用权限，为了不影响您的正常使用，请及时联系CM平台管理员进行续期。</br></font>"
+				+ "<font size=\"3\"><br>&nbsp;&nbsp;&nbsp;&nbsp;您的下列租户${event}，过期后CM平台将回收该租户下所有实例的使用权限，为了不影响您的正常使用，请及时联系CM平台系统管理员进行续期。</br></font>"
 				+ "<p></p>" + "<table border=\"1\" cellspacing=\"0\">"
 				+ "<tr><td width=\"100px\">租户名</td><td>${tenantName}</td></tr>"
 				+ "<tr><td width=\"100px\">创建时间</td><td>${createTime}</td></tr>"
