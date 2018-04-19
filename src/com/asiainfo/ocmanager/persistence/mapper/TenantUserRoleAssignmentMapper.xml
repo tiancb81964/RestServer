@@ -40,6 +40,10 @@
 	</select>
 	<select id="getUsers"
 		resultType="com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment">
-		select * from tenants_users_roles_assignment where tenant_id=#{tenantId}"
+		select 			
+			tenant_id as "tenantId",
+			user_id as "userId",
+			role_id as "roleId" 
+		from tenants_users_roles_assignment where tenant_id=#{tenantId}
 	</select>
 </mapper>

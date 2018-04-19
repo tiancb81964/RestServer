@@ -31,6 +31,10 @@ public class EmailNotifyListener implements Listener {
 	@Override
 	public void handleDue(TenantEvent e) {
 		User admin = getAdmin(e);
+		if (admin == null) {
+			LOG.warn("Can not send email due to no tenant-admin found in tenant: " + e.getTenant().getName());
+			return;
+		}
 		String toEmail = admin.getEmail();
 		if (Strings.isNullOrEmpty(toEmail)) {
 			LOG.warn("Can not send email due to email address is null for user: " + admin.getUsername());
@@ -41,7 +45,7 @@ public class EmailNotifyListener implements Listener {
 		List<TenantUserRoleAssignment> userList = TURAssignmentPersistenceWrapper.getUsers(e.getTenant().getId());
 		String textbody = getTextBody(e, admin, instances, userList);
 		MailClient.getInstance().sendMsgs(toEmail, SUBJECT, textbody);
-		LOG.info("Mail been sent: " + textbody);
+		LOG.info("Mail been sent to: " + toEmail + ", notifying event: " + e);
 	}
 
 	private String getTextBody(TenantEvent e, User admin, List<ServiceInstance> instances,
@@ -71,6 +75,9 @@ public class EmailNotifyListener implements Listener {
 
 	private User getAdmin(TenantEvent e) {
 		TenantUserRoleAssignment tur = TURAssignmentPersistenceWrapper.getTenantAdmin(e.getTenant().getId());
+		if (tur == null) {
+			return null;
+		}
 		User user = UserPersistenceWrapper.getUserById(tur.getUserId());
 		return user;
 	}
@@ -90,7 +97,7 @@ public class EmailNotifyListener implements Listener {
 				+ "<tr><td width=\"100px\">过期时间</td><td>${dueTime}</td></tr>"
 				+ "<tr><td width=\"100px\">实例列表</td><td>${instances}</td></tr>"
 				+ "<tr><td width=\"100px\">用户列表</td><td>${users}</td></tr>" + "</table>" + "<p></p>"
-				+ "&nbsp;&nbsp;&nbsp;&nbsp;<font size=\"3\" color=\"red\">发件人不会阅读此邮件，请不要直接回复此邮件</font>";
+				+ "&nbsp;&nbsp;&nbsp;&nbsp;<font size=\"3\" color=\"red\"><b>发件人不会阅读此邮件，请不要直接回复此邮件</b></font>";
 		private static final String TAG_ABT_DUE = "<font color=\"blue\">即将过期</font>";
 		private static final String TAG_DUE = "<font color=\"red\">已过期</font>";
 
