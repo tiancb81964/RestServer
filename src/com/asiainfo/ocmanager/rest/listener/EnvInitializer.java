@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.security.AuthenticatorManager;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
+import com.asiainfo.ocmanager.tenant.management.LifetimeManager;
 
 /**
  * Initialize env at start-up
@@ -24,6 +25,7 @@ public class EnvInitializer implements ServletContextListener {
 		LOG.info("EnvInitializer initializing ...");
 		AuthenticatorManager.getInstance().start();
 		ServiceClientPool.getInstance();
+		LifetimeManager.getInstance().start();
 		try {
 			Class.forName(ResourcePeekerFactory.class.getName());
 		} catch (ClassNotFoundException e) {
