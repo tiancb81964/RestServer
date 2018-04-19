@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.service.client;
 
+import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.Properties;
 
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.utils.MailServerProperties;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.sun.mail.util.MailSSLSocketFactory;
 
 /**
  * Mail client.
@@ -28,8 +30,8 @@ public class MailClient {
 	private static final Logger LOG = LoggerFactory.getLogger(MailClient.class);
 	private Properties props = new Properties();
 	private Session session;
-	private static final String ACCOUNT = "account";
-	private static final String PASSWD = "password";
+	private static final String ACCOUNT = "ocmail.account";
+	private static final String PASSWD = "ocmail.password";
 	private String account;
 	private String passwd;
 	private static MailClient instance;
@@ -47,6 +49,16 @@ public class MailClient {
 
 	private MailClient() {
 		props = MailServerProperties.getConf();
+		if (props.getProperty("mail.smtp.ssl.enable") != null
+				&& props.getProperty("mail.smtp.ssl.enable").equals("true")) {
+			try {
+				MailSSLSocketFactory sf = new MailSSLSocketFactory();
+				sf.setTrustAllHosts(true);
+				props.put("mail.smtp.ssl.socketFactory", sf);
+			} catch (GeneralSecurityException e) {
+				e.printStackTrace();
+			}
+		}
 		account = props.getProperty(ACCOUNT);
 		passwd = props.getProperty(PASSWD);
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(account),
@@ -73,9 +85,11 @@ public class MailClient {
 			msg.setFrom(new InternetAddress(account));
 			InternetAddress[] address = { new InternetAddress(toAddress) };
 			msg.setRecipients(Message.RecipientType.TO, address);
+			// CC to resolve 163 mail reporting 554 DT:SPM
+			msg.setRecipient(Message.RecipientType.CC, new InternetAddress(account));
 			msg.setSubject(subject);
 			msg.setSentDate(new Date());
-			msg.setContent(msgText, "text/html; charset=utf-8");
+			msg.setContent(msgText, "text/html;charset=UTF-8");
 			Transport.send(msg);
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Mail successfully sended to [{}] of text [{}]", toAddress, msgText);
