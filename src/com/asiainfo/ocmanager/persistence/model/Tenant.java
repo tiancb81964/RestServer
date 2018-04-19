@@ -23,6 +23,17 @@ public class Tenant {
 
 	}
 
+	public Tenant(String id, String name, String description, String parentId, int level, String quota, String dueTime) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.parentId = parentId;
+		this.level = level;
+		this.quota = quota;
+		this.dueTime = dueTime;
+	}
+
 	public Tenant(String id, String name, String description, String parentId, int level) {
 		this.id = id;
 		this.name = name;
@@ -39,7 +50,7 @@ public class Tenant {
 		this.level = level;
 		this.quota = quota;
 	}
-	
+
 	public String getCreateTime() {
 		return createTime;
 	}
