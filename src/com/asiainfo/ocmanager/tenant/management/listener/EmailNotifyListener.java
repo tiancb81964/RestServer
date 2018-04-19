@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
  */
 public class EmailNotifyListener implements Listener {
 	private static final Logger LOG = LoggerFactory.getLogger(EmailNotifyListener.class);
-	private static final String SUBJECT = "CM-SYSTEM-ADMIN-NOTIFICATION";
+	private static final String SUBJECT = "CM平台-系统通知-租户生命周期告警";
 
 	@Override
 	public void handleDue(TenantEvent e) {
