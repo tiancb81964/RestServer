@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 public class LifetimeDetector {
 	private static final Logger LOG = LoggerFactory.getLogger(LifetimeDetector.class);
 	private static LifetimeDetector instance;
-	private long lastUpdateTime = Calendar.getInstance().getTimeInMillis();
+	private long lastUpdateTime = -1l;
 	private TenantSync tenants;
 	private BlockingQueue<TenantEvent> dueTenants;
 	private ExecutorService service = Executors.newSingleThreadExecutor();
@@ -70,7 +70,8 @@ public class LifetimeDetector {
 							try {
 								dueTime = tenantDueTime(t);
 							} catch (ParseException e) {
-								LOG.error("Exception while parse tenant dueTime: " + t.getDueTime() + ", tenant: " + t.getName(), e);
+								LOG.error("Exception while parse tenant dueTime: " + t.getDueTime() + ", tenant: "
+										+ t.getName(), e);
 								return;
 							}
 							Calendar nowTime = dbNowTime();
@@ -80,8 +81,8 @@ public class LifetimeDetector {
 								dueTenants.add(TenantEvent.create(t, LifetimeFlag.DUE));
 							} else if (diff > 0 && diff <= 604800000) {
 								// 604800000 mills = 7 days
-								LOG.info("Tenant [{}] is approaching lifetime [{}] within 7 days",
-										 t.getName(), dueTime.getTime());
+								LOG.info("Tenant [{}] is approaching lifetime [{}] within 7 days", t.getName(),
+										dueTime.getTime());
 								dueTenants.add(TenantEvent.create(t, LifetimeFlag.ABT_DUE));
 							}
 						});
@@ -91,14 +92,18 @@ public class LifetimeDetector {
 					lastUpdateTime = Calendar.getInstance().getTimeInMillis();
 				}
 			}
-			
+
 			/**
 			 * Less than 24h since last time updating
+			 * 
 			 * @return
 			 */
 			private boolean less24hours() {
+				if (lastUpdateTime < 0) {
+					return false; // execute once on server start-up
+				}
 				long now = Calendar.getInstance().getTimeInMillis();
-				long diffDay = (now - lastUpdateTime)/(1000*60*60*24);
+				long diffDay = (now - lastUpdateTime) / (1000 * 60 * 60 * 24);
 				return diffDay <= 1;
 			}
 
@@ -107,7 +112,7 @@ public class LifetimeDetector {
 					Thread.sleep(mills);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}	
+				}
 			}
 
 			private Calendar dbNowTime() {
@@ -194,14 +199,14 @@ public class LifetimeDetector {
 
 		@Override
 		public String toString() {
-			return "TenantEvent [tenantName=" + tenant.getName() + ", createTime=" + tenant.getCreateTime() + ", dueTime="
-					+ tenant.getDueTime() + ", status=" + tenant.getStatus() + ", flag=" + flag + "]";
+			return "TenantEvent [tenantName=" + tenant.getName() + ", createTime=" + tenant.getCreateTime()
+					+ ", dueTime=" + tenant.getDueTime() + ", status=" + tenant.getStatus() + ", flag=" + flag + "]";
 		}
 	}
 
 	public static enum LifetimeFlag {
 		/** tenant is due on lifetime */
-		DUE, 
+		DUE,
 		/** tenant is about to due on lifetime in 7days */
 		ABT_DUE
 	}
