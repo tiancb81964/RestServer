@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 public class LifetimeDetector {
 	private static final Logger LOG = LoggerFactory.getLogger(LifetimeDetector.class);
 	private static LifetimeDetector instance;
+	private long lastUpdateTime = Calendar.getInstance().getTimeInMillis();
 	private TenantSync tenants;
 	private BlockingQueue<TenantEvent> dueTenants;
 	private ExecutorService service = Executors.newSingleThreadExecutor();
@@ -55,6 +56,11 @@ public class LifetimeDetector {
 			public void run() {
 				Thread.currentThread().setName("Tenant-LifetimeDetector-Thread");
 				while (true) {
+					if (less24hours()) {
+						sleep(1800000);
+						continue;
+					}
+					LOG.info("Tenant-LifetimeDetector-Thread has been triggered.");
 					try {
 						LOG.debug("Starting sync up tenants: " + tenants.getTenants());
 						tenants.syncTenants();
@@ -82,23 +88,26 @@ public class LifetimeDetector {
 					} catch (Exception e) {
 						LOG.error("Exception during running Tenant-LifetimeDetector-Thread: ", e);
 					}
-					holdUntillMidnight();
+					lastUpdateTime = Calendar.getInstance().getTimeInMillis();
 				}
 			}
-
-			private void holdUntillMidnight() {
-				while (daytime()) {
-					try {
-						Thread.sleep(1800000);// sleep for 30 mins
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}	
-				}
-				LOG.info("Tenant-LifetimeDetector-Thread has been triggered.");
+			
+			/**
+			 * Less than 24h since last time updating
+			 * @return
+			 */
+			private boolean less24hours() {
+				long now = Calendar.getInstance().getTimeInMillis();
+				long diffDay = (now - lastUpdateTime)/(1000*60*60*24);
+				return diffDay <= 1;
 			}
 
-			private boolean daytime() {
-				return Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != 0;
+			private void sleep(long mills) {
+				try {
+					Thread.sleep(mills);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}	
 			}
 
 			private Calendar dbNowTime() {
