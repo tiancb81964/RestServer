@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`tenants` (
   `parentId` VARCHAR(64) NULL,
   `level` INT NOT NULL,
   `createTime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `dueTime` DATETIME NULL,
+  `status` VARCHAR(64) NULL DEFAULT 'active',
   `quota` MEDIUMTEXT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;

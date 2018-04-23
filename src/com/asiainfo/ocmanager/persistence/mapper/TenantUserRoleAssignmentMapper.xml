@@ -29,4 +29,21 @@
 		delete from tenants_users_roles_assignment where tenant_id=#{tenantId} and
 		  user_id=#{userId}
 	</delete>
+	<select id="getTenantAdmin"
+		resultType="com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment">
+		select
+			tenant_id as "tenantId",
+			user_id as "userId",
+			role_id as "roleId"
+		from tenants_users_roles_assignment 
+		  where tenant_id=#{tenantId} and role_id="a12a84d0-524a-11e7-9dbb-fa163ed7d0ae"
+	</select>
+	<select id="getUsers"
+		resultType="com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment">
+		select 			
+			tenant_id as "tenantId",
+			user_id as "userId",
+			role_id as "roleId" 
+		from tenants_users_roles_assignment where tenant_id=#{tenantId}
+	</select>
 </mapper>

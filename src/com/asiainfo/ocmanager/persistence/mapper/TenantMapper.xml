@@ -45,6 +45,13 @@
 		name = #{name}
 		where id = #{id}
 	</update>
+	<!-- update tenant status -->
+	<update id="updateTenantStatus" parameterType="java.lang.String">
+		update tenants set
+		status = #{status},
+		dueTime = #{dueTime}
+		where id = #{id}
+	</update>
 	<!-- get tenants based on level -->
 	<select id="selectTenantsByLevel" resultType="com.asiainfo.ocmanager.persistence.model.Tenant">
 		select * from tenants where level=#{level}

@@ -235,5 +235,23 @@ public class TenantPersistenceWrapper {
 			session.close();
 		}
 	}
+	
+	/**
+	 * 
+	 * @param tenant
+	 */
+	public static void updateStatus(Tenant tenant){
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			TenantMapper mapper = session.getMapper(TenantMapper.class);
+			mapper.updateTenantStatus(tenant.getId(), tenant.getDueTime(), tenant.getStatus());
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
 
 }
