@@ -7,8 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class LifetimeDetector {
 	private long lastUpdateTime = -1l;
 	private TenantSync tenants;
 	private BlockingQueue<TenantEvent> dueTenants;
-	private ExecutorService service = Executors.newSingleThreadExecutor();
+	private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
 	public static LifetimeDetector getInstance() {
 		if (instance == null) {
@@ -50,47 +51,46 @@ public class LifetimeDetector {
 		dueTenants = new ArrayBlockingQueue<>(200);
 		tenants = new TenantSync();
 		updateTenants();
-		service.execute(new Runnable() {
+		service.scheduleAtFixedRate((new Runnable() {
 
 			@Override
 			public void run() {
 				Thread.currentThread().setName("Tenant-LifetimeDetector-Thread");
-				while (true) {
-					if (less24hours()) {
-						sleep(1800000);
-						continue;
-					}
-					LOG.info("Tenant-LifetimeDetector-Thread has been triggered.");
-					try {
-						LOG.debug("Starting sync up tenants: " + tenants.getTenants());
-						tenants.syncTenants();
-						LOG.debug("Sync up tenants finished: " + tenants.getTenants());
-						tenants.getTenants().forEach(t -> {
-							Calendar dueTime;
-							try {
-								dueTime = tenantDueTime(t);
-							} catch (ParseException e) {
-								LOG.error("Exception while parse tenant dueTime: " + t.getDueTime() + ", tenant: "
-										+ t.getName(), e);
-								return;
-							}
-							Calendar nowTime = dbNowTime();
-							long diff = dueTime.getTimeInMillis() - nowTime.getTimeInMillis();
-							if (diff <= 0) {
-								LOG.info("Tenant [{}] exceeded lifetime [{}]", t.getName(), dueTime.getTime());
-								dueTenants.add(TenantEvent.create(t, LifetimeFlag.DUE));
-							} else if (diff > 0 && diff <= 604800000) {
-								// 604800000 mills = 7 days
-								LOG.info("Tenant [{}] is approaching lifetime [{}] within 7 days", t.getName(),
-										dueTime.getTime());
-								dueTenants.add(TenantEvent.create(t, LifetimeFlag.ABT_DUE));
-							}
-						});
-					} catch (Exception e) {
-						LOG.error("Exception during running Tenant-LifetimeDetector-Thread: ", e);
-					}
-					lastUpdateTime = Calendar.getInstance().getTimeInMillis();
+				if (less24hours()) {
+					LOG.debug("Last update time is " + new Date(lastUpdateTime)
+							+ ", less than 24 hours, waiting for later running...");
+					return;
 				}
+				LOG.info("Tenant-LifetimeDetector-Thread has been triggered.");
+				try {
+					LOG.debug("Starting sync up tenants: " + tenants.getTenants());
+					tenants.syncTenants();
+					LOG.debug("Sync up tenants finished: " + tenants.getTenants());
+					tenants.getTenants().forEach(t -> {
+						Calendar dueTime;
+						try {
+							dueTime = tenantDueTime(t);
+						} catch (ParseException e) {
+							LOG.error("Exception while parse tenant dueTime: " + t.getDueTime() + ", tenant: "
+									+ t.getName(), e);
+							return;
+						}
+						Calendar nowTime = dbNowTime();
+						long diff = dueTime.getTimeInMillis() - nowTime.getTimeInMillis();
+						if (diff <= 0) {
+							LOG.info("Tenant [{}] exceeded lifetime [{}]", t.getName(), dueTime.getTime());
+							dueTenants.add(TenantEvent.create(t, LifetimeFlag.DUE));
+						} else if (diff > 0 && diff <= 604800000) {
+							// 604800000 mills = 7 days
+							LOG.info("Tenant [{}] is approaching lifetime [{}] within 7 days", t.getName(),
+									dueTime.getTime());
+							dueTenants.add(TenantEvent.create(t, LifetimeFlag.ABT_DUE));
+						}
+					});
+				} catch (Exception e) {
+					LOG.error("Exception during running Tenant-LifetimeDetector-Thread: ", e);
+				}
+				lastUpdateTime = Calendar.getInstance().getTimeInMillis();
 			}
 
 			/**
@@ -105,14 +105,6 @@ public class LifetimeDetector {
 				long now = Calendar.getInstance().getTimeInMillis();
 				long diffDay = (now - lastUpdateTime) / (1000 * 60 * 60 * 24);
 				return diffDay <= 1;
-			}
-
-			private void sleep(long mills) {
-				try {
-					Thread.sleep(mills);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 			}
 
 			private Calendar dbNowTime() {
@@ -132,7 +124,7 @@ public class LifetimeDetector {
 				c.setTime(due);
 				return c;
 			}
-		});
+		}), 10l, 1800l, TimeUnit.SECONDS);
 		LOG.info("LifetimeDetector thread initialized and started.");
 	}
 
