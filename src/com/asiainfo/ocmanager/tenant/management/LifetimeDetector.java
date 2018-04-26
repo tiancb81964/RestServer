@@ -51,7 +51,7 @@ public class LifetimeDetector {
 		dueTenants = new ArrayBlockingQueue<>(200);
 		tenants = new TenantSync();
 		updateTenants();
-		service.schedule((new Runnable() {
+		service.scheduleAtFixedRate((new Runnable() {
 
 			@Override
 			public void run() {
@@ -124,7 +124,7 @@ public class LifetimeDetector {
 				c.setTime(due);
 				return c;
 			}
-		}), 1800l, TimeUnit.SECONDS);
+		}), 10l, 1800l, TimeUnit.SECONDS);
 		LOG.info("LifetimeDetector thread initialized and started.");
 	}
 
