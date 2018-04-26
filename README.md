@@ -62,76 +62,148 @@ mysql> source <TOMCAT_HOME>/webapps/ocmanager/WEB-INF/database/mysql/initOCManag
 9. Configure RestServer configuration, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __server.properties__
 ```
 
-#Either 'ldap' or 'mysql' is supposed to specify where users should be added from	
-oc.server.user.source=ldap
+#Either 'ldap' or 'mysql' is supposed, to specifying user source	
+oc.server.user.source=mysql
 
-#OCDP cluster information, it used to get the components info
+#ocdp-based services in lowercase
+#Notice:service names(which in square brackets) should be aligned with the service names from catalog
+oc.ocdp.services=hdfs_cluster1,hdfs_cluster2,hbase_cluster1,hbase_cluster2,hive_cluster1,mapreduce_cluster1,spark_cluster1,kafka_cluster1
+
+#listeners(seperated by comma) that will listen on exceeded-lifetime-tenant event
+oc.tenant.lifetime.manager.listeners=com.asiainfo.ocmanager.tenant.management.listener.DefaultListener,com.asiainfo.ocmanager.tenant.management.listener.EmailNotifyListener
+
+#for ocsp, need remove from current file in future
+oc.kafka.serviceName=ocdp
+
+```
+
+10. Configure the services that's been put on to RestServer, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __services.ini__.  
+__Notice:__ service names(which in square brackets) should be aligned with the service names from catalog
+```
+[hdfs_cluster1]
+client.class=com.asiainfo.ocmanager.service.client.v2.HDFSClient
+#SimpleAuthenticator for non-secure service, KerberosAuthenticator for secure service
+auth.class=com.asiainfo.ocmanager.security.KerberosAuthenticator
+auth.principal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
+auth.keytab=E:\\kerberos\\nn.service.keytab
+fs.defaultFS = 10.1.236.116:8020
+ipc.client.fallback-to-simple-auth-allowed=true
+
+[hdfs_cluster2]
+client.class=com.asiainfo.ocmanager.service.client.v2.HDFSClient
+#SimpleAuthenticator for non-secure service, KerberosAuthenticator for secure service
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+fs.defaultFS = 10.1.236.61:8020
+ipc.client.fallback-to-simple-auth-allowed=true
+
+[hbase_cluster1]
+client.class=com.asiainfo.ocmanager.service.client.v2.HbaseClient
+#SimpleAuthenticator for non-secure service, KerberosAuthenticator for secure service
+auth.class=com.asiainfo.ocmanager.security.KerberosAuthenticator
+auth.principal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
+auth.keytab=E:\\kerberos\\nn.service.keytab
+hbase.zookeeper.quorum=aicloud1.asiainfo.com,aicloud2.asiainfo.com
+hbase.zookeeper.property.clientPort=2181
+hbase.master.kerberos.principal=hbase/_HOST@ASIAINFO.COM
+hbase.regionserver.kerberos.principal=hbase/_HOST@ASIAINFO.COM
+#SIMPLE for non-secure hbase, KERBEROS for secure hbase
+hbase.security.authentication=KERBEROS
+#/hbase-unsecure for non-secure hbase, /hbase-secure for secure hbase
+zookeeper.znode.parent=/hbase-secure
+
+[hbase_cluster2]
+client.class=com.asiainfo.ocmanager.service.client.v2.HbaseClient
+#SimpleAuthenticator for non-secure service, KerberosAuthenticator for secure service
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+hbase.zookeeper.quorum=ochadoop111.jcloud.local,ochadoop112.jcloud.local,xiaomm.jcloud.local
+hbase.zookeeper.property.clientPort=2181
+zookeeper.znode.parent=/hbase-unsecure
+
+[yarn_cluster1]
+client.class=com.asiainfo.ocmanager.service.client.v2.YarnClient
+#Yarn client is implemented by HTTP, set to SimpleAthenticator 
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+oc.yarn.resourcemanager.http.url=http://aicloud1.asiainfo.com:8088,http://aicloud2.asiainfo.com:8088
+
+[yarn_cluster2]
+client.class=com.asiainfo.ocmanager.service.client.v2.YarnClient
+#Yarn client is implemented by HTTP, set to SimpleAthenticator 
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+oc.yarn.resourcemanager.http.url=http://xiaomm.jcloud.local:8088
+
+[hive_cluster1]
+client.class=com.asiainfo.ocmanager.service.client.v2.HiveClient
+#SimpleAuthenticator for non-secure service, KerberosAuthenticator for secure service
+auth.class=com.asiainfo.ocmanager.security.KerberosAuthenticator
+auth.principal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
+auth.keytab=E:\\kerberos\\nn.service.keytab
+fs.defaultFS = 10.1.236.116:8020
+ipc.client.fallback-to-simple-auth-allowed=true
+
+[kafka_cluster1]
+client.class=com.asiainfo.ocmanager.service.client.v2.KafkaClient
+#Kafka client is implements by PLAINTEXT protocal, set to SimpleAthenticator
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+oc.zookeeper.quorum=aicloud1.asiainfo.com,aicloud2.asiainfo.com
+oc.zookeeper.port=2181
+
+[kafka_cluster2]
+client.class=com.asiainfo.ocmanager.service.client.v2.KafkaClient
+#Kafka client is implements by PLAINTEXT protocal, set to SimpleAthenticator
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+oc.zookeeper.quorum=ochadoop111.jcloud.local,ochadoop112.jcloud.local,xiaomm.jcloud.local
+oc.zookeeper.port=2181
+
+[mongo]
+client.class=com.asiainfo.ocmanager.service.client.v2.MongoDBClient
+auth.class=com.asiainfo.ocmanager.security.SimpleAthenticator
+oc.mongo.server.host=ochadoop111.jcloud.local
+oc.mongo.server.port=27021
+```
+
+11. Configure the clusters properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __clusters.ini__
+```
+[mycluster_alpha]
 oc.ambari.hostname=10.1.236.116
 oc.ambari.port=8080
 oc.ambari.protocol=http
 oc.ambari.username=admin
 oc.ambari.password=admin
-oc.ambari.clustername=ochadoop_mycluster
-
-#Ranger config
-oc.ranger.hosts=aicloud1.asiainfo.com
+oc.hdp.version=2.6.0.3-8
+oc.ranger.hosts=10.1.236.116
 oc.ranger.port=6080
 oc.ranger.admin=admin
 oc.ranger.admin.password=admin
 
-#Period(in seconds) of authentication action	
-oc.server.security.scheduler.period.seconds=85800
-#If kerberos is enabled, configure to 'com.asiainfo.ocmanager.security.module.plugin.KrbModule', otherwise to 'com.asiainfo.ocmanager.security.module.plugin.SimpleModule'	
-oc.server.security.mudule.class=com.asiainfo.ocmanager.security.module.plugin.KrbModule
-#krb5.conf file path, needed only if Kerberos is enabled
-oc.hadoop.krb.conf=/etc/krb5.conf
-
-#For HA, configure to HDFS nameservices. For non-HA, configure to 'namenodeHostname:port'	
-oc.hdfs.dfs.nameservices=aicloud1.asiainfo.com:8020
-#HDFS dfs.ha.namenodes, in format like	'nn1#NN1Hostname:port,nn2#NN2Hostname:port'	
-oc.hdfs.dfs.ha.namenodes=nn1#aicloud1.asiainfo.com:8020,nn2#aicloud2.asiainfo.com:8020
-
-#Kerberos princial to use for HDFS service	
-oc.hadoop.krb.pricipal=nn/aicloud1.asiainfo.com@ASIAINFO.COM
-#Kerberos keytab path, must be aligned with configured principal	
-oc.hadoop.krb.keytab=/etc/security/keytabs/nn.service.keytab
-
-#Kerberos principal to use for Hbase Master, '_HOST' stands for whichever master that's active.    
-oc.hbase.master.krb.principal=hbase/_HOST@ASIAINFO.COM
-#Kerberos principal to use for Hbase Regionserver
-oc.hbase.regionserver.krb.principal=hbase/_HOST@ASIAINFO.COM
-
-#HTTP URL(http://host:port) of ResourceManager. Both RM can be configured using comma as seperator if HA is enabled
-oc.yarn.resourcemanager.http.url=http://aicloud1.asiainfo.com:8088,http://aicloud2.asiainfo.com:8088
-
-#Hostnames of zookeeper, seperated by comma
-oc.zookeeper.quorum=aicloud1.asiainfo.com,aicloud2.asiainfo.com
-#Zookeeper port
-oc.zookeeper.port=2181
-
-#Hostnames of kafka brokers, seperated by comma
-oc.kafka.brokers=aicloud1.asiainfo.com,aicloud2.asiainfo.com
-#Kafka port
-oc.kafka.broker.port=6667
-#Kafka jaas file path, needed only if Kerberos is enabled
-oc.kafka.security.jaas.file=/etc/kafka/conf/kafka_jaas.conf
-
-#Hostname of Mongo server
-oc.mongo.server.host=ochadoop111.jcloud.local
-#Mongo server port
-oc.mongo.server.port=27021
-
-#Hostname of Greenplum server
-oc.greenplum.server.host=ochadoop111.jcloud.local
-#Greenplum port
-oc.greenplum.server.port=5432
-#Admin account of Greenplum
-oc.greenplum.user=gpadmin
-#Password of admin account 
-oc.greenplum.password=asiainfo
+[mycluster_beta]
+oc.ambari.hostname=10.1.236.61
+oc.ambari.port=8080
+oc.ambari.protocol=http
+oc.ambari.username=admin
+oc.ambari.password=admin
+oc.hdp.version=2.6.0.3-8
+oc.ranger.hosts=ochadoop111.jcloud.local
+oc.ranger.port=6080
+oc.ranger.admin=admin
+oc.ranger.admin.password=admin
 ```
 
-10. Congifure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __mysql.properties__
+12. Configure Mail-Server properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __mailserver.properties__
+```
+#mail server ip
+mail.smtp.host=mail.asiainfo.com
+#mail server port
+mail.smtp.port=25
+mail.debug=false
+#mail server auth enabled
+mail.smtp.auth=true
+#mail account to be logged in
+ocmail.account=admin@asiainfo.com
+#mail account password
+ocmail.password=123456
+```
+
+13. Configure the database properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __mysql.properties__
 ```
 jdbc.driver=com.mysql.jdbc.Driver
 jdbc.encoding=useUnicode=true&characterEncoding=utf8
@@ -140,13 +212,13 @@ jdbc.username=<the user create the ocmanager scheame>
 jdbc.password=<the user password create the ocmanager scheame>
 ```
 
-11. Congifure the df properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __dataFoundry.properties__
+14. Configure the df properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__ , edit file __dataFoundry.properties__
 ```
 dataFoundry.url=https://<df rest server IP>:<df rest server api port>
 dataFoundry.token=<df admin token>
 ```
 
-12. Configure Ldap properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __ldap.properties__
+15. Configure Ldap properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __ldap.properties__
 ```
 #Ldap server URL, in format 'ldap://ldap_server_host:port'
 ldap.url=ldap://10.1.236.146:389
@@ -167,8 +239,7 @@ ldapRealm.contextFactory.url = ldap://10.1.236.146:389
 securityManager.realms = $ldapRealm
 ```
 
-
-13. Configure Kerberos properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __kerberos.properties__ (__NOTE: If you did NOT enable Kerberos we can ignore this step__)
+16. Configure Kerberos properties, go to __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/conf__, edit file __kerberos.properties__ (__NOTE: If you did NOT enable Kerberos we can ignore this step__)
 ```
 kerberos.user.principal=admin/admin@ASIAINFO.COM
 kerberos.keytab.location=/etc/krb5.conf
@@ -177,19 +248,19 @@ kerberos.kdc.host=10.1.236.146
 kerberos.realm=ASIAINFO.COM
 ```
 
-14. If you need to run build-in hadoop "Hello World" examples(eg. Mapreduce Pi / SparkPi), you have to be granted the 'rwx' privileges of the Jar path on HDFS. We've provided the automatic shell script to do the job for you. Find file __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/scripts/create-common-policy.sh__, run script:
+17. If you need to run build-in hadoop "Hello World" examples(eg. Mapreduce Pi / SparkPi), you have to be granted the 'rwx' privileges of the Jar path on HDFS. We've provided the automatic shell script to do the job for you. Find file __<TOMCAT_HOME>/webapps/ocmanager/WEB-INF/scripts/create-common-policy.sh__, run script:
 ```
 sh create-common-policy.sh clusterName rangerIP rangerUser rangerPassword
 example:
 sh create-common-policy.sh mycluster 127.0.0.1 admin admin
 ```
 
-15. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
+18. To do management of services that's supported by RestServer, you need to make sure the user running RestServer has full privileges over those services. Append the user to ranger policies mannually through Web: __http://ambari_server_host:6080/login.jsp__		
 __Attention: user should be appended to the first policy under all services__.
 
-16. Restart the tomcat server
+19. Restart the tomcat server
 
-17. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
+20. Try access __http://<your tomcat server>:<port>/ocmanager/v1/api/tenant__, you get response from server if all above steps been done correctly
 
 
 __NOTE: More rest api, please access the link:__  https://github.com/OCManager/RestServer/tree/master/docs/adaptorRest
