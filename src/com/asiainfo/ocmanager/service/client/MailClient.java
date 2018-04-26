@@ -62,9 +62,9 @@ public class MailClient {
 		account = props.getProperty(ACCOUNT);
 		passwd = props.getProperty(PASSWD);
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(account),
-				"'account' parameter missing in mailserver.properties.");
+				"'ocmail.account' parameter missing in mailserver.properties.");
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(passwd),
-				"'password' parameter missing in mailserver.properties.");
+				"'ocmail.password' parameter missing in mailserver.properties.");
 		session = Session.getInstance(props, new Authenticator() {
 
 			@Override
