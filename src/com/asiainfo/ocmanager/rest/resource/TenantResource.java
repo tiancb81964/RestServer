@@ -254,7 +254,7 @@ public class TenantResource {
 		}
 
 	}
-	
+
 	@PUT
 	@Path("{tenantId}/status")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
@@ -350,16 +350,25 @@ public class TenantResource {
 	}
 
 	/**
-	 * Whether the role has tenant.admin privilege
+	 * Whether the role has privileges on the specified tenant
 	 *
 	 * @param role
-	 * @return
+	 * @return true if does, or false either user not tenant-admin or tenant is
+	 *         deactive
 	 */
-	private boolean privileged(UserRoleView role) {
+	private boolean privilegedOnTenant(UserRoleView role, String tenantID) {
 		if (role == null || role.getRoleName().isEmpty()) {
 			return false;
+		} else if (tenantID == null || tenantID.isEmpty()) {
+			return false;
+		} else {
+			return role.getRoleName().equals(Constant.TENANTADMIN) && isActive(tenantID);
 		}
-		return role.getRoleName().equals(Constant.TENANTADMIN);
+	}
+
+	private boolean isActive(String tenantID) {
+		Tenant t = TenantPersistenceWrapper.getTenantById(tenantID);
+		return (t.getStatus() != null && t.getStatus().equalsIgnoreCase("active"));
 	}
 
 	private String getToken(HttpServletRequest request) {
@@ -396,9 +405,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -495,9 +504,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -692,9 +701,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -1006,9 +1015,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -1063,9 +1072,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -1119,9 +1128,9 @@ public class TenantResource {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
 			if (!isSysadmin(loginUser)) {
 				UserRoleView role = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(loginUser, tenantId);
-				if (!privileged(role)) {
+				if (!privilegedOnTenant(role, tenantId)) {
 					logger.error("Current user " + loginUser + " has no privilege on tenant " + tenantId
-							+ ", coz of role: " + (role == null ? "Null" : role.getRoleName()));
+							+ ". User may not be tenant.admin of current tenant, or the tenant is out of lifecycle");
 					return Response.status(Status.UNAUTHORIZED)
 							.entity(new ResourceResponseBean("operation failed",
 									"Current user has no privilege to do the operations.",
@@ -1137,8 +1146,8 @@ public class TenantResource {
 			JsonArray allServiceInstancesArray = allServiceInstancesJson.getAsJsonObject().getAsJsonArray("items");
 			for (int i = 0; i < allServiceInstancesArray.size(); i++) {
 				JsonObject instance = allServiceInstancesArray.get(i).getAsJsonObject();
-				TenantResourceUnAssignRoleExecutor runnable = new TenantResourceUnAssignRoleExecutor(tenantId,
-						instance, userId);
+				TenantResourceUnAssignRoleExecutor runnable = new TenantResourceUnAssignRoleExecutor(tenantId, instance,
+						userId);
 				Thread thread = new Thread(runnable);
 				thread.start();
 			}
