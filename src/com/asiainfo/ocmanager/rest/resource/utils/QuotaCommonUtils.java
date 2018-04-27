@@ -46,11 +46,8 @@ public class QuotaCommonUtils {
 
 			String storageSpaceQuotaHive = serviceQuota.get("storageSpaceQuota") == null ? null
 					: serviceQuota.get("storageSpaceQuota").getAsString();
-			String yarnQueueQuotaHive = serviceQuota.get("yarnQueueQuota") == null ? null
-					: serviceQuota.get("yarnQueueQuota").getAsString();
 
 			quotaMap.put("storageSpaceQuota", storageSpaceQuotaHive);
-			quotaMap.put("yarnQueueQuota", yarnQueueQuotaHive);
 			break;
 		case "mapreduce":
 
