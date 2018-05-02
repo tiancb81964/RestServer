@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBeanV2;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
@@ -462,15 +462,15 @@ public class TenantUtils {
 		}
 
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(tenant.getParentId());
-		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+		TenantQuotaBeanV2 parentTenantQuota = new TenantQuotaBeanV2(parentTenant);
 
 		Tenant tmpTenant = new Tenant();
-		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+		TenantQuotaBeanV2 tmpTenantQuota = new TenantQuotaBeanV2(tmpTenant);
 
 		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(tenant.getParentId());
 
 		for (Tenant child : childrenTenants) {
-			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			TenantQuotaBeanV2 tenantQuota = new TenantQuotaBeanV2(child);
 			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
 		}
 
@@ -478,7 +478,7 @@ public class TenantUtils {
 		// calculate the left quota
 		parentTenantQuota.minusOtherTenantQuota(tmpTenantQuota);
 		// request tenant quota
-		TenantQuotaBean currentTenantQuota = new TenantQuotaBean(tenant);
+		TenantQuotaBeanV2 currentTenantQuota = new TenantQuotaBeanV2(tenant);
 		// left quota minus request quota
 		parentTenantQuota.minusOtherTenantQuota(currentTenantQuota);
 
@@ -500,7 +500,7 @@ public class TenantUtils {
 
 		// origin tenant quota
 		Tenant originTenant = TenantPersistenceWrapper.getTenantById(tenant.getId());
-		TenantQuotaBean originTenantQuota = new TenantQuotaBean(originTenant);
+		TenantQuotaBeanV2 originTenantQuota = new TenantQuotaBeanV2(originTenant);
 
 		// if the tenant is root tenant update directly
 		if (originTenant.getParentId() == null || originTenant.getParentId().isEmpty()) {
@@ -511,15 +511,15 @@ public class TenantUtils {
 		}
 
 		Tenant parentTenant = TenantPersistenceWrapper.getTenantById(originTenant.getParentId());
-		TenantQuotaBean parentTenantQuota = new TenantQuotaBean(parentTenant);
+		TenantQuotaBeanV2 parentTenantQuota = new TenantQuotaBeanV2(parentTenant);
 
 		Tenant tmpTenant = new Tenant();
-		TenantQuotaBean tmpTenantQuota = new TenantQuotaBean(tmpTenant);
+		TenantQuotaBeanV2 tmpTenantQuota = new TenantQuotaBeanV2(tmpTenant);
 
 		// calculate all the children tenants quota
 		List<Tenant> childrenTenants = TenantPersistenceWrapper.getChildrenTenants(originTenant.getParentId());
 		for (Tenant child : childrenTenants) {
-			TenantQuotaBean tenantQuota = new TenantQuotaBean(child);
+			TenantQuotaBeanV2 tenantQuota = new TenantQuotaBeanV2(child);
 			tmpTenantQuota.plusOtherTenantQuota(tenantQuota);
 		}
 
@@ -531,7 +531,7 @@ public class TenantUtils {
 		// request update tenant quota
 		// set the name, because the update not pass the name
 		tenant.setName(originTenant.getName());
-		TenantQuotaBean requestTenantQuota = new TenantQuotaBean(tenant);
+		TenantQuotaBeanV2 requestTenantQuota = new TenantQuotaBeanV2(tenant);
 		// real request quota
 		requestTenantQuota.minusOtherTenantQuota(originTenantQuota);
 

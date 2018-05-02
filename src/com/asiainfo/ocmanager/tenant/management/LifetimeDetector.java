@@ -104,7 +104,7 @@ public class LifetimeDetector {
 				}
 				long now = Calendar.getInstance().getTimeInMillis();
 				long diffDay = (now - lastUpdateTime) / (1000 * 60 * 60 * 24);
-				return diffDay <= 1;
+				return diffDay < 1;
 			}
 
 			private Calendar dbNowTime() {
@@ -124,7 +124,7 @@ public class LifetimeDetector {
 				c.setTime(due);
 				return c;
 			}
-		}), 10l, 1800l, TimeUnit.SECONDS);
+		}), 3l, 1800l, TimeUnit.SECONDS);
 		LOG.info("LifetimeDetector thread initialized and started.");
 	}
 
