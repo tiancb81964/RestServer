@@ -6,10 +6,11 @@ import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantQuotaUtils;
 
 /**
- * 
+ * Refer to {@link TenantQuotaBeanV2} for tenant quota calculation
  * @author zhaoyim
  *
  */
+@Deprecated
 public class TenantQuotaBean {
 
 	public String tenantId;
@@ -31,6 +32,14 @@ public class TenantQuotaBean {
 	public long topicTTLKafka;
 	public long topicQuotaKafka;
 	public long partitionSizeKafka;
+	
+	public long redis_memory;
+	public long nodes;
+	public long volumeSize;
+	
+	public long storm_memory;
+	public long supervisors;
+	public long workers;
 
 	public TenantQuotaBean() {
 
@@ -40,6 +49,54 @@ public class TenantQuotaBean {
 		this.tenantId = tenant.getId();
 		this.tenantName = tenant.getName();
 		this.tenantQuotaParser(tenant.getQuota());
+	}
+
+	public long getRedis_memory() {
+		return redis_memory;
+	}
+
+	public void setRedis_memory(long redis_memory) {
+		this.redis_memory = redis_memory;
+	}
+
+	public long getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(long nodes) {
+		this.nodes = nodes;
+	}
+
+	public long getVolumeSize() {
+		return volumeSize;
+	}
+
+	public void setVolumeSize(long volumeSize) {
+		this.volumeSize = volumeSize;
+	}
+
+	public long getStorm_memory() {
+		return storm_memory;
+	}
+
+	public void setStorm_memory(long storm_memory) {
+		this.storm_memory = storm_memory;
+	}
+
+	public long getSupervisors() {
+		return supervisors;
+	}
+
+	public void setSupervisors(long supervisors) {
+		this.supervisors = supervisors;
+	}
+
+	public long getWorkers() {
+		return workers;
+	}
+
+	public void setWorkers(long workers) {
+		this.workers = workers;
 	}
 
 	public String getTenantId() {
@@ -152,8 +209,6 @@ public class TenantQuotaBean {
 	 * @param quotaStr
 	 */
 	public void tenantQuotaParser(String quotaStr) {
-		//TODO:
-		
 		Map<String, String> mapHdfs = TenantQuotaUtils.getTenantQuotaByService("hdfs", quotaStr);
 		this.nameSpaceQuotaHdfs = mapHdfs.get("nameSpaceQuota") == null ? 0
 				: Long.parseLong(mapHdfs.get("nameSpaceQuota"));
@@ -185,6 +240,18 @@ public class TenantQuotaBean {
 		this.topicQuotaKafka = mapkafka.get("topicQuota") == null ? 0 : Long.parseLong(mapkafka.get("topicQuota"));
 		this.partitionSizeKafka = mapkafka.get("partitionSize") == null ? 0
 				: Long.parseLong(mapkafka.get("partitionSize"));
+		
+		Map<String, String> redis = TenantQuotaUtils.getTenantQuotaByService("redis", quotaStr);
+		this.redis_memory = redis.get("memory") == null ? 0 : Long.parseLong(redis.get("memory"));
+		this.nodes = redis.get("nodes") == null ? 0 : Long.parseLong(redis.get("nodes"));
+		this.volumeSize = redis.get("volumeSize") == null ? 0
+				: Long.parseLong(redis.get("volumeSize"));
+		
+		Map<String, String> storm = TenantQuotaUtils.getTenantQuotaByService("storm", quotaStr);
+		this.storm_memory = storm.get("memory") == null ? 0 : Long.parseLong(storm.get("memory"));
+		this.supervisors = storm.get("supervisors") == null ? 0 : Long.parseLong(storm.get("supervisors"));
+		this.workers = storm.get("workers") == null ? 0
+				: Long.parseLong(storm.get("workers"));
 
 	}
 

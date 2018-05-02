@@ -6,7 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.rest.bean.TenantQuotaBean;
+import com.asiainfo.ocmanager.rest.bean.TenantQuotaBeanV2;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -57,80 +57,20 @@ public class TenantQuotaUtils {
 	 * @param tenantQuota
 	 * @return
 	 */
-	public static TenantQuotaCheckerResponse checkCanChangeTenant(TenantQuotaBean tenantQuota) {
+	public static TenantQuotaCheckerResponse checkCanChangeTenant(TenantQuotaBeanV2 tenantQuota) {
 		TenantQuotaCheckerResponse checkRes = new TenantQuotaCheckerResponse();
+		checkRes.setCanChange(true);
 		StringBuilder resStr = new StringBuilder();
-		boolean canChange = true;
-
-		// hdfs
-		if (tenantQuota.getNameSpaceQuotaHdfs() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getNameSpaceQuotaHdfs(), "nameSpaceQuota", "hdfs"));
-			canChange = false;
+		tenantQuota.getQuotas().cellSet().forEach(c -> {
+			if (c.getValue() < 0) {
+				checkRes.setCanChange(false);
+				resStr.append(QuotaCommonUtils.logAndResStr(c.getValue(), c.getColumnKey(), c.getRowKey()));
+			}
+		});
+		if (checkRes.isCanChange()) {
+			resStr.append("Tenant passed quota examination!");
 		}
-		if (tenantQuota.getStorageSpaceQuotaHdfs() < 0) {
-			resStr.append(
-					QuotaCommonUtils.logAndResStr(tenantQuota.getStorageSpaceQuotaHdfs(), "storageSpaceQuota", "hdfs"));
-			canChange = false;
-		}
-
-		// hbase
-		if (tenantQuota.getMaximumTablesQuotaHbase() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getMaximumTablesQuotaHbase(), "maximumTablesQuota",
-					"hbase"));
-			canChange = false;
-		}
-		if (tenantQuota.getMaximumRegionsQuotaHbase() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getMaximumRegionsQuotaHbase(),
-					"maximumRegionsQuota", "hbase"));
-			canChange = false;
-		}
-
-		// hive
-		if (tenantQuota.getStorageSpaceQuotaHive() < 0) {
-			resStr.append(
-					QuotaCommonUtils.logAndResStr(tenantQuota.getStorageSpaceQuotaHive(), "storageSpaceQuota", "hive"));
-			canChange = false;
-		}
-		if (tenantQuota.getYarnQueueQuotaHive() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getYarnQueueQuotaHive(), "yarnQueueQuota", "hive"));
-			canChange = false;
-		}
-
-		// mapreduce
-		if (tenantQuota.getYarnQueueQuotaMapreduce() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getYarnQueueQuotaMapreduce(), "yarnQueueQuota",
-					"mapreduce"));
-			canChange = false;
-		}
-
-		// spark
-		if (tenantQuota.getYarnQueueQuotaSpark() < 0) {
-			resStr.append(
-					QuotaCommonUtils.logAndResStr(tenantQuota.getYarnQueueQuotaSpark(), "yarnQueueQuota", "spark"));
-			canChange = false;
-		}
-
-		// kafka
-		if (tenantQuota.getTopicQuotaKafka() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getTopicQuotaKafka(), "topicQuota", "kafka"));
-			canChange = false;
-		}
-		if (tenantQuota.getPartitionSizeKafka() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getPartitionSizeKafka(), "partitionSize", "kafka"));
-			canChange = false;
-		}
-		if (tenantQuota.getTopicTTLKafka() < 0) {
-			resStr.append(QuotaCommonUtils.logAndResStr(tenantQuota.getTopicTTLKafka(), "topicTTL", "kafka"));
-			canChange = false;
-		}
-
-		if (canChange) {
-			resStr.append("can change the tenant!");
-		}
-
-		checkRes.setCanChange(canChange);
 		checkRes.setMessages(resStr.toString());
-
 		return checkRes;
 	}
 
