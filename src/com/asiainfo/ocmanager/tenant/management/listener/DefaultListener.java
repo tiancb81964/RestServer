@@ -76,7 +76,12 @@ public class DefaultListener implements Listener {
 							+ serviceName(instance) + "-" + u.getUserName());
 					thread.start();
 				}
-				TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenant.getTenant().getId(), u.getUserId());
+				// tenant admin should not be removed from userlist, so it can be notified by
+				// Email
+				if (!u.getRoleName().equalsIgnoreCase("tenant.admin")) {
+					TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenant.getTenant().getId(),
+							u.getUserId());
+				}
 			});
 		} catch (Exception e) {
 			LOG.error("Exception while unbinding users from tenant: " + tenant.getTenant().getName(), e);
