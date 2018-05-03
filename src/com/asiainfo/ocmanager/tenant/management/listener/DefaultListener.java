@@ -8,12 +8,11 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
-import com.asiainfo.ocmanager.rest.resource.persistence.TURAssignmentPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
-import com.asiainfo.ocmanager.tenant.management.LifetimeManager;
 import com.asiainfo.ocmanager.tenant.management.LifetimeDetector.TenantEvent;
+import com.asiainfo.ocmanager.tenant.management.LifetimeManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -76,12 +75,9 @@ public class DefaultListener implements Listener {
 							+ serviceName(instance) + "-" + u.getUserName());
 					thread.start();
 				}
-				// tenant admin should not be removed from userlist, so it can be notified by
-				// Email
-				if (!u.getRoleName().equalsIgnoreCase("tenant.admin")) {
-					TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenant.getTenant().getId(),
-							u.getUserId());
-				}
+				//users should not be removed from userlist, just unbinding is good enough.
+				// TURAssignmentPersistenceWrapper.unassignRoleFromUserInTenant(tenant.getTenant().getId(),
+				// u.getUserId());
 			});
 		} catch (Exception e) {
 			LOG.error("Exception while unbinding users from tenant: " + tenant.getTenant().getName(), e);
