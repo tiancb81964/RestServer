@@ -736,7 +736,8 @@ public class UserResource {
 
 				JsonElement action = instanceJson.getAsJsonObject("status").get("action");
 				JsonElement patch = instanceJson.getAsJsonObject("status").get("patch");
-
+				//TODO:
+				System.out.println(">>>>> svcName=" + instace.getServiceName() + ", insName=" + instace.getInstanceName() + " -> phase=" + phase + ", action=" + action + ", patch=" + patch);
 				if (!phase.equals(Constant.FAILURE)) {
 					if (Constant.list.contains(serviceName.toLowerCase())) {
 						if (!binding.isJsonNull()) {
@@ -753,7 +754,9 @@ public class UserResource {
 							} else {
 								if (action == null && patch == null) {
 									AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-											"Failure OR Not Begin");
+											"Authorization Failure OR Not Begin");
+									//TODO
+									System.out.println("$$$ action and patch both null");
 									assignmentInfoBeans.add(AIB);
 								} else {
 									if (patch != null) {
@@ -764,6 +767,8 @@ public class UserResource {
 										} else {
 											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 													"Authorization Running");
+											//TODO:
+											System.out.println("$$$ patch not null and not Failure" + patch);
 											assignmentInfoBeans.add(AIB);
 										}
 									} else {
@@ -771,6 +776,8 @@ public class UserResource {
 												|| action.getAsString().equals(Constant._TOUNBIND)) {
 											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 													"Authorization Running");
+											//TODO:
+											System.out.println("$$$ patch null and action either tobind or tounbind");
 											assignmentInfoBeans.add(AIB);
 										} else {
 											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
@@ -794,6 +801,8 @@ public class UserResource {
 									} else {
 										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 												"Authorization Running");
+										//TODO:
+										System.out.println("$$$ pineapple");
 										assignmentInfoBeans.add(AIB);
 									}
 								} else {
@@ -801,6 +810,8 @@ public class UserResource {
 											|| action.getAsString().equals(Constant._TOUNBIND)) {
 										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 												"Authorization Running");
+										//TODO:
+										System.out.println("$$$ coconut");
 										assignmentInfoBeans.add(AIB);
 									} else {
 										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
@@ -812,7 +823,9 @@ public class UserResource {
 						}
 					} else {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Authorization Success");
+								"Authorization Not Supported for Type: " + instace.getServiceName());
+						//TODO:
+						System.out.println("$$$ not support");
 						assignmentInfoBeans.add(AIB);
 					}
 				}
