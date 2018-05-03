@@ -19,7 +19,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
 /**
- * Created by gq on 17/7/18.
+ * Created by gq on 17/7/18. 
  */	
 public class Authenticator {
     static Logger logger = LoggerFactory.getLogger(Authenticator.class.getName());
