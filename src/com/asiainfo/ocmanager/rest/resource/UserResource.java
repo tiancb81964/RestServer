@@ -818,7 +818,7 @@ public class UserResource {
 					}
 				}
 			}
-
+			logger.info("User: " + userName + ", bsi info: " + assignmentInfoBeans);
 			return Response.ok().entity(assignmentInfoBeans).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
