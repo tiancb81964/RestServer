@@ -48,16 +48,22 @@ public class ServicesDefaultQuotaConf {
 			JsonArray items = servicesJson.getAsJsonArray("items");
 			if (items != null) {
 				for (int i = 0; i < items.size(); i++) {
-					JsonObject spec = items.get(i).getAsJsonObject().getAsJsonObject("spec");
-					String name = spec.get("name").getAsString();
-					JsonArray plan = spec.getAsJsonArray("plans");
+					String name = null;
+					try {
+						JsonObject spec = items.get(i).getAsJsonObject().getAsJsonObject("spec");
+						name = spec.get("name").getAsString();
+						JsonArray plan = spec.getAsJsonArray("plans");
 
-					for (int j = 0; j < plan.size(); j++) {
-						JsonObject metadata = plan.get(j).getAsJsonObject().getAsJsonObject("metadata");
-						if (!metadata.get("customize").isJsonNull()) {
-							servicesDefaultQuota.put(name.toLowerCase(),
-									parserServiceQuota(name.toLowerCase(), metadata.getAsJsonObject("customize")));
+						for (int j = 0; j < plan.size(); j++) {
+							JsonObject metadata = plan.get(j).getAsJsonObject().getAsJsonObject("metadata");
+							if (!metadata.get("customize").isJsonNull()) {
+								servicesDefaultQuota.put(name.toLowerCase(),
+										parserServiceQuota(name.toLowerCase(), metadata.getAsJsonObject("customize")));
+							}
 						}
+					} catch (Exception e) {
+						logger.error("Exception while initialize service default quota: " + name, e);
+						throw new RuntimeException("Exception while initialize service default quota: " + name, e);
 					}
 				}
 			}
@@ -92,8 +98,6 @@ public class ServicesDefaultQuotaConf {
 
 			quotaMap.put("storageSpaceQuota",
 					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
-			quotaMap.put("yarnQueueQuota",
-					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
 
 			break;
 		case "mapreduce":
