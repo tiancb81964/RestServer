@@ -42,7 +42,7 @@ public interface TenantUserRoleAssignmentMapper {
 	 * @param tenantId
 	 * @return
 	 */
-	public TenantUserRoleAssignment getTenantAdmin(@Param("tenantId")String tenantId);
+	public List<TenantUserRoleAssignment> getTenantAdmin(@Param("tenantId")String tenantId);
 	
 	/**
 	 * get all users under tenant

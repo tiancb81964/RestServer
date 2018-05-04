@@ -66,6 +66,10 @@ public class TenantResourceUnAssignRoleExecutor implements Runnable {
 						logger.info(
 								"TenantResourceUnAssignRoleExecutor -> unbinding successfully with user: {} on instance: {}",
 								userName, instanceName);
+					} else {
+						logger.error(
+								"TenantResourceUnAssignRoleExecutor -> unbinding error with user: {} on instance: {}, error code: {}, msgs: {}",
+								userName, instanceName, bindingRes.getResCodel(), bindingRes.getMessage());
 					}
 				}
 			}

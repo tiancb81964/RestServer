@@ -72,6 +72,9 @@ public class TenantQuotaBeanV2 {
 	public void plusOtherTenantQuota(TenantQuotaBeanV2 otherTenantQuota) {
 		otherTenantQuota.svcquot.cellSet().forEach(o -> {
 			Long value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
+			if (value == null) {
+				return;
+			}
 			this.svcquot.put(o.getRowKey(), o.getColumnKey(), value + o.getValue());
 		});
 	}
@@ -84,6 +87,9 @@ public class TenantQuotaBeanV2 {
 	public void minusOtherTenantQuota(TenantQuotaBeanV2 otherTenantQuota) {
 		otherTenantQuota.svcquot.cellSet().forEach(o -> {
 			Long value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
+			if (value == null) {
+				return;
+			}
 			this.svcquot.put(o.getRowKey(), o.getColumnKey(), value - o.getValue());
 		});
 	}

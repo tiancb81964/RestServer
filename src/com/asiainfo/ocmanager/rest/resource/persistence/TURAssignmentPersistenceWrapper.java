@@ -79,9 +79,9 @@ public class TURAssignmentPersistenceWrapper {
 		}
 	}
 	
-	public static TenantUserRoleAssignment getTenantAdmin(String tenantId) {
+	public static List<TenantUserRoleAssignment> getTenantAdmin(String tenantId) {
 		SqlSession session = DBConnectorFactory.getSession();
-		TenantUserRoleAssignment assignment;
+		List<TenantUserRoleAssignment> assignment;
 		try {
 			TenantUserRoleAssignmentMapper mapper = session.getMapper(TenantUserRoleAssignmentMapper.class);
 			assignment = mapper.getTenantAdmin(tenantId);

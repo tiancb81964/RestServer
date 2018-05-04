@@ -731,99 +731,173 @@ public class UserResource {
 				JsonObject instanceJson = instanceJE.getAsJsonObject();
 				JsonObject spec = instanceJson.getAsJsonObject("spec");
 				String phase = instanceJson.getAsJsonObject("status").get("phase").getAsString();
-				JsonElement binding = spec.get("binding");
+//				JsonElement binding = spec.get("binding");
 				String serviceName = spec.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
-
 				JsonElement action = instanceJson.getAsJsonObject("status").get("action");
 				JsonElement patch = instanceJson.getAsJsonObject("status").get("patch");
-
-				if (!phase.equals(Constant.FAILURE)) {
-					if (Constant.list.contains(serviceName.toLowerCase())) {
-						if (!binding.isJsonNull()) {
-							JsonArray bindingArray = spec.getAsJsonArray("binding");
-							List<String> bindingedUserNames = new ArrayList<String>();
-							for (JsonElement je : bindingArray) {
-								String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-								bindingedUserNames.add(bindingUserName);
-							}
-							if (bindingedUserNames.contains(userName)) {
-								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-										"Authorization Success");
-								assignmentInfoBeans.add(AIB);
-							} else {
-								if (action == null && patch == null) {
-									AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-											"Failure OR Not Begin");
-									assignmentInfoBeans.add(AIB);
-								} else {
-									if (patch != null) {
-										if (patch.getAsString().equals(Constant.FAILURE)) {
-											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-													"Failure OR Not Begin");
-											assignmentInfoBeans.add(AIB);
-										} else {
-											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-													"Authorization Running");
-											assignmentInfoBeans.add(AIB);
-										}
-									} else {
-										if (action.getAsString().equals(Constant._TOBIND)
-												|| action.getAsString().equals(Constant._TOUNBIND)) {
-											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-													"Authorization Running");
-											assignmentInfoBeans.add(AIB);
-										} else {
-											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-													"Failure OR Not Begin");
-											assignmentInfoBeans.add(AIB);
-										}
-									}
-								}
-							}
-						} else {
-							if (action == null && patch == null) {
-								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-										"Failure OR Not Begin");
-								assignmentInfoBeans.add(AIB);
-							} else {
-								if (patch != null) {
-									if (patch.getAsString().equals(Constant.FAILURE)) {
-										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-												"Failure OR Not Begin");
-										assignmentInfoBeans.add(AIB);
-									} else {
-										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-												"Authorization Running");
-										assignmentInfoBeans.add(AIB);
-									}
-								} else {
-									if (action.getAsString().equals(Constant._TOBIND)
-											|| action.getAsString().equals(Constant._TOUNBIND)) {
-										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-												"Authorization Running");
-										assignmentInfoBeans.add(AIB);
-									} else {
-										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-												"Failure OR Not Begin");
-										assignmentInfoBeans.add(AIB);
-									}
-								}
-							}
-						}
-					} else {
+				String actionString = action == null ? null :action.getAsString();
+				String patchString = patch == null ? null :patch.getAsString();
+				
+//				if (!phase.equals(Constant.FAILURE)) {
+//					if (Constant.list.contains(serviceName.toLowerCase())) {
+//						if (!binding.isJsonNull()) {
+//							JsonArray bindingArray = spec.getAsJsonArray("binding");
+//							List<String> bindingedUserNames = new ArrayList<String>();
+//							for (JsonElement je : bindingArray) {
+//								String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
+//								bindingedUserNames.add(bindingUserName);
+//							}
+//							if (bindingedUserNames.contains(userName)) {
+//								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//										"Authorization Success", phase, actionString, patchString);
+//								assignmentInfoBeans.add(AIB);
+//							} else {
+//								if (action == null && patch == null) {
+//									AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//											"Authorization Failure OR Not Begin", phase, actionString, patchString);
+//									assignmentInfoBeans.add(AIB);
+//								} else {
+//									if (patch != null) {
+//										if (patch.getAsString().equals(Constant.FAILURE)) {
+//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//													"Failure OR Not Begin", phase, actionString, patchString);
+//											assignmentInfoBeans.add(AIB);
+//										} else {
+//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//													"Authorization Running", phase, actionString, patchString);
+//											assignmentInfoBeans.add(AIB);
+//										}
+//									} else {
+//										if (action.getAsString().equals(Constant._TOBIND)
+//												|| action.getAsString().equals(Constant._TOUNBIND)) {
+//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//													"Authorization Running", phase, actionString, patchString);
+//											assignmentInfoBeans.add(AIB);
+//										} else {
+//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//													"Failure OR Not Begin", phase, actionString, patchString);
+//											assignmentInfoBeans.add(AIB);
+//										}
+//									}
+//								}
+//							}
+//						} else {
+//							if (action == null && patch == null) {
+//								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//										"Failure OR Not Begin", phase, actionString, patchString);
+//								assignmentInfoBeans.add(AIB);
+//							} else {
+//								if (patch != null) {
+//									if (patch.getAsString().equals(Constant.FAILURE)) {
+//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//												"Failure OR Not Begin", phase, actionString, patchString);
+//										assignmentInfoBeans.add(AIB);
+//									} else {
+//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//												"Authorization Running", phase, actionString, patchString);
+//										assignmentInfoBeans.add(AIB);
+//									}
+//								} else {
+//									if (action.getAsString().equals(Constant._TOBIND)
+//											|| action.getAsString().equals(Constant._TOUNBIND)) {
+//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//												"Authorization Running", phase, actionString, patchString);
+//										assignmentInfoBeans.add(AIB);
+//									} else {
+//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//												"Failure OR Not Begin", phase, actionString, patchString);
+//										assignmentInfoBeans.add(AIB);
+//									}
+//								}
+//							}
+//						}
+//					} else {
+//						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+//								"Authorization Not Supported for service: " + instace.getServiceName(), phase, actionString, patchString);
+//						assignmentInfoBeans.add(AIB);
+//					}
+//				}
+				
+				if (!Constant.list.contains(serviceName.toLowerCase())) {
+					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+							"Do Not Support Privilege Assignment", phase, actionString, patchString);
+					assignmentInfoBeans.add(AIB);
+					continue;
+				}
+				
+				switch (phase) {
+				case Constant.UNBOUND:
+					if (patch == null && action != null && action.getAsString().equals(Constant._TOBIND)) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Authorization Success");
+								"Privilege Assignment Running", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);	
+					}else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Privilege Not Assigned", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					}else if (patch == null && action == null) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Privilege Not Assigned", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					}else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Unknown BSI Status", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					} 
+					break;
+				case Constant.BOUND:
+					if (inList(spec, userName)) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Privilege Assigned", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);					
+					}else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Privilege Unassignment Running", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);	
+					}else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Unknown BSI Status", phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
 					}
+					break;
+				case Constant.FAILURE:
+					if (action == null && patch == null) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"BSI Provision Failed", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);					}
+					else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Unknown BSI Status", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					}
+					break;
+				default:
+					logger.error("Unkonwn <phase> status: " + phase);
+					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+							"Unknown BSI Status", phase, actionString, patchString);
+					assignmentInfoBeans.add(AIB);
+					break;
 				}
 			}
-
+			logger.info("User: " + userName + ", BSI infos: " + assignmentInfoBeans);
 			return Response.ok().entity(assignmentInfoBeans).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getAssignmentsInfoForUser hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private boolean inList(JsonObject spec, String userName) {
+		List<String> bindingedUserNames = new ArrayList<String>();
+		JsonArray bindingArray = spec.getAsJsonArray("binding");
+		if (bindingArray != null) {
+			for (JsonElement je : bindingArray) {
+				String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
+				bindingedUserNames.add(bindingUserName);
+			}	
+		}
+		return bindingedUserNames.contains(userName);
 	}
 
 }

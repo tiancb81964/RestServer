@@ -30,22 +30,24 @@ public class EmailNotifyListener implements Listener {
 
 	@Override
 	public void handleDue(TenantEvent e) {
-		User admin = getAdmin(e);
-		if (admin == null) {
+		List<User> admins = getAdmins(e);
+		if (admins == null || admins.isEmpty()) {
 			LOG.warn("Can not send email due to no tenant-admin found in tenant: " + e.getTenant().getName());
 			return;
 		}
-		String toEmail = admin.getEmail();
-		if (Strings.isNullOrEmpty(toEmail)) {
-			LOG.warn("Can not send email due to email address is null for user: " + admin.getUsername());
-			return;
-		}
-		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper
-				.getServiceInstancesInTenant(e.getTenant().getId());
-		List<TenantUserRoleAssignment> userList = TURAssignmentPersistenceWrapper.getUsers(e.getTenant().getId());
-		String textbody = getTextBody(e, admin, instances, userList);
-		MailClient.getInstance().sendMsgs(toEmail, SUBJECT, textbody);
-		LOG.info("Mail been sent to: " + toEmail + ", notifying event: " + e);
+		admins.forEach(a -> {
+			String toEmail = a.getEmail();
+			if (Strings.isNullOrEmpty(toEmail)) {
+				LOG.warn("Can not send email due to email address is null for user: " + a.getUsername());
+				return;
+			}
+			List<ServiceInstance> instances = ServiceInstancePersistenceWrapper
+					.getServiceInstancesInTenant(e.getTenant().getId());
+			List<TenantUserRoleAssignment> userList = TURAssignmentPersistenceWrapper.getUsers(e.getTenant().getId());
+			String textbody = getTextBody(e, a, instances, userList);
+			MailClient.getInstance().sendMsgs(toEmail, SUBJECT, textbody);
+			LOG.info("Mail been sent to: " + toEmail + ", notifying event: " + e);
+		});
 	}
 
 	private String getTextBody(TenantEvent e, User admin, List<ServiceInstance> instances,
@@ -73,13 +75,17 @@ public class EmailNotifyListener implements Listener {
 		return builder.toString();
 	}
 
-	private User getAdmin(TenantEvent e) {
-		TenantUserRoleAssignment tur = TURAssignmentPersistenceWrapper.getTenantAdmin(e.getTenant().getId());
-		if (tur == null) {
+	private List<User> getAdmins(TenantEvent e) {
+		List<TenantUserRoleAssignment> turs = TURAssignmentPersistenceWrapper.getTenantAdmin(e.getTenant().getId());
+		if (turs == null) {
 			return null;
 		}
-		User user = UserPersistenceWrapper.getUserById(tur.getUserId());
-		return user;
+		List<User> users = Lists.newArrayList();
+		turs.forEach(t -> {
+			User user = UserPersistenceWrapper.getUserById(t.getUserId());
+			users.add(user);
+		});
+		return users;
 	}
 
 	/**
