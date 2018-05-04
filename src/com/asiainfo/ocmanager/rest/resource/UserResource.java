@@ -820,7 +820,7 @@ public class UserResource {
 				
 				if (!Constant.list.contains(serviceName.toLowerCase())) {
 					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-							"Do Not Support Privilege Assignment", phase, actionString, patchString);
+							"Unsupportive For Privilege Assignment", phase, actionString, patchString);
 					assignmentInfoBeans.add(AIB);
 					continue;
 				}
