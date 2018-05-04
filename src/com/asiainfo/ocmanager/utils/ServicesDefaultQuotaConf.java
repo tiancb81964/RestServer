@@ -98,8 +98,6 @@ public class ServicesDefaultQuotaConf {
 
 			quotaMap.put("storageSpaceQuota",
 					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("storageSpaceQuota")));
-			quotaMap.put("yarnQueueQuota",
-					new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("yarnQueueQuota")));
 
 			break;
 		case "mapreduce":
