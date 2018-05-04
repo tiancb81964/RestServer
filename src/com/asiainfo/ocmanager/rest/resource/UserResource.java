@@ -831,8 +831,11 @@ public class UserResource {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Assignment Running", phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);	
-					}
-					else if (patch == null && action == null) {
+					}else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+								"Privilege Not Assigned", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					}else if (patch == null && action == null) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Not Assigned", phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
