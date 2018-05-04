@@ -79,4 +79,10 @@ public class Constant {
 	public static final String KERBEROS_KDC_HOST = "kerberos.kdc.host";
 	public static final String KERBEROS_REALM = "kerberos.realm";
 
+	/*****************************************************************/
+	/********************** sso properties const *********************/
+	/*****************************************************************/
+	public static final String PRD_SSO_VALIDATE_URL = "prd.sso.validate.url";
+
+
 }
