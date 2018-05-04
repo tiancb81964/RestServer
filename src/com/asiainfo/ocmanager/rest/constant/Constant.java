@@ -37,7 +37,8 @@ public class Constant {
 	/*****************************************************************/
 	// ocdp service name list
 	public static final String OCDP_SERVICES = "oc.ocdp.services";
-	public static final List<String> list = Arrays.asList(ServerConfiguration.getConf().getProperty(OCDP_SERVICES).split(","));
+	public static final List<String> list = Arrays
+			.asList(ServerConfiguration.getConf().getProperty(OCDP_SERVICES).split(","));
 	public static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
 			"project.admin");
 
@@ -52,11 +53,11 @@ public class Constant {
 
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
-	
+
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";
 	public static final String SEMICOLON = ";";
-	
+
 	// prefix for parameters
 	public static final String ATTRIBUTES = "ATTR_";
 
@@ -70,21 +71,27 @@ public class Constant {
 	/*****************************************************************/
 	/***************** kerberos properties const *********************/
 	/*****************************************************************/
-	public static final String KERBEROS_USER_PRINCIPAL="kerberos.user.principal";
-	public static final String KERBEROS_KRB5_LOCATION="kerberos.krb5.location";
-	public static final String KERBEROS_ADMIN_PASSWORD="kerberos.admin.password";
-	public static final String KERBEROS_KDC_HOST="kerberos.kdc.host";
-	public static final String KERBEROS_REALM="kerberos.realm";
-	
+	public static final String KERBEROS_USER_PRINCIPAL = "kerberos.user.principal";
+	public static final String KERBEROS_KRB5_LOCATION = "kerberos.krb5.location";
+	public static final String KERBEROS_ADMIN_PASSWORD = "kerberos.admin.password";
+	public static final String KERBEROS_KDC_HOST = "kerberos.kdc.host";
+	public static final String KERBEROS_REALM = "kerberos.realm";
+
 	public static final String KAFKA_SERVICENAME = "oc.kafka.serviceName";
 	public static final String RM_HTTP = "oc.yarn.resourcemanager.http.url";
-	
+
 	public static final String RANGER_HOSTS = "oc.ranger.hosts";
 	public static final String RANGER_PORT = "oc.ranger.port";
 	public static final String RANGER_ADMIN = "oc.ranger.admin";
 	public static final String RANGER_PASSWD = "oc.ranger.admin.password";
-	
+
 	public static final String HDP_VERSION = "oc.hdp.version";
-	
+
 	public static final String LIFETIME_LISTENERS = "oc.tenant.lifetime.manager.listeners";
+
+	/*****************************************************************/
+	/********************** sso properties const *********************/
+	/*****************************************************************/
+	public static final String PRD_SSO_VALIDATE_URL = "prd.sso.validate.url";
+
 }
