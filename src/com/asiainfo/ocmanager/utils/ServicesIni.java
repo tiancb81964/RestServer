@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 
 /**
  * New server configuration
+ * 
  * @author Ethan
  *
  */
@@ -25,7 +26,7 @@ public class ServicesIni {
 	private static String PATH;
 	private Map<String, Section> conf;
 	private static ServicesIni instance;
-	
+
 	static {
 		try {
 			String base = ServicesIni.class.getResource("/").getPath() + ".." + File.separator;
@@ -39,7 +40,7 @@ public class ServicesIni {
 			throw new RuntimeException("Exception while init class: ", e);
 		}
 	}
-	
+
 	public static ServicesIni getInstance() {
 		if (instance == null) {
 			synchronized (ServicesIni.class) {
@@ -50,24 +51,25 @@ public class ServicesIni {
 		}
 		return instance;
 	}
-	
+
 	private ServicesIni() {
 		init();
 	}
-	
+
 	/**
 	 * Get all configurations grouping by services.
+	 * 
 	 * @return
 	 */
 	public Map<String, Properties> getAllProperties() {
 		Map<String, Properties> map = Maps.newHashMap();
-		this.conf.forEach((k,v) -> {
+		this.conf.forEach((k, v) -> {
 			map.put(k, getProperties(k));
 		});
 		return map;
 	}
-	
-	private void init(){
+
+	private void init() {
 		conf = Maps.newHashMap();
 		try {
 			Wini file = new Wini(new File(PATH));
@@ -82,14 +84,15 @@ public class ServicesIni {
 			throw new RuntimeException("Error while parsing config file: " + PATH, e);
 		}
 	}
-	
+
 	public static void main(String[] args) throws InvalidFileFormatException, IOException {
 		String v = ServicesIni.getInstance().getProperty("newSection", "kkk");
 		System.out.println("end of mian: " + v);
 	}
-	
+
 	/**
 	 * Get properties of certain section
+	 * 
 	 * @param section
 	 * @return
 	 */
@@ -102,9 +105,10 @@ public class ServicesIni {
 		}
 		return prop;
 	}
-	
+
 	/**
 	 * Get property by the specified key of specified section
+	 * 
 	 * @param section
 	 * @param key
 	 * @return
