@@ -15,8 +15,11 @@ import com.google.common.collect.Table;
  *
  */
 public class CatalogSynchronizer {
+	
 	private static final Logger LOG = LoggerFactory.getLogger(CatalogSynchronizer.class);
+	
 	private static Catalog catalog;
+	
 	static {
 		try {
 			catalog = Catalog.getInstance();
