@@ -27,7 +27,7 @@ public class CatalogSynchronizer {
 	}
 
 	/**
-	 * Synchronize catalog quotas with tenants in DB
+	 * Synchronize catalog quotas to tenants in DB
 	 */
 	public static void syncWithTenants() {
 		catalog.listAllServices().values().forEach(s -> {
