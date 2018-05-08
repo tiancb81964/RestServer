@@ -1,16 +1,16 @@
 package com.asiainfo.ocmanager.utils;
 
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 
 /**
  * Sync up catalog with resources
+ * 
  * @author Ethan
  *
  */
@@ -25,9 +25,9 @@ public class CatalogSynchronizer {
 			throw new RuntimeException("Exception while init class: ", e);
 		}
 	}
-	
+
 	/**
-	 * Synchronize catalog quotas with tenants in DB 
+	 * Synchronize catalog quotas with tenants in DB
 	 */
 	public static void syncWithTenants() {
 		catalog.listAllServices().values().forEach(s -> {
@@ -35,23 +35,21 @@ public class CatalogSynchronizer {
 			updateTenants(s, quotas);
 		});
 	}
-		
 
 	private static void updateTenants(String s, List<String> quotas) {
 		TenantPersistenceWrapper.getAllTenants().forEach(t -> {
-			Multimap<String, String> tenantQuotas = QuotaParser.parse(t.getQuota());
-			if (!tenantQuotas.containsKey(s)) {
-				tenantQuotas.put(s, defaultQuota(quotas));
+			Table<String, String, String> tenantQuotas = QuotaParser.parse(t.getQuota());
+			if (!tenantQuotas.containsRow(s)) {
+				append(tenantQuotas, s, quotas);
 			}
 			t.setQuota(QuotaParser.toString(tenantQuotas));
 			TenantPersistenceWrapper.updateTenant(t);
 		});
 	}
 
-
-	private static String defaultQuota(List<String> quotas) {
-		// TODO Auto-generated method stub
-		return null;
+	private static void append(Table<String, String, String> tenantQuotas, String s, List<String> quotas) {
+		quotas.forEach(q -> {
+			tenantQuotas.put(s, q, String.valueOf(0));
+		});
 	}
-	
 }
