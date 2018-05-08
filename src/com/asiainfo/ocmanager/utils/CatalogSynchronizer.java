@@ -41,10 +41,10 @@ public class CatalogSynchronizer {
 			Table<String, String, Number> tenantQuotas = QuotaParser.parse(t.getQuota());
 			if (!tenantQuotas.containsRow(s)) {
 				appendNewService(tenantQuotas, s, quotas);
-				LOG.info("New service [{}] appended to tenant quota [{}]", s, tenantQuotas);
+				t.setQuota(QuotaParser.toString(tenantQuotas));
+				LOG.info("New service [{}] appended to tenant [{}]'s quota: [{}]", s, t.getName(), tenantQuotas);
+				TenantPersistenceWrapper.updateTenant(t);
 			}
-			t.setQuota(QuotaParser.toString(tenantQuotas));
-			TenantPersistenceWrapper.updateTenant(t);
 		});
 	}
 
