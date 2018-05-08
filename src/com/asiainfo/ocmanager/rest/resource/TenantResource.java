@@ -918,6 +918,11 @@ public class TenantResource {
 						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
 						.build();
 			}
+			
+			if (!isLeafTenant(tenantId)) {
+				return Response.status(Status.NOT_ACCEPTABLE)
+						.entity("The tenant can not be deleted, because it have sub-tenants.").build();
+			}
 
 			// if have instances can not be deleted
 			if (hasInstances(tenantId)) {
@@ -971,6 +976,14 @@ public class TenantResource {
 			logger.error("deleteTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private boolean isLeafTenant(String tenantId) {
+		List<Tenant> children = TenantPersistenceWrapper.getChildrenTenants(tenantId);
+		if (children == null || children.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 	private boolean hasInstances(String tenantId) {
