@@ -8,15 +8,16 @@ import java.util.Properties;
 
 /**
  * RestServer configuration.
+ * 
  * @author EthanWang
  *
  */
 public class ServerConfiguration {
 	private static Properties conf;
-	
-	public static Properties getConf(){
+
+	public static Properties getConf() {
 		if (conf == null) {
-			synchronized(ServerConfiguration.class){
+			synchronized (ServerConfiguration.class) {
 				if (conf == null) {
 					new ServerConfiguration();
 				}
@@ -24,8 +25,8 @@ public class ServerConfiguration {
 		}
 		return conf;
 	}
-	
-	private ServerConfiguration(){
+
+	private ServerConfiguration() {
 		loadConf();
 	}
 
@@ -36,12 +37,11 @@ public class ServerConfiguration {
 			String confpath = base + "conf" + File.separator + "server.properties";
 			inputStream = new FileInputStream(new File(confpath));
 			conf = new Properties();
-			conf.load(inputStream);	
+			conf.load(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
-		}
-		finally {
+		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();

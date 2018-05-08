@@ -8,15 +8,16 @@ import java.util.Properties;
 
 /**
  * Mail server properties.
+ * 
  * @author EthanWang
  *
  */
 public class MailServerProperties {
 	private static Properties conf;
-	
-	public static Properties getConf(){
+
+	public static Properties getConf() {
 		if (conf == null) {
-			synchronized(MailServerProperties.class){
+			synchronized (MailServerProperties.class) {
 				if (conf == null) {
 					new MailServerProperties();
 				}
@@ -24,8 +25,8 @@ public class MailServerProperties {
 		}
 		return conf;
 	}
-	
-	private MailServerProperties(){
+
+	private MailServerProperties() {
 		loadConf();
 	}
 
@@ -36,12 +37,11 @@ public class MailServerProperties {
 			String confpath = base + "conf" + File.separator + "mailserver.properties";
 			inputStream = new FileInputStream(new File(confpath));
 			conf = new Properties();
-			conf.load(inputStream);	
+			conf.load(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
-		}
-		finally {
+		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();

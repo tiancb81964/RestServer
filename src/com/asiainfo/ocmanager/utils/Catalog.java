@@ -45,8 +45,8 @@ public class Catalog {
 		}
 		return instance;
 	}
-	
-	public List<String> getServiceQuotaKeys(String servicename){
+
+	public List<String> getServiceQuotaKeys(String servicename) {
 		if (!services.containsKey(servicename)) {
 			LOG.error("Service not found in catalog: " + servicename);
 			throw new RuntimeException("Service not found in catalog: " + servicename);
@@ -75,9 +75,10 @@ public class Catalog {
 
 	/**
 	 * List all available services.
+	 * 
 	 * @return multimap with key=serviceType, value=servicesList
 	 */
-	public Multimap<String, String> listAllServices(){
+	public Multimap<String, String> listAllServices() {
 		Multimap<String, String> map = HashMultimap.create();
 		for (JsonObject service : services.values()) {
 			JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
@@ -87,13 +88,14 @@ public class Catalog {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Get all services by the specified type
+	 * 
 	 * @param type
 	 * @return
 	 */
-	public Set<String> getServices(String type){
+	public Set<String> getServices(String type) {
 		Collection<String> ss = listAllServices().get(type);
 		return Sets.newHashSet(ss);
 	}
@@ -151,7 +153,8 @@ public class Catalog {
 		if (type != null) {
 			return type.getAsString().toLowerCase();
 		} else {
-			LOG.debug("Can NOT find the service type in the Catalog, set the service type using the service name: " + serviceName);
+			LOG.debug("Can NOT find the service type in the Catalog, set the service type using the service name: "
+					+ serviceName);
 			return serviceName.toLowerCase();
 		}
 	}

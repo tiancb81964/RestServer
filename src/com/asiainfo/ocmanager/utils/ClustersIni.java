@@ -38,12 +38,13 @@ public class ClustersIni {
 			throw new RuntimeException("Exception while init class: ", e);
 		}
 	}
-	
+
 	/**
 	 * Get clusters
+	 * 
 	 * @return
 	 */
-	public Map<String, ClusterConfig> getClusters(){
+	public Map<String, ClusterConfig> getClusters() {
 		return conf;
 	}
 
@@ -76,11 +77,6 @@ public class ClustersIni {
 			LOG.error("Error while parsing config file: " + PATH, e);
 			throw new RuntimeException("Error while parsing config file: " + PATH, e);
 		}
-	}
-
-	public static void main(String[] args) throws InvalidFileFormatException, IOException {
-		System.out
-				.println("end of mian: " + ClustersIni.getInstance().getCluster("ochadoop_mycluster").getProperties());
 	}
 
 	/**
