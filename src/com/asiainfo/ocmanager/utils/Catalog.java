@@ -47,7 +47,7 @@ public class Catalog {
 	}
 
 	public List<String> getServiceQuotaKeys(String servicename) {
-		if (!services.containsKey(servicename)) {
+		if (!services.containsKey(servicename.toLowerCase())) {
 			LOG.error("Service not found in catalog: " + servicename);
 			throw new RuntimeException("Service not found in catalog: " + servicename);
 		}
@@ -84,7 +84,7 @@ public class Catalog {
 			JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
 			JsonPrimitive name = service.getAsJsonObject("spec").getAsJsonPrimitive("name");
 			JsonPrimitive type = sm.getAsJsonPrimitive("type") == null ? name : sm.getAsJsonPrimitive("type");
-			map.put(type.getAsString(), name.getAsString());
+			map.put(type.getAsString(), name.getAsString().toLowerCase());
 		}
 		return map;
 	}
@@ -128,7 +128,7 @@ public class Catalog {
 	 * @return
 	 */
 	public JsonObject getServiceByName(String serviceName) {
-		return services.get(serviceName);
+		return services.get(serviceName.toLowerCase());
 	}
 
 	public JsonObject getJson() {
