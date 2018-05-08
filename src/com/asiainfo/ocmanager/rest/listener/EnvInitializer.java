@@ -10,6 +10,7 @@ import com.asiainfo.ocmanager.security.AuthenticatorManager;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.service.client.v2.ServiceClientPool;
 import com.asiainfo.ocmanager.tenant.management.LifetimeManager;
+import com.asiainfo.ocmanager.utils.CatalogSynchronizer;
 
 /**
  * Initialize env at start-up
@@ -31,6 +32,7 @@ public class EnvInitializer implements ServletContextListener {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		CatalogSynchronizer.syncWithTenants();
 	}
 
 	@Override
