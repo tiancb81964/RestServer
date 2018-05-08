@@ -19,25 +19,36 @@ import com.asiainfo.ocmanager.utils.CatalogSynchronizer;
  *
  */
 public class EnvInitializer implements ServletContextListener {
+	
 	private static final Logger LOG = LoggerFactory.getLogger(EnvInitializer.class);
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
+		
 		LOG.info("EnvInitializer initializing ...");
-		AuthenticatorManager.getInstance().start();
-		ServiceClientPool.getInstance();
-		LifetimeManager.getInstance().start();
 		try {
-			Class.forName(ResourcePeekerFactory.class.getName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			AuthenticatorManager.getInstance().start();
+			
+			ServiceClientPool.getInstance();
+			
+			LifetimeManager.getInstance().start();
+			
+			try {
+				Class.forName(ResourcePeekerFactory.class.getName());
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+//			CatalogSynchronizer.syncWithTenants();
+		} catch (Exception e) {
+			LOG.error("Exception while init environment: ", e);
+			throw new RuntimeException("Exception while init environment: ", e);
 		}
-		CatalogSynchronizer.syncWithTenants();
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		LOG.info("EnvInitializer re-initializing ...");
-		
+
 	}
 }

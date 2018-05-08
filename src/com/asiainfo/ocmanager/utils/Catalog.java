@@ -48,8 +48,8 @@ public class Catalog {
 
 	public List<String> getServiceQuotaKeys(String servicename) {
 		if (!services.containsKey(servicename.toLowerCase())) {
-			LOG.error("Service not found in catalog: " + servicename);
-			throw new RuntimeException("Service not found in catalog: " + servicename);
+			LOG.error("Service not found in catalog: " + servicename.toLowerCase());
+			throw new RuntimeException("Service not found in catalog: " + servicename.toLowerCase());
 		}
 		JsonObject service = services.get(servicename);
 		JsonElement plan = service.getAsJsonObject("spec").getAsJsonArray("plans").get(0);
