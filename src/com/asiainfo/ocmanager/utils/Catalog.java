@@ -54,8 +54,9 @@ public class Catalog {
 		JsonObject service = services.get(servicename);
 		JsonElement plan = service.getAsJsonObject("spec").getAsJsonArray("plans").get(0);
 		JsonObject meta = plan.getAsJsonObject().getAsJsonObject("metadata");
+		JsonObject cuz = meta.getAsJsonObject("customize");
 		List<String> list = new ArrayList<>();
-		meta.entrySet().forEach(e -> {
+		cuz.entrySet().forEach(e -> {
 			list.add(e.getKey());
 		});
 		return list;
@@ -115,10 +116,9 @@ public class Catalog {
 	}
 
 	public static void main(String[] args) {
-		String type = Catalog.getInstance().getServiceType("hdfs");
-		System.out.println(">>> HDFSon111 service type: " + type);
-
 		System.out.println(">>> all services： " + Catalog.getInstance().listAllServices());
+		List<String> keys = Catalog.getInstance().getServiceQuotaKeys("hbase_testcluster1");
+		System.out.println(">>>end of main: " + keys);
 	}
 
 	/**
