@@ -17,6 +17,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -52,12 +53,18 @@ public class Catalog {
 			throw new RuntimeException("Service not found in catalog: " + servicename.toLowerCase());
 		}
 		JsonObject service = services.get(servicename);
-		JsonElement plan = service.getAsJsonObject("spec").getAsJsonArray("plans").get(0);
-		JsonObject meta = plan.getAsJsonObject().getAsJsonObject("metadata");
-		JsonObject cuz = meta.getAsJsonObject("customize");
+		JsonArray plans = service.getAsJsonObject("spec").getAsJsonArray("plans");
 		List<String> list = new ArrayList<>();
-		cuz.entrySet().forEach(e -> {
-			list.add(e.getKey());
+		plans.forEach(p -> {
+			JsonObject meta = p.getAsJsonObject().getAsJsonObject("metadata");
+			JsonElement cuz = meta.get("customize");
+			if (cuz instanceof JsonNull) {
+				return;
+			}
+			JsonObject jobj = (JsonObject)cuz;
+			jobj.entrySet().forEach(e -> {
+				list.add(e.getKey());
+			});
 		});
 		return list;
 	}
@@ -116,9 +123,17 @@ public class Catalog {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(">>> all services： " + Catalog.getInstance().listAllServices());
-		List<String> keys = Catalog.getInstance().getServiceQuotaKeys("hbase_testcluster1");
-		System.out.println(">>>end of main: " + keys);
+		Collection<String> svc = Catalog.getInstance().listAllServices().values();
+		svc.forEach(s -> {
+			try {
+				List<String> keys = Catalog.getInstance().getServiceQuotaKeys(s);
+				System.out.println(">>> " + s + "->" + keys);
+			} catch (Exception e) {
+				System.out.println("ERROR: " + s );
+			}
+
+		});
+
 	}
 
 	/**
