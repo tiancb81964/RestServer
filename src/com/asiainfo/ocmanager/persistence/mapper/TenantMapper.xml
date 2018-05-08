@@ -33,7 +33,7 @@
 		update tenants set
 		description = #{description},
 		quota = #{quota},
-		dueTime = #{dueTime},
+		dueTime = #{dueTime}
 		where id = #{id}
 	</update>
 	<!-- delete tenant -->
