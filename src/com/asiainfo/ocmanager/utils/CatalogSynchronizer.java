@@ -31,25 +31,26 @@ public class CatalogSynchronizer {
 	 */
 	public static void syncWithTenants() {
 		catalog.listAllServices().values().forEach(s -> {
-			List<String> quotas = catalog.getServiceQuotaKeys(s);
-			updateTenants(s, quotas);
+			syncToTenants(s);
 		});
 	}
 
-	private static void updateTenants(String s, List<String> quotas) {
+	private static void syncToTenants(String s) {
+		List<String> quotas = catalog.getServiceQuotaKeys(s);
 		TenantPersistenceWrapper.getAllTenants().forEach(t -> {
-			Table<String, String, String> tenantQuotas = QuotaParser.parse(t.getQuota());
+			Table<String, String, Number> tenantQuotas = QuotaParser.parse(t.getQuota());
 			if (!tenantQuotas.containsRow(s)) {
-				append(tenantQuotas, s, quotas);
+				appendNewService(tenantQuotas, s, quotas);
+				LOG.info("New service [{}] appended to tenant quota [{}]", s, tenantQuotas);
 			}
 			t.setQuota(QuotaParser.toString(tenantQuotas));
 			TenantPersistenceWrapper.updateTenant(t);
 		});
 	}
 
-	private static void append(Table<String, String, String> tenantQuotas, String s, List<String> quotas) {
+	private static void appendNewService(Table<String, String, Number> tenantQuotas, String s, List<String> quotas) {
 		quotas.forEach(q -> {
-			tenantQuotas.put(s, q, String.valueOf(0));
+			tenantQuotas.put(s, q, 0);
 		});
 	}
 }
