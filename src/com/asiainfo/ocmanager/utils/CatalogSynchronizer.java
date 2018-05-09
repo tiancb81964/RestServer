@@ -28,14 +28,18 @@ public class CatalogSynchronizer {
 			throw new RuntimeException("Exception while init class: ", e);
 		}
 	}
-
+	
 	/**
-	 * Synchronize catalog quotas to tenants in DB
+	 * Synchronize catalog with cm resources
 	 */
-	public static void syncWithTenants() {
+	public static void syncup() {
+		syncupWithTenantQuotas();
+	}
+
+	private static void syncupWithTenantQuotas() {
 		catalog.listAllServices().values().forEach(s -> {
 			syncToTenants(s);
-		});
+		});		
 	}
 
 	private static void syncToTenants(String s) {
