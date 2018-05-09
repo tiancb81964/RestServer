@@ -934,40 +934,45 @@ public class TenantResource {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
+			int statusCode = -1;
+			try {
+				synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
+					String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
+					String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+					String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
 
-			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-				String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-				String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-				String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
+					SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
 
-				SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-				CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-				try {
-					HttpDelete httpDelete = new HttpDelete(dfRestUrl);
-					httpDelete.addHeader("Content-type", "application/json");
-					httpDelete.addHeader("Authorization", "bearer " + token);
-
-					logger.info("deleteTenant -> delete start");
-					CloseableHttpResponse response1 = httpclient.execute(httpDelete);
-
+					CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
 					try {
-						Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+						HttpDelete httpDelete = new HttpDelete(dfRestUrl);
+						httpDelete.addHeader("Content-type", "application/json");
+						httpDelete.addHeader("Authorization", "bearer " + token);
 
-						int statusCode = response1.getStatusLine().getStatusCode();
-						if (statusCode == 200) {
-							TenantPersistenceWrapper.deleteTenant(tenantId);
-							logger.info("deleteTenant -> delete successfully");
-							TenantLockerPool.getInstance().unregister(tenant);
+						logger.info("deleteTenant -> delete start");
+						CloseableHttpResponse response1 = httpclient.execute(httpDelete);
+
+						try {
+							Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+
+							statusCode = response1.getStatusLine().getStatusCode();
+							if (statusCode == 200) {
+								TenantPersistenceWrapper.deleteTenant(tenantId);
+								logger.info("deleteTenant -> delete successfully");
+							}
+							String bodyStr = EntityUtils.toString(response1.getEntity());
+
+							return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
+						} finally {
+							response1.close();
 						}
-						String bodyStr = EntityUtils.toString(response1.getEntity());
-
-						return Response.ok().entity(new TenantBean(tenant, bodyStr)).build();
 					} finally {
-						response1.close();
+						httpclient.close();
 					}
-				} finally {
-					httpclient.close();
+				}
+			} finally {
+				if (statusCode == 200) {
+					TenantLockerPool.getInstance().unregister(getTenant(tenantId));
 				}
 			}
 
@@ -976,6 +981,12 @@ public class TenantResource {
 			logger.error("deleteTenant hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
+	}
+
+	private Tenant getTenant(String tenantId) {
+		Tenant t = new Tenant();
+		t.setId(tenantId);
+		return t;
 	}
 
 	private boolean isLeafTenant(String tenantId) {
