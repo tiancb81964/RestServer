@@ -132,6 +132,7 @@ public class TenantResourceUpdateRoleExecutor implements Runnable {
 										userName, instanceName);
 							}
 						}
+						logger.warn("Privilege schema is null for service [{}] of role [{}] by user [{}]", serviceName.toLowerCase(), assignment.getRoleId(),assignment.getUserId());
 					}
 				}
 			}
