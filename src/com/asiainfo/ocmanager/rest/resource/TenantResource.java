@@ -832,7 +832,6 @@ public class TenantResource {
 			}
 
 			Tenant origin = TenantPersistenceWrapper.getTenantById(tenant.getId());
-
 			if (origin == null) {
 				return Response.status(Status.BAD_REQUEST)
 						.entity(new ResourceResponseBean("operation failed",
@@ -841,7 +840,8 @@ public class TenantResource {
 						.build();
 			}
 
-			synchronized (TenantLockerPool.getInstance().getLocker(origin.getParentId())) {
+			synchronized (TenantLockerPool.getInstance()
+					.getLocker(origin.getParentId() != null ? origin.getParentId() : origin.getId())) {
 				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("Failed to update tenant due to exceeded parent tenant quota: "
@@ -918,7 +918,7 @@ public class TenantResource {
 						"Current user has no privilege to do the operations.", ResponseCodeConstant.NOT_SYSTEM_ADMIN))
 						.build();
 			}
-			
+
 			if (!isLeafTenant(tenantId)) {
 				return Response.status(Status.NOT_ACCEPTABLE)
 						.entity("The tenant can not be deleted, because it have sub-tenants.").build();
