@@ -62,7 +62,7 @@ public class TenantQuotaUtils {
 		checkRes.setCanChange(true);
 		StringBuilder resStr = new StringBuilder();
 		tenantQuota.getQuotas().cellSet().forEach(c -> {
-			if (c.getValue() < 0) {
+			if (Double.compare(c.getValue(), 0) == -1) {
 				checkRes.setCanChange(false);
 				resStr.append(QuotaCommonUtils.logAndResStr(c.getValue(), c.getColumnKey(), c.getRowKey()));
 			}
