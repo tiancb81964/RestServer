@@ -14,7 +14,7 @@ import com.google.common.collect.Table;
 public class TenantQuotaBeanV2 {
 	public String tenantId;
 	public String tenantName;
-	private Table<String, String, Long> svcquot = HashBasedTable.create();
+	private Table<String, String, Double> svcquot = HashBasedTable.create();
 
 	public TenantQuotaBeanV2(Tenant tenant) {
 		this.tenantId = tenant.getId();
@@ -23,7 +23,7 @@ public class TenantQuotaBeanV2 {
 	}
 
 	
-	public Table<String, String, Long> getQuotas() {
+	public Table<String, String, Double> getQuotas() {
 		return svcquot;
 	}
 
@@ -51,7 +51,7 @@ public class TenantQuotaBeanV2 {
 	public void tenantQuotaParser(String quotaStr) {
 		Catalog.getInstance().listAllServices().values().forEach(e -> {
 			TenantQuotaUtils.getTenantQuotaByService(e, quotaStr).forEach((k,v) -> {
-				long value = Long.valueOf(v);
+				double value = Double.valueOf(v);
 				svcquot.put(e, k, value);
 			});
 		});
@@ -71,7 +71,7 @@ public class TenantQuotaBeanV2 {
 	 */
 	public void plusOtherTenantQuota(TenantQuotaBeanV2 otherTenantQuota) {
 		otherTenantQuota.svcquot.cellSet().forEach(o -> {
-			Long value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
+			Double value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
 			if (value == null) {
 				return;
 			}
@@ -86,7 +86,7 @@ public class TenantQuotaBeanV2 {
 	 */
 	public void minusOtherTenantQuota(TenantQuotaBeanV2 otherTenantQuota) {
 		otherTenantQuota.svcquot.cellSet().forEach(o -> {
-			Long value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
+			Double value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
 			if (value == null) {
 				return;
 			}
