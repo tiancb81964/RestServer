@@ -39,7 +39,7 @@ public class EnvInitializer implements ServletContextListener {
 				e.printStackTrace();
 			}
 			
-			CatalogSynchronizer.syncWithTenants();
+			CatalogSynchronizer.syncup();
 		} catch (Exception e) {
 			LOG.error("Exception while init environment: ", e);
 			throw new RuntimeException("Exception while init environment: ", e);

@@ -68,7 +68,7 @@ public class TenantLockerPool implements LockerPool<Tenant>{
 		if (!POOL.containsKey(tenant.getId())) {
 			synchronized(POOL) {
 				POOL.put(tenant.getId(), new Locker());
-				LOG.debug("Tenant registered in LockerPool: " + tenant.getId());
+				LOG.info("Tenant registered in LockerPool: " + tenant.getId());
 				return;
 			}
 		}
@@ -79,7 +79,7 @@ public class TenantLockerPool implements LockerPool<Tenant>{
 	public void unregister(Tenant tenant) {
 		synchronized(POOL) {
 			POOL.remove(tenant.getId());
-			LOG.debug("Tenant unregistered in LockerPool: " + tenant.getId());
+			LOG.info("Tenant unregistered in LockerPool: " + tenant.getId());
 		}
 	}
 

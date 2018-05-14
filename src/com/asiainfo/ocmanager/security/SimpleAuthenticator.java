@@ -14,10 +14,10 @@ import com.asiainfo.ocmanager.service.client.v2.Delegator;
  * @author Ethan
  *
  */
-public class SimpleAthenticator extends BaseAuthenticator implements AuthenticatorInterface {
+public class SimpleAuthenticator extends BaseAuthenticator implements AuthenticatorInterface {
 	private final Delegator delegator;
 
-	public SimpleAthenticator(Properties serviceConfig) {
+	public SimpleAuthenticator(Properties serviceConfig) {
 		super(serviceConfig);
 		UserGroupInformation ugi = UserGroupInformation.createRemoteUser(System.getProperty("user.name", "root"),
 				AuthMethod.SIMPLE);
