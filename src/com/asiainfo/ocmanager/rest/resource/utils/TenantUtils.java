@@ -31,6 +31,7 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerRespon
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.utils.DateTimeUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -607,6 +608,8 @@ public class TenantUtils {
 
 				if (statusCode == 201) {
 					logger.debug("TenantUtils -> createTenant -> create successfully in df.");
+					// format the duetime
+					tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
 					TenantPersistenceWrapper.createTenant(tenant);
 					logger.debug("TenantUtils -> createTenant -> create successfully in ocm rest.");
 				}
