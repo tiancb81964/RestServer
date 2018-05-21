@@ -44,6 +44,9 @@ public class CatalogSynchronizer {
 
 	private static void syncToTenants(String s) {
 		List<String> quotas = catalog.getServiceQuotaKeys(s);
+		if (quotas.isEmpty()) {
+			return;// no need to update tenant if service quota is empty
+		}
 		TenantPersistenceWrapper.getAllTenants().forEach(t -> {
 			Table<String, String, Number> tenantQuotas = QuotaParser.parse(t.getQuota());
 			if (!tenantQuotas.containsRow(s)) {
