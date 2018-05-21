@@ -65,7 +65,7 @@ public class TenantQuotaBeanV2 {
 		System.out.println(">>> end of main: " + b);
 	}
 	/**
-	 * add the 2 tenants quota together
+	 * Combine and add up the tenant quota with self
 	 * 
 	 * @param otherTenantQuota
 	 */
@@ -73,6 +73,7 @@ public class TenantQuotaBeanV2 {
 		otherTenantQuota.svcquot.cellSet().forEach(o -> {
 			Double value = this.svcquot.get(o.getRowKey(), o.getColumnKey());
 			if (value == null) {
+				this.svcquot.put(o.getRowKey(), o.getColumnKey(), o.getValue());
 				return;
 			}
 			this.svcquot.put(o.getRowKey(), o.getColumnKey(), value + o.getValue());
@@ -80,7 +81,7 @@ public class TenantQuotaBeanV2 {
 	}
 
 	/**
-	 * minus other tenant quota
+	 * Get intersection service quota and minus the tenant quota from self
 	 * 
 	 * @param otherTenantQuota
 	 */
