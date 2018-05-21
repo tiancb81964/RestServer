@@ -75,6 +75,10 @@ public abstract class ServiceInstanceQuotaBean {
 			return new StormServiceInstanceQuotaBean();
 		}
 
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.ELASTICSEARCH)) {
+			return new ElasticsearchServiceInstanceQuotaBean();
+		}
+
 		return null;
 
 	}

@@ -131,6 +131,13 @@ public class ServicesDefaultQuotaConf {
 			quotaMap.put("workers", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("workers")));
 
 			break;
+		case "elasticsearch":
+
+			quotaMap.put("replicas", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("replicas")));
+			quotaMap.put("volume", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volume")));
+
+			break;
+
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}
