@@ -723,9 +723,9 @@ public class TenantResource {
 
 				if (phase.equals(Constant.PROVISIONING)) {
 					logger.info(
-							"deleteServiceInstanceInTenant -> The instance can not be deleted when it is Provisioning!");
+							"Instance [{}] can not be deleted when it is Provisioning!", instanceName);
 					return Response.status(Status.BAD_REQUEST)
-							.entity("The instance can not be deleted when it is Provisioning!").build();
+							.entity("Tnstance can not be deleted when it is Provisioning!").build();
 				}
 
 				// get binding info
@@ -739,15 +739,14 @@ public class TenantResource {
 							JsonArray bindingArray = spec.getAsJsonArray("binding");
 							for (JsonElement je : bindingArray) {
 								String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-								logger.debug("deleteServiceInstanceInTenant -> userName" + userName);
-								logger.info("deleteServiceInstanceInTenant -> begin to unbinding");
+								logger.info("Unbinding user [{}] to instance [{}]", userName, instanceName);
 								ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
 										instanceName, userName);
 
 								if (unBindingRes.getResCodel() == 201) {
-									logger.info("deleteServiceInstanceInTenant -> wait unbinding complete");
+									logger.info("Waiting unbinding to complete");
 									TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
-									logger.info("deleteServiceInstanceInTenant -> unbinding complete");
+									logger.info("Successfully unbinded user [{}] to instance [{}]", userName, instanceName);
 								}
 							}
 						}
@@ -767,14 +766,14 @@ public class TenantResource {
 					httpDelete.addHeader("Content-type", "application/json");
 					httpDelete.addHeader("Authorization", "bearer " + token);
 
-					logger.info("deleteServiceInstanceInTenant -> start delete");
+					logger.info("Beginning to delete instance [{}]", instanceName);
 					CloseableHttpResponse response1 = httpclient.execute(httpDelete);
 
 					try {
 						int statusCode = response1.getStatusLine().getStatusCode();
 						if (statusCode == 200) {
 							ServiceInstancePersistenceWrapper.deleteServiceInstance(tenantId, instanceName);
-							logger.info("deleteServiceInstanceInTenant -> delete successfully");
+							logger.info("Successfully deleted instance [{}]", instanceName);
 						}
 						String bodyStr = EntityUtils.toString(response1.getEntity());
 
@@ -787,8 +786,7 @@ public class TenantResource {
 				}
 			}
 		} catch (Exception e) {
-			// system out the exception into the console log
-			logger.error("deleteServiceInstanceInTenant hit exception -> ", e);
+			logger.error("Exception while deleting instance : " + instanceName, e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
 		}
 
