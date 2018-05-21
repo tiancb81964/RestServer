@@ -99,6 +99,18 @@ public class QuotaCommonUtils {
 			quotaMap.put("workers", workers);
 			break;
 
+		case "elasticsearch":
+
+			String elasticsearchReplicas = serviceQuota.get("replicas") == null ? null
+					: serviceQuota.get("replicas").getAsString();
+			String elasticsearchVolume = serviceQuota.get("volume") == null ? null
+					: serviceQuota.get("volume").getAsString();
+
+			quotaMap.put("replicas", elasticsearchReplicas);
+			quotaMap.put("volume", elasticsearchVolume);
+
+			break;
+
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);
 		}

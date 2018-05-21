@@ -18,11 +18,12 @@ public class ServiceInstanceDefaultQuotaBean {
 	}
 
 	public ServiceInstanceDefaultQuotaBean(JsonObject jsonObj) {
-		this.defaultQuota = jsonObj.get("default").getAsDouble();
-		this.max = jsonObj.get("max").getAsDouble();
-		this.price = jsonObj.get("price").getAsDouble();
-		this.step = jsonObj.get("step").getAsDouble();
-		this.desc = jsonObj.get("desc").getAsString();
+		// if null set the default value
+		this.defaultQuota = jsonObj.get("default") == null ? 1.0d : jsonObj.get("default").getAsDouble();
+		this.max = jsonObj.get("max") == null ? 1.0d : jsonObj.get("max").getAsDouble();
+		this.price = jsonObj.get("price") == null ? 1.0d : jsonObj.get("price").getAsDouble();
+		this.step = jsonObj.get("step") == null ? 1.0d : jsonObj.get("step").getAsDouble();
+		this.desc = jsonObj.get("desc") == null ? "CatalogDoNotHaveDesc" : jsonObj.get("desc").getAsString();
 	}
 
 	public double getDefaultQuota() {
