@@ -33,7 +33,7 @@ public class AuthFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest hsRequest = (HttpServletRequest) servletRequest;
 		logger.debug("Request received: " + hsRequest.getRequestURI());
-		if (hsRequest.getRequestURI().endsWith("/login")) {
+		if (hsRequest.getRequestURI().endsWith("/login") || hsRequest.getRequestURI().endsWith("/login/")) {
 			filterChain.doFilter(servletRequest, servletResponse);
 		} else {
 			try {
