@@ -34,7 +34,7 @@ public class ResourcePeekerFactory {
 			cliPool = ServiceClientPool.getInstance();
 			initPeekers();
 			LOG.info("Available peekers been found: " + peekeClirMap);
-		} catch (Throwable  e) {
+		} catch (Exception  e) {
 			LOG.error("Error while init class: ", e);
 			throw new RuntimeException("Error while init class: ", e);
 		}
