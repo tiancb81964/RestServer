@@ -41,7 +41,7 @@ public class AuthenticatorManager extends Thread {
 					"82800");
 			periodsec = Long.valueOf(period);
 			LOG.info("[oc.authmgr.credential-refresh-period.seconds] set to " + periodsec);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			LOG.error("Exception while init class: ", e);
 			throw new RuntimeException("Exception while init class: ", e);
 		}
