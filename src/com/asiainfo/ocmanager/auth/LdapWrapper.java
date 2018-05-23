@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 
 import com.asiainfo.ocmanager.auth.constant.AuthConstant;
+import com.asiainfo.ocmanager.exception.OcmanagerRuntimeException;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 
@@ -32,21 +33,26 @@ public class LdapWrapper {
 	private static Properties props;
 	private static SearchControls cons;
 	private static JndiLdapContextFactory factory;
-	
+
+	private LdapWrapper() {
+
+	}
+
 	public static boolean isLdapEnabled() {
 		String type = ServerConfiguration.getConf().getProperty(Constant.AUTHTYPE).trim();
-		return type.equals("ldap");
+		return "ldap".equals(type);
 	}
 
 	/**
 	 * Get Ldap user template by configuration file
+	 * 
 	 * @return
 	 */
 	public static String getAssembledLdapTemplate() {
 		String baseName = props.getProperty(AuthConstant.LDAP_BASE).trim();
 		return "uid={0}," + baseName;
 	}
-	
+
 	/**
 	 * Get available users in Ldap server.
 	 * 
@@ -63,7 +69,7 @@ public class LdapWrapper {
 			return users;
 		} catch (Exception e) {
 			LOG.error(e);
-			throw new RuntimeException(e);
+			throw new OcmanagerRuntimeException(e);
 		}
 	}
 
@@ -93,13 +99,13 @@ public class LdapWrapper {
 			props.load(inputStream);
 		} catch (Exception e) {
 			LOG.error("Error while locating file ldap.properties: ", e);
-			throw new RuntimeException(e);
+			throw new OcmanagerRuntimeException(e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("Error while init Class", e);
 				}
 			}
 		}
@@ -113,10 +119,9 @@ public class LdapWrapper {
 			cons = new SearchControls();
 			cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			cons.setReturningAttributes(new String[] { "uid" });
-		} catch (Throwable e) {
-			LOG.error("Error while init Class", e);
-			e.printStackTrace();
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			LOG.error("Error while static block", e);
+			throw new OcmanagerRuntimeException(e);
 		}
 	}
 
@@ -128,13 +133,13 @@ public class LdapWrapper {
 					cons);
 		} catch (Exception e) {
 			LOG.error("Failed to get Ldap users: ", e);
-			throw new RuntimeException(e);
+			throw new OcmanagerRuntimeException(e);
 		} finally {
 			if (ctx != null) {
 				try {
 					ctx.close();
 				} catch (NamingException e) {
-					e.printStackTrace();
+					LOG.error("Failed to close LdapContext: ", e);
 				}
 			}
 		}
