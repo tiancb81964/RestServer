@@ -23,7 +23,7 @@ public class CatalogSynchronizer {
 	static {
 		try {
 			catalog = Catalog.getInstance();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			LOG.error("Exception while init class: ", e);
 			throw new RuntimeException("Exception while init class: ", e);
 		}
