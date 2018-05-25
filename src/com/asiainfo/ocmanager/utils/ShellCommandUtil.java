@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShellCommandUtil {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ShellCommandUtil.class);
 	/** Set to true when run on Linux platforms */
 	public static final boolean LINUX = System.getProperty("os.name").startsWith("Linux");
 
@@ -29,9 +32,9 @@ public class ShellCommandUtil {
 				result = runCommand(new String[] { "stat", "-c", "%a", path }).getStdout();
 			} catch (IOException e) {
 				// Improbable
-				e.printStackTrace();
+				LOG.error("IOException while getUnixFilePermissions: ", e);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.error("InterruptedException while getUnixFilePermissions: ", e);
 			}
 		} else {
 			System.out.println(String.format("Not performing stat -s \"%%a\" command on file %s "
@@ -53,13 +56,13 @@ public class ShellCommandUtil {
 				runCommand(new String[] { "chmod", mode, path });
 			} catch (IOException e) {
 				// Improbable
-				e.printStackTrace();
+				LOG.error("IOException while setUnixFilePermissions: ", e);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.error("InterruptedException while setUnixFilePermissions: ", e);
 			}
 		} else {
 			System.out.println(String.format(
-					"Not performing chmod %s command for file %s " + "because current OS is not Linux ", mode, path));
+					"Not performing chmod %s command for file %s because current OS is not Linux ", mode, path));
 		}
 	}
 

@@ -112,10 +112,13 @@ public class RangerClient {
 		InputStream in = null;
 		try {
 			in = entity.getContent();
-			in.read(b);
-			String msg = new String(b);
-			LOG.info("Add-User-to-Ranger returned message: " + msg);
-			return msg.indexOf("XUser already exists") != -1;
+			if (in.read(b) > 0) {
+				String msg = new String(b);
+				LOG.info("Add-User-to-Ranger returned message: " + msg);
+				return msg.indexOf("XUser already exists") != -1;
+			} else {
+				return false;
+			}
 		}finally {
 			if (in != null) {
 				in.close();
