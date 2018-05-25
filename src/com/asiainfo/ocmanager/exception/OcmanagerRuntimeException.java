@@ -13,4 +13,12 @@ public class OcmanagerRuntimeException extends RuntimeException {
 		super(e);
 	}
 
+	public OcmanagerRuntimeException(String msg, Exception e) {
+		super(msg, e);
+	}
+
+	public OcmanagerRuntimeException(String msg) {
+		super(msg);
+	}
+
 }
