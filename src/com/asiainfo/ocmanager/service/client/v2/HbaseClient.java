@@ -57,7 +57,7 @@ public class HbaseClient extends ServiceClient{
 			String max = des.getConfigurationValue("hbase.namespace.quota.maxtables");
 			System.out.println(">>>end of main: " + max);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while main(): ", e);
 		}
 	}
 	
