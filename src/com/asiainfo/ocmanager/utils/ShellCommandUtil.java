@@ -8,9 +8,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ShellCommandUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShellCommandUtil.class);
+
 	/** Set to true when run on Linux platforms */
 	public static final boolean LINUX = System.getProperty("os.name").startsWith("Linux");
 
@@ -18,6 +22,9 @@ public class ShellCommandUtil {
 	 * Permission mask 777 allows everybody to read/modify/execute file
 	 */
 	public static final String MASK_EVERYBODY_RWX = "777";
+
+	private ShellCommandUtil() {
+	}
 
 	/**
 	 * Gets file permissions on Linux systems. Under Windows/Mac, command always
@@ -32,12 +39,12 @@ public class ShellCommandUtil {
 				result = runCommand(new String[] { "stat", "-c", "%a", path }).getStdout();
 			} catch (IOException e) {
 				// Improbable
-				LOG.error("IOException while getUnixFilePermissions: ", e);
+				LOG.error("run command IOException: ", e);
 			} catch (InterruptedException e) {
-				LOG.error("InterruptedException while getUnixFilePermissions: ", e);
+				LOG.error("run command InterruptedException: ", e);
 			}
 		} else {
-			System.out.println(String.format("Not performing stat -s \"%%a\" command on file %s "
+			LOG.info(String.format("Not performing stat -s \"%%a\" command on file %s "
 					+ "because current OS is not Linux. Returning 777", path));
 		}
 		return result.trim();
@@ -56,13 +63,13 @@ public class ShellCommandUtil {
 				runCommand(new String[] { "chmod", mode, path });
 			} catch (IOException e) {
 				// Improbable
-				LOG.error("IOException while setUnixFilePermissions: ", e);
+				LOG.error("run command IOException: ", e);
 			} catch (InterruptedException e) {
-				LOG.error("InterruptedException while setUnixFilePermissions: ", e);
+				LOG.error("run command InterruptedException: ", e);
 			}
 		} else {
-			System.out.println(String.format(
-					"Not performing chmod %s command for file %s because current OS is not Linux ", mode, path));
+			LOG.info(String.format("Not performing chmod %s command for file %s " + "because current OS is not Linux ",
+					mode, path));
 		}
 	}
 
