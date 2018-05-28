@@ -357,7 +357,7 @@ public class ServiceResource {
 	@GET
 	@Path("all/instances")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.GET, targetType = TargetType.SUB_INSTANCES)
+	@Audit(action = Action.GET, targetType = TargetType.INSTANCES)
 	public Response getAllServiceInstances() {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper.getAllServiceInstances();

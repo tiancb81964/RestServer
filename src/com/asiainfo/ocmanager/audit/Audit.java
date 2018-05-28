@@ -51,25 +51,29 @@ public @interface Audit {
 		 */
 		TENANT,
 		/**
-		 * children tenants
+		 * tenants
 		 */
-		SUB_TENANTS,
+		TENANTS,
 		/**
 		 * instance
 		 */
 		INSTANCE,
 		/**
-		 * tenant instances
+		 * instances
 		 */
-		SUB_INSTANCES,
+		INSTANCES,
 		/**
 		 * user
 		 */
 		USER,
 		/**
-		 * tenant users
+		 * users
 		 */
-		SUB_USERS,
+		USERS,
+		/**
+		 * Ldap users
+		 */
+		LDAP_USERS,
 		/**
 		 * role
 		 */

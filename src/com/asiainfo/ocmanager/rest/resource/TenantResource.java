@@ -89,7 +89,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.GET, targetType = TargetType.SUB_TENANTS)
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getAllTenants() {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getAllTenants();
@@ -133,7 +133,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/children")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.GET, targetType = TargetType.SUB_TENANTS)
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getChildrenTenants(@PathParam("id") String parentTenantId) {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getChildrenTenants(parentTenantId);
@@ -155,7 +155,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/users")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.GET, targetType = TargetType.SUB_USERS)
+	@Audit(action = Action.GET, targetType = TargetType.USERS)
 	public Response getTenantUsers(@PathParam("id") String tenantId) {
 		try {
 			List<UserRoleView> usersRoles = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
@@ -229,7 +229,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/service/instances")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.GET, targetType = TargetType.SUB_INSTANCES)
+	@Audit(action = Action.GET, targetType = TargetType.INSTANCES)
 	public Response getTenantServiceInstances(@PathParam("id") String tenantId) {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
