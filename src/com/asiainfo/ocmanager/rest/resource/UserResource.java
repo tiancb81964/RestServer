@@ -279,7 +279,7 @@ public class UserResource {
 		try {
 			new UserResource().appendUser2Rangers(user);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception while main(): ", e);
 		}
 		System.out.println(">>>end of main.");
 	}

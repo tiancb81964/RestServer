@@ -36,7 +36,7 @@ public class EnvInitializer implements ServletContextListener {
 			try {
 				Class.forName(ResourcePeekerFactory.class.getName());
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				LOG.error("ClassNotFoundException while init environment: ", e);
 			}
 			
 			CatalogSynchronizer.syncup();

@@ -79,7 +79,7 @@ public class AmbariClient {
 				try {
 					e.close();
 				} catch (IOException t) {
-					t.printStackTrace();
+					LOG.error("close() hit IOException -> ", t);
 				}
 			}
 		}

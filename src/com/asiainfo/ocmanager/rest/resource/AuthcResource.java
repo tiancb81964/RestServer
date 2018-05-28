@@ -59,7 +59,7 @@ public class AuthcResource {
 			}
 		} catch (Exception e) {
 			logger.error("Exception during login: ", e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			return Response.status(Response.Status.BAD_REQUEST).entity(new LoginResponseBean("Login failed!",
                 e.getMessage(),Response.Status.BAD_REQUEST.getStatusCode(), null)).build();
 		}
