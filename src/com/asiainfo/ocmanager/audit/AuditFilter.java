@@ -26,7 +26,7 @@ import com.asiainfo.ocmanager.rest.bean.ResponseBean;
  */
 @Provider
 public class AuditFilter implements ContainerResponseFilter {
-	private static final Logger LOG = LoggerFactory.getLogger("audit");
+	private static final Logger LOG = LoggerFactory.getLogger("AuditFilter.audit");
 	@Context
 	private HttpServletRequest sr;
 
@@ -47,7 +47,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (entity instanceof ResponseBean) {
 				target = ((ResponseBean) entity).getOperand().toString();
 			} else {
-				target = "FailToGetOperandFrom:" + entity.getClass().getSimpleName();
+				target = "ParseError:" + entity.getClass().getSimpleName();
 			}
 			String ip = sr.getRemoteAddr();
 			String user = isLogin(requestContext) ? target : getUser(requestContext);
@@ -72,10 +72,10 @@ public class AuditFilter implements ContainerResponseFilter {
 	}
 
 	private static class AuditString {
-		private String template = "status=$status  user=$user  ip=$ip  action=$action  targetType=$targetType  target=$target entity=$entity";
+		private String template = "user=$USER  ip=$IP  status=$STATUS  action=$ACTION  tType=$TARGETTYPE  tValue=$TARGET desc=$ENTITY";
 
 		public AuditString status(int status) {
-			template = template.replace("$status", String.valueOf(status));
+			template = template.replace("$STATUS", String.valueOf(status));
 			return this;
 		}
 
@@ -83,7 +83,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (user == null) {
 				return this;
 			}
-			template = template.replace("$user", user);
+			template = template.replace("$USER", user);
 			return this;
 		}
 
@@ -91,7 +91,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (ip == null) {
 				return this;
 			}
-			template = template.replace("$ip", ip);
+			template = template.replace("$IP", ip);
 			return this;
 		}
 
@@ -99,7 +99,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (action == null) {
 				return this;
 			}
-			template = template.replace("$action", action);
+			template = template.replace("$ACTION", action);
 			return this;
 		}
 
@@ -107,7 +107,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (targetType == null) {
 				return this;
 			}
-			template = template.replace("$targetType", targetType);
+			template = template.replace("$TARGETTYPE", targetType);
 			return this;
 		}
 
@@ -115,7 +115,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (target == null) {
 				return this;
 			}
-			template = template.replace("$target", target);
+			template = template.replace("$TARGET", target);
 			return this;
 		}
 
@@ -123,7 +123,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (description == null) {
 				return this;
 			}
-			template = template.replace("$entity", description);
+			template = template.replace("$ENTITY", description);
 			return this;
 		}
 
