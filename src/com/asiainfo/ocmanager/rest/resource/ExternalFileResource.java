@@ -11,6 +11,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 
@@ -23,6 +26,7 @@ public class ExternalFileResource {
 	@GET
 	@Path("/clusterHosts")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Audit(action = Action.GET, targetType = TargetType.EXTERNAL_FILE)
 	public Response getHostsFile() {
 		try {
 			String path = BASE + "hosts";

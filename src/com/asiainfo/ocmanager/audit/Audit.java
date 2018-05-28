@@ -117,7 +117,14 @@ public @interface Audit {
 		/**
 		 * krb5.conf
 		 */
-		KRB5_FILE
-		
+		KRB5_FILE,
+		/**
+		 * external file
+		 */
+		EXTERNAL_FILE,
+		/**
+		 * ambari resouce
+		 */
+		AMBARI_RESOURCES
 	}
 }

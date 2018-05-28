@@ -12,6 +12,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.service.client.AmbariClient;
 import com.asiainfo.ocmanager.service.client.ClusterFactory;
 
@@ -37,6 +40,7 @@ public class AmbariResource {
 	@GET
 	@Path("yarnclient")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Audit(action = Action.GET, targetType = TargetType.AMBARI_RESOURCES)
 	public Response getYarnClientFiles(@QueryParam("filename") String filename, @Context HttpServletRequest request) {
 
 		try {
@@ -65,6 +69,7 @@ public class AmbariResource {
 	@GET
 	@Path("hdfsclient")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Audit(action = Action.GET, targetType = TargetType.AMBARI_RESOURCES)
 	public Response getHdfsClientFiles(@QueryParam("filename") String filename, @Context HttpServletRequest request) {
 		try {
 			if (filename == null || filename.isEmpty()) {
@@ -92,6 +97,7 @@ public class AmbariResource {
 	@GET
 	@Path("sparkclient")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Audit(action = Action.GET, targetType = TargetType.AMBARI_RESOURCES)
 	public Response getSparkClientFiles(@QueryParam("filename") String filename, @Context HttpServletRequest request) {
 		try {
 			if (filename == null || filename.isEmpty()) {
