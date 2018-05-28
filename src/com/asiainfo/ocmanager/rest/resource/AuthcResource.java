@@ -15,6 +15,9 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.Authenticator;
 import com.asiainfo.ocmanager.rest.bean.LoginResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -33,6 +36,7 @@ public class AuthcResource {
     @Path("login")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.LOGIN, targetType = TargetType.USER)
 	public Response login(String requestBody) {
 		try {
 			JsonElement req = new JsonParser().parse(requestBody);
