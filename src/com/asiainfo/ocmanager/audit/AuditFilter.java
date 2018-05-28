@@ -8,7 +8,6 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Cookie;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.rest.bean.ResponseBean;
+import com.google.common.base.Strings;
 
 /**
  * Filter for auditting user-end operations
@@ -62,13 +62,32 @@ public class AuditFilter implements ContainerResponseFilter {
 
 	}
 
+	/**
+	 * audit 403 auth breach
+	 * 
+	 * @param request
+	 */
+	public static void audit403(HttpServletRequest request) {
+		String ip = request.getRemoteAddr();
+		String user = Strings.isNullOrEmpty(request.getHeader("token")) ? "null"
+				: request.getHeader("token").split("_")[0];
+		String method = request.getMethod();
+		String requestUrl = request.getRequestURI();
+		AuditString audit = new AuditString().status(403).user(user).ip(ip).action(method)
+				.targetType(TargetType.HTTP_REQUEST.name()).target(requestUrl).entity("Auth Forbidden");
+		LOG.info(audit.toString());
+	}
+
 	private boolean isLogin(ContainerRequestContext requestContext) {
 		return requestContext.getUriInfo().getPath().contains("authc/login");
 	}
 
 	private String getUser(ContainerRequestContext requestContext) {
-		Cookie token = requestContext.getCookies().get("token");
-		return token.getValue().split("_")[0];
+		String tokenString = requestContext.getHeaderString("token");
+		if (tokenString == null || tokenString.isEmpty()) {
+			throw new RuntimeException("Request token is null, headers: " + requestContext.getHeaders());
+		}
+		return tokenString.split("_")[0];
 	}
 
 	private static class AuditString {

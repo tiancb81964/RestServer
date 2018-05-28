@@ -125,6 +125,10 @@ public @interface Audit {
 		/**
 		 * ambari resouce
 		 */
-		AMBARI_RESOURCES
+		AMBARI_RESOURCES,
+		/**
+		 * http request
+		 */
+		HTTP_REQUEST
 	}
 }
