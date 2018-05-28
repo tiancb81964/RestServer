@@ -73,6 +73,7 @@ public class AuthcResource {
 	@Path("logout/{username}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.LOGOUT, targetType = TargetType.USER)
 	public Response logout(@PathParam("username") String username, @Context HttpServletRequest request) {
 		try {
 			String token = request.getHeader("token");

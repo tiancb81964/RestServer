@@ -46,11 +46,54 @@ public @interface Audit {
 	 *
 	 */
 	public static enum TargetType {
+		/**
+		 * tenant
+		 */
 		TENANT,
+		/**
+		 * children tenants
+		 */
+		SUB_TENANTS,
+		/**
+		 * instance
+		 */
 		INSTANCE,
+		/**
+		 * tenant instances
+		 */
+		SUB_INSTANCES,
+		/**
+		 * user
+		 */
 		USER,
+		/**
+		 * tenant users
+		 */
+		SUB_USERS,
+		/**
+		 * role
+		 */
 		ROLE,
+		/**
+		 * service
+		 */
 		SERVICE,
-		ASSIGNMENT
+		/**
+		 * assignment
+		 */
+		ASSIGNMENT,
+		/**
+		 * quotas
+		 */
+		QUOTAS,
+		/**
+		 * access info
+		 */
+		ACCESSINFO,
+		/**
+		 * tenant lifetime
+		 */
+		TENANT_LIFETIME
+		
 	}
 }
