@@ -79,6 +79,14 @@ public @interface Audit {
 		 */
 		SERVICE,
 		/**
+		 * service plan
+		 */
+		SERVICE_PLAN,
+		/**
+		 * services
+		 */
+		SERVICES,
+		/**
 		 * assignment
 		 */
 		ASSIGNMENT,
@@ -93,7 +101,11 @@ public @interface Audit {
 		/**
 		 * tenant lifetime
 		 */
-		TENANT_LIFETIME
+		TENANT_LIFETIME,
+		/**
+		 * service broker
+		 */
+		BROKER
 		
 	}
 }

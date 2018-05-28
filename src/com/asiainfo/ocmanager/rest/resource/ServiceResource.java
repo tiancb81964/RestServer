@@ -31,6 +31,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Service;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -66,6 +69,7 @@ public class ServiceResource {
 	 */
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getServices() {
 
 		try {
@@ -126,6 +130,7 @@ public class ServiceResource {
 	@GET
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICE)
 	public Response getServiceById(@PathParam("id") String serviceId) {
 		try {
 			Service service = ServicePersistenceWrapper.getServiceById(serviceId);
@@ -146,6 +151,7 @@ public class ServiceResource {
 	@POST
 	@Path("/broker")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
 	public Response addServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
 
 		try {
@@ -220,6 +226,7 @@ public class ServiceResource {
 	@GET
 	@Path("/df")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getServiceFromDf() {
 		try {
 			return Response.ok().entity(ServiceResource.callDFToGetAllServices()).build();
@@ -238,6 +245,7 @@ public class ServiceResource {
 	@DELETE
 	@Path("/broker/{name}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.DELETE, targetType = TargetType.BROKER)
 	public Response deleteServiceBroker(@PathParam("name") String serviceBrokerName,
 			@Context HttpServletRequest request) {
 		try {
@@ -349,6 +357,7 @@ public class ServiceResource {
 	@GET
 	@Path("all/instances")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SUB_INSTANCES)
 	public Response getAllServiceInstances() {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper.getAllServiceInstances();
@@ -368,6 +377,7 @@ public class ServiceResource {
 	@GET
 	@Path("{serviceName}/plan")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICE_PLAN)
 	public Response getServicePlanInfo(@PathParam("serviceName") String serviceName) {
 		try {
 			String servicesStr = ServiceResource.callDFToGetAllServices();
