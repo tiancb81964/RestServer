@@ -32,7 +32,7 @@ public class DateTimeUtil {
 			return outFormat.format(outDateTime);
 		} catch (ParseException e) {
 			LOG.debug("DateTimeUtil hit exception {}.", e);
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		LOG.debug("DateTimeUtil set outDateTime to null.");
 		return null;

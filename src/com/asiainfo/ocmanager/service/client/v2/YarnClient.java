@@ -22,12 +22,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Yarn client
  * @author Ethan
  *
  */
 public class YarnClient extends ServiceClient{
+	private static final Logger LOG = LoggerFactory.getLogger(YarnClient.class);
 	private CloseableHttpClient httpClient;
 	private String[] baseUrls; // active/standby rm.
 
@@ -46,7 +50,7 @@ public class YarnClient extends ServiceClient{
 		try {
 			info = new YarnClient("yarnon111", new Delegator(null)).fetchQueuesInfo();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while main(): ", e);
 		}
 		System.out.println(">>> info: " + info);
 	}
@@ -64,14 +68,14 @@ public class YarnClient extends ServiceClient{
 			rsp = httpClient.execute(new HttpGet(URI.create(url)));
 			return EntityUtils.toString(rsp.getEntity());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while fetchQueuesInfo(): ", e);
 			throw e;
 		} finally {
 			if (rsp != null) {
 				try {
 					rsp.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("IOException while fetchQueuesInfo(): ", e);
 				}
 			}
 		}
@@ -135,14 +139,14 @@ public class YarnClient extends ServiceClient{
 			rsp = httpClient.execute(new HttpGet(URI.create(url)));
 			return EntityUtils.toString(rsp.getEntity());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while fetchMetrics(): ", e);
 			throw e;
 		} finally {
 			if (rsp != null) {
 				try {
 					rsp.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("IOException while fetchMetrics(): ", e);
 				}
 			}
 		}
@@ -172,7 +176,7 @@ public class YarnClient extends ServiceClient{
 					try {
 						rsp.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						LOG.error("IOException while activeRM(): ", e);
 					}
 				}
 			}
@@ -186,7 +190,8 @@ public class YarnClient extends ServiceClient{
 				+ ". Due to exceptions:");
 		Iterator<IOException> it = errorInfos.iterator();
 		while (it.hasNext()) {
-			it.next().printStackTrace();
+			//it.next().printStackTrace();
+			LOG.error("errorInfos:", it.next());
 		}
 	}
 }
