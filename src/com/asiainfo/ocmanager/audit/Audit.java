@@ -109,7 +109,15 @@ public @interface Audit {
 		/**
 		 * service broker
 		 */
-		BROKER
+		BROKER,
+		/**
+		 * keytab
+		 */
+		KEYTAB,
+		/**
+		 * krb5.conf
+		 */
+		KRB5_FILE
 		
 	}
 }
