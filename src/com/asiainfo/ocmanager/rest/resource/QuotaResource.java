@@ -15,6 +15,9 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.rest.bean.QuotaResponse;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
@@ -28,6 +31,7 @@ public class QuotaResource {
 	@GET
 	@Path("hdfs")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHdfsQuota(@Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -47,6 +51,7 @@ public class QuotaResource {
 	@GET
 	@Path("mapreduce/{queuename}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getYarnQuota(@PathParam("queuename") String queuename, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -65,6 +70,7 @@ public class QuotaResource {
 	@GET
 	@Path("hbase/{namespace}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHbaseQuota(@PathParam("namespace") String namespace, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -83,6 +89,7 @@ public class QuotaResource {
 	@GET
 	@Path("kafka/{topic}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getKafkaQuota(@PathParam("topic") String topic, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -101,6 +108,7 @@ public class QuotaResource {
 	@GET
 	@Path("greenplum/{serviceInstanceId}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getGpQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -119,6 +127,7 @@ public class QuotaResource {
 	@GET
 	@Path("mongodb/{serviceInstanceId}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getMongoQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -137,6 +146,7 @@ public class QuotaResource {
 	@GET
 	@Path("spark/{queueName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getSparkQuota(@PathParam("queueName") String queueName, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
@@ -155,6 +165,7 @@ public class QuotaResource {
 	@GET
 	@Path("hive/{dbname}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHiveQuota(@PathParam("dbname") String dbname, @Context HttpServletRequest request) {
 		try {
 			String service = request.getParameter("service");
