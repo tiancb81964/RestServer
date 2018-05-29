@@ -50,7 +50,7 @@ public class PageFilter implements ContainerRequestFilter {
       } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
         response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         requestContext.abortWith(response);
-        e.printStackTrace();
+        logger.error("ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException while filter(): ", e);
       }
     }else{
       response = Response.status(Response.Status.UNAUTHORIZED).build();

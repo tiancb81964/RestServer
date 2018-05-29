@@ -10,6 +10,8 @@ import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
 import com.asiainfo.ocmanager.utils.ClustersIni;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cluster-related operations
@@ -17,6 +19,7 @@ import com.google.common.collect.Table;
  *
  */
 public class ClusterFactory {
+	private static final Logger LOG = LoggerFactory.getLogger(ClusterFactory.class);
 	private static Table<String, Class<?>, Object> clients = HashBasedTable.create(); // clusterName, clientType,
 
 	public static RangerClient getRanger(String clusterName) {
@@ -50,7 +53,7 @@ public class ClusterFactory {
 		} catch (UserExistedException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while main(): ", e);
 		}
 	}
 }

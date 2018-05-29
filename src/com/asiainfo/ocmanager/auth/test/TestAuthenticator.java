@@ -48,7 +48,7 @@ public class TestAuthenticator {
         try {
             uptoken = authenticator.parseTokenWithTTl(token);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception while testGenerateTokenWithTTL(): ", e);
         }
     }
 
@@ -61,7 +61,7 @@ public class TestAuthenticator {
             authenticator.loginWithToken(token);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception while testLoginWithTokenWithTTL(): ", e);
         }
     }
 

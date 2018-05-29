@@ -83,7 +83,7 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 				try {
 					admin.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("IOException when fetchTotalQuota(): ", e);
 				}
 			}
 		}
@@ -112,7 +112,7 @@ public class HbaseResourcePeeker extends BaseResourcePeeker {
 				try {
 					admin.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("IOException when fetchUsedQuota(): ", e);
 				}
 			}
 		}

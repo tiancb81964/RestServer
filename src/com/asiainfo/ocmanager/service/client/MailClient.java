@@ -56,7 +56,7 @@ public class MailClient {
 				sf.setTrustAllHosts(true);
 				props.put("mail.smtp.ssl.socketFactory", sf);
 			} catch (GeneralSecurityException e) {
-				e.printStackTrace();
+				LOG.error("GeneralSecurityException while init MailClient: ", e);
 			}
 		}
 		account = props.getProperty(ACCOUNT);

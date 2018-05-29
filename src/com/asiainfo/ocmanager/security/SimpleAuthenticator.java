@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import org.apache.hadoop.security.SaslRpcServer.AuthMethod;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.service.client.v2.Delegator;
 
@@ -15,6 +17,7 @@ import com.asiainfo.ocmanager.service.client.v2.Delegator;
  *
  */
 public class SimpleAuthenticator extends BaseAuthenticator implements AuthenticatorInterface {
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleAuthenticator.class);
 	private final Delegator delegator;
 
 	public SimpleAuthenticator(Properties serviceConfig) {
@@ -29,7 +32,7 @@ public class SimpleAuthenticator extends BaseAuthenticator implements Authentica
 		try {
 			delegator.refreshCredential();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("IOException while login(): ", e);
 			throw new RuntimeException("login exception for delegator: " + delegator);
 		}
 	}
@@ -39,7 +42,7 @@ public class SimpleAuthenticator extends BaseAuthenticator implements Authentica
 		try {
 			delegator.refreshCredential();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("IOException while relogin(): ", e);
 			throw new RuntimeException("relogin exception for delegator: " + delegator);
 		}
 	}

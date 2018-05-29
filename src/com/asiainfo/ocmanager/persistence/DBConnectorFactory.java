@@ -10,6 +10,8 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -19,6 +21,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class DBConnectorFactory {
 
+	private static final Logger LOG = LoggerFactory.getLogger(DBConnectorFactory.class);
 	// TODO the db connection need to change not use the one connection
 	public static SqlSessionFactory sessionFactory;
 
@@ -43,7 +46,7 @@ public class DBConnectorFactory {
 
 			sessionFactory = new SqlSessionFactoryBuilder().build(inputStream, prop);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("IOException while static: ", e);
 		}
 
 	}
