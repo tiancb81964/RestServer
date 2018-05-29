@@ -39,7 +39,7 @@ public class Constant {
 	public static final String OCDP_SERVICES = "oc.ocdp.services";
 	public static final List<String> list = Arrays
 			.asList(ServerConfiguration.getConf().getProperty(OCDP_SERVICES).split(","));
-	protected static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
+	public static final List<String> canCreateUserList = Arrays.asList("system.admin", "subsidiary.admin",
 			"project.admin");
 
 	public static final String ADMIN = "admin";

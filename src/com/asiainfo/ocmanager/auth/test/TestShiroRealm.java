@@ -9,12 +9,15 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Created by gq on 17/7/17.
  */
 public class TestShiroRealm {
+    private static final Logger LOG = LoggerFactory.getLogger(TestShiroRealm.class);
 
     @Test
     public void testLdapRealm() {
@@ -30,7 +33,7 @@ public class TestShiroRealm {
         subject.logout();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
+            LOG.error("Exception while testLdapRealm(): ", e);
         }
 
     }
