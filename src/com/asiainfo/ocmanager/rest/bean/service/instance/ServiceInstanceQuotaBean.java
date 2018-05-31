@@ -78,6 +78,9 @@ public abstract class ServiceInstanceQuotaBean {
 		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.ELASTICSEARCH)) {
 			return new ElasticsearchServiceInstanceQuotaBean();
 		}
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.ZEPPELIN)) {
+			return new ZeppelinServiceInstanceQuotaBean();
+		}
 
 		return null;
 
