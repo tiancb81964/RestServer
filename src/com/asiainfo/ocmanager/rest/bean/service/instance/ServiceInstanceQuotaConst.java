@@ -23,4 +23,5 @@ public class ServiceInstanceQuotaConst {
 
 	public static final List<String> quotaCheckServices = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
 			"kafka", "redis", "storm", "elasticsearch", "zeppelin");
+
 }
