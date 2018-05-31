@@ -137,6 +137,12 @@ public class ServicesDefaultQuotaConf {
 			quotaMap.put("volume", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volume")));
 
 			break;
+		case "zeepelin":
+
+			quotaMap.put("cpu", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("cpu")));
+			quotaMap.put("memory", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("memory")));
+
+			break;
 
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);

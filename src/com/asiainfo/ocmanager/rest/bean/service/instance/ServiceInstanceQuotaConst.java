@@ -19,8 +19,9 @@ public class ServiceInstanceQuotaConst {
 	public final static String REDIS = "redis";
 	public final static String STORM = "storm";
 	public final static String ELASTICSEARCH = "elasticsearch";
+	public final static String ZEPPELIN = "zeppelin";
 
 	public static final List<String> quotaCheckServices = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
-			"kafka", "redis", "storm", "elasticsearch");
+			"kafka", "redis", "storm", "elasticsearch", "zeppelin");
 
 }
