@@ -33,18 +33,21 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHdfsQuota(@Context HttpServletRequest request) {
+		String service = null;
+		String path = null;
 		try {
-			String service = request.getParameter("service");
-			String path = request.getParameter("path");
+			service = request.getParameter("service");
+			path = request.getParameter("path");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, path);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, path)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, path))
+					.build();
 		}
 	}
 
@@ -53,17 +56,19 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getYarnQuota(@PathParam("queuename") String queuename, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queuename);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queuename)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, queuename)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, queuename))
+					.build();
 		}
 	}
 
@@ -72,17 +77,19 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHbaseQuota(@PathParam("namespace") String namespace, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, namespace);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(namespace)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, namespace)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, namespace))
+					.build();
 		}
 	}
 
@@ -91,17 +98,19 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getKafkaQuota(@PathParam("topic") String topic, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, topic);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(topic)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, topic)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, topic))
+					.build();
 		}
 	}
 
@@ -110,17 +119,19 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getGpQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, instanceId)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, instanceId))
+					.build();
 		}
 	}
 
@@ -128,18 +139,21 @@ public class QuotaResource {
 	@Path("mongodb/{serviceInstanceId}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
-	public Response getMongoQuota(@PathParam("serviceInstanceId") String instanceId, @Context HttpServletRequest request) {
+	public Response getMongoQuota(@PathParam("serviceInstanceId") String instanceId,
+			@Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, instanceId);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(instanceId)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, instanceId)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, instanceId))
+					.build();
 		}
 	}
 
@@ -148,17 +162,19 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getSparkQuota(@PathParam("queueName") String queueName, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, queueName);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(queueName)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, queueName)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching spark resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, queueName))
+					.build();
 		}
 	}
 
@@ -167,18 +183,20 @@ public class QuotaResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getHiveQuota(@PathParam("dbname") String dbname, @Context HttpServletRequest request) {
+		String service = null;
 		try {
-			String service = request.getParameter("service");
+			service = request.getParameter("service");
 			LOG.info("Received quota request of service [{}], resource path: [{}]", service, dbname);
 			ResourcePeeker peeker = ResourcePeekerFactory.getPeeker(service);
 			String path = "/apps/hive/warehouse/" + dbname + ".db";
 			long begin = System.currentTimeMillis();
 			QuotaResponse response = PeekerUtils.transform(peeker.peekOn(Arrays.asList(path)));
 			LOG.info("Response been returned within {}ms.", System.currentTimeMillis() - begin);
-			return Response.ok().entity(response).build();
+			return Response.ok().entity(response).tag(String.join("->", service, dbname)).build();
 		} catch (Exception e) {
 			LOG.error("Error while fetching resource usage: ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", service, dbname))
+					.build();
 		}
 	}
 
