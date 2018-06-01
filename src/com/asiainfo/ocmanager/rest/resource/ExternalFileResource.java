@@ -38,15 +38,15 @@ public class ExternalFileResource {
 						.entity(new ResourceResponseBean("download hosts file failed!",
 								"hosts file NOT exist, please consult admin,",
 								ResponseCodeConstant.CAN_NOT_FIND_EXTERNAL_FILE))
-						.build();
+						.tag(path).build();
 			}
 
 			return Response.ok(file).header("Content-disposition", "attachment;filename=" + "hosts")
-					.header("Cache-Control", "no-cache").build();
+					.header("Cache-Control", "no-cache").tag(path).build();
 
 		} catch (Exception e) {
 			logger.error("Get external file exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(BASE + "hosts").build();
 		}
 	}
 
