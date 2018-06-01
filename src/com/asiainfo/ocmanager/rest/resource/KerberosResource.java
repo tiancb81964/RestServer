@@ -36,9 +36,8 @@ public class KerberosResource {
 
 	private static final String PATH = KerberosResource.class.getResource("/").getPath() + ".." + File.separator
 			+ "keytabs" + File.separator + "oc.{$username}.keytab";
-	private static final String KRB5PATH = KerberosConfiguration.getConf()
-			.getProperty(Constant.KERBEROS_KRB5_LOCATION);
-	
+	private static final String KRB5PATH = KerberosConfiguration.getConf().getProperty(Constant.KERBEROS_KRB5_LOCATION);
+
 	@GET
 	@Path("krb5")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -55,15 +54,15 @@ public class KerberosResource {
 								"krb5.conf is NOT exist, please check with admin,"
 										+ " and make sure kerberos client is installed on the OCM server.",
 								ResponseCodeConstant.CAN_NOT_FIND_KRB5_CONF_FILE))
-						.build();
+						.tag(KRB5PATH).build();
 			}
 
 			return Response.ok(file).header("Content-disposition", "attachment;filename=" + "krb5.conf")
-					.header("Cache-Control", "no-cache").build();
+					.header("Cache-Control", "no-cache").tag(KRB5PATH).build();
 
 		} catch (Exception e) {
 			logger.error("getKrb5File hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(KRB5PATH).build();
 		}
 	}
 
@@ -83,15 +82,16 @@ public class KerberosResource {
 								userName + ".keytab is NOT exist, please generate the keytab by call"
 										+ " REST API: /ocmanager/v1/api/kerberos/keytab ",
 								ResponseCodeConstant.CAN_NOT_FIND_KRB_KEYTAB_FILE))
-						.build();
+						.tag(file.getPath()).build();
 			}
 
 			return Response.ok(file).header("Content-disposition", "attachment;filename=" + userName + ".keytab")
-					.header("Cache-Control", "no-cache").build();
+					.header("Cache-Control", "no-cache").tag(file.getPath()).build();
 
 		} catch (Exception e) {
 			logger.error("getKeyTabFile hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString())
+					.tag(PATH.replace("{$username}", userName.trim())).build();
 		}
 	}
 
@@ -101,6 +101,7 @@ public class KerberosResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Audit(action = Action.CREATE, targetType = TargetType.KEYTAB)
 	public Response createKeyTabFile(String requestBody) {
+		String krbusername = null;
 		try {
 			JsonElement req = new JsonParser().parse(requestBody);
 			JsonObject obj = req.getAsJsonObject();
@@ -114,12 +115,12 @@ public class KerberosResource {
 								"can NOT find krbusername in the request boday, please make sure you "
 										+ "input the krbusername and krbpassword in the request body correctly.",
 								ResponseCodeConstant.CAN_NOT_FIND_KRB_USERNAME_OR_PASSWORD))
-						.build();
+						.tag("UserNameNull").build();
 			}
 
 			logger.info("Creating keytab for user " + krbusernameJE + " with password random password.");
 
-			String krbusername = krbusernameJE.getAsString();
+			krbusername = krbusernameJE.getAsString();
 			// String krbpassword = krbpasswordJE.getAsString();
 
 			File file = new File(PATH.replace("{$username}", krbusername.trim()));
@@ -133,11 +134,11 @@ public class KerberosResource {
 			}
 
 			return Response.ok().entity(new ResourceResponseBean("generate keytab successfully!",
-					krbusername + ".keytab created", ResponseCodeConstant.SUCCESS)).build();
+					krbusername + ".keytab created", ResponseCodeConstant.SUCCESS)).tag(file.getPath()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("createKeyTabFile hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(PATH.replace("{$username}", krbusername.trim())).build();
 		}
 	}
 
