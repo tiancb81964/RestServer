@@ -23,7 +23,7 @@ public class DBConnectorFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DBConnectorFactory.class);
 	// TODO the db connection need to change not use the one connection
-	public static SqlSessionFactory sessionFactory;
+	public static SqlSessionFactory sessionFactory = null;
 
 	static {
 

@@ -105,9 +105,15 @@ public class QuotaCommonUtils {
 					: serviceQuota.get("replicas").getAsString();
 			String elasticsearchVolume = serviceQuota.get("volume") == null ? null
 					: serviceQuota.get("volume").getAsString();
+			String elasticsearchCpu = serviceQuota.get("cpu") == null ? null
+					: serviceQuota.get("cpu").getAsString();
+			String elasticsearchMemory = serviceQuota.get("memory") == null ? null
+					: serviceQuota.get("memory").getAsString();
 
 			quotaMap.put("replicas", elasticsearchReplicas);
 			quotaMap.put("volume", elasticsearchVolume);
+			quotaMap.put("cpu", elasticsearchCpu);
+			quotaMap.put("memory", elasticsearchMemory);
 
 			break;
 		case "zeppelin":

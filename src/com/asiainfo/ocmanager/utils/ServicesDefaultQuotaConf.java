@@ -135,6 +135,8 @@ public class ServicesDefaultQuotaConf {
 
 			quotaMap.put("replicas", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("replicas")));
 			quotaMap.put("volume", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("volume")));
+			quotaMap.put("cpu", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("cpu")));
+			quotaMap.put("memory", new ServiceInstanceDefaultQuotaBean(quota.getAsJsonObject("memory")));
 
 			break;
 		case "zeepelin":
