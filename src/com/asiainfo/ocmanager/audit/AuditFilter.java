@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
-import com.asiainfo.ocmanager.rest.bean.ResponseBean;
 import com.google.common.base.Strings;
 
 /**
@@ -42,17 +41,12 @@ public class AuditFilter implements ContainerResponseFilter {
 				return;
 			}
 			int status = responseContext.getStatus();
-			Object entity = responseContext.getEntity();
-			String target;
-			if (entity instanceof ResponseBean) {
-				target = ((ResponseBean) entity).getOperand().toString();
-			} else {
-				target = "ParseError:" + entity.getClass().getSimpleName();
-			}
+			String target = responseContext.getEntityTag() == null ? "tagNull" : responseContext.getEntityTag().getValue();
 			String ip = sr.getRemoteAddr();
 			String user = isLogin(requestContext) ? target : getUser(requestContext);
 			Action action = anno.action();
 			TargetType type = anno.targetType();
+			Object entity = responseContext.getEntity();
 			AuditString audit = new AuditString().status(status).user(user).ip(ip).action(action.name())
 					.targetType(type.name()).target(target).entity(entity.toString());
 			LOG.info(audit.toString());

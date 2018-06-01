@@ -28,4 +28,8 @@ public class LoginResponseBean {
 
     public int getResCode() {return resCode;}
 
+	@Override
+	public String toString() {
+		return this.message;
+	}
 }
