@@ -55,9 +55,9 @@ public class AuthcResource {
 			Authenticator authenticator = new Authenticator();
 			if (authenticator.loginWithUsernamePassword(username, password)) {
 				String token = Authenticator.generateToken(username, password);
-				logger.info("login success. Token: " + token);
+				logger.info("login successful. Token: " + token);
 				return Response.ok().entity(new LoginResponseBean("Login successful!",
-						"token been returned", 200, token)).tag(username).build();
+						"login successful", 200, token)).tag(username).build();
 			} else {
 				logger.info("login failed.");
 				return Response.status(Response.Status.UNAUTHORIZED)
