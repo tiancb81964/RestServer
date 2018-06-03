@@ -19,7 +19,7 @@ public class SSOConfiguration {
 
 	public static Properties getConf() {
 		if (conf == null) {
-			synchronized (ServerConfiguration.class) {
+			synchronized (SSOConfiguration.class) {
 				if (conf == null) {
 					new SSOConfiguration();
 				}
