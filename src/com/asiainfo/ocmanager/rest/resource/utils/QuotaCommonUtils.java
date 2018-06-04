@@ -110,6 +110,17 @@ public class QuotaCommonUtils {
 			quotaMap.put("volume", elasticsearchVolume);
 
 			break;
+		case "zeppelin":
+
+			String zeppelinCpu = serviceQuota.get("cpu") == null ? null
+					: serviceQuota.get("cpu").getAsString();
+			String zeppelinMemory = serviceQuota.get("memory") == null ? null
+					: serviceQuota.get("memory").getAsString();
+
+			quotaMap.put("cpu", zeppelinCpu);
+			quotaMap.put("memory", zeppelinMemory);
+
+			break;
 
 		default:
 			logger.error("The {} service did NOT support the set quota in tenant, please check with admin.", service);

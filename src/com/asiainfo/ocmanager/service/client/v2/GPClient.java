@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Greenplum client.
  * 
@@ -13,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class GPClient extends ServiceClient{
+	private static final Logger LOG = LoggerFactory.getLogger(GPClient.class);
 	private Map<String, Connection> map = new ConcurrentHashMap<>();
 	private static String prefix_conn;
 	private static String user;
@@ -29,7 +33,7 @@ public class GPClient extends ServiceClient{
 			prefix_conn = "jdbc:postgresql://" + host + ":" + port + "/";
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Exception while init GPClient client: ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -48,7 +52,7 @@ public class GPClient extends ServiceClient{
 			cache(dbName, create(dbName));
 			return map.get(dbName);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOG.error("SQLException while getConnection(): ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -57,7 +61,7 @@ public class GPClient extends ServiceClient{
 		try {
 			return map.get(dbName).isClosed();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOG.error("SQLException while closed(): ", e);
 			return true;
 		}
 	}

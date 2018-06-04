@@ -5,6 +5,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by gq on 17/7/18.
@@ -17,6 +19,7 @@ public class AESUtils {
      * @param password  加密密码
      * @return
      */
+    private static final Logger LOG = LoggerFactory.getLogger(AESUtils.class);
     public static String encrypt(String content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -32,17 +35,17 @@ public class AESUtils {
             byte[] result = cipher.doFinal(byteContent); // 加密
             return parseByte2HexStr(result);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOG.error("NoSuchAlgorithmException while encrypt(): ", e);
         } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+            LOG.error("NoSuchPaddingException while encrypt(): ", e);
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            LOG.error("InvalidKeyException while encrypt(): ", e);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            LOG.error("UnsupportedEncodingException while encrypt(): ", e);
         } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
+            LOG.error("IllegalBlockSizeException while encrypt(): ", e);
         } catch (BadPaddingException e) {
-            e.printStackTrace();
+            LOG.error("BadPaddingException while encrypt(): ", e);
         }
         return null;
     }

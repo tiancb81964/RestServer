@@ -36,7 +36,7 @@ import com.asiainfo.ocmanager.utils.ClusterConfig;
  */
 public class RangerClient {
 	private static final Logger LOG = LoggerFactory.getLogger(RangerClient.class);
-	private CloseableHttpClient httpClient;
+	//private CloseableHttpClient httpClient;
 	private HttpClientContext context;
 	private URI rangerURI;
 	private static final String TEMP = "{\"name\" : \"{$USER_NAME}\", \"firstName\" : \"{$FIRST_NAME}\", \"lastName\" : \"\", \"emailAddress\" : \"\", \"password\" : \"{$PASSWORD}\", \"description\" : \"by ocm at {$CREATE_TIME}\", \"groupIdList\" : null, \"status\" : 1, \"userRoleList\" : [\"ROLE_USER\"]}";
@@ -53,7 +53,7 @@ public class RangerClient {
 		try {
 			this.context = HttpClientContext.create();
 			initContext();
-			this.httpClient = HttpClientBuilder.create().build();
+			//this.httpClient = HttpClientBuilder.create().build();
 		} catch (Exception e) {
 			LOG.error("Error while init ranger client: ", e);
 			throw e;
@@ -69,11 +69,15 @@ public class RangerClient {
 	 *             if user existed
 	 */
 	public boolean addUser(User user) throws UserExistedException, Exception {
+		CloseableHttpClient httpClient = null;
+		HttpPost request = null;
+		CloseableHttpResponse response = null;
 		try {
+			httpClient = HttpClientBuilder.create().build();
 			validateUSer(user);
-			HttpPost request = new HttpPost(this.rangerURI.resolve("/service/xusers/secure/users"));
+			request = new HttpPost(this.rangerURI.resolve("/service/xusers/secure/users"));
 			request.setEntity(toEntity(assembleBody(user)));
-			CloseableHttpResponse response = this.httpClient.execute(request, this.context);
+			response = httpClient.execute(request, this.context);
 			if (response.getStatusLine().getStatusCode() == 200) {
 				LOG.debug("Add user to ranger succeeded: " + user);
 				return true;
@@ -89,6 +93,13 @@ public class RangerClient {
 		} catch (Exception e) {
 			LOG.error("Exception while add user to ranger: ", e);
 			throw e;
+		} finally {
+			if(response != null) {
+				response.close();
+			}
+			if(httpClient != null) {
+				httpClient.close();
+			}
 		}
 	}
 
@@ -112,10 +123,13 @@ public class RangerClient {
 		InputStream in = null;
 		try {
 			in = entity.getContent();
-			in.read(b);
-			String msg = new String(b);
-			LOG.info("Add-User-to-Ranger returned message: " + msg);
-			return msg.indexOf("XUser already exists") != -1;
+			if (in.read(b) > 0) {
+				String msg = new String(b);
+				LOG.info("Add-User-to-Ranger returned message: " + msg);
+				return msg.indexOf("XUser already exists") != -1;
+			} else {
+				return false;
+			}
 		}finally {
 			if (in != null) {
 				in.close();

@@ -61,11 +61,11 @@ public class HDFSClient extends ServiceClient{
 				System.out.println(">>> " + file);
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LOG.error("FileNotFoundException while main(): ", e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			LOG.error("IllegalArgumentException while main(): ", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("IOException while main(): ", e);
 		}
 		System.out.println("end of main");
 	}

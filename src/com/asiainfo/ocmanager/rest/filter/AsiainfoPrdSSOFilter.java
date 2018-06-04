@@ -88,7 +88,7 @@ public class AsiainfoPrdSSOFilter implements Filter {
 				}
 			}
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
-			e.printStackTrace();
+			logger.error("doFilter() hit KeyManagementException | NoSuchAlgorithmException | KeyStoreException -> ", e);
 		}
 
 	}
