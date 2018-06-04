@@ -101,7 +101,6 @@ public class UserRoleViewPersistenceWrapper {
 		return turs;
 	}
 
-	
 	/**
 	 * 
 	 * @param userName
@@ -123,4 +122,27 @@ public class UserRoleViewPersistenceWrapper {
 		}
 		return turs;
 	}
+
+	/**
+	 * 
+	 * @param roleName
+	 * @param tenantId
+	 * @return
+	 */
+	public static List<UserRoleView> getTURBasedOnRoleNameAndTenantId(String roleName, String tenantId) {
+		SqlSession session = DBConnectorFactory.getSession();
+		List<UserRoleView> turs = new ArrayList<UserRoleView>();
+		try {
+			UserRoleMapper mapper = session.getMapper(UserRoleMapper.class);
+			turs = mapper.selectUserBasedOnRoleNameAndTenantId(roleName, tenantId);
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return turs;
+	}
+
 }

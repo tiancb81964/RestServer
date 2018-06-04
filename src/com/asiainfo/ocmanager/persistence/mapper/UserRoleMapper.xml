@@ -47,7 +47,7 @@
 		  T.name as "tenantName"
 		from
 		  tenants_users_roles_assignment as TUR, users as U, roles as R, tenants as T where
-		  TUR.user_id=U.id and TUR.role_id=R.id and TUR.tenant_id = T.id and TUR.user_id=#{userId};
+		  TUR.user_id=U.id and TUR.role_id=R.id and TUR.tenant_id = T.id and TUR.user_id=#{userId}
 	</select>
 	<!-- select the role and tenant info based on user name -->
 	<select id="selectTenantAndRoleBasedOnUserName" parameterType="java.lang.String"
@@ -63,7 +63,7 @@
 		from
 			tenants_users_roles_assignment as TUR, users as U, roles as R, tenants as T where
 			TUR.user_id=U.id and TUR.role_id=R.id and TUR.tenant_id = T.id and
-			U.username=#{userName};
+			U.username=#{userName}
 	</select>
 	<!-- select the user, role and tenant info based on user name and role -->
 	<!-- the results will be more -->
@@ -80,7 +80,21 @@
 		from
 			tenants_users_roles_assignment as TUR, users as U, roles as R, tenants as T where
 			TUR.user_id=U.id and TUR.role_id=R.id and TUR.tenant_id = T.id and
-			U.username=#{userName} and R.id=#{roleId};
-		;
+			U.username=#{userName} and R.id=#{roleId}
+	</select>
+	<!-- select the TRU based on the given tenant id and role name -->
+	<select id="selectUserBasedOnRoleNameAndTenantId" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.UserRoleView">
+		select
+			U.id as "userId",
+			U.username as "userName",
+			TUR.role_id as "roleId",
+			R.rolename as "roleName",
+			TUR.tenant_id as "tenantId",
+			R.permission as "permission"
+			from
+		         users as U, tenants_users_roles_assignment as TUR, roles as R where
+		         U.id=TUR.user_id and TUR.role_id=R.id and R.rolename=#{roleName} and
+		         TUR.tenant_id=#{tenantId}
 	</select>
 </mapper>
