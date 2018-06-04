@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.io.File;
 
@@ -17,7 +17,7 @@ import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 
-@Path("/v1/api/file")
+@Path("/v2/api/file")
 public class ExternalFileResource {
 	private static Logger logger = Logger.getLogger(ExternalFileResource.class);
 	private static final String BASE = ExternalFileResource.class.getResource("/").getPath() + ".." + File.separator

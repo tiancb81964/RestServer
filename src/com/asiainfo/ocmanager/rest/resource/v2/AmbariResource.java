@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -24,7 +24,7 @@ import com.asiainfo.ocmanager.service.client.ClusterFactory;
  *
  */
 
-@Path("/v1/api/ambari")
+@Path("/v2/api/ambari")
 public class AmbariResource {
 
 	private static Logger logger = Logger.getLogger(AmbariResource.class);

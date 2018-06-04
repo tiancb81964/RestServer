@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -57,7 +57,7 @@ import com.google.gson.JsonParser;
  * @author zhaoyim
  *
  */
-@Path("/v1/api/service")
+@Path("/v2/api/service")
 public class ServiceResource {
 
 	private static Logger logger = Logger.getLogger(ServiceResource.class);

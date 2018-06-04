@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.common.base.Joiner;
 
-@Path("/v1/api/metrics")
+@Path("/v2/api/metrics")
 public class MetricsResource {
 	private static final Logger LOG = LoggerFactory.getLogger(MetricsResource.class);
 

@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -28,7 +28,7 @@ import com.google.gson.JsonParser;
 /**
  * Created by gq on 17/7/17.
  */
-@Path("/v1/api/authc")
+@Path("/v2/api/authc")
 public class AuthcResource {
 	private static Logger logger = LoggerFactory.getLogger(AuthcResource.class);
 

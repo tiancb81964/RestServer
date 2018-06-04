@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.io.File;
 
@@ -29,7 +29,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-@Path("/v1/api/kerberos")
+@Path("/v2/api/kerberos")
 public class KerberosResource {
 
 	private static Logger logger = Logger.getLogger(KerberosResource.class);

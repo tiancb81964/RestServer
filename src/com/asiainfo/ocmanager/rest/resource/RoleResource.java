@@ -21,7 +21,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.RolePersistenceWrapper;
  *
  */
 
-@Path("/role")
+@Path("/v1/api/role")
 public class RoleResource {
 
 	private static Logger logger = Logger.getLogger(RoleResource.class);

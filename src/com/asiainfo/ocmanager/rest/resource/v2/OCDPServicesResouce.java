@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,7 +17,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
  *
  */
 
-@Path("/v1/api/ocdp/services")
+@Path("/v2/api/ocdp/services")
 public class OCDPServicesResouce {
 
 	private static Logger logger = Logger.getLogger(OCDPServicesResouce.class);
