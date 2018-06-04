@@ -20,8 +20,10 @@ public class ServiceInstanceQuotaConst {
 	public final static String STORM = "storm";
 	public final static String ELASTICSEARCH = "elasticsearch";
 	public final static String ZEPPELIN = "zeppelin";
+	public final static String ANACONDA = "anaconda";
+	public final static String DATAIKU = "dataiku";
 
 	public static final List<String> quotaCheckServices = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
-			"kafka", "redis", "storm", "elasticsearch", "zeppelin");
+			"kafka", "redis", "storm", "elasticsearch", "zeppelin", "anaconda", "dataiku");
 
 }

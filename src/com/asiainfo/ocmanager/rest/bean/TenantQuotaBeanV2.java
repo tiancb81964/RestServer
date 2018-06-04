@@ -51,6 +51,7 @@ public class TenantQuotaBeanV2 {
 	public void tenantQuotaParser(String quotaStr) {
 		Catalog.getInstance().listAllServices().values().forEach(e -> {
 			TenantQuotaUtils.getTenantQuotaByService(e, quotaStr).forEach((k,v) -> {
+				if(v== null)System.out.println("debug"+k+e);
 				double value = Double.valueOf(v);
 				svcquot.put(e, k, value);
 			});
