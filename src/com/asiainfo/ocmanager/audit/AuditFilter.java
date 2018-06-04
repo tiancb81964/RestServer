@@ -40,6 +40,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			if (anno == null) {
 				return;
 			}
+			String uri = sr.getRequestURI();
 			int status = responseContext.getStatus();
 			String target = responseContext.getEntityTag() == null ? "tagNull" : responseContext.getEntityTag().getValue();
 			String ip = sr.getRemoteAddr();
@@ -48,7 +49,7 @@ public class AuditFilter implements ContainerResponseFilter {
 			TargetType type = anno.targetType();
 			Object entity = responseContext.getEntity();
 			AuditString audit = new AuditString().status(status).user(user).ip(ip).action(action.name())
-					.targetType(type.name()).target(target).entity(entity.toString());
+					.targetType(type.name()).target(target).uri(uri).entity(entity.toString());
 			LOG.info(audit.toString());
 		} catch (Exception e) {
 			LOG.error("Exception doing auditting: ", e);
@@ -85,7 +86,7 @@ public class AuditFilter implements ContainerResponseFilter {
 	}
 
 	private static class AuditString {
-		private String template = "user=$USER  ip=$IP  status=$STATUS  action=$ACTION  tType=$TARGETTYPE  tValue=$TARGET desc=$ENTITY";
+		private String template = "user=$USER  ip=$IP  status=$STATUS  action=$ACTION  tType=$TARGETTYPE  tValue=$TARGET  uri=$URI  rspEntity=$ENTITY";
 
 		public AuditString status(int status) {
 			template = template.replace("$STATUS", String.valueOf(status));
@@ -99,7 +100,15 @@ public class AuditFilter implements ContainerResponseFilter {
 			template = template.replace("$USER", user);
 			return this;
 		}
-
+		
+		public AuditString uri(String uri) {
+			if (uri == null) {
+				return this;
+			}
+			template = template.replace("$URI", uri);
+			return this;
+		}
+		
 		public AuditString ip(String ip) {
 			if (ip == null) {
 				return this;

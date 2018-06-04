@@ -196,11 +196,11 @@ public class UserResource {
 	public Response getUserById(@PathParam("id") String userId) {
 		try {
 			User user = UserPersistenceWrapper.getUserById(userId);
-			return Response.ok().entity(user == null ? new User() : user).build();
+			return Response.ok().entity(user == null ? new User() : user).tag(userId).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getUserById hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userId).build();
 		}
 	}
 
@@ -211,11 +211,11 @@ public class UserResource {
 	public Response getUserByName(@PathParam("userName") String userName) {
 		try {
 			User user = UserPersistenceWrapper.getUserByName(userName);
-			return Response.ok().entity(user == null ? new User() : user).build();
+			return Response.ok().entity(user == null ? new User() : user).tag(userName).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getUserById hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userName).build();
 		}
 	}
 
@@ -238,7 +238,7 @@ public class UserResource {
 						.entity(new ResourceResponseBean("create user failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(user.getUsername()).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(token);
@@ -252,31 +252,34 @@ public class UserResource {
 						.entity(new ResourceResponseBean("create user failed",
 								"the user is not system admin role, does NOT have the create user permission.",
 								ResponseCodeConstant.NO_CREATE_USER_PERMISSION))
-						.build();
+						.tag(user.getUsername()).build();
 			}
 
 			if (!appendUser2Rangers(user)) {
 				logger.error("Failed to append user to Ranger: " + user);
-				return Response.status(Status.BAD_REQUEST).entity("Failed to append user to Ranger: " + user).build();
+				return Response.status(Status.BAD_REQUEST).entity("Failed to append user to Ranger: " + user)
+						.tag(user.getUsername()).build();
 			}
 
 			user = UserPersistenceWrapper.createUser(user);
-			return Response.ok().entity(user).build();
+			return Response.ok().entity(user).tag(user.getUsername()).build();
 
 		} catch (Exception e) {
 			if (e.getCause() instanceof MySQLIntegrityConstraintViolationException) {
 				MySQLIntegrityConstraintViolationException newExp = (MySQLIntegrityConstraintViolationException) e
 						.getCause();
 				if (newExp.getErrorCode() == 1062) {
-					return Response.status(Status.CONFLICT).entity(new ResourceResponseBean("create user failed",
-							"the user" + user.getUsername() + "is already existed", ResponseCodeConstant.USER_EXIST))
-							.build();
+					return Response.status(Status.CONFLICT)
+							.entity(new ResourceResponseBean("create user failed",
+									"the user" + user.getUsername() + "is already existed",
+									ResponseCodeConstant.USER_EXIST))
+							.tag(user.getUsername()).build();
 				}
 			}
 
 			// system out the exception into the console log
 			logger.error("createUser hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(user.getUsername()).build();
 
 		}
 	}
@@ -291,15 +294,14 @@ public class UserResource {
 		}
 		System.out.println(">>>end of main.");
 	}
-	
+
 	private boolean appendUser2Rangers(User user) throws Exception {
 		Map<String, ClusterConfig> clusters = ClustersIni.getInstance().getClusters();
-		clusters.forEach((k,v) -> {
+		clusters.forEach((k, v) -> {
 			RangerClient ranger = ClusterFactory.getRanger(k);
 			/*
-			 * 1. user not exist in ranger and append succeed 
-			 * 2. user not exist and append exception 
-			 * 3. user existed in ranger and append failed
+			 * 1. user not exist in ranger and append succeed 2. user not exist and append
+			 * exception 3. user existed in ranger and append failed
 			 */
 			try {
 				ranger.addUser(user);
@@ -333,7 +335,7 @@ public class UserResource {
 						.entity(new ResourceResponseBean("update user failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(user.getUsername()).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(token);
@@ -350,18 +352,18 @@ public class UserResource {
 							.entity(new ResourceResponseBean("update user failed",
 									"the user is not system admin role, does NOT have the update user permission.",
 									ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
-							.build();
+							.tag(user.getUsername()).build();
 				}
 			}
 
 			user.setId(userId);
 			user = UserPersistenceWrapper.updateUser(user);
-			return Response.ok().entity(user).build();
+			return Response.ok().entity(user).tag(user.getUsername()).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("updateUserById hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(user.getUsername()).build();
 		}
 	}
 
@@ -379,7 +381,7 @@ public class UserResource {
 						.entity(new ResourceResponseBean("update user failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(userName).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(token);
@@ -394,18 +396,18 @@ public class UserResource {
 							.entity(new ResourceResponseBean("update user failed",
 									"the user is not system admin role, does NOT have the update user permission.",
 									ResponseCodeConstant.NO_UPDATE_USER_PERMISSION))
-							.build();
+							.tag(userName).build();
 				}
 			}
 
 			user.setUsername(userName);
 			user = UserPersistenceWrapper.updateUserByName(user);
-			return Response.ok().entity(user).build();
+			return Response.ok().entity(user).tag(userName).build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("updateUserByName hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userName).build();
 		}
 	}
 
@@ -424,7 +426,7 @@ public class UserResource {
 						.entity(new ResourceResponseBean("update user password failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(userName).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(token);
@@ -438,7 +440,7 @@ public class UserResource {
 					return Response.status(Status.UNAUTHORIZED).entity(new ResourceResponseBean(
 							"update user password failed",
 							"the user is not system admin role or it is NOT change itself password, does NOT have the update user password permission.",
-							ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION)).build();
+							ResponseCodeConstant.NO_UPDATE_USER_PASSWORD_PERMISSION)).tag(userName).build();
 				}
 			}
 
@@ -446,11 +448,11 @@ public class UserResource {
 			Authenticator.logout(userName);
 			return Response.ok().entity(
 					new ResourceResponseBean("update user password success", userName, ResponseCodeConstant.SUCCESS))
-					.build();
+					.tag(userName).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("updateUserPassword hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userName).build();
 		}
 	}
 
@@ -474,7 +476,7 @@ public class UserResource {
 						.entity(new ResourceResponseBean("delete user failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(userName).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(token);
@@ -488,14 +490,16 @@ public class UserResource {
 						.entity(new ResourceResponseBean("delete user failed",
 								"the user is not system admin role, does NOT have the delete user permission.",
 								ResponseCodeConstant.NO_DELETE_USER_PERMISSION))
-						.build();
+						.tag(userName).build();
 			}
 
 			User user = UserPersistenceWrapper.getUserById(userId);
 
 			if (user == null) {
-				return Response.status(Status.NOT_FOUND).entity(new ResourceResponseBean("delete user failed",
-						"The user " + userId + "can not find.", ResponseCodeConstant.USER_NOT_FOUND)).build();
+				return Response
+						.status(Status.NOT_FOUND).entity(new ResourceResponseBean("delete user failed",
+								"The user " + userId + "can not find.", ResponseCodeConstant.USER_NOT_FOUND))
+						.tag(userName).build();
 			}
 
 			userName = user.getUsername();
@@ -505,7 +509,7 @@ public class UserResource {
 
 			return Response.ok()
 					.entity(new ResourceResponseBean("delete user success", userId, ResponseCodeConstant.SUCCESS))
-					.build();
+					.tag(userName).build();
 
 		} catch (Exception e) {
 			if (e.getCause() instanceof MySQLIntegrityConstraintViolationException) {
@@ -520,11 +524,11 @@ public class UserResource {
 								"The user is assign with the tenants: [" + tenants.toString()
 										+ "], please unassign the user, then try to delete it again.",
 								ResponseCodeConstant.USER_CAN_NOT_DELETE))
-						.build();
+						.tag(userName).build();
 			} else {
 				// system out the exception into the console log
 				logger.error("deleteUser  hit exception -> ", e);
-				return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+				return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userName).build();
 			}
 		}
 	}
@@ -606,10 +610,10 @@ public class UserResource {
 				tenantList.addAll(TenantTreeUtil.transform(nodes));
 			}
 
-			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).build();
+			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).tag(userId).build();
 		} catch (Exception e) {
 			logger.error("Error while getting Tenants by user id: " + userId, e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userId).build();
 		}
 	}
 
@@ -632,10 +636,10 @@ public class UserResource {
 				tenantList.addAll(TenantTreeUtil.transform(allNodes));
 			}
 			logger.info("getTenantsByName -> " + userName);
-			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).build();
+			return Response.ok().entity(TenantUtils.removeListDup(tenantList)).tag(userName).build();
 		} catch (Exception e) {
 			logger.error("Error while getting Tenants by user name: " + userName, e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(userName).build();
 		}
 	}
 
@@ -668,11 +672,12 @@ public class UserResource {
 				}
 			}
 
-			return Response.ok().entity(children).build();
+			return Response.ok().entity(children).tag(String.join("->", tenantId, userId)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getChildrenTenantsByUserIdTenantId hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", tenantId, userId))
+					.build();
 		}
 	}
 
@@ -705,11 +710,12 @@ public class UserResource {
 				}
 			}
 
-			return Response.ok().entity(children).build();
+			return Response.ok().entity(children).tag(String.join("->", tenantId, userName)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getChildrenTenantsByUserNameTenantId  hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", tenantId, userName))
+					.build();
 		}
 	}
 
@@ -748,132 +754,134 @@ public class UserResource {
 				JsonObject instanceJson = instanceJE.getAsJsonObject();
 				JsonObject spec = instanceJson.getAsJsonObject("spec");
 				String phase = instanceJson.getAsJsonObject("status").get("phase").getAsString();
-//				JsonElement binding = spec.get("binding");
+				// JsonElement binding = spec.get("binding");
 				String serviceName = spec.getAsJsonObject("provisioning").get("backingservice_name").getAsString();
 				JsonElement action = instanceJson.getAsJsonObject("status").get("action");
 				JsonElement patch = instanceJson.getAsJsonObject("status").get("patch");
-				String actionString = action == null ? null :action.getAsString();
-				String patchString = patch == null ? null :patch.getAsString();
-				
-//				if (!phase.equals(Constant.FAILURE)) {
-//					if (Constant.list.contains(serviceName.toLowerCase())) {
-//						if (!binding.isJsonNull()) {
-//							JsonArray bindingArray = spec.getAsJsonArray("binding");
-//							List<String> bindingedUserNames = new ArrayList<String>();
-//							for (JsonElement je : bindingArray) {
-//								String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-//								bindingedUserNames.add(bindingUserName);
-//							}
-//							if (bindingedUserNames.contains(userName)) {
-//								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//										"Authorization Success", phase, actionString, patchString);
-//								assignmentInfoBeans.add(AIB);
-//							} else {
-//								if (action == null && patch == null) {
-//									AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//											"Authorization Failure OR Not Begin", phase, actionString, patchString);
-//									assignmentInfoBeans.add(AIB);
-//								} else {
-//									if (patch != null) {
-//										if (patch.getAsString().equals(Constant.FAILURE)) {
-//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//													"Failure OR Not Begin", phase, actionString, patchString);
-//											assignmentInfoBeans.add(AIB);
-//										} else {
-//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//													"Authorization Running", phase, actionString, patchString);
-//											assignmentInfoBeans.add(AIB);
-//										}
-//									} else {
-//										if (action.getAsString().equals(Constant._TOBIND)
-//												|| action.getAsString().equals(Constant._TOUNBIND)) {
-//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//													"Authorization Running", phase, actionString, patchString);
-//											assignmentInfoBeans.add(AIB);
-//										} else {
-//											AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//													"Failure OR Not Begin", phase, actionString, patchString);
-//											assignmentInfoBeans.add(AIB);
-//										}
-//									}
-//								}
-//							}
-//						} else {
-//							if (action == null && patch == null) {
-//								AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//										"Failure OR Not Begin", phase, actionString, patchString);
-//								assignmentInfoBeans.add(AIB);
-//							} else {
-//								if (patch != null) {
-//									if (patch.getAsString().equals(Constant.FAILURE)) {
-//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//												"Failure OR Not Begin", phase, actionString, patchString);
-//										assignmentInfoBeans.add(AIB);
-//									} else {
-//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//												"Authorization Running", phase, actionString, patchString);
-//										assignmentInfoBeans.add(AIB);
-//									}
-//								} else {
-//									if (action.getAsString().equals(Constant._TOBIND)
-//											|| action.getAsString().equals(Constant._TOUNBIND)) {
-//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//												"Authorization Running", phase, actionString, patchString);
-//										assignmentInfoBeans.add(AIB);
-//									} else {
-//										AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//												"Failure OR Not Begin", phase, actionString, patchString);
-//										assignmentInfoBeans.add(AIB);
-//									}
-//								}
-//							}
-//						}
-//					} else {
-//						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-//								"Authorization Not Supported for service: " + instace.getServiceName(), phase, actionString, patchString);
-//						assignmentInfoBeans.add(AIB);
-//					}
-//				}
-				
+				String actionString = action == null ? null : action.getAsString();
+				String patchString = patch == null ? null : patch.getAsString();
+
+				// if (!phase.equals(Constant.FAILURE)) {
+				// if (Constant.list.contains(serviceName.toLowerCase())) {
+				// if (!binding.isJsonNull()) {
+				// JsonArray bindingArray = spec.getAsJsonArray("binding");
+				// List<String> bindingedUserNames = new ArrayList<String>();
+				// for (JsonElement je : bindingArray) {
+				// String bindingUserName =
+				// je.getAsJsonObject().get("bind_hadoop_user").getAsString();
+				// bindingedUserNames.add(bindingUserName);
+				// }
+				// if (bindingedUserNames.contains(userName)) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Success", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// if (action == null && patch == null) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// if (patch != null) {
+				// if (patch.getAsString().equals(Constant.FAILURE)) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Running", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// }
+				// } else {
+				// if (action.getAsString().equals(Constant._TOBIND)
+				// || action.getAsString().equals(Constant._TOUNBIND)) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Running", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// }
+				// }
+				// }
+				// }
+				// } else {
+				// if (action == null && patch == null) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// if (patch != null) {
+				// if (patch.getAsString().equals(Constant.FAILURE)) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Running", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// }
+				// } else {
+				// if (action.getAsString().equals(Constant._TOBIND)
+				// || action.getAsString().equals(Constant._TOUNBIND)) {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Running", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// } else {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Failure OR Not Begin", phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// }
+				// }
+				// }
+				// }
+				// } else {
+				// AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
+				// "Authorization Not Supported for service: " + instace.getServiceName(),
+				// phase, actionString, patchString);
+				// assignmentInfoBeans.add(AIB);
+				// }
+				// }
+
 				if (!Constant.list.contains(serviceName.toLowerCase())) {
 					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 							"Unsupportive For Privilege Assignment", phase, actionString, patchString);
 					assignmentInfoBeans.add(AIB);
 					continue;
 				}
-				
+
 				switch (phase) {
 				case Constant.UNBOUND:
 					if (patch == null && action != null && action.getAsString().equals(Constant._TOBIND)) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Assignment Running", phase, actionString, patchString);
-						assignmentInfoBeans.add(AIB);	
-					}else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
+						assignmentInfoBeans.add(AIB);
+					} else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Not Assigned", phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
-					}else if (patch == null && action == null) {
+					} else if (patch == null && action == null) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Not Assigned", phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
-					}else {
-						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Unknown BSI Status", phase, actionString, patchString);
+					} else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Unknown BSI Status",
+								phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
-					} 
+					}
 					break;
 				case Constant.BOUND:
 					if (inList(spec, userName)) {
-						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Privilege Assigned", phase, actionString, patchString);
-						assignmentInfoBeans.add(AIB);					
-					}else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Privilege Assigned",
+								phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					} else if (patch == null && action != null && action.getAsString().equals(Constant._TOUNBIND)) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"Privilege Unassignment Running", phase, actionString, patchString);
-						assignmentInfoBeans.add(AIB);	
-					}else {
-						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Unknown BSI Status", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					} else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Unknown BSI Status",
+								phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
 					}
 					break;
@@ -881,27 +889,28 @@ public class UserResource {
 					if (action == null && patch == null) {
 						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
 								"BSI Provision Failed", phase, actionString, patchString);
-						assignmentInfoBeans.add(AIB);					}
-					else {
-						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-								"Unknown BSI Status", phase, actionString, patchString);
+						assignmentInfoBeans.add(AIB);
+					} else {
+						AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Unknown BSI Status",
+								phase, actionString, patchString);
 						assignmentInfoBeans.add(AIB);
 					}
 					break;
 				default:
 					logger.error("Unkonwn <phase> status: " + phase);
-					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(),
-							"Unknown BSI Status", phase, actionString, patchString);
+					AssignmentInfoBean AIB = new AssignmentInfoBean(instace.getInstanceName(), "Unknown BSI Status",
+							phase, actionString, patchString);
 					assignmentInfoBeans.add(AIB);
 					break;
 				}
 			}
 			logger.info("User: " + userName + ", BSI infos: " + assignmentInfoBeans);
-			return Response.ok().entity(assignmentInfoBeans).build();
+			return Response.ok().entity(assignmentInfoBeans).tag(String.join("->", userName, tenantId)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getAssignmentsInfoForUser hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(String.join("->", userName, tenantId))
+					.build();
 		}
 	}
 
@@ -912,7 +921,7 @@ public class UserResource {
 			for (JsonElement je : bindingArray) {
 				String bindingUserName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
 				bindingedUserNames.add(bindingUserName);
-			}	
+			}
 		}
 		return bindingedUserNames.contains(userName);
 	}

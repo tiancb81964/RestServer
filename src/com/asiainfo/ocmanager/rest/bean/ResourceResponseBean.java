@@ -44,4 +44,9 @@ public class ResourceResponseBean {
 		this.resCode = resCode;
 	}
 
+	@Override
+	public String toString() {
+		return message;
+	}
+
 }
