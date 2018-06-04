@@ -15,7 +15,7 @@ public class KerberosConfiguration {
 
 	public static Properties getConf() {
 		if (conf == null) {
-			synchronized (ServerConfiguration.class) {
+			synchronized (KerberosConfiguration.class) {
 				if (conf == null) {
 					new KerberosConfiguration();
 				}
