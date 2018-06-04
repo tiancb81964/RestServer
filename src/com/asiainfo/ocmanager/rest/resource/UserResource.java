@@ -20,6 +20,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.Authenticator;
 import com.asiainfo.ocmanager.auth.LdapWrapper;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
@@ -147,6 +150,7 @@ public class UserResource {
 	 */
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.USERS)
 	public Response getUsers() {
 		try {
 			List<User> users = UserPersistenceWrapper.getUsers();
@@ -166,6 +170,7 @@ public class UserResource {
 	@GET
 	@Path("ldap")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.LDAP_USERS)
 	public Response listLdapUsers() {
 		try {
 			List<String> users = LdapWrapper.allUsers();
@@ -187,6 +192,7 @@ public class UserResource {
 	@GET
 	@Path("id/{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.USER)
 	public Response getUserById(@PathParam("id") String userId) {
 		try {
 			User user = UserPersistenceWrapper.getUserById(userId);
@@ -201,6 +207,7 @@ public class UserResource {
 	@GET
 	@Path("name/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.USER)
 	public Response getUserByName(@PathParam("userName") String userName) {
 		try {
 			User user = UserPersistenceWrapper.getUserByName(userName);
@@ -222,6 +229,7 @@ public class UserResource {
 	@POST
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.CREATE, targetType = TargetType.USER)
 	public Response createUser(User user, @Context HttpServletRequest request) {
 		try {
 			String token = request.getHeader("token");
@@ -316,6 +324,7 @@ public class UserResource {
 	@Path("id/{userId}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.USER)
 	public Response updateUserById(@PathParam("userId") String userId, User user, @Context HttpServletRequest request) {
 		try {
 			String token = request.getHeader("token");
@@ -360,6 +369,7 @@ public class UserResource {
 	@Path("name/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.USER)
 	public Response updateUserByName(@PathParam("userName") String userName, User user,
 			@Context HttpServletRequest request) {
 		try {
@@ -403,6 +413,7 @@ public class UserResource {
 	@Path("{userName}/password")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.USER)
 	public Response updateUserPassword(@PathParam("userName") String userName, PasswordBean password,
 			@Context HttpServletRequest request) {
 		try {
@@ -452,6 +463,7 @@ public class UserResource {
 	@DELETE
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.DELETE, targetType = TargetType.USER)
 	public Response deleteUser(@PathParam("id") String userId, @Context HttpServletRequest request) {
 		String userName = null;
 		try {
@@ -582,6 +594,7 @@ public class UserResource {
 	@GET
 	@Path("id/{id}/all/tenants")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getTenantsById(@PathParam("id") String userId) {
 		try {
 			List<UserRoleView> turs = UserRoleViewPersistenceWrapper.getTenantAndRoleBasedOnUserId(userId);
@@ -608,6 +621,7 @@ public class UserResource {
 	@GET
 	@Path("name/{name}/all/tenants")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getTenantsByName(@PathParam("name") String userName) {
 		try {
 			List<Tenant> tenantList = new ArrayList<Tenant>();
@@ -628,6 +642,7 @@ public class UserResource {
 	@GET
 	@Path("id/{id}/tenant/{tenantId}/children/tenants")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getChildrenTenantsByUserIdTenantId(@PathParam("id") String userId,
 			@PathParam("tenantId") String tenantId) {
 		try {
@@ -664,6 +679,7 @@ public class UserResource {
 	@GET
 	@Path("name/{name}/tenant/{tenantId}/children/tenants")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getChildrenTenantsByUserNameTenantId(@PathParam("name") String userName,
 			@PathParam("tenantId") String tenantId) {
 		try {
@@ -719,6 +735,7 @@ public class UserResource {
 	@GET
 	@Path("name/{userName}/tenant/{tenantId}/assignments/info")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.ASSIGNMENT)
 	public Response getAssignmentsInfoForUser(@PathParam("userName") String userName,
 			@PathParam("tenantId") String tenantId) {
 		try {

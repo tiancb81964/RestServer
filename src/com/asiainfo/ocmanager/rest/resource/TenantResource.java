@@ -29,6 +29,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.concurrent.TenantLockerPool;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
@@ -86,6 +89,7 @@ public class TenantResource {
 	 */
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getAllTenants() {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getAllTenants();
@@ -107,6 +111,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANT)
 	public Response getTenantById(@PathParam("id") String tenantId) {
 		try {
 			Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
@@ -128,6 +133,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/children")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.TENANTS)
 	public Response getChildrenTenants(@PathParam("id") String parentTenantId) {
 		try {
 			List<Tenant> tenants = TenantPersistenceWrapper.getChildrenTenants(parentTenantId);
@@ -149,6 +155,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/users")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.USERS)
 	public Response getTenantUsers(@PathParam("id") String tenantId) {
 		try {
 			List<UserRoleView> usersRoles = UserRoleViewPersistenceWrapper.getUsersInTenant(tenantId);
@@ -196,6 +203,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/user/{userName}/role")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.ROLE)
 	public Response getRoleByTenantUserName(@PathParam("id") String tenantId, @PathParam("userName") String userName) {
 		try {
 			UserRoleView role = getRecursiveRole(tenantId, userName);
@@ -221,6 +229,7 @@ public class TenantResource {
 	@GET
 	@Path("{id}/service/instances")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.INSTANCES)
 	public Response getTenantServiceInstances(@PathParam("id") String tenantId) {
 		try {
 			List<ServiceInstance> serviceInstances = ServiceInstancePersistenceWrapper
@@ -243,6 +252,7 @@ public class TenantResource {
 	@GET
 	@Path("{tenantId}/service/instance/{InstanceName}/access/info")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.ACCESSINFO)
 	public Response getTenantServiceInstanceAccessInfo(@PathParam("tenantId") String tenantId,
 			@PathParam("InstanceName") String InstanceName) {
 		try {
@@ -259,6 +269,7 @@ public class TenantResource {
 	@Path("{tenantId}/status")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.TENANT_LIFETIME)
 	public Response renewTenantLease(Tenant tenant, @Context HttpServletRequest request) {
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
@@ -292,6 +303,7 @@ public class TenantResource {
 	@POST
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.CREATE, targetType = TargetType.TENANT)
 	public Response createTenant(Tenant tenant, @Context HttpServletRequest request) {
 		try {
 			if (tenant.getName() == null || tenant.getId() == null) {
@@ -398,6 +410,7 @@ public class TenantResource {
 	@Path("{id}/service/instance")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.CREATE, targetType = TargetType.INSTANCE)
 	public Response createServiceInstanceInTenant(@PathParam("id") String tenantId, String reqBodyStr,
 			@Context HttpServletRequest request) {
 
@@ -497,6 +510,7 @@ public class TenantResource {
 	@Path("{id}/service/instance/{instanceName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.INSTANCE)
 	public Response updateServiceInstanceInTenant(@PathParam("id") String tenantId,
 			@PathParam("instanceName") String instanceName, String parametersStr, @Context HttpServletRequest request) {
 
@@ -694,6 +708,7 @@ public class TenantResource {
 	@Path("{id}/service/instance/{instanceName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.DELETE, targetType = TargetType.INSTANCE)
 	public Response deleteServiceInstanceInTenant(@PathParam("id") String tenantId,
 			@PathParam("instanceName") String instanceName, @Context HttpServletRequest request) {
 
@@ -802,6 +817,7 @@ public class TenantResource {
 	@PUT
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.TENANT)
 	public Response updateTenant(Tenant tenant, @Context HttpServletRequest request) {
 
 		try {
@@ -907,6 +923,7 @@ public class TenantResource {
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.DELETE, targetType = TargetType.TENANT)
 	public Response deleteTenant(@PathParam("id") String tenantId, @Context HttpServletRequest request) {
 		try {
 			String loginUser = TokenPaserUtils.paserUserName(getToken(request));
@@ -1030,6 +1047,7 @@ public class TenantResource {
 	@Path("{id}/user/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.ASSIGN, targetType = TargetType.ASSIGNMENT)
 	public Response assignRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
 			@Context HttpServletRequest request) {
 
@@ -1087,6 +1105,7 @@ public class TenantResource {
 	@Path("{id}/user/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UPDATE, targetType = TargetType.ASSIGNMENT)
 	public Response updateRoleToUserInTenant(@PathParam("id") String tenantId, TenantUserRoleAssignment assignment,
 			@Context HttpServletRequest request) {
 
@@ -1143,6 +1162,7 @@ public class TenantResource {
 	@Path("{id}/user/{userId}/role/assignment")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Audit(action = Action.UNASSIGN, targetType = TargetType.ASSIGNMENT)
 	public Response unassignRoleFromUserInTenant(@PathParam("id") String tenantId, @PathParam("userId") String userId,
 			@Context HttpServletRequest request) {
 
@@ -1195,6 +1215,7 @@ public class TenantResource {
 	@GET
 	@Path("{tenantId}/quotas")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.QUOTAS)
 	public Response getTenantQuotas(@PathParam("tenantId") String tenantId) {
 		try {
 			TenantQuotaResponse rsp = new TenantQuotaResponse(tenantId);
