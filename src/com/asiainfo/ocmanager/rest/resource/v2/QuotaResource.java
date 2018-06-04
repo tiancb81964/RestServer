@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.Arrays;
 
@@ -24,7 +24,7 @@ import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 
-@Path("/v1/api/quota")
+@Path("/v2/api/quota")
 public class QuotaResource {
 	private static final Logger LOG = LoggerFactory.getLogger(QuotaResource.class);
 

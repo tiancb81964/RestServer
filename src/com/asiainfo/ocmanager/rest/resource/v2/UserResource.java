@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
  *
  */
 
-@Path("/v1/api/user")
+@Path("/v2/api/user")
 public class UserResource {
 
 	private static Logger logger = Logger.getLogger(UserResource.class);

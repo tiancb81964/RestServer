@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrap
  *
  */
 
-@Path("/v1/api/dashboard")
+@Path("/v2/api/dashboard")
 public class DashboardResource {
 
 	private static Logger logger = Logger.getLogger(DashboardResource.class);

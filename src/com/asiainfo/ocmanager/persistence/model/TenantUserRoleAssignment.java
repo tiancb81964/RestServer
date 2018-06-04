@@ -44,4 +44,9 @@ public class TenantUserRoleAssignment {
 		this.roleId = roleId;
 	}
 
+	@Override
+	public String toString() {
+		return "TenantUserRoleAssignment [tenantId=" + tenantId + ", userId=" + userId + ", roleId=" + roleId + "]";
+	}
+
 }

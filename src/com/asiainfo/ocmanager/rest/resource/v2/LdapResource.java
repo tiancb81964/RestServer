@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  *
  */
 
-@Path("/v1/api/ldap")
+@Path("/v2/api/ldap")
 public class LdapResource {
 	private static Logger logger = Logger.getLogger(LdapResource.class);
 

@@ -1,4 +1,4 @@
-package com.asiainfo.ocmanager.rest.resource;
+package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -77,7 +77,7 @@ import com.google.gson.JsonParser;
  *
  */
 
-@Path("/v1/api/tenant")
+@Path("/v2/api/tenant")
 public class TenantResource {
 
 	private static Logger logger = LoggerFactory.getLogger(TenantResource.class);
