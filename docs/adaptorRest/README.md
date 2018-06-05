@@ -1723,6 +1723,7 @@ serviceTypeId|String|服务类型id
 serviceTypeName|String|服务类型名
 status|String|服务实例状态
 tenantId|String|租户id
+catogery|String|服务类别（工具、资源、应用）
 
 #### 2.3.6.2报文示例
 
@@ -1746,6 +1747,7 @@ __response:__
     "serviceTypeId": "",
     "serviceTypeName": "Hive",
     "status": "Failure",
+    "catogery": "resource",
     "tenantId": "zhaoyim-1502869020"
   },
   {
@@ -1754,6 +1756,7 @@ __response:__
     "serviceTypeId": "",
     "serviceTypeName": "HDFS",
     "status": "Failure",
+    "catogery": "resource",
     "tenantId": "86c62459-7c04-11e7-aa10-fa163ed7d0ae"
   },
   ...
@@ -3298,6 +3301,75 @@ __response:__
         }
     ]
 }
+```
+
+### 2.5.18获取租户服务列表（/ocmanager/v2/api/tenant/{tenantId}/services） 
+	
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/admin-1512542444/services
+    请求方式：GET
+
+#### 2.5.18.1请求参数
+
+##### 2.5.18.1.1请求参数
+
+字段|类型|描述|是否必填|备注
+----------|----------------|----|--------|------------|
+tenantId|String|租户id|是|
+
+#### 2.5.18.2返回参数
+
+##### 2.5.18.2.1基本参数
+
+字段|类型|描述|备注
+----------|----------------|----|------------|
+description|String|服务描述
+id|String|服务id
+origin|String|来源于哪个service broker
+servicename|String|服务名
+servicetype|String|服务类型
+catogery|String|服务分类（资源、工具、应用）
+
+
+#### 2.5.18.3报文示例
+
+##### 2.5.18.3.1请求报文示例
+
+```
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/admin-1512542444/services
+```
+
+##### 2.5.18.3.2返回报文示例
+
+__response:__
+
+```
+[
+  {
+    "description": "A Hadoop hbase service broker implementation",
+    "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
+    "origin": "ocdp",
+    "servicename": "hbase",
+    "servicetype": "hbase",
+    "catogery": "resource"
+  },
+  {
+    "description": "visualized analysing",
+    "id": "ae67d4ba-5c4e-4937-a68b-5b47cfe35699",
+    "origin": "open-shift",
+    "servicename": "visanalyse",
+    "servicetype": "visanalyse",
+    "catogery": "tool"
+  },
+    {
+    "description": "spark streaming",
+    "id": "ae67d4ba-5c4e-4937-a68b-5b4888888888",
+    "origin": "open-shift",
+    "servicename": "ocsp",
+    "servicetype": "ocsp",
+    "catogery": "app"
+  },
+  ...
+]
 ```
 
 ## 2.6 OCDP service instances quota APIs
