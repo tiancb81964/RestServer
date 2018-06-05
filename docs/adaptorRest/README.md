@@ -2278,7 +2278,7 @@ __request body:__
   "apiVersion":"v1",
   "metadata":
     {
-      "name":"zhaoyim2222"
+      "name": "zhaoyim2222"
     },
   "spec":
     {
@@ -2363,6 +2363,7 @@ serviceTypeId|String|服务类型id
 serviceTypeName|String|服务类型名称
 status|String|服务实例状态|Unbound表示实例运行异常即已删除
 tenantId|String|租户id
+category|String|实例分类（资源、工具、应用）
 
 #### 2.5.7.3报文示例
 
@@ -2386,6 +2387,7 @@ __response:__
     "quota": "{\"instance_id\":\"f8be2b3f-8624-11e7-bf73-fa163efdbea8\",\"partitionSize\":\"10\",\"topicQuota\":\"10\",\"topicTTL\":\"10\"}",
     "serviceTypeId": "",
     "serviceTypeName": "Kafka",
+    "category": "resource",
     "status": "Unbound",
     "tenantId": "09367148-c72a-413f-b1de-5a23b566d809"
   },
