@@ -13,7 +13,7 @@ __NOTE: All the rest request should set__ _Accept: application/json_ __and__ _Co
 
 ```
 http://{ip}:{port}/{productName}/{versionNum}/{object}/{oper}/
-示例: http://127.0.0.1:8080/ocmanager/v1/api/authc/login/
+示例: http://127.0.0.1:8080/ocmanager/v2/api/authc/login/
 ```
 
 - productName: 产品名称(必须遵守)
@@ -41,8 +41,8 @@ Charset:utf-8
 
 ## 2.1 Authentication APIs
 
-### 2.1.1用户认证（/ocmanager/v1/api/authc/login/） 
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/login/
+### 2.1.1用户认证（/ocmanager/v2/api/authc/login/） 
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/authc/login/
     请求方式：POST
 
 #### 2.1.1.1请求参数
@@ -91,9 +91,9 @@ __response__
 ```
 
 
-### 2.1.2用户注销(/ocmanager/v1/api/authc/logout/username/)
+### 2.1.2用户注销(/ocmanager/v2/api/authc/logout/username/)
 
-    示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/logout/username/
+    示例：http://127.0.0.1:8080/ocmanager/v2/api/authc/logout/username/
     请求方式：DELETE
 
 
@@ -112,7 +112,7 @@ status| String | 状态|返回登出状态
 ##### 2.1.2.2.1请求报文示例
 
 ```
- http://127.0.0.1:8080/ocmanager/v1/api/authc/logout/username/
+ http://127.0.0.1:8080/ocmanager/v2/api/authc/logout/username/
 ```
 
 ##### 2.1.2.2.2返回报文示例
@@ -127,8 +127,8 @@ __response__
 
 
 
-### 2.1.3获取认证类型（/ocmanager/v1/api/authc/type/） 
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/authc/type/
+### 2.1.3获取认证类型（/ocmanager/v2/api/authc/type/） 
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/authc/type/
     请求方式：GET
 
 
@@ -146,7 +146,7 @@ type| int | 认证类型|0为ldap，1为mysql
 ##### 2.1.3.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/authc/type/
+http://127.0.0.1:8080/ocmanager/v2/api/authc/type/
 ```
 
 ##### 2.1.3.2.2返回报文示例
@@ -159,7 +159,7 @@ __response__
 }
 ```
 
-### 2.1.4 How to use token（/ocmanager/v1/api/user/）
+### 2.1.4 How to use token（/ocmanager/v2/api/user/）
 
 __NOTE: All the API call should add the http request header with the authc token. For example:__
 
@@ -167,7 +167,7 @@ __NOTE: All the API call should add the http request header with the authc token
 'token: admin_2D05DA23B89F65C04646A0330752ED26FE59BF7F451700846872438A2023C6E1'
 ```
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/
     请求方式：GET
 
 
@@ -191,7 +191,7 @@ platformRoleId|String|平台角色id
 ##### 2.1.4.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/
+http://127.0.0.1:8080/ocmanager/v2/api/user/
 ```
 
 ##### 2.1.4.2.2返回报文示例
@@ -217,9 +217,9 @@ __response__
 
 ## 2.2 Users APIs
 
-### 2.2.1获取所有用户（/ocmanager/v1/api/user/） 
+### 2.2.1获取所有用户（/ocmanager/v2/api/user/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/
     请求方式：GET
 
 
@@ -242,7 +242,7 @@ username| String |用户名|
 ##### 2.2.1.2.1请求报文示例
 
 ```
- http://127.0.0.1:8080/ocmanager/v1/api/user/
+ http://127.0.0.1:8080/ocmanager/v2/api/user/
 ```
 
 ##### 2.2.1.2.2返回报文示例
@@ -266,9 +266,9 @@ __response:__
 ]
 ```
 
-### 2.2.2通过用户id获取单个用户（/ocmanager/v1/api/user/id/{id}/） 
+### 2.2.2通过用户id获取单个用户（/ocmanager/v2/api/user/id/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
     请求方式：GET
 
 #### 2.2.2.1请求参数
@@ -298,7 +298,7 @@ username| String |用户名|
 ##### 2.2.2.3.1请求报文示例
 
 ```
- http://127.0.0.1:8080/ocmanager/v1/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
+ http://127.0.0.1:8080/ocmanager/v2/api/user/id/2ef26018-003d-4b2b-b786-0481d4ee9fa8/
 ```
 
 ##### 2.2.2.3.2返回报文示例
@@ -319,9 +319,9 @@ __response:__
 }
 ```
 
-### 2.2.3通过用户名字获取单个用户（/ocmanager/v1/api/user/name/{userName}/） 
+### 2.2.3通过用户名字获取单个用户（/ocmanager/v2/api/user/name/{userName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/admin/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/name/admin/
     请求方式：GET
 
 #### 2.2.3.1请求参数
@@ -351,7 +351,7 @@ username| String |用户名|
 ##### 2.2.3.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/name/admin/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/name/admin/ 
 ```
 
 ##### 2.2.3.3.2返回报文示例
@@ -370,9 +370,9 @@ __response:__
 }
 ```
 
-### 2.2.4创建用户（/ocmanager/v1/api/user/） 
+### 2.2.4创建用户（/ocmanager/v2/api/user/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/
     请求方式：POST
 
 #### 2.2.4.1请求参数
@@ -437,9 +437,9 @@ __response:__
 ```
 
 
-### 2.2.5通过用户id更新用户（/ocmanager/v1/api/user/id/{id}/） 
+### 2.2.5通过用户id更新用户（/ocmanager/v2/api/user/id/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/6afd6428-2468-4069-ac6e-ce5b8b56650e/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/id/6afd6428-2468-4069-ac6e-ce5b8b56650e/
     请求方式：PUT
 
 #### 2.2.5.1请求参数
@@ -499,9 +499,9 @@ __response:__
 }
 ```
 
-### 2.2.6通过用户名更新用户（/ocmanager/v1/api/user/name/{userName}/） 
+### 2.2.6通过用户名更新用户（/ocmanager/v2/api/user/name/{userName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/createUser001/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/name/createUser001/
     请求方式：PUT
 
 #### 2.2.6.1请求参数
@@ -559,9 +559,9 @@ __response:__
 }
 ```
 
-### 2.2.7删除用户（/ocmanager/v1/api/user/{id}/） 
+### 2.2.7删除用户（/ocmanager/v2/api/user/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/
     请求方式：DELETE
 
 #### 2.2.7.1请求参数
@@ -587,7 +587,7 @@ status| String |状态|返回删除用户状态
 ##### 2.2.7.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/6afd6428-2468-4069-ac6e-ce5b8b56650e/ 
 ```
 
 ##### 2.2.7.3.2返回报文示例
@@ -602,9 +602,9 @@ __response:__
 }
 ```
 
-### 2.2.8修改用户密码（/ocmanager/v1/api/user/{userName}/password/） 
+### 2.2.8修改用户密码（/ocmanager/v2/api/user/{userName}/password/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/username001/password/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/username001/password/
     请求方式：PUT
 
 __NOTE:只在enbale mysql 认证后可用__
@@ -652,9 +652,9 @@ __response:__
 }
 ```
 
-### 2.2.9检查用户是否是系统管理员（/ocmanager/v1/api/user/is/admin/{userName}/） 
+### 2.2.9检查用户是否是系统管理员（/ocmanager/v2/api/user/is/admin/{userName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/is/admin/admin/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/is/admin/admin/
     请求方式：GET
 
 #### 2.2.9.1请求参数
@@ -679,7 +679,7 @@ username| String | 用户名|
 ##### 2.2.9.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/is/admin/admin/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/is/admin/admin/ 
 ```
 
 ##### 2.2.9.3.2返回报文示例
@@ -693,9 +693,9 @@ __response:__
 }
 ```
 
-### 2.2.10通过用户名获取此用户可访问的租户（/ocmanager/v1/api/user/name/{name}/all/tenants/） 
+### 2.2.10通过用户名获取此用户可访问的租户（/ocmanager/v2/api/user/name/{name}/all/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/root/all/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/name/root/all/tenants/
     请求方式：GET
 
 #### 2.2.10.1请求参数
@@ -723,7 +723,7 @@ parentId|String|父租户id|
 ##### 2.2.10.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/name/root/all/tenants/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/name/root/all/tenants/ 
 ```
 
 ##### 2.2.10.3.2返回报文示例
@@ -748,9 +748,9 @@ __response:__
 ]
 ```
 
-### 2.2.11通过用户id获取此用户可访问的租户（/ocmanager/v1/api/user/id/{id}/all/tenants/） 
+### 2.2.11通过用户id获取此用户可访问的租户（/ocmanager/v2/api/user/id/{id}/all/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/111ad1/all/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/id/111ad1/all/tenants/
     请求方式：GET
 
 #### 2.2.11.1请求参数
@@ -778,7 +778,7 @@ parentId|String|父租户id|
 ##### 2.2.11.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/id/111ad1/all/tenants/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/id/111ad1/all/tenants/ 
 ```
 
 ##### 2.2.11.3.2返回报文示例
@@ -803,9 +803,9 @@ __response:__
 ]
 ```
 
-### 2.2.12通过用户名和租户id获取该租户中此用户可访问的租户（/ocmanager/v1/api/user/name/{name}/tenant/{tenantId}/children/tenants/） 
+### 2.2.12通过用户名和租户id获取该租户中此用户可访问的租户（/ocmanager/v2/api/user/name/{name}/tenant/{tenantId}/children/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
     请求方式：GET
 
 #### 2.2.12.1请求参数
@@ -834,7 +834,7 @@ parentId|String|父租户id|
 ##### 2.2.12.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
+http://127.0.0.1:8080/ocmanager/v2/api/user/name/asdasd/tenant/51cadf67-7b37-11e7-aa10-fa163ed7d0ae/children/tenants/
 ```
 
 ##### 2.2.12.3.2返回报文示例
@@ -860,9 +860,9 @@ __response:__
 ]
 ```
 
-### 2.2.13通过用户id和租户id获取该租户中此用户可访问的租户（/ocmanager/v1/api/user/id/{id}/tenant/{tenantId}/children/tenants/） 
+### 2.2.13通过用户id和租户id获取该租户中此用户可访问的租户（/ocmanager/v2/api/user/id/{id}/tenant/{tenantId}/children/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/id/1111/tenant/1cadf67/children/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/id/1111/tenant/1cadf67/children/tenants/
     请求方式：GET
 
 #### 2.2.13.1请求参数
@@ -891,7 +891,7 @@ parentId|String|父租户id|
 ##### 2.2.13.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/id/1111/tenant/1cadf67/children/tenants/
+http://127.0.0.1:8080/ocmanager/v2/api/user/id/1111/tenant/1cadf67/children/tenants/
 ```
 
 ##### 2.2.13.3.2返回报文示例
@@ -917,9 +917,9 @@ __response:__
 ]
 ```
 
-### 2.2.14获取所有用户以及该用户关联的租户（/ocmanager/v1/api/user/with/tenants/） 
+### 2.2.14获取所有用户以及该用户关联的租户（/ocmanager/v2/api/user/with/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/with/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/with/tenants/
     请求方式：GET
 
 
@@ -947,7 +947,7 @@ userId|String|用户id|urv字段
 ##### 2.2.14.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/with/tenants/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/with/tenants/ 
 ```
 
 ##### 2.2.14.2.2返回报文示例
@@ -979,9 +979,9 @@ __response:__
 ]
 ```
 
-### 2.2.15根据用户id获取用户以及该用户关联的租户（/ocmanager/v1/api/user/{id}/with/tenants/） 
+### 2.2.15根据用户id获取用户以及该用户关联的租户（/ocmanager/v2/api/user/{id}/with/tenants/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
     请求方式：GET
 
 #### 2.2.15.1请求参数
@@ -1017,7 +1017,7 @@ parentTenantName|String|父租户名|urv字段
 ##### 2.2.15.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
+http://127.0.0.1:8080/ocmanager/v2/api/user/5abbd34c-c5af-42b2-afe1-381363f180fb/with/tenants/
 ```
 
 ##### 2.2.15.3.2返回报文示例
@@ -1065,11 +1065,11 @@ __response:__
 }
 ```
 
-### 2.2.16获取ldap服务其上所有用户（/ocmanager/v1/api/user/ldap/） 
+### 2.2.16获取ldap服务其上所有用户（/ocmanager/v2/api/user/ldap/） 
 
 __NOTE:只在enbale ldap 认证后可用__
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/ldap/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/ldap/
     请求方式：GET
 
 
@@ -1087,7 +1087,7 @@ __NOTE:只在enbale ldap 认证后可用__
 ##### 2.2.16.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/ldap/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/ldap/ 
 ```
 
 ##### 2.2.16.2.2返回报文示例
@@ -1107,9 +1107,9 @@ __response:__
 ]
 ```
 
-### 2.2.17根据用户名获取此用户在给定租户下的服务实例授权是否成功（/ocmanager/v1/api/user/name/{userName}/tenant/{tenantId}/assignments/info/） 
+### 2.2.17根据用户名获取此用户在给定租户下的服务实例授权是否成功（/ocmanager/v2/api/user/name/{userName}/tenant/{tenantId}/assignments/info/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/user/name/zzzz/tenant/abbd34/assignments/info/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/user/name/zzzz/tenant/abbd34/assignments/info/
     请求方式：GET
 
 #### 2.2.17.1请求参数
@@ -1135,7 +1135,7 @@ instanceName|String|实例名
 ##### 2.2.17.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/user/name/zzzz/tenant/abbd34/assignments/info/ 
+http://127.0.0.1:8080/ocmanager/v2/api/user/name/zzzz/tenant/abbd34/assignments/info/ 
 ```
 
 ##### 2.2.17.3.2返回报文示例
@@ -1159,9 +1159,9 @@ __response:__
 
 ## 2.3 Services APIs
 
-### 2.3.1获取所有服务（/ocmanager/v1/api/service/） 
+### 2.3.1获取所有服务（/ocmanager/v2/api/service/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/
     请求方式：GET
 
 
@@ -1181,7 +1181,7 @@ servicename|String|服务名
 ##### 2.3.1.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/ 
+http://127.0.0.1:8080/ocmanager/v2/api/service/ 
 ```
 
 ##### 2.3.1.2.2返回报文示例
@@ -1207,9 +1207,9 @@ __response:__
 ]
 ```
 
-### 2.3.2获取单个服务（/ocmanager/v1/api/service/{id}/） 
+### 2.3.2获取单个服务（/ocmanager/v2/api/service/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/
     请求方式：GET
 
 #### 2.3.2.1请求参数
@@ -1236,7 +1236,7 @@ servicename|String|服务名
 ##### 2.3.2.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/ 
+http://127.0.0.1:8080/ocmanager/v2/api/service/d9845ade-9410-4c7f-8689-4e032c1a8450/ 
 ```
 
 ##### 2.3.2.3.2返回报文示例
@@ -1252,11 +1252,11 @@ __response:__
 }
 ```
 
-### 2.3.3添加Service broker（/ocmanager/v1/api/service/broker/） 
+### 2.3.3添加Service broker（/ocmanager/v2/api/service/broker/） 
 
 NOTE: 添加服务,服务是注册在service broker里面的,因此会添加service broker 中注册的所有服务
 
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/broker/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/
     请求方式：POST
 
 #### 2.3.3.1请求参数
@@ -1345,11 +1345,11 @@ __response:__
 }
 ```
 
-### 2.3.4删除Service broker（/ocmanager/v1/api/service/broker/{name}/） 
+### 2.3.4删除Service broker（/ocmanager/v2/api/service/broker/{name}/） 
 
 NOTE： 删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务
 
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/broker/111aw2/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/111aw2/
     请求方式：DELETE
 
 #### 2.3.4.1请求参数
@@ -1390,7 +1390,7 @@ phase|String|阶段|(status字段)Deleting表示删除服务|否
 ##### 2.3.4.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/broker/111aw2/
+http://127.0.0.1:8080/ocmanager/v2/api/service/broker/111aw2/
 ```
 
 ##### 2.3.4.3.2返回报文示例
@@ -1426,9 +1426,9 @@ __response:__
 }
 ```
 
-### 2.3.5获取Data Foundry服务列表（/ocmanager/v1/api/service/df/） 
+### 2.3.5获取Data Foundry服务列表（/ocmanager/v2/api/service/df/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/df/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/df/
     请求方式：GET
 
 
@@ -1504,7 +1504,7 @@ phase|String|阶段|(status字段)Active表示服务处于启动状态|否
 ##### 2.3.5.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/df/
+http://127.0.0.1:8080/ocmanager/v2/api/service/df/
 ```
 
 ##### 2.3.5.2.2返回报文示例
@@ -1680,9 +1680,9 @@ __response:__
 }
 ```
 
-### 2.3.6获取多租户平台上所有服务实例列表（/ocmanager/v1/api/service/all/instances/） 
+### 2.3.6获取多租户平台上所有服务实例列表（/ocmanager/v2/api/service/all/instances/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/all/instances/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/all/instances/
     请求方式：GET
 
 
@@ -1705,7 +1705,7 @@ tenantId|String|租户id
 ##### 2.3.6.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/all/instances/
+http://127.0.0.1:8080/ocmanager/v2/api/service/all/instances/
 ```
 
 ##### 2.3.6.2.2返回报文示例
@@ -1736,9 +1736,9 @@ __response:__
 ]  
 ```
 
-### 2.3.7获取指定服务的plan套餐（/ocmanager/v1/api/service/{serviceName}/plan/） 
+### 2.3.7获取指定服务的plan套餐（/ocmanager/v2/api/service/{serviceName}/plan/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/service/HBase/plan/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/HBase/plan/
     请求方式：GET
 
 #### 2.3.7.1请求参数
@@ -1782,7 +1782,7 @@ free|boolean||内部使用字段，使用者可不关心，必须唯一|是
 ##### 2.3.7.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/service/HBase/plan/
+http://127.0.0.1:8080/ocmanager/v2/api/service/HBase/plan/
 ```
 
 ##### 2.3.7.3.2返回报文示例
@@ -1835,9 +1835,9 @@ __response:__
 
 ## 2.4 Roles APIs
 
-### 2.4.1获取所有服务角色（/ocmanager/v1/api/role/） 
+### 2.4.1获取所有服务角色（/ocmanager/v2/api/role/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/role/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/role/
     请求方式：GET
 
 
@@ -1858,7 +1858,7 @@ rolename|String|服务角色名称
 ##### 2.4.1.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/role/ 
+http://127.0.0.1:8080/ocmanager/v2/api/role/ 
 ```
 
 ##### 2.4.1.2.2返回报文示例
@@ -1891,9 +1891,9 @@ __response:__
 
 ## 2.5 Tenants APIs
 
-### 2.5.1创建租户（/ocmanager/v1/api/tenant/） 
+### 2.5.1创建租户（/ocmanager/v2/api/tenant/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/
     请求方式：POST
 
 #### 2.5.1.1请求参数
@@ -1907,7 +1907,8 @@ name|String|租户名称|是|
 description|String|租户描述|否|
 parentId|String|父租户id|是|
 quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
-
+dueTime|String|租户有效日期|否|租户生命周期
+brokers|List|租户绑定的brokers|是|用于过滤租户的服务列表
 #### 2.5.1.2返回参数
 
 ##### 2.5.1.2.1基本参数
@@ -1922,7 +1923,8 @@ level|int|租户级别|(databaseInfo字段)内部使用字段，使用者可不�
 name|String|租户名称|databaseInfo字段|否
 parentId|String|父租户id|databaseInfo字段|否
 quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
-
+dueTime|String|租户有效日期|租户生命周期|否
+brokers|List|租户绑定的brokers|用于过滤租户的服务列表|否
 #### 2.5.1.3报文示例
 
 ##### 2.5.1.3.1请求报文示例
@@ -1934,8 +1936,10 @@ __request body:__
 {
     "id": "00001",
     "name": "test00001",
+    "dueTime": "2018-06-15 15:00:00",
     "description": "test00001",
     "parentId": "111",
+    "brokers": ["broker1", "broker2", "broker3"],
      "quota":"{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
 }
 
@@ -1955,16 +1959,18 @@ __response:__
     "description": "test00001",
     "id": "00001",
     "level": 0,
+    "dueTime": "2018-06-15 15:00:00",
     "name": "test00001",
     "parentId": "111",
+    "brokers": ["broker1", "broker2", "broker3"],
     "quota": "{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
   }
 }
 ```
 
-### 2.5.2更新租户（/ocmanager/v1/api/tenant/） 
+### 2.5.2更新租户（/ocmanager/v2/api/tenant/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/
     请求方式：PUT
 
 
@@ -2030,9 +2036,9 @@ __response:__
 ```
 
 
-### 2.5.3获取所有租户（/ocmanager/v1/api/tenant/） 
+### 2.5.3获取所有租户（/ocmanager/v2/api/tenant/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/
     请求方式：GET
 
 
@@ -2054,7 +2060,7 @@ quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目�
 ##### 2.5.3.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/
 ```
 
 
@@ -2085,9 +2091,9 @@ __response:__
 ]
 ```
 
-### 2.5.4获取单个租户（/ocmanager/v1/api/tenant/{id}/） 
+### 2.5.4获取单个租户（/ocmanager/v2/api/tenant/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/222/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/222/
     请求方式：GET
 
 #### 2.5.4.1请求参数
@@ -2116,7 +2122,7 @@ quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目�
 ##### 2.5.4.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/222/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/222/
 ```
 
 ##### 2.5.4.3.2返回报文示例
@@ -2136,9 +2142,9 @@ __response:__
 
 ```
 
-### 2.5.5获取指定租户的所有子租户（/ocmanager/v1/api/tenant/{id}/children/） 
+### 2.5.5获取指定租户的所有子租户（/ocmanager/v2/api/tenant/{id}/children/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/111/children/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/111/children/
     请求方式：GET
 
 #### 2.5.5.1请求参数
@@ -2167,7 +2173,7 @@ quota|String|配额|返回HDFS目录允许创建的最大文件数目和HDFS目�
 ##### 2.5.5.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/111/children/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/111/children/
 ```
 
 ##### 2.5.5.3.2返回报文示例
@@ -2199,9 +2205,9 @@ __response:__
 ```
 
 
-### 2.5.6在租户下创建服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/） 
+### 2.5.6在租户下创建服务实例（/ocmanager/v2/api/tenant/{id}/service/instance/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/1111/service/instance/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/1111/service/instance/
     请求方式：POST
 
 #### 2.5.6.1请求参数
@@ -2331,9 +2337,9 @@ __response:__
 }
 ```
 
-### 2.5.7获取租户下所有服务实例（/ocmanager/v1/api/tenant/{id}/service/instances/） 
+### 2.5.7获取租户下所有服务实例（/ocmanager/v2/api/tenant/{id}/service/instances/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
     请求方式：GET
 
 #### 2.5.7.1请求参数
@@ -2363,7 +2369,7 @@ tenantId|String|租户id
 ##### 2.5.7.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/service/instances/
 ```
 
 ##### 2.5.7.3.2返回报文示例
@@ -2387,9 +2393,9 @@ __response:__
 ]
 ```
 
-### 2.5.8删除租户下某个服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}/） 
+### 2.5.8删除租户下某个服务实例（/ocmanager/v2/api/tenant/{id}/service/instance/{instanceName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
     请求方式：DELETE
 
 #### 2.5.8.1请求参数
@@ -2451,7 +2457,7 @@ action|String|动作|(status字段)_ToDelete表示删除租户下的某个服务
 ##### 2.5.8.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/f8be2b3f-8624-11e7-bf73-fa163efdbea8/service/instance/09367148-c72a-413f-b1de-5a23b566d809/
 ```
 
 ##### 2.5.8.3.2返回报文示例
@@ -2510,9 +2516,9 @@ __response:__
 }
 ```
 
-### 2.5.9绑定租户，用户和角色（/ocmanager/v1/api/tenant/{id}/user/role/assignment/） 
+### 2.5.9绑定租户，用户和角色（/ocmanager/v2/api/tenant/{id}/user/role/assignment/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/011ea988-abc2-4267-9215-cacf111716d1/user/role/assignment/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/011ea988-abc2-4267-9215-cacf111716d1/user/role/assignment/
     请求方式：POST
 
 #### 2.5.9.1请求参数
@@ -2565,9 +2571,9 @@ __response:__
 }
 ```
 
-### 2.5.10获取租户下所有用户以及用户角色（/ocmanager/v1/api/tenant/{id}/users/） 
+### 2.5.10获取租户下所有用户以及用户角色（/ocmanager/v2/api/tenant/{id}/users/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
     请求方式：GET
 
 #### 2.5.10.1请求参数
@@ -2599,7 +2605,7 @@ userPhone|String|用户电话
 ##### 2.5.10.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/users/
 ```
 
 ##### 2.5.10.3.2返回报文示例
@@ -2634,9 +2640,9 @@ __response:__
 ]
 ```
 
-### 2.5.11更新租户中用户的角色（/ocmanager/v1/api/tenant/{id}/user/role/assignment/） 
+### 2.5.11更新租户中用户的角色（/ocmanager/v2/api/tenant/{id}/user/role/assignment/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
     请求方式：PUT
 
 #### 2.5.11.1请求参数
@@ -2665,7 +2671,7 @@ userId|String|用户id|
 ##### 2.5.11.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/role/assignment/
 ```
 
 ##### 2.5.11.3.2返回报文示例
@@ -2681,9 +2687,9 @@ __response:__
 }
 ``` 
 
-### 2.5.12解除租户，用户和角色的绑定（/ocmanager/v1/api/tenant/{id}/user/{userId}/role/assignment/） 
+### 2.5.12解除租户，用户和角色的绑定（/ocmanager/v2/api/tenant/{id}/user/{userId}/role/assignment/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
     请求方式：DELETE
 
 #### 2.5.12.1请求参数
@@ -2710,7 +2716,7 @@ status|String|状态|返回解除状态，delete success表示解除成功
 ##### 2.5.12.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/user/011ea988-abc2-4267-9215-cacf111716d1/role/assignment/
 ```
 
 ##### 2.5.12.3.2返回报文示例
@@ -2727,9 +2733,9 @@ __response:__
 }
 ``` 
 
-### 2.5.13删除租户（/ocmanager/v1/api/tenant/{id}/） 
+### 2.5.13删除租户（/ocmanager/v2/api/tenant/{id}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
     请求方式：DELETE
 
 #### 2.5.13.1请求参数
@@ -2759,7 +2765,7 @@ parentId|String|父租户id|databaseInfo字段|否
 ##### 2.5.13.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/09367148-c72a-413f-b1de-5a23b566d809/
 ```
 
 ##### 2.5.13.3.2返回报文示例
@@ -2781,9 +2787,9 @@ __response:__
 }
 ```
 
-### 2.5.14获取服务实例访问信息（/ocmanager/v1/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info/） 
+### 2.5.14获取服务实例访问信息（/ocmanager/v2/api/tenant/{tenantId}/service/instance/{serviceInstanceName}/access/info/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
     请求方式：GET
 
 #### 2.5.14.1请求参数
@@ -2853,7 +2859,7 @@ phase|String|阶段|(status字段)Unbound表示实例运行异常即删除，bou
 ##### 2.5.14.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/access/info/
 ```
 
 ##### 2.5.14.3.2返回报文示例
@@ -2925,9 +2931,9 @@ __response:__
 }
 ```
 
-### 2.5.15更新租户单个服务实例（/ocmanager/v1/api/tenant/{id}/service/instance/{instanceName}/） 
+### 2.5.15更新租户单个服务实例（/ocmanager/v2/api/tenant/{id}/service/instance/{instanceName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/zhaoyim-1502764945/service/instance/HDFS-admin-54979FD/
     请求方式：PUT
 
 #### 2.5.15.1请求参数
@@ -3077,9 +3083,9 @@ __response:__
 }
 ```
 
-### 2.5.16获取角色根据租户和用户名（/ocmanager/v1/api/tenant/{tenantId}/user/{userName}/role/） 
+### 2.5.16获取角色根据租户和用户名（/ocmanager/v2/api/tenant/{tenantId}/user/{userName}/role/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
     请求方式：GET
 
 #### 2.5.16.1请求参数
@@ -3109,7 +3115,7 @@ userName|String|用户名称
 ##### 2.5.16.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/zhaoyim-1502764945/user/zhaoyim/role/
 ```
 
 ##### 2.5.16.3.2返回报文示例
@@ -3128,9 +3134,9 @@ __response:__
 }
 ```
 
-### 2.5.17获取租户资源使用明细（/ocmanager/v1/api/tenant/{tenantId}/quotas） 
+### 2.5.17获取租户资源使用明细（/ocmanager/v2/api/tenant/{tenantId}/quotas） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/tenant/admin-1512542444/quotas
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/tenant/admin-1512542444/quotas
     请求方式：GET
 
 #### 2.5.17.1请求参数
@@ -3166,7 +3172,7 @@ desc|String|服务实例资源路径
 ##### 2.5.17.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/tenant/admin-1512542444/quotas
+http://127.0.0.1:8080/ocmanager/v2/api/tenant/admin-1512542444/quotas
 ```
 
 ##### 2.5.17.3.2返回报文示例
@@ -3270,9 +3276,9 @@ __response:__
 
 ## 2.6 OCDP service instances quota APIs
 
-### 2.6.1获取大数据平台HDFS服务实例用量（/ocmanager/v1/api/quota/hdfs?path={HDFS Path}/） 
+### 2.6.1获取大数据平台HDFS服务实例用量（/ocmanager/v2/api/quota/hdfs?path={HDFS Path}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/
     请求方式：GET
 
 #### 2.6.1.1请求参数
@@ -3301,7 +3307,7 @@ used|String|HDFS服务实例已使用的资源数|(items字段)
 ##### 2.6.1.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/ 
+http://127.0.0.1:8080/ocmanager/v2/api/quota/hdfs?path=/servicebroker/261b8f87-8257-11e7-990a-fa163efdbea8/ 
 ```
 
 ##### 2.6.1.3.2返回报文示例
@@ -3331,9 +3337,9 @@ __response:__
 }
 ```
 
-### 2.6.2获取大数据平台Hbase服务实例用量（/ocmanager/v1/api/quota/hbase/{HBaseNameSpace}/） 
+### 2.6.2获取大数据平台Hbase服务实例用量（/ocmanager/v2/api/quota/hbase/{HBaseNameSpace}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
     请求方式：GET
 
 #### 2.6.2.1请求参数
@@ -3362,7 +3368,7 @@ used|String|Hbase服务实例已使用的资源数|(items字段)
 ##### 2.6.2.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
+http://127.0.0.1:8080/ocmanager/v2/api/quota/hbase/cc11a764831711e78d91fa163efdbea8/
 ```
 
 ##### 2.6.2.3.2返回报文示例
@@ -3391,9 +3397,9 @@ __response:__
 }
 ```
 
-### 2.6.3获取大数据平台kafka服务实例用量（/ocmanager/v1/api/quota/kafka/{topic}/） 
+### 2.6.3获取大数据平台kafka服务实例用量（/ocmanager/v2/api/quota/kafka/{topic}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/
     请求方式：GET
 
 #### 2.6.3.1请求参数
@@ -3422,7 +3428,7 @@ used|String|Kafka服务实例已使用的资源数|(items字段)
 ##### 2.6.3.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/ 
+http://127.0.0.1:8080/ocmanager/v2/api/quota/kafka/oc_ec0fc8e0-8641-11e7-bf73-fa163efdbea8/ 
 ```
 
 ##### 2.6.3.3.2返回报文示例
@@ -3452,9 +3458,9 @@ __response:__
 }
 ```
 
-### 2.6.4获取大数据平台MapReduce服务实例用量（/ocmanager/v1/api/quota/mapreduce/{queuename}/） 
+### 2.6.4获取大数据平台MapReduce服务实例用量（/ocmanager/v2/api/quota/mapreduce/{queuename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
     请求方式：GET
 
 #### 2.6.4.1请求参数
@@ -3483,7 +3489,7 @@ used|String|MapReduce服务实例已使用的资源数|(items字段)
 ##### 2.6.4.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
+http://127.0.0.1:8080/ocmanager/v2/api/quota/mapreduce/64647831-1c83-4d09-bdc1-f0494958d8d8/
 ```
 
 ##### 2.6.4.3.2返回报文示例
@@ -3505,9 +3511,9 @@ __response:__
 }
 ```
 
-### 2.6.5获取大数据平台Spark服务实例用量（/ocmanager/v1/api/quota/spark/{queuename}/） 
+### 2.6.5获取大数据平台Spark服务实例用量（/ocmanager/v2/api/quota/spark/{queuename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
     请求方式：GET
 
 #### 2.6.5.1请求参数
@@ -3536,7 +3542,7 @@ used|String|Spark服务实例已使用的资源数|(items字段)
 ##### 2.6.5.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
+http://127.0.0.1:8080/ocmanager/v2/api/quota/spark/b798d4da-cccf-4249-8e05-f31deb8baa49/
 ```
 
 ##### 2.6.5.3.2返回报文示例
@@ -3558,9 +3564,9 @@ __response:__
 }
 ```
 
-### 2.6.6获取大数据平台Hive服务实例用量（/ocmanager/v1/api/quota/hive/{dbname}?queue={queuename}/） 
+### 2.6.6获取大数据平台Hive服务实例用量（/ocmanager/v2/api/quota/hive/{dbname}?queue={queuename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
     请求方式：GET
 
 #### 2.6.6.1请求参数
@@ -3590,7 +3596,7 @@ used|String|Hive服务实例已使用的资源数|(items字段)
 ##### 2.6.6.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
+http://127.0.0.1:8080/ocmanager/v2/api/quota/hive/1f3aff3d865411e7bf73fa163efdbea8?queue=154157fe-d1b9-4be7-b2e9-92de2969c5a5
 ```
 
 ##### 2.6.6.3.2返回报文示例
@@ -3621,9 +3627,9 @@ __response:__
 
 ## 2.7 Download cluster hosts file
 
-### 2.7.1下载集群主机列表(hosts 文件)（/ocmanager/v1/api/file/clusterHosts/） 
+### 2.7.1下载集群主机列表(hosts 文件)（/ocmanager/v2/api/file/clusterHosts/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/file/clusterHosts/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/file/clusterHosts/
     请求方式：GET
 
 
@@ -3633,18 +3639,18 @@ __response:__
 
 ```
 ### it should down load the hosts file. for example: you can use curl to download hosts file:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/file/clusterHosts
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/file/clusterHosts
 
 eg:
-curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hosts http://10.1.236.95:8080/ocmanager/v1/api/file/clusterHosts
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hosts http://10.1.236.95:8080/ocmanager/v2/api/file/clusterHosts
 ```
 
 ## 2.8 Create and download Kerberos keytab and krb5.conf APIs (should configure the KDC server info in the rest server)
 
 
-### 2.8.1创建Kerberos keytab（/ocmanager/v1/api/kerberos/create/keytab/） 
+### 2.8.1创建Kerberos keytab（/ocmanager/v2/api/kerberos/create/keytab/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/create/keytab/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/kerberos/create/keytab/
     请求方式：POST
 
 #### 2.8.1.1请求参数
@@ -3695,9 +3701,9 @@ __response:__
 }
 ``` 
 
-### 2.8.2下载Kerberos keytab（/ocmanager/v1/api/kerberos/keytab/{userName}/） 
+### 2.8.2下载Kerberos keytab（/ocmanager/v2/api/kerberos/keytab/{userName}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/kerberos/keytab/zhaoyim/
     请求方式：GET
 
 
@@ -3709,15 +3715,15 @@ __response:__
 
 ```
 ### it should down load the keytab file. for example: you can use curl to download the keytab file:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/kerberos/keytab/{userName}
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/kerberos/keytab/{userName}
 
 eg:
-curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v1/api/kerberos/keytab/zhaoyim
+curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6BCCB7D1CC' -o /tmp/zhaoyim.keytab http://10.1.236.34:8080/ocmanager/v2/api/kerberos/keytab/zhaoyim
 ```  
 
-### 2.8.3下载krb5.conf（/ocmanager/v1/api/kerberos/krb5/） 
+### 2.8.3下载krb5.conf（/ocmanager/v2/api/kerberos/krb5/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/krb5/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/kerberos/krb5/
     请求方式：GET
 
 
@@ -3727,15 +3733,15 @@ curl -H 'token: zhaoyim_37205B0412B1F315D54218DABD11A35F50768846069198E609F63F6B
 __response:__
 ```
 ### it should down load the krb5.conf file. for example: you can use curl to download the keytab file:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/kerberos/krb5
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/kerberos/krb5
 
 eg:
-curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/krb5.conf http://10.1.236.95:8080/ocmanager/v1/api/kerberos/krb5
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/krb5.conf http://10.1.236.95:8080/ocmanager/v2/api/kerberos/krb5
 ```
 
-### 2.8.4 OCM是否开启Kerberos（/ocmanager/v1/api/kerberos/status/） 
+### 2.8.4 OCM是否开启Kerberos（/ocmanager/v2/api/kerberos/status/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/kerberos/status/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/kerberos/status/
     请求方式：GET
 
 
@@ -3752,7 +3758,7 @@ ENABLE_KERBEROS|String|OCM是否开启Kerberos|true为已开启
 ##### 2.8.4.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/kerberos/status/
+http://127.0.0.1:8080/ocmanager/v2/api/kerberos/status/
 ```
 
 ##### 2.8.4.2.2返回报文示例
@@ -3769,9 +3775,9 @@ __response:__
 
 ## 2.9 Get OCManager ldap configuration information APIs
 
-### 2.9.1获取OCM链接ldap的配置信息（/ocmanager/v1/api/ldap/configuration/） 
+### 2.9.1获取OCM链接ldap的配置信息（/ocmanager/v2/api/ldap/configuration/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/ldap/configuration/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/ldap/configuration/
     请求方式：GET
 
 
@@ -3789,7 +3795,7 @@ USER_DN_TEMPLATE|String|distinguished name模板
 ##### 2.9.1.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/ldap/configuration/
+http://127.0.0.1:8080/ocmanager/v2/api/ldap/configuration/
 ```
 
 ##### 2.9.1.2.2返回报文示例
@@ -3805,9 +3811,9 @@ __response:__
 }
 ```
 
-### 2.9.2 OCM是否开启ldap（/ocmanager/v1/api/ldap/status/） 
+### 2.9.2 OCM是否开启ldap（/ocmanager/v2/api/ldap/status/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/ldap/status/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/ldap/status/
     请求方式：GET
 
 
@@ -3824,7 +3830,7 @@ ENABLE_LDAP|String|OCM是否开启ldap|true为已开启
 ##### 2.9.2.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/ldap/status/
+http://127.0.0.1:8080/ocmanager/v2/api/ldap/status/
 ```
 
 ##### 2.9.2.2.2返回报文示例
@@ -3842,9 +3848,9 @@ __response:__
 
 ## 2.10 Get OCManager Ambari configuration and configuration files APIs
 
-### 2.10.1下载ambari yarn cleint configuration files（/ocmanager/v1/api/ambari/yarnclient?filename={filename}/） 
+### 2.10.1下载ambari yarn cleint configuration files（/ocmanager/v2/api/ambari/yarnclient?filename={filename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/yarnclient?filename=yarn/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/ambari/yarnclient?filename=yarn/
     请求方式：GET
 
 
@@ -3855,15 +3861,15 @@ __response:__
 __response:__
 ```
 ### it should down load the ambari yarn cleint configuration files. for example: you can use curl to download the configuration files:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/yarnclient?filename={filename}
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/ambari/yarnclient?filename={filename}
 
 eg:
-curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/yarn.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/yarnclient?filename=yarn
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/yarn.tar.gz http://10.1.236.95:8080/ocmanager/v2/api/ambari/yarnclient?filename=yarn
 ```
 
-### 2.10.2下载ambari yarn cleint configuration files（/ocmanager/v1/api/ambari/hdfsclient?filename={filename}/） 
+### 2.10.2下载ambari yarn cleint configuration files（/ocmanager/v2/api/ambari/hdfsclient?filename={filename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/hdfsclient?filename=hdfs/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/ambari/hdfsclient?filename=hdfs/
     请求方式：GET
 
 
@@ -3875,15 +3881,15 @@ __response:__
 
 ```
 ### it should down load the ambari hdfs cleint configuration files. for example: you can use curl to download the configuration files:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/hdfsclient?filename={filename}
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/ambari/hdfsclient?filename={filename}
 
 eg:
-curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hdfs.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/hdfsclient?filename=hdfs
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/hdfs.tar.gz http://10.1.236.95:8080/ocmanager/v2/api/ambari/hdfsclient?filename=hdfs
 ```
 
-### 2.10.3下载ambari spark cleint configuration files（/ocmanager/v1/api/ambari/sparkclient?filename={filename}/） 
+### 2.10.3下载ambari spark cleint configuration files（/ocmanager/v2/api/ambari/sparkclient?filename={filename}/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/ambari/sparkclient?filename=spark/
     请求方式：GET
 
 
@@ -3893,17 +3899,17 @@ curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534
 __response:__
 ```
 ### it should down load the ambari spark cleint configuration files. for example: you can use curl to download the configuration files:
-curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v1/api/ambari/sparkclient?filename={filename}
+curl -H '{toke key-value}' -o {download path} http://<rest server host >:<rest server port>/ocmanager/v2/api/ambari/sparkclient?filename={filename}
 
 eg:
-curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/spark.tar.gz http://10.1.236.95:8080/ocmanager/v1/api/ambari/sparkclient?filename=spark
+curl -H 'token: admin_C805CBA73D3328C8465DC13202FBEA2AC0D341B68D34ED8033E1F81534EE314B' -o /tmp/test/spark.tar.gz http://10.1.236.95:8080/ocmanager/v2/api/ambari/sparkclient?filename=spark
 ```
 
 ## 2.11 Get OCManager metrics APIs
 
-### 2.11.1获取Kafka serviceName（/ocmanager/v1/api/metrics/kafka/serviceName/） 
+### 2.11.1获取Kafka serviceName（/ocmanager/v2/api/metrics/kafka/serviceName/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/metrics/kafka/serviceName/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/metrics/kafka/serviceName/
     请求方式：GET
 
 
@@ -3920,7 +3926,7 @@ oc.kafka.serviceName|String|返回Kafka的serviceName
 ##### 2.11.1.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/metrics/kafka/serviceName/
+http://127.0.0.1:8080/ocmanager/v2/api/metrics/kafka/serviceName/
 ```
 
 ##### 2.11.1.2.2返回报文示例
@@ -3935,9 +3941,9 @@ __response:__
 }
 ```
 
-### 2.11.2获取RM连接信息（/ocmanager/v1/api/metrics/resourcemanager/addresses/） 
+### 2.11.2获取RM连接信息（/ocmanager/v2/api/metrics/resourcemanager/addresses/） 
 	
-	示例：http://127.0.0.1:8080/ocmanager/v1/api/metrics/resourcemanager/addresses/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/metrics/resourcemanager/addresses/
     请求方式：GET
 
 
@@ -3954,7 +3960,7 @@ RM_ADDR|String|ResourceManager连接地址
 ##### 2.11.2.2.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v1/api/metrics/resourcemanager/addresses/
+http://127.0.0.1:8080/ocmanager/v2/api/metrics/resourcemanager/addresses/
 ```
 
 ##### 2.11.2.2.2返回报文示例
@@ -3970,7 +3976,7 @@ __response:__
 ## 2.12 Dashboard Links APIs （此部分为内部使用，外部用户可忽略）
 ### 2.12.1添加多租户平台首页连接
 ```
-POST /ocmanager/v1/api/dashboard/link
+POST /ocmanager/v2/api/dashboard/link
 ```
 
 __request body:__
@@ -4007,7 +4013,7 @@ resCode|int|响应返回码|200为正常
 status|String|状态|返回添加状态
 ### 2.12.2获取多租户平台首页所有连接
 ```
-GET /ocmanager/v1/api/dashboard/link
+GET /ocmanager/v2/api/dashboard/link
 ```
 
 __response:__
@@ -4034,7 +4040,7 @@ imageUrl|String|图片|
 name|String|多租户平台名称|
 ### 2.12.3获取多租户平台首页连接通过连接名
 ```
-GET /ocmanager/v1/api/dashboard/link/{name}
+GET /ocmanager/v2/api/dashboard/link/{name}
 ```
 
 __response:__
@@ -4059,7 +4065,7 @@ name|String|多租户平台名称|
 
 ### 2.12.4更新多租户平台首页连接通过id
 ```
-PUT /ocmanager/v1/api/dashboard/link/{id}
+PUT /ocmanager/v2/api/dashboard/link/{id}
 ```
 
 __request body:__
@@ -4096,7 +4102,7 @@ resCode|int|响应返回码|200为正常
 status|String|状态|返回更新状态
 ### 2.12.5删除多租户平台首页连接通过连接名
 ```
-DELETE /ocmanager/v1/api/dashboard/link/{id}
+DELETE /ocmanager/v2/api/dashboard/link/{id}
 ```
 
 __response:__
