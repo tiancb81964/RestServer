@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.google.common.base.Strings;
 
 /**
@@ -49,12 +50,25 @@ public class AuditFilter implements ContainerResponseFilter {
 			TargetType type = anno.targetType();
 			Object entity = responseContext.getEntity();
 			AuditString audit = new AuditString().status(status).user(user).ip(ip).action(action.name())
-					.targetType(type.name()).target(target).uri(uri).entity(entity.toString());
+					.targetType(type.name()).target(target).uri(uri).desc(extract(entity));
 			LOG.info(audit.toString());
 		} catch (Exception e) {
 			LOG.error("Exception doing auditting: ", e);
 		}
 
+	}
+
+	private String extract(Object entity) {
+		if (entity instanceof Exception) {
+			return ((Exception)entity).getMessage();
+		}
+		else if (entity instanceof ResponseExceptionBean) {
+			return ((ResponseExceptionBean)entity).getException();
+		}
+		else if (entity instanceof String) {
+			return (String)entity;
+		}
+		return "null";
 	}
 
 	/**
@@ -69,7 +83,7 @@ public class AuditFilter implements ContainerResponseFilter {
 		String method = request.getMethod();
 		String requestUrl = request.getRequestURI();
 		AuditString audit = new AuditString().status(403).user(user).ip(ip).action(method)
-				.targetType(TargetType.HTTP_REQUEST.name()).target(requestUrl).entity("Auth Forbidden");
+				.targetType(TargetType.HTTP_REQUEST.name()).target(requestUrl).desc("Auth Forbidden");
 		LOG.info(audit.toString());
 	}
 
@@ -86,7 +100,7 @@ public class AuditFilter implements ContainerResponseFilter {
 	}
 
 	private static class AuditString {
-		private String template = "user=$USER  ip=$IP  status=$STATUS  action=$ACTION  tType=$TARGETTYPE  tValue=$TARGET  uri=$URI  rspEntity=$ENTITY";
+		private String template = "user=$USER  ip=$IP  status=$STATUS  action=$ACTION  tType=$TARGETTYPE  tValue=$TARGET  uri=$URI  desc=$DESCRIPTION";
 
 		public AuditString status(int status) {
 			template = template.replace("$STATUS", String.valueOf(status));
@@ -141,11 +155,11 @@ public class AuditFilter implements ContainerResponseFilter {
 			return this;
 		}
 
-		public AuditString entity(String description) {
+		public AuditString desc(String description) {
 			if (description == null) {
 				return this;
 			}
-			template = template.replace("$ENTITY", description);
+			template = template.replace("$DESCRIPTION", description);
 			return this;
 		}
 
