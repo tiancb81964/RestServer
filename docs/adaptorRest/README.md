@@ -1244,6 +1244,8 @@ description|String|服务描述
 id|String|服务id
 origin|String|来源于哪个service broker
 servicename|String|服务名
+serivcetype|String|服务类型
+catogery|String|服务类别（资源、工具、应用）
 
 #### 2.3.2.3报文示例
 
@@ -1262,7 +1264,9 @@ __response:__
   "description": "A Hadoop hbase service broker implementation",
   "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
   "origin": "ocdp",
-  "servicename": "hbase"
+  "servicename": "hbase",
+  "servicetype": "hbase",
+  "catogery": "resource"
 }
 ```
 
@@ -1512,6 +1516,8 @@ free|boolean||(plans字段)内部使用字段，使用者可不关心，必须�
 dashboard_client|||(spec字段)内部使用字段，使用者可不关心，必须唯一|是
 status|json|状态|(items字段，其内容见以下字段)|否
 phase|String|阶段|(status字段)Active表示服务处于启动状态|否
+type|String|类型|服务类型|否
+catogery|String|类别|服务类别（工具、资源、应用）|否
 
 #### 2.3.5.2报文示例
 
@@ -1564,7 +1570,9 @@ __response:__
           "imageUrl": "http://hbase.apache.org/images/hbase_logo_with_orca_large.png",
           "longDescription": "HBase是一个开源的，非关系型的，分布式数据库，类似于Google的BigTable。",
           "providerDisplayName": "Asiainfo",
-          "supportUrl": "http://hbase.apache.org/book.html"
+          "supportUrl": "http://hbase.apache.org/book.html",
+          "type": "hbase",
+          "catogery": "resource"
         },
         "plans": [
           {
@@ -1641,6 +1649,8 @@ __response:__
           "imageUrl": "https://hadoop.apache.org/images/hadoop-logo.jpg",
           "longDescription": "Hadoop分布式文件系统(HDFS)是一个的分布式的，可扩展的，轻量级的文件系统。",
           "providerDisplayName": "Asiainfo",
+          "type": "hdfs",
+          "catogery": "resource",
           "supportUrl": "http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html"
         },
         "plans": [
