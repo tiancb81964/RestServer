@@ -242,6 +242,15 @@ public class TenantResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(tenantId).build();
 		}
 	}
+	
+	@GET
+	@Path("{id}/services")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
+	public Response getTenantServices(@PathParam("id") String tenantId) {
+		//TODO:
+		return null;
+	}
 
 	/**
 	 * get the tenant service instance info which include the access info
