@@ -76,6 +76,8 @@ public class EmailNotifyListener implements Listener {
 	}
 
 	private List<User> getAdmins(TenantEvent e) {
+		//TODO now have the selectUserBasedOnRoleNameAndTenantId
+		// here can enhance to improve the performance
 		List<TenantUserRoleAssignment> turs = TURAssignmentPersistenceWrapper.getTenantAdmin(e.getTenant().getId());
 		if (turs == null) {
 			return null;
