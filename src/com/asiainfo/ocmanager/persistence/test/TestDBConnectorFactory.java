@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class TestDBConnectorFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TestDBConnectorFactory.class);
-	public static SqlSessionFactory sessionFactory;
+	public static SqlSessionFactory sessionFactory = null;
 
 	static {
 

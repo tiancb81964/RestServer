@@ -24,9 +24,13 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 
 	public final static String REPLICAS = "replicas";
 	public final static String VOLUME = "volume";
+	public final static String CPU = "cpu";
+	public final static String MEMORY = "mem";
 
 	private double replicas;
 	private double volume;
+	private double cpu;
+	private double memory;
 
 	public ElasticsearchServiceInstanceQuotaBean() {
 
@@ -45,6 +49,10 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 				: Double.valueOf(elasticsearchQuotaMap.get(REPLICAS)).doubleValue();
 		this.volume = elasticsearchQuotaMap.get(VOLUME) == null ? 0
 				: Double.valueOf(elasticsearchQuotaMap.get(VOLUME)).doubleValue();
+		this.cpu = elasticsearchQuotaMap.get(CPU) == null ? 0
+				: Double.valueOf(elasticsearchQuotaMap.get(CPU)).doubleValue();
+		this.memory = elasticsearchQuotaMap.get(MEMORY) == null ? 0
+				: Double.valueOf(elasticsearchQuotaMap.get(MEMORY)).doubleValue();
 
 	}
 
@@ -57,6 +65,8 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 		this.serviceType = serviceType;
 		this.replicas = quotaMap.get(REPLICAS) == null ? 0 : Double.valueOf(quotaMap.get(REPLICAS)).doubleValue();
 		this.volume = quotaMap.get(VOLUME) == null ? 0 : Double.valueOf(quotaMap.get(VOLUME)).doubleValue();
+		this.cpu = quotaMap.get(CPU) == null ? 0 : Double.valueOf(quotaMap.get(CPU)).doubleValue();
+		this.memory = quotaMap.get(MEMORY) == null ? 0 : Double.valueOf(quotaMap.get(MEMORY)).doubleValue();
 
 	}
 
@@ -84,6 +94,24 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(VOLUME).getDefaultQuota());
 			}
 
+			if (ServicesDefaultQuotaConf.getInstance().get("elasticsearch") == null
+					|| ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(CPU) == null) {
+				// set default to 0, it means not limit
+				defaultServiceInstanceQuota.setCpu(0);
+			} else {
+				defaultServiceInstanceQuota.setCpu(
+						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(CPU).getDefaultQuota());
+			}
+
+			if (ServicesDefaultQuotaConf.getInstance().get("elasticsearch") == null
+					|| ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(MEMORY) == null) {
+				// set default to 0, it means not limit
+				defaultServiceInstanceQuota.setMemory(0);
+			} else {
+				defaultServiceInstanceQuota.setMemory(
+						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(MEMORY).getDefaultQuota());
+			}
+
 		} else {
 			if (parameters.get(REPLICAS) == null || parameters.get(REPLICAS).isJsonNull()
 					|| parameters.get(REPLICAS).getAsString().isEmpty()) {
@@ -99,6 +127,22 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(VOLUME).getDefaultQuota());
 			} else {
 				defaultServiceInstanceQuota.setVolume(parameters.get(VOLUME).getAsDouble());
+			}
+
+			if (parameters.get(CPU) == null || parameters.get(CPU).isJsonNull()
+					|| parameters.get(CPU).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setCpu(
+						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(CPU).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setCpu(parameters.get(CPU).getAsDouble());
+			}
+
+			if (parameters.get(MEMORY) == null || parameters.get(MEMORY).isJsonNull()
+					|| parameters.get(MEMORY).getAsString().isEmpty()) {
+				defaultServiceInstanceQuota.setMemory(
+						ServicesDefaultQuotaConf.getInstance().get("elasticsearch").get(MEMORY).getDefaultQuota());
+			} else {
+				defaultServiceInstanceQuota.setMemory(parameters.get(MEMORY).getAsDouble());
 			}
 
 		}
@@ -157,6 +201,14 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 			resStr.append(QuotaCommonUtils.logAndResStr(this.volume, VOLUME, "elasticsearch"));
 			canChange = false;
 		}
+		if (this.cpu < 0) {
+			resStr.append(QuotaCommonUtils.logAndResStr(this.cpu, CPU, "elasticsearch"));
+			canChange = false;
+		}
+		if (this.memory < 0) {
+			resStr.append(QuotaCommonUtils.logAndResStr(this.memory, MEMORY, "elasticsearch"));
+			canChange = false;
+		}
 
 		if (canChange) {
 			resStr.append("can change the bsi!");
@@ -175,6 +227,8 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 	public void plus(ElasticsearchServiceInstanceQuotaBean otherServiceInstanceQuota) {
 		this.replicas = this.replicas + otherServiceInstanceQuota.getReplicas();
 		this.volume = this.volume + otherServiceInstanceQuota.getVolume();
+		this.cpu = this.cpu + otherServiceInstanceQuota.getCpu();
+		this.memory = this.memory + otherServiceInstanceQuota.getMemory();
 
 	}
 
@@ -185,6 +239,8 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 	public void minus(ElasticsearchServiceInstanceQuotaBean otherServiceInstanceQuota) {
 		this.replicas = this.replicas - otherServiceInstanceQuota.getReplicas();
 		this.volume = this.volume - otherServiceInstanceQuota.getVolume();
+		this.cpu = this.cpu - otherServiceInstanceQuota.getCpu();
+		this.memory = this.memory - otherServiceInstanceQuota.getMemory();
 
 	}
 
@@ -204,10 +260,26 @@ public class ElasticsearchServiceInstanceQuotaBean extends ServiceInstanceQuotaB
 		this.volume = volume;
 	}
 
+	public double getCpu() {
+		return cpu;
+	}
+
+	public void setCpu(double cpu) {
+		this.cpu = cpu;
+	}
+
+	public double getMemory() {
+		return memory;
+	}
+
+	public void setMemory(double memory) {
+		this.memory = memory;
+	}
+
 	@Override
 	public String toString() {
 		return "ElasticsearchServiceInstanceQuotaBean [replicas: " + replicas + ", volume: " + volume
-				+ ", serviceType: " + serviceType + "]";
+				+ ", cpu: " + cpu + ", memory: " + memory + ", serviceType: " + serviceType + "]";
 	}
 
 }

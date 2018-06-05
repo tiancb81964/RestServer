@@ -36,7 +36,6 @@ import com.asiainfo.ocmanager.utils.ClusterConfig;
  */
 public class RangerClient {
 	private static final Logger LOG = LoggerFactory.getLogger(RangerClient.class);
-	//private CloseableHttpClient httpClient;
 	private HttpClientContext context;
 	private URI rangerURI;
 	private static final String TEMP = "{\"name\" : \"{$USER_NAME}\", \"firstName\" : \"{$FIRST_NAME}\", \"lastName\" : \"\", \"emailAddress\" : \"\", \"password\" : \"{$PASSWORD}\", \"description\" : \"by ocm at {$CREATE_TIME}\", \"groupIdList\" : null, \"status\" : 1, \"userRoleList\" : [\"ROLE_USER\"]}";
@@ -53,7 +52,6 @@ public class RangerClient {
 		try {
 			this.context = HttpClientContext.create();
 			initContext();
-			//this.httpClient = HttpClientBuilder.create().build();
 		} catch (Exception e) {
 			LOG.error("Error while init ranger client: ", e);
 			throw e;
@@ -95,10 +93,18 @@ public class RangerClient {
 			throw e;
 		} finally {
 			if(response != null) {
-				response.close();
+				try {
+					response.close();
+				} catch (IOException e) {
+					LOG.error("IOException while addUser(): ", e);
+				}
 			}
 			if(httpClient != null) {
-				httpClient.close();
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					LOG.error("IOException while addUser(): ", e);
+				}
 			}
 		}
 	}

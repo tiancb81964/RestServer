@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class YarnClient extends ServiceClient{
 	private static final Logger LOG = LoggerFactory.getLogger(YarnClient.class);
-	private CloseableHttpClient httpClient;
 	private String[] baseUrls; // active/standby rm.
 
 	protected YarnClient(String serviceName, Delegator subject) {
@@ -41,7 +40,6 @@ public class YarnClient extends ServiceClient{
 	}
 
 	private void init() {
-		httpClient = HttpClientBuilder.create().build();
 		baseUrls = this.serviceConfig.getProperty(Constant.RM_HTTP).split(",");		
 	}
 	
@@ -63,7 +61,9 @@ public class YarnClient extends ServiceClient{
 	 */
 	public String fetchQueuesInfo() throws Exception {
 		CloseableHttpResponse rsp = null;
+		CloseableHttpClient httpClient = null;
 		try {
+			httpClient = HttpClientBuilder.create().build();
 			String url = activeRM() + "/ws/v1/cluster/scheduler";
 			rsp = httpClient.execute(new HttpGet(URI.create(url)));
 			return EntityUtils.toString(rsp.getEntity());
@@ -71,6 +71,13 @@ public class YarnClient extends ServiceClient{
 			LOG.error("Exception while fetchQueuesInfo(): ", e);
 			throw e;
 		} finally {
+			if (httpClient != null) {
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					LOG.error("IOException while fetchQueuesInfo(): ", e);
+				}
+			}
 			if (rsp != null) {
 				try {
 					rsp.close();
@@ -133,8 +140,10 @@ public class YarnClient extends ServiceClient{
 	}
 	
 	private String fetchMetrics() throws Exception {
+		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse rsp = null;
 		try {
+			httpClient = HttpClientBuilder.create().build();
 			String url = activeRM() + "/ws/v1/cluster/metrics";
 			rsp = httpClient.execute(new HttpGet(URI.create(url)));
 			return EntityUtils.toString(rsp.getEntity());
@@ -142,6 +151,13 @@ public class YarnClient extends ServiceClient{
 			LOG.error("Exception while fetchMetrics(): ", e);
 			throw e;
 		} finally {
+			if (httpClient != null) {
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					LOG.error("IOException while fetchMetrics(): ", e);
+				}
+			}
 			if (rsp != null) {
 				try {
 					rsp.close();
@@ -159,9 +175,11 @@ public class YarnClient extends ServiceClient{
 	 */
 	private String activeRM() {
 		CloseableHttpResponse rsp = null;
+		CloseableHttpClient httpClient = null;
 		List<IOException> errors = new ArrayList<>();
 		for (String url : this.baseUrls) {
 			try {
+				httpClient = HttpClientBuilder.create().build();
 				rsp = httpClient.execute(new HttpGet(url + "/ws/v1/cluster/"));
 				if (rsp.getStatusLine().getStatusCode() == 200) {
 					return url;
@@ -172,6 +190,13 @@ public class YarnClient extends ServiceClient{
 				errors.add(e);
 				continue;
 			} finally {
+				if (httpClient != null) {
+					try {
+						httpClient.close();
+					} catch (IOException e) {
+						LOG.error("IOException while activeRM(): ", e);
+					}
+				}
 				if (rsp != null) {
 					try {
 						rsp.close();
