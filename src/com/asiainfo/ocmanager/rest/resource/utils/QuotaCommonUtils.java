@@ -105,9 +105,15 @@ public class QuotaCommonUtils {
 					: serviceQuota.get("replicas").getAsString();
 			String elasticsearchVolume = serviceQuota.get("volume") == null ? null
 					: serviceQuota.get("volume").getAsString();
+			String elasticsearchCpu = serviceQuota.get("cpu") == null ? null
+					: serviceQuota.get("cpu").getAsString();
+			String elasticsearchMemory = serviceQuota.get("mem") == null ? null
+					: serviceQuota.get("mem").getAsString();
 
 			quotaMap.put("replicas", elasticsearchReplicas);
 			quotaMap.put("volume", elasticsearchVolume);
+			quotaMap.put("cpu", elasticsearchCpu);
+			quotaMap.put("mem", elasticsearchMemory);
 
 			break;
 		case "zeppelin":
@@ -119,6 +125,28 @@ public class QuotaCommonUtils {
 
 			quotaMap.put("cpu", zeppelinCpu);
 			quotaMap.put("memory", zeppelinMemory);
+
+			break;
+		case "anaconda":
+
+			String anacondaCpu = serviceQuota.get("cpu") == null ? null
+					: serviceQuota.get("cpu").getAsString();
+			String anacondaMemory = serviceQuota.get("memory") == null ? null
+					: serviceQuota.get("memory").getAsString();
+
+			quotaMap.put("cpu", anacondaCpu);
+			quotaMap.put("memory", anacondaMemory);
+
+			break;
+		case "dataiku":
+
+			String dataikuCpu = serviceQuota.get("cpu") == null ? null
+					: serviceQuota.get("cpu").getAsString();
+			String dataikuMemory = serviceQuota.get("memory") == null ? null
+					: serviceQuota.get("memory").getAsString();
+
+			quotaMap.put("cpu", dataikuCpu);
+			quotaMap.put("memory", dataikuMemory);
 
 			break;
 

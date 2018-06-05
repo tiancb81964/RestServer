@@ -81,6 +81,12 @@ public abstract class ServiceInstanceQuotaBean {
 		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.ZEPPELIN)) {
 			return new ZeppelinServiceInstanceQuotaBean();
 		}
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.ANACONDA)) {
+			return new AnacondaServiceInstanceQuotaBean();
+		}
+		if (service.toLowerCase().equals(ServiceInstanceQuotaConst.DATAIKU)) {
+			return new DataikuServiceInstanceQuotaBean();
+		}
 
 		return null;
 
