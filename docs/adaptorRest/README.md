@@ -1175,6 +1175,8 @@ description|String|服务描述
 id|String|服务id
 origin|String|来源于哪个service broker
 servicename|String|服务名
+servicetype|String|服务类型
+catogery|String|服务分类（资源、工具、应用）
 
 #### 2.3.1.2报文示例
 
@@ -1195,13 +1197,25 @@ __response:__
     "description": "A Hadoop hbase service broker implementation",
     "id": "d9845ade-9410-4c7f-8689-4e032c1a8450",
     "origin": "ocdp",
-    "servicename": "hbase"
+    "servicename": "hbase",
+    "servicetype": "hbase",
+    "catogery": "resource"
   },
   {
-    "description": "A Hadoop hdfs service broker implementation",
-    "id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d8",
-    "origin": "ocdp",
-    "servicename": "hdfs"
+    "description": "visualized analysing",
+    "id": "ae67d4ba-5c4e-4937-a68b-5b47cfe35699",
+    "origin": "open-shift",
+    "servicename": "visanalyse",
+    "servicetype": "visanalyse",
+    "catogery": "tool"
+  },
+    {
+    "description": "spark streaming",
+    "id": "ae67d4ba-5c4e-4937-a68b-5b4888888888",
+    "origin": "open-shift",
+    "servicename": "ocsp",
+    "servicetype": "ocsp",
+    "catogery": "app"
   },
   ...
 ]
