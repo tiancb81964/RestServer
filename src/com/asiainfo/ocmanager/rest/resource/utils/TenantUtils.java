@@ -644,7 +644,8 @@ public class TenantUtils {
 			logger.debug("TenantUtils -> updateTenant -> check can update tenant is false.");
 			return tenantRes;
 		}
-
+		// format the duetime
+		tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
 		TenantPersistenceWrapper.updateTenant(tenant);
 		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
 

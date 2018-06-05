@@ -542,6 +542,21 @@ public class TenantResource {
 			// parse the input parameters json
 			JsonElement parameterJon = new JsonParser().parse(parametersStr);
 			JsonObject parameterObj = parameterJon.getAsJsonObject().getAsJsonObject("parameters");
+			//check REQUEST_NUMBER and REQUEST_SIZE
+			String requestNumStr = null;
+			String requestSizeStr = null;
+			if (parameterObj.has("REQUEST_NUMBER")) {
+				requestNumStr = parameterObj.get("REQUEST_NUMBER").getAsString();
+			}
+			if (parameterObj.has("REQUEST_SIZE")) {
+				requestSizeStr = parameterObj.get("REQUEST_SIZE").getAsString();
+			}
+			if (requestNumStr != null) {
+				parameterObj.remove("REQUEST_NUMBER");
+			}
+			if (requestSizeStr !=null) {
+				parameterObj.remove("REQUEST_SIZE");
+			}
 
 			synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
 				// check whether parameters format is legal
@@ -569,6 +584,13 @@ public class TenantResource {
 							e.getMessage(), ResponseCodeConstant.EXCEED_PARENT_TENANT_QUOTA)).build();
 				}
 
+				//add REQUEST_NUMBER and REQUEST_SIZE to parameter
+				if (requestNumStr != null) {
+					parameterObj.addProperty("REQUEST_NUMBER", requestNumStr);
+				}
+				if (requestSizeStr !=null) {
+					parameterObj.addProperty("REQUEST_SIZE", requestSizeStr);
+				}
 				// add into the update json
 				provisioning.add("parameters", parameterObj);
 
@@ -633,18 +655,18 @@ public class TenantResource {
 					continue;
 				}
 			}
-			long current = getCurrentQuota(tenantID, instanceName, entry);
-			long incremental = entry.getValue().getAsLong() - current;
-			incrementalObj.addProperty(entry.getKey(), new Long(incremental));
+			double current = getCurrentQuota(tenantID, instanceName, entry);
+			double incremental = Double.parseDouble(entry.getValue().getAsString()) - current;
+			incrementalObj.addProperty(entry.getKey(), incremental);
 		}
 		logger.info("Updating bsi {} by incremental quotas: {}", instanceName, incrementalObj);
 		return incrementalObj;
 	}
 
-	private long getCurrentQuota(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
+	private double getCurrentQuota(String tenantID, String instanceName, Entry<String, JsonElement> entry) {
 		String json = ServiceInstancePersistenceWrapper.getServiceInstance(tenantID, instanceName).getQuota();
 		JsonObject jobj = new JsonParser().parse(json).getAsJsonObject();
-		return jobj.get(entry.getKey()).getAsLong();
+		return Double.parseDouble(jobj.get(entry.getKey()).getAsString());
 	}
 
 	private long getKafkaTopicQuotaInDB(String tenantID, String instanceName) {
