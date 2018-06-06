@@ -645,7 +645,11 @@ public class TenantUtils {
 			return tenantRes;
 		}
 		// format the duetime
-		tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
+		if (tenant.getDueTime() != null) {
+			if (!(tenant.getDueTime().equals(""))) {
+				tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
+			}
+		}
 		TenantPersistenceWrapper.updateTenant(tenant);
 		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
 
