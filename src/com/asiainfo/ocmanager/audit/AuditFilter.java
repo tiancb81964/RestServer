@@ -83,7 +83,7 @@ public class AuditFilter implements ContainerResponseFilter {
 		String method = request.getMethod();
 		String requestUrl = request.getRequestURI();
 		AuditString audit = new AuditString().status(403).user(user).ip(ip).action(method)
-				.targetType(TargetType.HTTP_REQUEST.name()).target(requestUrl).desc("Auth Forbidden");
+				.targetType(TargetType.HTTP_REQUEST.name()).target(requestUrl).uri(requestUrl).desc("Auth Forbidden");
 		LOG.info(audit.toString());
 	}
 
