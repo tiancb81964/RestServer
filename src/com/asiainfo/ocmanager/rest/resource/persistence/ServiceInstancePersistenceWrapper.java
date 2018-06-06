@@ -162,6 +162,7 @@ public class ServiceInstancePersistenceWrapper {
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
 			ServiceInstance serviceInstance = mapper.getServiceInstance(tenantId, instanceName);
+			session.commit();
 			return serviceInstance;
 		} catch (Exception e) {
 			throw e;
@@ -182,6 +183,7 @@ public class ServiceInstancePersistenceWrapper {
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
 			ServiceInstance serviceInstance = mapper.selectServiceInstanceByCuzBsiName(cuzBsiName, serviceType);
+			session.commit();
 			return serviceInstance;
 		} catch (Exception e) {
 			throw e;
@@ -202,6 +204,7 @@ public class ServiceInstancePersistenceWrapper {
 		try {
 			ServiceInstanceMapper mapper = session.getMapper(ServiceInstanceMapper.class);
 			List<ServiceInstance> serviceInstances = mapper.selectServiceInstanceByServiceName(tenantId, serviceName);
+			session.commit();
 			return serviceInstances;
 		} catch (Exception e) {
 			throw e;
