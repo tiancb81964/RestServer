@@ -33,7 +33,7 @@ public class TenantTree {
 			throw new RuntimeException("Tenant not exist: " + tenantId);
 		}
 		this.originTenant = new TenantTreeNode(originalTenant.getId(), originalTenant.getName(),
-				originalTenant.getDescription(), originalTenant.getQuota(), null);
+				originalTenant.getDescription(), originalTenant.getQuota(), originalTenant.getDueTime(), originalTenant.getStatus(), null);
 		initTree();
 		LOG.debug("Tenant-Tree constructed successful: " + this.originTenant);
 	}
@@ -112,7 +112,7 @@ public class TenantTree {
 		Tenant parent = fetchParent(node.getId());
 		if (parent != null) {
 			TenantTreeNode pNode = new TenantTreeNode(parent.getId(), parent.getName(), parent.getDescription(),
-					parent.getQuota(), null);
+					parent.getQuota(), parent.getDueTime(), parent.getStatus(), null);
 			pNode.setChildren(new ArrayList<TenantTreeNode>() {
 				{
 					add(node);
@@ -133,7 +133,7 @@ public class TenantTree {
 		if (children != null && !children.isEmpty()) {
 			for (Tenant child : children) {
 				TenantTreeNode subNode = new TenantTreeNode(child.getId(), child.getName(), child.getDescription(),
-						child.getQuota(), tenantNode);
+						child.getQuota(), child.getDueTime(), child.getStatus(), tenantNode);
 				tenantNode.addChild(subNode);
 				initChildren(subNode);
 			}
@@ -171,13 +171,18 @@ public class TenantTree {
 		private String quota;
 		private TenantTreeNode parent;
 		private List<TenantTreeNode> children = new ArrayList<>();
+		private String dueTime;
+		private String status;
+		private String createTime;
 
-		public TenantTreeNode(String id, String name, String description, String quota, TenantTreeNode parent) {
+		public TenantTreeNode(String id, String name, String description, String quota, String dueTime, String status, TenantTreeNode parent) {
 			this.id = id;
 			this.name = name;
 			this.parent = parent;
 			this.description = description;
 			this.quota = quota;
+			this.dueTime = dueTime;
+			this.status = status;
 		}
 
 		public String getDescription() {
@@ -262,6 +267,30 @@ public class TenantTree {
 		public String toString() {
 			return "id:" + this.id + "	name:" + this.name + "	parentID:" + this.parentToString() + "	children:"
 					+ this.childrenToString();
+		}
+
+		public String getDueTime() {
+			return dueTime;
+		}
+
+		public void setDueTime(String dueTime) {
+			this.dueTime = dueTime;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+
+		public void setStatus(String status) {
+			this.status = status;
+		}
+
+		public String getCreateTime() {
+			return createTime;
+		}
+
+		public void setCreateTime(String createTime) {
+			this.createTime = createTime;
 		}
 	}
 

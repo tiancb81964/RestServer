@@ -23,7 +23,7 @@ public class Tenant {
 
 	}
 
-	public Tenant(String id, String name, String description, String parentId, int level, String quota, String dueTime) {
+	public Tenant(String id, String name, String description, String parentId, int level, String quota, String dueTime, String status) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -32,6 +32,7 @@ public class Tenant {
 		this.level = level;
 		this.quota = quota;
 		this.dueTime = dueTime;
+		this.status = status;
 	}
 
 	public Tenant(String id, String name, String description, String parentId, int level) {
