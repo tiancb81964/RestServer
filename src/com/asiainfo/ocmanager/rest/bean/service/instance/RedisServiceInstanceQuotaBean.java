@@ -42,10 +42,10 @@ public class RedisServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 	public RedisServiceInstanceQuotaBean(String serviceType, String quotaStr) {
 		this.serviceType = serviceType;
 		Map<String, String> redisQuotaMap = ServiceInstanceQuotaUtils.getServiceInstanceQuota(serviceType, quotaStr);
-		this.memory = redisQuotaMap.get(MEMORY) == null ? 0 : Long.valueOf(redisQuotaMap.get(MEMORY)).longValue();
-		this.nodes = redisQuotaMap.get(NODES) == null ? 0 : Long.valueOf(redisQuotaMap.get(NODES)).longValue();
+		this.memory = redisQuotaMap.get(MEMORY) == null ? 0 : Double.parseDouble(redisQuotaMap.get(MEMORY));
+		this.nodes = redisQuotaMap.get(NODES) == null ? 0 : Double.parseDouble(redisQuotaMap.get(NODES));
 		this.volumeSize = redisQuotaMap.get(VOLUMESIZE) == null ? 0
-				: Long.valueOf(redisQuotaMap.get(VOLUMESIZE)).longValue();
+				: Double.parseDouble(redisQuotaMap.get(VOLUMESIZE));
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class RedisServiceInstanceQuotaBean extends ServiceInstanceQuotaBean {
 				defaultServiceInstanceQuota
 						.setMemory(ServicesDefaultQuotaConf.getInstance().get("redis").get(MEMORY).getDefaultQuota());
 			} else {
-				defaultServiceInstanceQuota.setMemory(parameters.get(MEMORY).getAsLong());
+				defaultServiceInstanceQuota.setMemory(Double.parseDouble(parameters.get(MEMORY).getAsString()));
 			}
 
 			if (parameters.get(NODES) == null || parameters.get(NODES).isJsonNull()
