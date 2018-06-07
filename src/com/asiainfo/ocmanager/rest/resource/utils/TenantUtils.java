@@ -67,12 +67,12 @@ public class TenantUtils {
 
 		int count = 0;
 		while (currentBound == bound) {
-			// if the wait 3600s, think it is dead loop, break
-			if (count > 3600) {
-				logger.debug("watiInstanceUnBindingComplete -> hit dead loop, break");
+			// if the wait 60s, think it is dead loop, break
+			if (count > 60) {
+				logger.error("watiInstanceUnBindingComplete -> waited too long for unbinding, break and proceed");
 				break;
 			}
-			logger.debug("watiInstanceUnBindingComplete -> waiting");
+			logger.info("watiInstanceUnBindingComplete -> waiting for unbinding to finish");
 			Thread.sleep(1000);
 			instStr = TenantUtils.getTenantServiceInstancesFromDf(tenantId, instanceName);
 			instJson = new JsonParser().parse(instStr);
