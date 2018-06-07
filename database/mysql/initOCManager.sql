@@ -149,6 +149,20 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `ocmanager`.`dashboard`
 -- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_APPLY_BILL` (
+  `ID` VARCHAR(64) NOT NULL,
+  `APPLY_USER` VARCHAR(64) NULL,
+  `APPLY_DATE` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `APPLY_QUOTA` MEDIUMTEXT NULL,
+  `APPLY_REASON` MEDIUMTEXT NULL,
+  `STATUS` INT NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ocmanager`.`dashboard`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ocmanager`.`dashboard` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(64) NOT NULL,
