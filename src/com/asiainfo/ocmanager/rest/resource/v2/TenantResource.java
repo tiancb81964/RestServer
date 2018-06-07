@@ -242,13 +242,13 @@ public class TenantResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(tenantId).build();
 		}
 	}
-	
+
 	@GET
 	@Path("{id}/services")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getTenantServices(@PathParam("id") String tenantId) {
-		//TODO:
+		// TODO:
 		return null;
 	}
 
@@ -773,14 +773,12 @@ public class TenantResource {
 							JsonArray bindingArray = spec.getAsJsonArray("binding");
 							for (JsonElement je : bindingArray) {
 								String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-								logger.info("Unbinding user [{}] to instance [{}]", userName, instanceName);
+								logger.info("Unbinding user [{}] to instance [{}] starting", userName, instanceName);
 								ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
 										instanceName, userName);
-
 								if (unBindingRes.getResCodel() == 201) {
-									logger.info("Waiting unbinding to complete");
 									TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
-									logger.info("Successfully unbinded user [{}] to instance [{}]", userName,
+									logger.info("Unbinding user [{}] to instance [{}] finished", userName,
 											instanceName);
 								}
 							}
@@ -812,7 +810,9 @@ public class TenantResource {
 						}
 						String bodyStr = EntityUtils.toString(response1.getEntity());
 
-						return Response.ok().entity(bodyStr).tag(instanceName).build();
+						return Response.ok()
+								.entity(new ResourceResponseBean("successfully deleted instance", bodyStr, 200))
+								.tag(instanceName).build();
 					} finally {
 						response1.close();
 					}

@@ -236,7 +236,9 @@ public class ServiceResource {
 	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getServiceFromDf() {
 		try {
-			return Response.ok().entity(ServiceResource.callDFToGetAllServices()).tag("all-services").build();
+			return Response.ok().entity(
+					new ResourceResponseBean("get all df services", ServiceResource.callDFToGetAllServices(), 200))
+					.tag("all-services").build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getServiceFromDf hit exception -> ", e);
