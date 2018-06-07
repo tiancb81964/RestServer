@@ -31,6 +31,8 @@
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
+	<!-- If we enbale the sso proxy, the AuthFiler should be disabled -->
+	<!-- If we enbale the asiainfo sso, the AsiainfoPrdSSOFilter should be configured -->
 	<filter>
 		<filter-name>AuthFiler</filter-name>
 		<filter-class>com.asiainfo.ocmanager.rest.filter.AuthFilter</filter-class>
