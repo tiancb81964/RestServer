@@ -761,14 +761,13 @@ public class TenantResource {
 							JsonArray bindingArray = spec.getAsJsonArray("binding");
 							for (JsonElement je : bindingArray) {
 								String userName = je.getAsJsonObject().get("bind_hadoop_user").getAsString();
-								logger.info("Unbinding user [{}] to instance [{}]", userName, instanceName);
+								logger.info("Unbinding user [{}] to instance [{}] starting", userName, instanceName);
 								ResourceResponseBean unBindingRes = TenantUtils.removeOCDPServiceCredentials(tenantId,
 										instanceName, userName);
-
 								if (unBindingRes.getResCodel() == 201) {
-									logger.info("Waiting unbinding to complete");
 									TenantUtils.watiInstanceUnBindingComplete(unBindingRes, tenantId, instanceName);
-									logger.info("Successfully unbinded user [{}] to instance [{}]", userName, instanceName);
+									logger.info("Unbinding user [{}] to instance [{}] finished", userName,
+											instanceName);
 								}
 							}
 						}
