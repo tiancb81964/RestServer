@@ -18,13 +18,13 @@ public class Tenant {
 	private String dueTime;
 	private String status;
 	private String createTime;
+	private String clusters;
 
 	public Tenant() {
 
 	}
 
-	public Tenant(String id, String name, String description, String parentId, int level, String quota, String dueTime, String status) {
-		super();
+	public Tenant(String id, String name, String description, String parentId, int level, String quota, String dueTime, String status, String clusters) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -33,6 +33,7 @@ public class Tenant {
 		this.quota = quota;
 		this.dueTime = dueTime;
 		this.status = status;
+		this.clusters = clusters;
 	}
 
 	public Tenant(String id, String name, String description, String parentId, int level) {
@@ -50,6 +51,14 @@ public class Tenant {
 		this.parentId = parentId;
 		this.level = level;
 		this.quota = quota;
+	}
+
+	public String getClusters() {
+		return clusters;
+	}
+
+	public void setClusters(String clusters) {
+		this.clusters = clusters;
 	}
 
 	public String getCreateTime() {

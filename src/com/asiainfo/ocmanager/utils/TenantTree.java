@@ -174,6 +174,7 @@ public class TenantTree {
 		private String dueTime;
 		private String status;
 		private String createTime;
+		private String clusters;
 
 		public TenantTreeNode(String id, String name, String description, String quota, String dueTime, String status, TenantTreeNode parent) {
 			this.id = id;
@@ -291,6 +292,10 @@ public class TenantTree {
 
 		public void setCreateTime(String createTime) {
 			this.createTime = createTime;
+		}
+
+		public String getClusters() {
+			return clusters;
 		}
 	}
 

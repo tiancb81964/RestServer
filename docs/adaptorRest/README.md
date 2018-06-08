@@ -1270,12 +1270,65 @@ __response:__
 }
 ```
 
-### 2.3.3添加Service broker（/ocmanager/v2/api/service/broker/） 
+### 2.3.3创建Service broker（/ocmanager/v2/api/service/broker/） 
+
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker?clustername=mycluster
+    请求方式：POST
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+clustername|String||是|目标集群名|否
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+phases|List||broker创建子任务列表|否
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
+
+##### 2.3.3.3.2返回报文示例
+
+__response:__
+
+```
+{
+  "status": 200
+  "message": "broker created successfully",
+  "phases": [
+	  {
+	    "phase": "create-dc",
+  		"message": "create-dc successfully",
+	    "status": 200
+	  },
+	  	  {
+	    "phase": "create-svc",
+  		"message": "create-svc successfully",
+	    "status": 200
+	  },
+	  	  {
+	    "phase": "create-router",
+  		"message": "create-router successfully",
+	    "status": 200
+	  }
+  ]
+}
+```
+
+### 2.3.3注册Service broker（/ocmanager/v2/api/service/broker/） 
 
 NOTE: 添加服务,服务是注册在service broker里面的,因此会添加service broker 中注册的所有服务
 
 	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/
-    请求方式：POST
+    请求方式：PUT
 
 #### 2.3.3.1请求参数
 
@@ -1935,7 +1988,7 @@ description|String|租户描述|否|
 parentId|String|父租户id|是|
 quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
 dueTime|String|租户有效日期|否|租户生命周期
-clusters|List|租户绑定的集群|是|用于过滤租户的服务列表
+clusters|String|租户绑定的集群|是|用于过滤租户的服务列表
 #### 2.5.1.2返回参数
 
 ##### 2.5.1.2.1基本参数
@@ -1951,7 +2004,7 @@ name|String|租户名称|databaseInfo字段|否
 parentId|String|父租户id|databaseInfo字段|否
 quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 dueTime|String|租户有效日期|租户生命周期|否
-clusters|List|租户绑定的集群|是|用于过滤租户的服务列表
+clusters|String|租户绑定的集群|是|用于过滤租户的服务列表
 #### 2.5.1.3报文示例
 
 ##### 2.5.1.3.1请求报文示例
@@ -1966,7 +2019,7 @@ __request body:__
     "dueTime": "2018-06-15 15:00:00",
     "description": "test00001",
     "parentId": "111",
-    "clusters": ["cluster1", "cluster2", "cluster3"],
+    "clusters": "cluster1,cluster2,cluster3",
      "quota":"{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
 }
 

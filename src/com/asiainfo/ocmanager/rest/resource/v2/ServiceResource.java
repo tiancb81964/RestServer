@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,18 +36,29 @@ import com.asiainfo.ocmanager.audit.Audit;
 import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
+import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.Service;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.CreateBrokerBean;
+import com.asiainfo.ocmanager.rest.bean.CreateBrokerBean.Phase;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
 import com.asiainfo.ocmanager.utils.Catalog;
+import com.asiainfo.ocmanager.utils.DCTemplate;
+import com.asiainfo.ocmanager.utils.RouterTemplate;
+import com.asiainfo.ocmanager.utils.SVCTemplate;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -142,17 +154,67 @@ public class ServiceResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceId).build();
 		}
 	}
-
+	
 	/**
-	 * Add service broker
-	 *
-	 * @return service
+	 * Add a broker
+	 * @param request
+	 * @return
 	 */
 	@POST
 	@Path("/broker")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
-	public Response addServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
+	public Response provisionBroker(@Context HttpServletRequest request) {
+		String clustername = request.getParameter("clustername");
+		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+		CreateBrokerBean rsp = new CreateBrokerBean();
+		try {
+			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
+			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
+			String dcreq = new DCTemplate().assembleString(adapter);
+			int dcstatus = createdc(dcreq);
+			rsp.withPhase(new Phase("create-dc", dcstatus, ""));
+			String svcreq = new SVCTemplate().assembleString(adapter);
+			int scvstatus = createsvc(svcreq);
+			rsp.withPhase(new Phase("create-svc", scvstatus, ""));
+			String routerreq = new RouterTemplate().assembleString(adapter);
+			int routerstatus = createrouter(routerreq);
+			rsp.withPhase(new Phase("create-router", routerstatus, ""));
+			rsp.setStatus(200);
+			rsp.setMessage("");
+			//TODO: check rsp status and roll back stategy
+			return Response.ok().entity(rsp).tag(clustername).build();
+		} catch (Exception e) {
+			logger.error("provisionBroker hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
+		}
+	}
+
+	private int createsvc(String svcreq) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int createdc(String dcreq) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int createrouter(String reqBody) {
+		// TODO Auto-generated method stub
+		return 200;
+	}
+
+	/**
+	 * Register service broker
+	 *
+	 * @return service
+	 */
+	@PUT
+	@Path("/broker")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.ASSIGN, targetType = TargetType.BROKER)
+	public Response registerServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
 		String brokerIP = extractIP(reqBodyStr);
 		try {
 
@@ -236,9 +298,7 @@ public class ServiceResource {
 	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getServiceFromDf() {
 		try {
-			return Response.ok().entity(
-					new ResourceResponseBean("get all df services", ServiceResource.callDFToGetAllServices(), 200))
-					.tag("all-services").build();
+			return Response.ok().entity(ServiceResource.callDFToGetAllServices()).tag("all-services").build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("getServiceFromDf hit exception -> ", e);

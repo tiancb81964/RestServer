@@ -1,5 +1,6 @@
 package com.asiainfo.ocmanager.rest.resource.v2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.concurrent.TenantLockerPool;
+import com.asiainfo.ocmanager.persistence.model.Service;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
@@ -66,6 +68,7 @@ import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.Catalog;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -249,7 +252,11 @@ public class TenantResource {
 	@Audit(action = Action.GET, targetType = TargetType.SERVICES)
 	public Response getTenantServices(@PathParam("id") String tenantId) {
 		// TODO:
-		return null;
+		ArrayList<Object> list = Lists.newArrayList();
+		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8450", "hbase_hunan", "hunan province", "hunan_broker", "hbase"));
+		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8451", "hdfs_shaanxi", "shaanxi province", "shaanxi_broker", "hdfs"));
+		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8452", "kafka_bj", "bj", "bj_broker", "kafka"));
+		return Response.ok().entity(list).tag(tenantId).build();
 	}
 
 	/**
