@@ -1995,7 +1995,7 @@ description|String|租户描述|否|
 parentId|String|父租户id|是|
 quota|String|配额|是|返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和Kafka Topic 的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式
 dueTime|String|租户有效日期|否|租户生命周期
-clusters|List|租户绑定的集群|是|用于过滤租户的服务列表
+clusters|String|租户绑定的集群|是|用于过滤租户的服务列表
 #### 2.5.1.2返回参数
 
 ##### 2.5.1.2.1基本参数
@@ -2011,7 +2011,7 @@ name|String|租户名称|databaseInfo字段|否
 parentId|String|父租户id|databaseInfo字段|否
 quota|String|配额|(databaseInfo字段)返回HDFS目录允许创建的最大文件数目和HDFS目录的最大存储容量；HBase命名空间允许的最大的region数目和最大的表数目；Hive的最大存储容量和Yarn队列的最大容量；Kafka Topic 的最大存活时间,Kafka Topic 的分区数和KafkaTopic的每一个分区最大存储容量；spark的Yarn队列的最大容量；MapReduceYarn队列的最大容量。注意格式|否
 dueTime|String|租户有效日期|租户生命周期|否
-clusters|List|租户绑定的集群|是|用于过滤租户的服务列表
+clusters|String|租户绑定的集群|是|用于过滤租户的服务列表
 #### 2.5.1.3报文示例
 
 ##### 2.5.1.3.1请求报文示例
@@ -2026,7 +2026,7 @@ __request body:__
     "dueTime": "2018-06-15 15:00:00",
     "description": "test00001",
     "parentId": "111",
-    "clusters": ["cluster1", "cluster2", "cluster3"],
+    "clusters": "cluster1,cluster2,cluster3",
      "quota":"{\"hdfs\": {\"nameSpaceQuota\": 1,\"storageSpaceQuota\": 1},\"hbase\": {\"maximumTablesQuota\": 1,\"maximumRegionsQuota\": 1},\"hive\": {\"storageSpaceQuota\": 1,\"yarnQueueQuota\": 1},\"mapreduce\": {\"yarnQueueQuota\": 1},\"spark\": {\"yarnQueueQuota\":1},\"kafka\": {\"topicTTL\": 10000, \"topicQuota\":1 ,\"partitionSize\": 1}}"
 }
 
