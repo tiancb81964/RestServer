@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asiainfo.ocmanager.persistence.mapper.ServiceMapper">
+	<!-- select all service -->
+	<select id="selectAllServices" resultType="com.asiainfo.ocmanager.persistence.model.Service">
+		select * from services
+	</select>
+	<!-- select service by id -->
+	<select id="selectServiceById" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.Service">
+		select * from services where id=#{id}
+	</select>
+	<!-- add service -->
+	<insert id="insertService" keyProperty="id"
+		parameterType="com.asiainfo.ocmanager.persistence.model.Service">
+		insert into services (id, servicename, description, origin, serviceType)
+		  values (#{id}, #{servicename}, #{description}, #{origin}, #{serviceType})
+	</insert>
+</mapper>

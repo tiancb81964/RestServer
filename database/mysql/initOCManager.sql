@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`services` (
   `origin` VARCHAR(64) NULL,
   `serviceType` VARCHAR(64) NULL,
   PRIMARY KEY (`servicename`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC))
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC)),
+  UNIQUE INDEX `origin_UNIQUE` (`origin` ASC))
 ENGINE = InnoDB;
 
 
@@ -160,6 +161,41 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`dashboard` (
   UNIQUE INDEX `name_UNIQUE` (`name` ASC))
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `ocmanager`.`brokers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
+  `BROKER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `BROKER_IMAGE` VARCHAR(64) NOT NULL,
+  `BROKER_NAME` VARCHAR(64) NOT NULL,   
+  `BROKER_URL` VARCHAR(64) NOT NULL,
+  `BINDED_CLUSTER` VARCHAR(64) NOT NULL,
+  INDEX `fk_brokers_brokername_idx` (`BROKER_NAME` ASC),
+  INDEX `fk_brokers_clustername_idx` (`BINDED_CLUSTER` ASC),
+  CONSTRAINT `fk_brokers_services`
+    FOREIGN KEY (`BROKER_NAME`)
+    REFERENCES `ocmanager`.`services` (`origin`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `ocmanager`.`clusters`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_CLUSTERS` (
+  `CLUSTER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `CLUSTER_NAME` VARCHAR(64) NOT NULL unique,
+  `CLUSTER_TYPE` VARCHAR(64) NOT NULL,
+  `AMBARI_URL` VARCHAR(64) NULL,
+  `AMBARI_USER` VARCHAR(64) NULL,
+  `AMBARI_PASSWORD` VARCHAR(64) NULL,
+  INDEX `fk_clusters_idx` (`CLUSTER_NAME` ASC),
+  CONSTRAINT `fk_clusters_brokers`
+    FOREIGN KEY (`CLUSTER_NAME`)
+    REFERENCES `ocmanager`.`CM_BROKERS` (`BINDED_CLUSTER`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Init the 4 roles into the table `ocmanager`.`roles`

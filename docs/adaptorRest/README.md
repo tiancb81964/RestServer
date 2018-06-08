@@ -1270,12 +1270,72 @@ __response:__
 }
 ```
 
-### 2.3.3添加Service broker（/ocmanager/v2/api/service/broker/） 
+### 2.3.3创建Service broker（/ocmanager/v2/api/service/broker/） 
+
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker?clustername=mycluster
+    请求方式：POST
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+clustername|String||是|目标集群名|否
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+phases|List||broker创建子任务列表|否
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
+
+__request body:__
+
+```
+{
+}
+```
+
+##### 2.3.3.3.2返回报文示例
+
+__response:__
+
+```
+{
+  "status": 200
+  "message": "broker created successfully",
+  "phases": [
+	  {
+	    "phase": "create-dc",
+  		"message": "create-dc successfully",
+	    "status": 200
+	  },
+	  	  {
+	    "phase": "create-svc",
+  		"message": "create-svc successfully",
+	    "status": 200
+	  },
+	  	  {
+	    "phase": "create-router",
+  		"message": "create-router successfully",
+	    "status": 200
+	  }
+  ]
+}
+```
+
+### 2.3.3注册Service broker（/ocmanager/v2/api/service/broker/） 
 
 NOTE: 添加服务,服务是注册在service broker里面的,因此会添加service broker 中注册的所有服务
 
 	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/
-    请求方式：POST
+    请求方式：PUT
 
 #### 2.3.3.1请求参数
 
