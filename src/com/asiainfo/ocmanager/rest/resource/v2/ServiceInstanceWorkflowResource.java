@@ -19,6 +19,7 @@ import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.Assignee;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.ProcessInstanceBean;
@@ -59,8 +60,11 @@ public class ServiceInstanceWorkflowResource {
 			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.error("getRoles hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			logger.info("{0} : {1} hit exception -> ", "ServiceInstanceWorkflowResource",
+					"startServiceInstanceProcess");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).build();
 		}
 	}
 
@@ -87,16 +91,19 @@ public class ServiceInstanceWorkflowResource {
 
 		ServiceInstanceProcess siPro = new ServiceInstanceProcess();
 
-		//TODO deal with the null
-		if (urv == null){
-			
+		if (urv == null) {
+			return Response.status(Status.NOT_ACCEPTABLE)
+					.entity(new ResourceResponseBean("complete service instance process failed",
+							"the assignee role is not belong to the service instance process, please contact admin.",
+							ResponseCodeConstant.EMPTY_TOKEN))
+					.build();
 		}
-		
-		if (urv.getRoleName().equals("team.member")) {
+
+		if (urv.getRoleName().equals(Constant.TEAMMEMBER)) {
 			siPro.completeMemberTask(taskId, flowAction, tenantId);
 		}
 
-		if (urv.getRoleName().equals("tenant.admin")) {
+		if (urv.getRoleName().equals(Constant.TENANTADMIN)) {
 			siPro.completeTenantAdminTask(taskId);
 		}
 

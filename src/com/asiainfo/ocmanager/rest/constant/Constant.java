@@ -50,6 +50,7 @@ public class Constant {
 
 	public static final String SYSADMIN = "system.admin";
 	public static final String TENANTADMIN = "tenant.admin";
+	public static final String TEAMMEMBER = "team.member";
 
 	public static final String ZOOKEEPER = "oc.zookeeper.quorum";
 	public static final String ZOOKEEPER_PORT = "oc.zookeeper.port";
