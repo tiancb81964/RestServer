@@ -25,8 +25,8 @@
 	<!-- create tenant -->
 	<insert id="insertTenant" keyProperty="id"
 		parameterType="com.asiainfo.ocmanager.persistence.model.Tenant">
-		insert into tenants (id, name, description, parentId, level, dueTime, quota)
-		values (#{id}, #{name}, #{description}, #{parentId}, #{level}, #{dueTime}, #{quota})
+		insert into tenants (id, name, description, parentId, level, dueTime, quota, clusters)
+		values (#{id}, #{name}, #{description}, #{parentId}, #{level}, #{dueTime}, #{quota}, #{clusters})
 	</insert>
 	<!-- update tenant -->
 	<update id="updateTenant" parameterType="com.asiainfo.ocmanager.persistence.model.Tenant">
