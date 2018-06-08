@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asiainfo.ocmanager.persistence.mapper.ApplyBillMapper">
+	<!-- select all apply bills -->
+	<select id="selectAllBills" resultType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		SELECT
+			ID as id,
+			APPLY_USER as applyUser,
+			APPLY_DATE as applyDate,
+			APPLY_QUOTA as applyQuota,
+			APPLY_REASON as applyReason,
+			STATUS as status
+				FROM
+				CM_APPLY_BILL
+	</select>
+	<!-- select bills by apply user -->
+	<select id="selectBillById" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		SELECT
+			ID as id,
+			APPLY_USER as applyUser,
+			APPLY_DATE as applyDate,
+			APPLY_QUOTA as applyQuota,
+			APPLY_REASON as applyReason,
+			STATUS as status
+				FROM CM_APPLY_BILL WHERE ID=#{id}
+	</select>
+	<!-- select bills by apply user -->
+	<select id="selectBillsByApplyUser" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		SELECT
+			ID as id,
+			APPLY_USER as applyUser,
+			APPLY_DATE as applyDate,
+			APPLY_QUOTA as applyQuota,
+			APPLY_REASON as applyReason,
+			STATUS as status
+				FROM CM_APPLY_BILL WHERE APPLY_USER=#{applyUser}
+	</select>
+	<!-- insert apply bill -->
+	<insert id="insertApplyBill" keyProperty="id"
+		parameterType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		INSERT INTO CM_APPLY_BILL (ID, APPLY_USER, APPLY_QUOTA, APPLY_REASON, STATUS)
+			values (#{id}, #{applyUser}, #{applyQuota}, #{applyReason}, #{status})
+	</insert>
+	<!-- update apply bill -->
+	<update id="updateApplyBillById" parameterType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		UPDATE CM_APPLY_BILL set
+			APPLY_USER = #{applyUser},
+			APPLY_QUOTA = #{applyQuota},
+			APPLY_REASON = #{applyReason},
+			STATUS = #{status}
+			WHERE ID = #{id}
+	</update>
+	<!-- update apply bill status -->
+	<update id="updateApplyBillStatusById" parameterType="com.asiainfo.ocmanager.persistence.model.ApplyBill">
+		UPDATE CM_APPLY_BILL set
+			STATUS = #{status}
+			WHERE ID = #{id}
+	</update>
+	<!-- delete apply bill -->
+	<delete id="deleteApplyBillById">
+		delete from CM_APPLY_BILL where id = #{id}
+	</delete>
+</mapper>
