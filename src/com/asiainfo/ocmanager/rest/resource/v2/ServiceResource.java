@@ -171,13 +171,13 @@ public class ServiceResource {
 		try {
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
 			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
-			String dcreq = new DCTemplate(adapter).assembleString();
+			String dcreq = new DCTemplate().assembleString(adapter);
 			int dcstatus = createdc(dcreq);
 			rsp.withPhase(new Phase("create-dc", dcstatus, ""));
-			String svcreq = new SVCTemplate(adapter).assembleString();
+			String svcreq = new SVCTemplate().assembleString(adapter);
 			int scvstatus = createsvc(svcreq);
 			rsp.withPhase(new Phase("create-svc", scvstatus, ""));
-			String routerreq = new RouterTemplate(adapter).assembleString();
+			String routerreq = new RouterTemplate().assembleString(adapter);
 			int routerstatus = createrouter(routerreq);
 			rsp.withPhase(new Phase("create-router", routerstatus, ""));
 			rsp.setStatus(200);

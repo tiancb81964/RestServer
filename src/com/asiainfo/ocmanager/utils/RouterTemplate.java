@@ -9,19 +9,13 @@ import com.asiainfo.ocmanager.service.broker.BrokerInterface;
  *
  */
 public class RouterTemplate {
-	private BrokerInterface adaptor;
 	private String tmplate;
 
 	public RouterTemplate() {
-		assemble();
+		init();
 	}
 
-	public RouterTemplate(BrokerInterface adaptor) {
-		assemble();
-		this.adaptor = adaptor;
-	}
-
-	private void assemble() {
+	private void init() {
 		StringBuilder sb = new StringBuilder();
 		// TODO:
 		tmplate = sb.toString();
@@ -31,8 +25,8 @@ public class RouterTemplate {
 	 * get request body string
 	 * @return
 	 */
-	public String assembleString() {
+	public String assembleString(BrokerInterface adaptor) {
 		//TODO: assemble string using adaptor
-		return null;
+		return tmplate;
 	}
 }
