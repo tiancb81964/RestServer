@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`services` (
   `serviceType` VARCHAR(64) NULL,
   PRIMARY KEY (`servicename`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC)),
-  UNIQUE INDEX `origin_UNIQUE` (`origin` ASC))
+  INDEX `origin_UNIQUE` (`origin` ASC))
 ENGINE = InnoDB;
 
 
