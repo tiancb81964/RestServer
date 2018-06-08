@@ -8,6 +8,9 @@ public class Cluster {
 	private String ambari_user;
 	private String ambari_password;
 
+	public Cluster() {
+	}
+
 	public Cluster(String cluster_id, String cluster_name, String cluster_type, String ambari_url, String ambari_user,
 			String ambari_password) {
 		this.cluster_id = cluster_id;
