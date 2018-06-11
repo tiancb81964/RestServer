@@ -21,7 +21,7 @@ import com.asiainfo.ocmanager.workflow.util.ActivitiConfiguration;
  *
  */
 public class TenantProcess extends Process {
-	private static final Logger LOG = LoggerFactory.getLogger(TenantProcess.class);
+	private static final Logger logger = LoggerFactory.getLogger(TenantProcess.class);
 
 	private final static String TENANTPROCESS = "TenantProcess";
 	private final static String TPFLOWMESSAGE_ = "TPFLOWMESSAGE_";
@@ -38,6 +38,7 @@ public class TenantProcess extends Process {
 		// Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(TPTENANTADMINACCOUNT_, userAcount);
 		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(TENANTPROCESS, variables);
+		logger.info("Start Apply Tenant Process successfully!");
 
 		return pi;
 	}
@@ -73,7 +74,8 @@ public class TenantProcess extends Process {
 						strBuffer.append(urv.getUserName());
 						strBuffer.append(",");
 					}
-					variables.put(TPPARENTTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
+					variables.put(TPPARENTTENANTADMINACCOUNTS_,
+							strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
 					variables.put(TPFLOWMESSAGE_, flowAction);
 				} else {
 					// if the tenant is not root tenant, the parent tenant admin
@@ -85,12 +87,13 @@ public class TenantProcess extends Process {
 						strBuffer.append(urv.getUserName());
 						strBuffer.append(",");
 					}
-					variables.put(TPPARENTTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
+					variables.put(TPPARENTTENANTADMINACCOUNTS_,
+							strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
 					variables.put(TPFLOWMESSAGE_, flowAction);
 				}
 
 			} else {
-				LOG.warn("The action is not correct: action={0}", flowAction);
+				logger.warn("The action is not correct: action={0}", flowAction);
 				return;
 			}
 		}
@@ -102,13 +105,12 @@ public class TenantProcess extends Process {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 		pe.getTaskService().complete(taskId);
 	}
-	
-	
-	public String getProcessBindingTenantId(String taskId){
+
+	public String getProcessBindingTenantId(String taskId) {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
-		String tenantId = pe.getTaskService().getVariable(taskId, WorkflowConstant.PROCESSBINDINGTENANTID_).toString();
+		String tenantId = pe.getTaskService().getVariable(taskId, WorkflowConstant.TPPROCESSBINDINGTENANTID_)
+				.toString();
 		return tenantId;
 	}
-	
 
 }

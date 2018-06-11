@@ -9,8 +9,10 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.exception.OcmanagerRuntimeException;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.workflow.constant.WorkflowConstant;
 import com.asiainfo.ocmanager.workflow.util.ActivitiConfiguration;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -22,7 +24,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
  */
 public class InstanceProcess extends Process {
 
-	private static final Logger LOG = LoggerFactory.getLogger(InstanceProcess.class);
+	private static final Logger logger = LoggerFactory.getLogger(InstanceProcess.class);
 
 	private final static String INSTANCEPROCESS = "InstanceProcess";
 	private final static String IPFLOWMESSAGE_ = "IPFLOWMESSAGE_";
@@ -39,6 +41,7 @@ public class InstanceProcess extends Process {
 		// Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(IPTENANTMEMBERACCOUNT_, userAcount);
 		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(INSTANCEPROCESS, variables);
+		logger.info("Start Apply Instance Process successfully!");
 
 		return pi;
 	}
@@ -66,6 +69,9 @@ public class InstanceProcess extends Process {
 				List<UserRoleView> URVs = UserRoleViewPersistenceWrapper
 						.getTURBasedOnRoleNameAndTenantId(Constant.TENANTADMIN, tenantId);
 
+				if (URVs.size() == 0) {
+					throw new OcmanagerRuntimeException("The tenant did NOT have tenant Admin, should contact Admin!");
+				}
 				StringBuffer strBuffer = new StringBuffer();
 				for (UserRoleView urv : URVs) {
 					strBuffer.append(urv.getUserName());
@@ -74,7 +80,7 @@ public class InstanceProcess extends Process {
 				variables.put(IPTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
 				variables.put(IPFLOWMESSAGE_, flowAction);
 			} else {
-				LOG.warn("The action or tenantId is not correct: action={0}, tenantId={1}", flowAction, tenantId);
+				logger.warn("The action or tenantId is not correct: action={0}, tenantId={1}", flowAction, tenantId);
 				return;
 			}
 		}
@@ -85,6 +91,13 @@ public class InstanceProcess extends Process {
 	public void completeTenantAdminTask(String taskId) {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 		pe.getTaskService().complete(taskId);
+	}
+
+	public String getProcessBindingTenantId(String taskId) {
+		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
+		String tenantId = pe.getTaskService().getVariable(taskId, WorkflowConstant.IPPROCESSBINDINGTENANTID_)
+				.toString();
+		return tenantId;
 	}
 
 }

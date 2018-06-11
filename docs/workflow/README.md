@@ -128,7 +128,7 @@ __response:__
 
 
 
-6. 删除用户
+6. 删除一个工单
 ```
 DELETE /v2/api/workflow/apply/bill/{id}
 ``` 
@@ -146,9 +146,9 @@ __response:__
 
 ### workflow APIs
 
-1. 启动服务实例申请流程
+1. 启动实例（服务和工具）申请流程
 ```
-POST /v2/api/workflow/service/instance/{tenantId}/start/process
+POST /v2/api/workflow/instance/{tenantId}/start/process
 ```
 __request body:__
 ```
@@ -165,12 +165,12 @@ __response:__
 ```
 
 
-2. 完成服务实例申请流程任务
+2. 完成实例（服务和工具）申请流程任务
 ```
-POST /v2/api/workflow/service/instance/{tenantId}/complete/task/{taskId}/{flowAction}
+POST /v2/api/workflow/instance/complete/task/{taskId}/{flowAction}
 
-NOTE：flowAction=memberCancel: means member cancel the process
-NOTE：flowAction=memberSubmit: means member complete and go to next task
+NOTE：flowAction=IPApplicantCancel_: means applicant cancel the process
+NOTE：flowAction=IPApplicantSubmit_: means applicant complete and go to next task
 NOTE：flowAction=null: means tenant admin completethe task
 
 ```
@@ -271,6 +271,49 @@ __response:__
 }
 ```
 
+6. 启动租户申请流程
+```
+POST /v2/api/workflow/tenant/{tenantId}/start/process
+```
+__request body:__
+```
+{
+    "assigneeName": "demouser001"
+}
+```
+
+__response:__
+```
+{
+  "processInstanceId": "150024"
+}
+```
+
+
+7. 完成租户申请流程任务
+```
+POST /v2/api/workflow/tenant/complete/task/{taskId}/{flowAction}
+
+NOTE：flowAction=TPApplicantCancel_: means applicant cancel the process
+NOTE：flowAction=TPApplicantSubmit_: means applicant complete and go to next task
+NOTE：flowAction=null: means tenant admin completethe task
+
+```
+__request body:__
+```
+{
+    "assigneeName": "demouser001"
+}
+```
+
+__response:__
+```
+{
+  "message": "taskId: 150029  assignee: demouser001",
+  "resCodel": 200,
+  "status": "complete task success"
+}
+```
 
 
 

@@ -17,8 +17,13 @@ public class WorkflowConstant {
 	public final static String JDBC_PASSWORD = "jdbc.password";
 
 	/*****************************************************************/
-	/********************** sub tenant const *************************/
+	/******************* tenant workflow const ***********************/
 	/*****************************************************************/
-	public final static String PROCESSBINDINGTENANTID_ = "PROCESSBINDINGTENANTID_";
+	public final static String TPPROCESSBINDINGTENANTID_ = "TPPROCESSBINDINGTENANTID_";
+
+	/*****************************************************************/
+	/******************* service workflow const **********************/
+	/*****************************************************************/
+	public final static String IPPROCESSBINDINGTENANTID_ = "IPPROCESSBINDINGTENANTID_";
 
 }
