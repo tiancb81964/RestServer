@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="subTenantProcess" name="subTenantProcess" isExecutable="true">
+    <startEvent id="start" name="start"></startEvent>
+    <userTask id="tenantAdmin" name="tenantAdmin" activiti:assignee="${STPTenantAdminAccount}"></userTask>
+    <userTask id="systemAdmin" name="systemAdmin" activiti:candidateUsers="${STPSystemAdminAccounts}"></userTask>
+    <endEvent id="end" name="end"></endEvent>
+    <sequenceFlow id="flow1" name="flow1" sourceRef="start" targetRef="tenantAdmin"></sequenceFlow>
+    <sequenceFlow id="flow4" name="flow4" sourceRef="systemAdmin" targetRef="end"></sequenceFlow>
+    <sequenceFlow id="flow2" name="flow2" sourceRef="tenantAdmin" targetRef="systemAdmin">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${STPFLOWMESSAGE=='tenantAdminSubmit'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="flow3" sourceRef="tenantAdmin" targetRef="end">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${STPFLOWMESSAGE=='tenantAdminCancel'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_subTenantProcess">
+    <bpmndi:BPMNPlane bpmnElement="subTenantProcess" id="BPMNPlane_subTenantProcess">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="150.0" y="261.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="tenantAdmin" id="BPMNShape_tenantAdmin">
+        <omgdc:Bounds height="80.0" width="100.0" x="292.5" y="236.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="systemAdmin" id="BPMNShape_systemAdmin">
+        <omgdc:Bounds height="80.0" width="100.0" x="540.0" y="236.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="328.5" y="465.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="180.0" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="292.5" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="392.5" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="342.5" y="316.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.5" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="590.0" y="316.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="479.0"></omgdi:waypoint>
+        <omgdi:waypoint x="356.5" y="479.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
