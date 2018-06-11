@@ -1290,6 +1290,7 @@ clustername|String||是|目标集群名|否
 字段|类型|描述|备注|是否常量|
 ----------|----------------|----|------------|---|
 phases|List||broker创建子任务列表|否
+address|String||broker ip|否
 
 #### 2.3.3.3报文示例
 
@@ -1319,7 +1320,8 @@ __response:__
   		"message": "create-router successfully",
 	    "status": 200
 	  }
-  ]
+  ],
+  "address": "random.cm.southbase.prd.dataos.io"
 }
 ```
 
