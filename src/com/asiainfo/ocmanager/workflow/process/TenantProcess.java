@@ -20,24 +20,24 @@ import com.asiainfo.ocmanager.workflow.util.ActivitiConfiguration;
  * @author zhaoyim
  *
  */
-public class SubTenantProcess extends Process {
-	private static final Logger LOG = LoggerFactory.getLogger(SubTenantProcess.class);
+public class TenantProcess extends Process {
+	private static final Logger LOG = LoggerFactory.getLogger(TenantProcess.class);
 
-	private final static String SUBTENANTPROCESS = "subTenantProcess";
-	private final static String STPFLOWMESSAGE = "STPFLOWMESSAGE";
+	private final static String TENANTPROCESS = "TenantProcess";
+	private final static String TPFLOWMESSAGE_ = "TPFLOWMESSAGE_";
 
-	private final static String STPTENANTADMINACCOUNT = "STPTenantAdminAccount";
-	private final static String STPSYSTEMADMINACCOUNTS = "STPSystemAdminAccounts";
+	private final static String TPTENANTADMINACCOUNT_ = "TPtenantAdminAccount_";
+	private final static String TPPARENTTENANTADMINACCOUNTS_ = "TPparentTenantAdminAccounts_";
 
-	private final static String TENANTADMINSUBMIT = "tenantAdminSubmit";
-	private final static String TENANTADMINCANCEL = "tenantAdminCancel";
+	private final static String TPAPPLICANTSUBMIT_ = "TPApplicantSubmit_";
+	private final static String TPAPPLICANTCANCEL_ = "TPApplicantCancel_";
 
 	public ProcessInstance startProcessInstance(String userAcount, Map<String, Object> variables) {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 
 		// Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(STPTENANTADMINACCOUNT, userAcount);
-		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(SUBTENANTPROCESS, variables);
+		variables.put(TPTENANTADMINACCOUNT_, userAcount);
+		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(TENANTPROCESS, variables);
 
 		return pi;
 	}
@@ -46,8 +46,8 @@ public class SubTenantProcess extends Process {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 
 		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(STPTENANTADMINACCOUNT, userAcount);
-		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(SUBTENANTPROCESS, variables);
+		variables.put(TPTENANTADMINACCOUNT_, userAcount);
+		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(TENANTPROCESS, variables);
 
 		return pi;
 	}
@@ -57,10 +57,10 @@ public class SubTenantProcess extends Process {
 
 		Map<String, Object> variables = new HashMap<String, Object>();
 
-		if (flowAction.equals(TENANTADMINCANCEL)) {
-			variables.put(STPFLOWMESSAGE, flowAction);
+		if (flowAction.equals(TPAPPLICANTCANCEL_)) {
+			variables.put(TPFLOWMESSAGE_, flowAction);
 		} else {
-			if (flowAction.equals(TENANTADMINSUBMIT)) {
+			if (flowAction.equals(TPAPPLICANTSUBMIT_)) {
 				// if the tenant is root tenant only have the system admin
 				// so the system admin deal with the apply
 				if (parentTenantId.equals("ae783b6d-655a-11e7-aa10-fa163ed7d0ae")) {
@@ -73,8 +73,8 @@ public class SubTenantProcess extends Process {
 						strBuffer.append(urv.getUserName());
 						strBuffer.append(",");
 					}
-					variables.put(STPSYSTEMADMINACCOUNTS, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
-					variables.put(STPFLOWMESSAGE, flowAction);
+					variables.put(TPPARENTTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
+					variables.put(TPFLOWMESSAGE_, flowAction);
 				} else {
 					// if the tenant is not root tenant, the parent tenant admin
 					// deal with the apply
@@ -85,8 +85,8 @@ public class SubTenantProcess extends Process {
 						strBuffer.append(urv.getUserName());
 						strBuffer.append(",");
 					}
-					variables.put(STPSYSTEMADMINACCOUNTS, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
-					variables.put(STPFLOWMESSAGE, flowAction);
+					variables.put(TPPARENTTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
+					variables.put(TPFLOWMESSAGE_, flowAction);
 				}
 
 			} else {

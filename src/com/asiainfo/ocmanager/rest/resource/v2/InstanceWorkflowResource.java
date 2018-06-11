@@ -1,8 +1,5 @@
 package com.asiainfo.ocmanager.rest.resource.v2;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -26,8 +23,7 @@ import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.Assignee;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.ProcessInstanceBean;
-import com.asiainfo.ocmanager.workflow.constant.WorkflowConstant;
-import com.asiainfo.ocmanager.workflow.process.SubTenantProcess;
+import com.asiainfo.ocmanager.workflow.process.InstanceProcess;
 
 /**
  * 
@@ -35,39 +31,37 @@ import com.asiainfo.ocmanager.workflow.process.SubTenantProcess;
  *
  */
 
-@Path("/v2/api/workflow/sub/tenant")
-public class SubTenantWorkflowResource {
-
-	private static final Logger logger = LoggerFactory.getLogger(SubTenantWorkflowResource.class);
+@Path("/v2/api/workflow/service/instance")
+public class InstanceWorkflowResource {
+	private static final Logger logger = LoggerFactory.getLogger(InstanceWorkflowResource.class);
 
 	@POST
 	@Path("{tenantId}/start/process")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
-	public Response startSubTenantProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
+	public Response startServiceInstanceProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
 			@Context HttpServletRequest request) {
-
 		try {
-
 			String token = request.getHeader("token");
 			if (token == null || token.isEmpty()) {
 				return Response.status(Status.NOT_FOUND)
-						.entity(new ResourceResponseBean("start sub tenant process failed",
+						.entity(new ResourceResponseBean("start service instance process failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
 						.build();
 			}
 
-			SubTenantProcess subTenantProcess = new SubTenantProcess();
-			Map<String, Object> variables = new HashMap<String, Object>();
-			variables.put(WorkflowConstant.PROCESSBINDINGTENANTID_, tenantId);
-			ProcessInstance pi = subTenantProcess.startProcessInstance(assignee.getAssigneeName(), variables);
+			// String loginUser = TokenPaserUtils.paserUserName(token);
+
+			InstanceProcess siPro = new InstanceProcess();
+			ProcessInstance pi = siPro.startProcessInstance(assignee.getAssigneeName());
 
 			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "SubTenantWorkflowResource", "startSubTenantProcess");
+			logger.info("{0} : {1} hit exception -> ", "ServiceInstanceWorkflowResource",
+					"startServiceInstanceProcess");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -75,44 +69,42 @@ public class SubTenantWorkflowResource {
 	}
 
 	@POST
-	@Path("complete/task/{taskId}/{flowAction}")
+	@Path("{tenantId}/complete/task/{taskId}/{flowAction}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
-	public Response completeServiceInstanceTask(Assignee assignee, 
+	public Response completeServiceInstanceTask(Assignee assignee, @PathParam("tenantId") String tenantId,
 			@PathParam("taskId") String taskId, @PathParam("flowAction") String flowAction,
 			@Context HttpServletRequest request) {
 
 		String token = request.getHeader("token");
 		if (token == null || token.isEmpty()) {
 			return Response.status(Status.NOT_FOUND)
-					.entity(new ResourceResponseBean("complete sub tenant process failed",
+					.entity(new ResourceResponseBean("complete service instance process failed",
 							"token is null or empty, please check the token in request header.",
 							ResponseCodeConstant.EMPTY_TOKEN))
 					.build();
 		}
 
-		SubTenantProcess subTenantProcess = new SubTenantProcess();
-		String parentTenantId = subTenantProcess.getProcessBindingTenantId(taskId);
 		UserRoleView urv = UserRoleViewPersistenceWrapper.getRoleBasedOnUserAndTenant(assignee.getAssigneeName(),
-				parentTenantId);
+				tenantId);
+
+		InstanceProcess siPro = new InstanceProcess();
 
 		if (urv == null) {
 			return Response.status(Status.NOT_ACCEPTABLE)
-					.entity(new ResourceResponseBean("complete sub tenant process failed",
-							"the assignee role is not belong to the sub tenant process, please contact admin.",
+					.entity(new ResourceResponseBean("complete service instance process failed",
+							"the assignee role is not belong to the service instance process, please contact admin.",
 							ResponseCodeConstant.EMPTY_TOKEN))
 					.build();
 		}
 
 		if (urv.getRoleName().equals(Constant.TEAMMEMBER)) {
-			subTenantProcess.completeTenantAdminTask(taskId, flowAction, parentTenantId);
+			siPro.completeMemberTask(taskId, flowAction, tenantId);
 		}
 
-		// of the user is the tenant admin or system admin, can complete the
-		// step2 task
-		if (urv.getRoleName().equals(Constant.TENANTADMIN) || urv.getRoleName().equals(Constant.SYSADMIN)) {
-			subTenantProcess.completeParentTenantAdminTask(taskId);
+		if (urv.getRoleName().equals(Constant.TENANTADMIN)) {
+			siPro.completeTenantAdminTask(taskId);
 		}
 
 		return Response.ok().entity(new ResourceResponseBean("complete task success",

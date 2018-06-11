@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
-  <process id="serviceInstanceProcess" name="serviceInstanceProcess" isExecutable="true">
+  <process id="InstanceProcess" name="InstanceProcess" isExecutable="true">
     <startEvent id="start" name="start"></startEvent>
-    <userTask id="tenantMember" name="tenantMember" activiti:assignee="${tenantMemberAccount}"></userTask>
+    <userTask id="IPApplicantTask" name="IPApplicantTask" activiti:assignee="${IPtenantMemberAccount_}"></userTask>
     <endEvent id="end" name="end"></endEvent>
-    <userTask id="tenantAdmin" name="tenantAdmin" activiti:candidateUsers="${tenantAdminAccounts}"></userTask>
-    <sequenceFlow id="flow1" name="flow1" sourceRef="start" targetRef="tenantMember"></sequenceFlow>
-    <sequenceFlow id="flow4" name="flow4" sourceRef="tenantAdmin" targetRef="end"></sequenceFlow>
-    <sequenceFlow id="flow2" name="flow2" sourceRef="tenantMember" targetRef="tenantAdmin">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${FLOWMESSAGE=='memberSubmit'}]]></conditionExpression>
+    <userTask id="IPAdminTask" name="IPAdminTask" activiti:candidateUsers="${IPtenantAdminAccounts_}"></userTask>
+    <sequenceFlow id="flow1" name="flow1" sourceRef="start" targetRef="IPApplicantTask"></sequenceFlow>
+    <sequenceFlow id="flow4" name="flow4" sourceRef="IPAdminTask" targetRef="end"></sequenceFlow>
+    <sequenceFlow id="flow3" name="flow3" sourceRef="IPApplicantTask" targetRef="end">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${IPFLOWMESSAGE_=='IPApplicantCancel_'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow3" name="flow3" sourceRef="tenantMember" targetRef="end">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${FLOWMESSAGE=='memberCancel'}]]></conditionExpression>
+    <sequenceFlow id="flow2" name="flow2" sourceRef="IPApplicantTask" targetRef="IPAdminTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${IPFLOWMESSAGE_=='IPApplicantSubmit_'}]]></conditionExpression>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_serviceInstanceProcess">
-    <bpmndi:BPMNPlane bpmnElement="serviceInstanceProcess" id="BPMNPlane_serviceInstanceProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_InstanceProcess">
+    <bpmndi:BPMNPlane bpmnElement="InstanceProcess" id="BPMNPlane_InstanceProcess">
       <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
         <omgdc:Bounds height="30.0" width="30.0" x="130.5" y="261.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="tenantMember" id="BPMNShape_tenantMember">
+      <bpmndi:BPMNShape bpmnElement="IPApplicantTask" id="BPMNShape_IPApplicantTask">
         <omgdc:Bounds height="80.0" width="100.0" x="270.0" y="236.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
         <omgdc:Bounds height="28.0" width="28.0" x="306.0" y="525.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="tenantAdmin" id="BPMNShape_tenantAdmin">
+      <bpmndi:BPMNShape bpmnElement="IPAdminTask" id="BPMNShape_IPAdminTask">
         <omgdc:Bounds height="80.0" width="100.0" x="495.0" y="236.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
