@@ -1,0 +1,45 @@
+{
+    "kind": "DeploymentConfig",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "cm-broker-${id}",
+        "labels": {
+            "app": "cm-broker"
+        },
+        "annotations": {
+            "dadafoundry.io/create-by": "clustermanager"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "app": "cm-broker",
+            "deploymentconfig": "cm-broker"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "cm-broker",
+                    "deploymentconfig": "cm-broker"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "cm-broker",
+                        "image": "${image-url}",
+                        "ports": [
+                            {
+                                "containerPort": 9000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "env": [
+                        	"${env_list}"
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
