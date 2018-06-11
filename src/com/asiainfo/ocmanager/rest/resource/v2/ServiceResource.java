@@ -54,9 +54,7 @@ import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
 import com.asiainfo.ocmanager.utils.Catalog;
-import com.asiainfo.ocmanager.utils.DCTemplate;
-import com.asiainfo.ocmanager.utils.RouterTemplate;
-import com.asiainfo.ocmanager.utils.SVCTemplate;
+import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
@@ -171,13 +169,13 @@ public class ServiceResource {
 		try {
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
 			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
-			String dcreq = new DCTemplate().assembleString(adapter);
+			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
 			int dcstatus = createdc(dcreq);
 			rsp.withPhase(new Phase("create-dc", dcstatus, ""));
-			String svcreq = new SVCTemplate().assembleString(adapter);
+			String svcreq = DFTemplate.Create_SVC.assembleString(adapter);
 			int scvstatus = createsvc(svcreq);
 			rsp.withPhase(new Phase("create-svc", scvstatus, ""));
-			String routerreq = new RouterTemplate().assembleString(adapter);
+			String routerreq = DFTemplate.Create_Router.assembleString(adapter);
 			int routerstatus = createrouter(routerreq);
 			rsp.withPhase(new Phase("create-router", routerstatus, ""));
 			rsp.setStatus(200);
