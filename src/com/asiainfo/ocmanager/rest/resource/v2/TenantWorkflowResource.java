@@ -35,7 +35,7 @@ import com.asiainfo.ocmanager.workflow.process.TenantProcess;
  *
  */
 
-@Path("/v2/api/workflow/sub/tenant")
+@Path("/v2/api/workflow/tenant")
 public class TenantWorkflowResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(TenantWorkflowResource.class);
@@ -45,7 +45,7 @@ public class TenantWorkflowResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
-	public Response startSubTenantProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
+	public Response startTenantProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
 			@Context HttpServletRequest request) {
 
 		try {
@@ -61,7 +61,7 @@ public class TenantWorkflowResource {
 
 			TenantProcess subTenantProcess = new TenantProcess();
 			Map<String, Object> variables = new HashMap<String, Object>();
-			variables.put(WorkflowConstant.PROCESSBINDINGTENANTID_, tenantId);
+			variables.put(WorkflowConstant.TPPROCESSBINDINGTENANTID_, tenantId);
 			ProcessInstance pi = subTenantProcess.startProcessInstance(assignee.getAssigneeName(), variables);
 
 			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
@@ -79,9 +79,8 @@ public class TenantWorkflowResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
 	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
-	public Response completeServiceInstanceTask(Assignee assignee, 
-			@PathParam("taskId") String taskId, @PathParam("flowAction") String flowAction,
-			@Context HttpServletRequest request) {
+	public Response completeTenantTask(Assignee assignee, @PathParam("taskId") String taskId,
+			@PathParam("flowAction") String flowAction, @Context HttpServletRequest request) {
 
 		String token = request.getHeader("token");
 		if (token == null || token.isEmpty()) {
