@@ -6,7 +6,7 @@ import org.activiti.engine.ProcessEngines;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.workflow.constant.Constant;
+import com.asiainfo.ocmanager.workflow.constant.WorkflowConstant;
 
 /**
  * 
