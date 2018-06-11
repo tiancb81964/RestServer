@@ -170,12 +170,12 @@ public class ServiceResource {
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
 			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
-			int dcstatus = createdc(dcreq);
-			rsp.withPhase(new Phase("create-dc", dcstatus, ""));
-			String svcreq = DFTemplate.Create_SVC.assembleString(adapter);
-			int scvstatus = createsvc(svcreq);
-			rsp.withPhase(new Phase("create-svc", scvstatus, ""));
-			String routerreq = DFTemplate.Create_Router.assembleString(adapter);
+			String dcName = createdc(dcreq);
+			rsp.withPhase(new Phase("create-dc", 200, ""));
+			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
+			String scvName = createsvc(svcreq);
+			rsp.withPhase(new Phase("create-svc", 200, ""));
+			String routerreq = DFTemplate.Create_Router.assembleString(scvName);
 			int routerstatus = createrouter(routerreq);
 			rsp.withPhase(new Phase("create-router", routerstatus, ""));
 			rsp.setStatus(200);
@@ -188,14 +188,14 @@ public class ServiceResource {
 		}
 	}
 
-	private int createsvc(String svcreq) {
+	private String createsvc(String svcreq) {
 		// TODO Auto-generated method stub
-		return 0;
+		return "svc_name_987654321";
 	}
 
-	private int createdc(String dcreq) {
+	private String createdc(String dcreq) {
 		// TODO Auto-generated method stub
-		return 0;
+		return "dc_name_123456789";
 	}
 
 	private int createrouter(String reqBody) {
