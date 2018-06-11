@@ -5,7 +5,7 @@ package com.asiainfo.ocmanager.workflow.constant;
  * @author zhaoyim
  *
  */
-public class Constant {
+public class WorkflowConstant {
 
 	/*****************************************************************/
 	/********************* activiti db const *************************/
@@ -15,5 +15,10 @@ public class Constant {
 	public final static String JDBC_URL = "jdbc.url";
 	public final static String JDBC_USERNAME = "jdbc.username";
 	public final static String JDBC_PASSWORD = "jdbc.password";
+
+	/*****************************************************************/
+	/********************** sub tenant const *************************/
+	/*****************************************************************/
+	public final static String PROCESSBINDINGTENANTID_ = "PROCESSBINDINGTENANTID_";
 
 }

@@ -80,7 +80,7 @@ public class ServiceInstanceWorkflowResource {
 		String token = request.getHeader("token");
 		if (token == null || token.isEmpty()) {
 			return Response.status(Status.NOT_FOUND)
-					.entity(new ResourceResponseBean("start service instance process failed",
+					.entity(new ResourceResponseBean("complete service instance process failed",
 							"token is null or empty, please check the token in request header.",
 							ResponseCodeConstant.EMPTY_TOKEN))
 					.build();
