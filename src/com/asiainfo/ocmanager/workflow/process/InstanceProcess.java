@@ -20,25 +20,25 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
  * @author zhaoyim
  *
  */
-public class ServiceInstanceProcess extends Process {
+public class InstanceProcess extends Process {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ServiceInstanceProcess.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstanceProcess.class);
 
-	private final static String TENANTMEMBERACCOUNT = "tenantMemberAccount";
-	private final static String FLOWMESSAGE = "FLOWMESSAGE";
+	private final static String INSTANCEPROCESS = "InstanceProcess";
+	private final static String IPFLOWMESSAGE_ = "IPFLOWMESSAGE_";
 
-	private final static String SERVICEINSTANCEPROCESS = "serviceInstanceProcess";
-	private final static String TENANTADMINACCOUNTS = "tenantAdminAccounts";
+	private final static String IPTENANTMEMBERACCOUNT_ = "IPtenantMemberAccount_";
+	private final static String IPTENANTADMINACCOUNTS_ = "IPtenantAdminAccounts_";
 
-	private final static String MEMBERSUBMIT = "memberSubmit";
-	private final static String MEMBERCANCEL = "memberCancel";
+	private final static String IPAPPLICANTSUBMIT_ = "IPApplicantSubmit_";
+	private final static String IPAPPLICANTCANCEL_ = "IPApplicantCancel_";
 
 	public ProcessInstance startProcessInstance(String userAcount, Map<String, Object> variables) {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 
 		// Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(TENANTMEMBERACCOUNT, userAcount);
-		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(SERVICEINSTANCEPROCESS, variables);
+		variables.put(IPTENANTMEMBERACCOUNT_, userAcount);
+		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(INSTANCEPROCESS, variables);
 
 		return pi;
 	}
@@ -47,8 +47,8 @@ public class ServiceInstanceProcess extends Process {
 		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
 
 		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(TENANTMEMBERACCOUNT, userAcount);
-		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(SERVICEINSTANCEPROCESS, variables);
+		variables.put(IPTENANTMEMBERACCOUNT_, userAcount);
+		ProcessInstance pi = pe.getRuntimeService().startProcessInstanceByKey(INSTANCEPROCESS, variables);
 
 		return pi;
 	}
@@ -58,11 +58,11 @@ public class ServiceInstanceProcess extends Process {
 
 		Map<String, Object> variables = new HashMap<String, Object>();
 
-		if (flowAction.equals(MEMBERCANCEL)) {
-			variables.put(FLOWMESSAGE, flowAction);
+		if (flowAction.equals(IPAPPLICANTCANCEL_)) {
+			variables.put(IPFLOWMESSAGE_, flowAction);
 
 		} else {
-			if (flowAction.equals(MEMBERSUBMIT) && tenantId != null) {
+			if (flowAction.equals(IPAPPLICANTSUBMIT_) && tenantId != null) {
 				List<UserRoleView> URVs = UserRoleViewPersistenceWrapper
 						.getTURBasedOnRoleNameAndTenantId(Constant.TENANTADMIN, tenantId);
 
@@ -71,8 +71,8 @@ public class ServiceInstanceProcess extends Process {
 					strBuffer.append(urv.getUserName());
 					strBuffer.append(",");
 				}
-				variables.put(TENANTADMINACCOUNTS, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
-				variables.put(FLOWMESSAGE, flowAction);
+				variables.put(IPTENANTADMINACCOUNTS_, strBuffer.deleteCharAt(strBuffer.length() - 1).toString());
+				variables.put(IPFLOWMESSAGE_, flowAction);
 			} else {
 				LOG.warn("The action or tenantId is not correct: action={0}, tenantId={1}", flowAction, tenantId);
 				return;
