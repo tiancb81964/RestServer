@@ -1,0 +1,17 @@
+{
+    "kind": "Route",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "cm-broker-${id}"
+    },
+    "spec": {
+        "host": "${cm-router-prefix}.cm.southbase.prd.dataos.io",
+        "to": {
+            "kind": "Service",
+            "name": "${cm-svc-name}"
+        },
+        "port": {
+            "targetPort": "9000-tcp"
+        }
+    }
+}

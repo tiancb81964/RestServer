@@ -1,9 +1,13 @@
 package com.asiainfo.ocmanager.service.broker.imp;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.utils.BrokersIni;
+import com.google.common.collect.Maps;
 
 public class DPAdapter implements BrokerInterface {
 	private Cluster cluster;
@@ -22,20 +26,17 @@ public class DPAdapter implements BrokerInterface {
 
 	@Override
 	public String getImage() {
-		// TODO Auto-generated method stub
-		return null;
+		Properties props = BrokersIni.getInstance().getBroker(getType());
+		return props.getProperty("image");
 	}
 
 	@Override
 	public Map<String, String> getEnv() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getConfigFileName() {
-		// TODO Auto-generated method stub
-		return null;
+		HashMap<String, String> map = Maps.newHashMap();
+		map.put("EVN_alpha", "ABCD");
+		map.put("EVN_beta", "XYZ$");
+		return map;
 	}
 
 	@Override

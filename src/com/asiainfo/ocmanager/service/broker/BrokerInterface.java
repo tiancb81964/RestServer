@@ -30,12 +30,6 @@ public interface BrokerInterface extends Broker{
 	public Map<String, String> getEnv();
 	
 	/**
-	 * get broker config file name
-	 * @return
-	 */
-	public String getConfigFileName();
-	
-	/**
 	 * get cLuster
 	 * @return
 	 */

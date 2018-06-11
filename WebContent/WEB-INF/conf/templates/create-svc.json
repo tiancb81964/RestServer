@@ -1,0 +1,27 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "cm-broker-${id}",
+        "labels": {
+            "app": "cm-broker"
+        },
+        "annotations": {
+            "dadafoundry.io/create-by": "clustermanager"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "name": "9000-tcp",
+                "protocol": "TCP",
+                "port": 9000,
+                "targetPort": 9000
+            }
+        ],
+        "selector": {
+            "app": "cm-broker",
+            "deploymentconfig": "${cm-dc-name}"
+        }
+    }
+}
