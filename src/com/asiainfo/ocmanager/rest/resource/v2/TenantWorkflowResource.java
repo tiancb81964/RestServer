@@ -67,7 +67,7 @@ public class TenantWorkflowResource {
 			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "SubTenantWorkflowResource", "startSubTenantProcess");
+			logger.info("{} : {} hit exception", "SubTenantWorkflowResource", "startSubTenantProcess");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();

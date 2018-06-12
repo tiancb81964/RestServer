@@ -47,6 +47,7 @@ public class ResponseCodeConstant {
 
 	// 406 extend
 	public final static int EXCEED_PARENT_TENANT_QUOTA = 4061;
+	public final static int PARAMETER_IS_NULL = 4062;
 
 	// 409 extend
 	public final static int USER_EXIST = 4091;

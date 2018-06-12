@@ -1,5 +1,9 @@
 package com.asiainfo.ocmanager.workflow.process;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.activiti.engine.ProcessEngine;
@@ -43,6 +47,16 @@ public class Process {
 		}
 		// process instance not complete return false
 		return false;
+	}
+
+	public void deployProcess(String processName, String bpmnPath) throws FileNotFoundException {
+
+		InputStream bpmnInputStream = new FileInputStream(new File(bpmnPath));
+		String resourceName = processName + ".bpmn";
+
+		ProcessEngine pe = ActivitiConfiguration.getProcessEngine();
+		pe.getRepositoryService().createDeployment().addInputStream(resourceName, bpmnInputStream).name(processName)
+				.deploy();
 	}
 
 }

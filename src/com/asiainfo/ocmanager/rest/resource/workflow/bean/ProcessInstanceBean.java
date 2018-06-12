@@ -41,4 +41,10 @@ public class ProcessInstanceBean implements Serializable {
 		this.processInstanceName = processInstanceName;
 	}
 
+	@Override
+	public String toString() {
+		return "ProcessInstanceBean: {processInstanceId: " + processInstanceId + ", processInstanceName: "
+				+ processInstanceName + "}";
+	}
+
 }
