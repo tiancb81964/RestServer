@@ -8,6 +8,15 @@ public class CreateBrokerBean {
 	private int status = -1;
 	private String message;
 	private List<Phase> phases = Lists.newArrayList();
+	private String address;
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
 
 	public CreateBrokerBean(int status, String message) {
 		this.status = status;
