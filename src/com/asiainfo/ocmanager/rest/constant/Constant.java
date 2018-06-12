@@ -62,6 +62,10 @@ public class Constant {
 	// prefix for parameters
 	public static final String ATTRIBUTES = "ATTR_";
 
+	// service and tool
+	public static final String SERVICE = "service";
+	public static final String TOOL = "tool";
+
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/

@@ -30,7 +30,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.audit.Audit;
 import com.asiainfo.ocmanager.audit.Audit.Action;
@@ -70,7 +71,7 @@ import com.google.gson.JsonParser;
 @Path("/v2/api/service")
 public class ServiceResource {
 
-	private static Logger logger = Logger.getLogger(ServiceResource.class);
+	private static Logger logger = LoggerFactory.getLogger(ServiceResource.class);
 
 	/**
 	 * Get All OCManager services
@@ -108,14 +109,24 @@ public class ServiceResource {
 							.getAsString();
 					String origin = items.get(i).getAsJsonObject().getAsJsonObject("metadata").getAsJsonObject("labels")
 							.get("asiainfo.io/servicebroker").getAsString();
+					// String category =
+					// items.get(i).getAsJsonObject().getAsJsonObject("spec").getAsJsonObject("metadata")
+					// .get("category").getAsString();
+					// String type =
+					// items.get(i).getAsJsonObject().getAsJsonObject("spec").getAsJsonObject("metadata")
+					// .get("type").getAsString();
+					JsonObject specMetadata = items.get(i).getAsJsonObject().getAsJsonObject("spec")
+							.getAsJsonObject("metadata");
 
 					if (servicesInDB.size() == 0) {
-						ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
-								Catalog.getInstance().getServiceType(name).toLowerCase()));
+						ServicePersistenceWrapper.addService(
+								new Service(id, name, description, origin, this.parseServiceType(specMetadata, name),
+										this.parseServiceCategory(specMetadata, name)));
 					} else {
 						if (!dbServiceNameList.contains(name.toLowerCase())) {
 							ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
-									Catalog.getInstance().getServiceType(name).toLowerCase()));
+									this.parseServiceType(specMetadata, name),
+									this.parseServiceCategory(specMetadata, name)));
 						}
 					}
 
@@ -129,6 +140,31 @@ public class ServiceResource {
 			// system out the exception into the console log
 			logger.error("getServices  hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag("all-services").build();
+		}
+	}
+
+	private String parseServiceType(JsonObject specMetadata, String serviceName) {
+		JsonElement typeJE = specMetadata.get("type");
+		if (typeJE == null) {
+			logger.debug("The service {} is not have spec:metadata:type, please check with admin.", serviceName);
+			// if the service did not have the type return the service name
+			return serviceName;
+		} else {
+			String serviceType = specMetadata.get("type").getAsString();
+			return serviceType;
+		}
+	}
+
+	private String parseServiceCategory(JsonObject specMetadata, String serviceName) {
+		JsonElement categoryJE = specMetadata.get("category");
+		if (categoryJE == null) {
+			logger.debug("The service {} is not have category, please check with admin.", serviceName);
+			// if the service did not have the category return the default value
+			// service
+			return Constant.SERVICE;
+		} else {
+			String serviceCategory = specMetadata.get("category").getAsString();
+			return serviceCategory;
 		}
 	}
 
@@ -152,9 +188,10 @@ public class ServiceResource {
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceId).build();
 		}
 	}
-	
+
 	/**
 	 * Add a broker
+	 * 
 	 * @param request
 	 * @return
 	 */
@@ -180,7 +217,7 @@ public class ServiceResource {
 			rsp.withPhase(new Phase("create-router", routerstatus, ""));
 			rsp.setStatus(200);
 			rsp.setMessage("");
-			//TODO: check rsp status and roll back stategy
+			// TODO: check rsp status and roll back stategy
 			return Response.ok().entity(rsp).tag(clustername).build();
 		} catch (Exception e) {
 			logger.error("provisionBroker hit exception -> ", e);

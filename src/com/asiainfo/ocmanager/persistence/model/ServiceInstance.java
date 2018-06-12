@@ -17,14 +17,29 @@ public class ServiceInstance {
 	private String cuzBsiName;
 	private String attributes;
 	private String serviceType;
+	private String category;
 
 	public ServiceInstance() {
 
 	}
 
-	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId,
-			String serviceName, String quota, String status, String cuzBsiName, String attributes,
-			String serviceType) {
+	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId, String serviceName,
+			String quota, String status, String cuzBsiName, String attributes, String serviceType, String category) {
+		this.id = id;
+		this.instanceName = instanceName;
+		this.tenantId = tenantId;
+		this.serviceId = serviceId;
+		this.serviceName = serviceName;
+		this.quota = quota;
+		this.status = status;
+		this.cuzBsiName = cuzBsiName;
+		this.attributes = attributes;
+		this.serviceType = serviceType;
+		this.category = category;
+	}
+
+	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId, String serviceName,
+			String quota, String status, String cuzBsiName, String attributes, String serviceType) {
 		this.id = id;
 		this.instanceName = instanceName;
 		this.tenantId = tenantId;
@@ -37,8 +52,8 @@ public class ServiceInstance {
 		this.serviceType = serviceType;
 	}
 
-	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId,
-			String serviceName, String quota, String status) {
+	public ServiceInstance(String id, String instanceName, String tenantId, String serviceId, String serviceName,
+			String quota, String status) {
 		this.id = id;
 		this.instanceName = instanceName;
 		this.tenantId = tenantId;
@@ -126,6 +141,14 @@ public class ServiceInstance {
 
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 }
