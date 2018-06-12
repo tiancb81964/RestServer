@@ -47,4 +47,4 @@ curl -i -XPOST http://$USER:$PASSWD@$IP:6080/service/public/v2/api/policy/ -d '{
     "version": 1
 }'  -H "Content-Type: application/json"
 echo ""
-echo "Script executed!!!"
+echo "Script executed!!"

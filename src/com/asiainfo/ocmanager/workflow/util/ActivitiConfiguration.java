@@ -6,7 +6,7 @@ import org.activiti.engine.ProcessEngines;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.workflow.constant.Constant;
+import com.asiainfo.ocmanager.workflow.constant.WorkflowConstant;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class ActivitiConfiguration {
 				.setJdbcUrl("jdbc:mysql://10.1.236.95:3306/activiti?useUnicode=true&characterEncoding=utf8")
 				.setJdbcUsername("root").setJdbcPassword("passw0rd")
 				.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
-		
+		//TODO should changed now it just for testing
 //		ProcessEngineConfiguration processEngineConfiguration = ProcessEngineConfiguration
 //				.createStandaloneProcessEngineConfiguration()
 //				.setJdbcDriver(MysqlConfiguration.getConf().getProperty(Constant.JDBC_DRIVER))
