@@ -24,6 +24,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.Assignee;
+import com.asiainfo.ocmanager.rest.resource.workflow.bean.ProcessDeploymentBean;
 import com.asiainfo.ocmanager.rest.resource.workflow.bean.TaskBean;
 import com.asiainfo.ocmanager.workflow.process.Process;
 
@@ -67,7 +68,7 @@ public class CommonWorkflowResource {
 			return Response.ok().entity(taskBeans).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "CommonWorkflowResource", "listAssigneeTasks");
+			logger.info("{} : {} hit exception", "CommonWorkflowResource", "listAssigneeTasks");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -103,7 +104,7 @@ public class CommonWorkflowResource {
 			return Response.ok().entity(taskBeans).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "CommonWorkflowResource", "listCandidateTasks");
+			logger.info("{} : {} hit exception", "CommonWorkflowResource", "listCandidateTasks");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -124,6 +125,40 @@ public class CommonWorkflowResource {
 		return Response.ok().entity(new ResourceResponseBean("accept candidate task success",
 				"taskId: " + taskId + "  assignee: " + assignee.getAssigneeName(), ResponseCodeConstant.SUCCESS))
 				.build();
+	}
+
+	@POST
+	@Path("deployment/process")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Consumes(MediaType.APPLICATION_JSON)
+	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	public Response deployProcess(ProcessDeploymentBean processDeployment, @Context HttpServletRequest request) {
+
+		if (processDeployment.getProcessName() == null || processDeployment.getBpmnPath() == null) {
+			logger.info("{} : {} parameters is null", "CommonWorkflowResource", "deployProcess");
+			return Response.status(Status.NOT_ACCEPTABLE)
+					.entity(new ResourceResponseBean("Deploy process failed",
+							"parameter is null, please check, make sure the parameter input correctly.",
+							ResponseCodeConstant.PARAMETER_IS_NULL))
+					.build();
+		}
+
+		try {
+			Process p = new Process();
+			p.deployProcess(processDeployment.getProcessName(), processDeployment.getBpmnPath());
+			return Response.ok()
+					.entity(new ResourceResponseBean("Deploy process successfully!", "ProcessName: "
+							+ processDeployment.getProcessName() + ", BpmnPath: " + processDeployment.getBpmnPath(),
+							ResponseCodeConstant.SUCCESS))
+					.build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("{} : {} hit exception", "CommonWorkflowResource", "deployProcess");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+		}
+
 	}
 
 }

@@ -46,7 +46,7 @@ public class ApplyBillResource {
 			return Response.ok().entity(bills).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "getApplyBills");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "getApplyBills");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -63,7 +63,7 @@ public class ApplyBillResource {
 			return Response.ok().entity(bills).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "getApplyBillsByUser");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "getApplyBillsByUser");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -80,7 +80,7 @@ public class ApplyBillResource {
 			return Response.ok().entity(bill).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "createApplyBill");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "createApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -98,7 +98,7 @@ public class ApplyBillResource {
 			return Response.ok().entity(bill).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "updateApplyBill");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "updateApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -118,7 +118,7 @@ public class ApplyBillResource {
 			return Response.ok().entity(bill).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "updateApplyBillStatus");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "updateApplyBillStatus");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -137,7 +137,7 @@ public class ApplyBillResource {
 					.entity(new ResourceResponseBean("delete bill success", id, ResponseCodeConstant.SUCCESS)).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "ApplyBillResource", "deleteApplyBill");
+			logger.info("{} : {} hit exception", "ApplyBillResource", "deleteApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();

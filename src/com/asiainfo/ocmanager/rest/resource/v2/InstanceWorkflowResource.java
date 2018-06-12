@@ -66,7 +66,7 @@ public class InstanceWorkflowResource {
 			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "InstanceWorkflowResource", "startInstanceProcess");
+			logger.info("{} : {} hit exception", "InstanceWorkflowResource", "startInstanceProcess");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
@@ -118,7 +118,7 @@ public class InstanceWorkflowResource {
 					.build();
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.info("{0} : {1} hit exception -> ", "InstanceWorkflowResource", "completeInstanceTask");
+			logger.info("{} : {} hit exception", "InstanceWorkflowResource", "completeInstanceTask");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
 			return Response.status(Status.BAD_REQUEST).entity(ex).build();
