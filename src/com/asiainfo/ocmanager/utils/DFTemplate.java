@@ -35,7 +35,7 @@ public class DFTemplate {
 		public static String assembleString(BrokerInterface adapter) {
 			String image = adapter.getImage();
 			String str = template.replace(IMAGE_URL, image);
-			str = str.replace(ID_POSTFIX, UUID.randomUUID().toString());
+			str = str.replace(ID_POSTFIX, adapter.getCluster().getCluster_name() + UUID.randomUUID().toString());
 			str = str.replace(ENV_LIST, envToJson(adapter.getEnv()));
 			return str;
 		}
