@@ -54,7 +54,6 @@ import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
-import com.asiainfo.ocmanager.utils.Catalog;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -109,12 +108,7 @@ public class ServiceResource {
 							.getAsString();
 					String origin = items.get(i).getAsJsonObject().getAsJsonObject("metadata").getAsJsonObject("labels")
 							.get("asiainfo.io/servicebroker").getAsString();
-					// String category =
-					// items.get(i).getAsJsonObject().getAsJsonObject("spec").getAsJsonObject("metadata")
-					// .get("category").getAsString();
-					// String type =
-					// items.get(i).getAsJsonObject().getAsJsonObject("spec").getAsJsonObject("metadata")
-					// .get("type").getAsString();
+
 					JsonObject specMetadata = items.get(i).getAsJsonObject().getAsJsonObject("spec")
 							.getAsJsonObject("metadata");
 
@@ -218,8 +212,8 @@ public class ServiceResource {
 			rsp.setStatus(200);
 			rsp.setMessage("");
 			rsp.setAddress("123456789.cm.southbase.prd.dataos.io");
-			//TODO: check rsp status and roll back stategy
-			//TODP: insert broker info into CM_BROKERS table
+			// TODO: check rsp status and roll back stategy
+			// TODP: insert broker info into CM_BROKERS table
 			return Response.ok().entity(rsp).tag(clustername).build();
 		} catch (Exception e) {
 			logger.error("provisionBroker hit exception -> ", e);
@@ -310,7 +304,7 @@ public class ServiceResource {
 			} finally {
 				httpclient.close();
 			}
-			//TODO: update binded_cluster colume of CM_BROKERS table
+			// TODO: update binded_cluster colume of CM_BROKERS table
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("addServiceBroker hit exception-> ", e);
