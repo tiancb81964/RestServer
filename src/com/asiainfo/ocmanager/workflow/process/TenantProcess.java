@@ -64,10 +64,10 @@ public class TenantProcess extends Process {
 			if (flowAction.equals(TPAPPLICANTSUBMIT_)) {
 				// if the tenant is root tenant only have the system admin
 				// so the system admin deal with the apply
-				if (parentTenantId.equals("ae783b6d-655a-11e7-aa10-fa163ed7d0ae")) {
+				if (parentTenantId.equals(Constant.ROOTTENANTID)) {
 					// get all system admin
-					List<UserRoleView> URVs = UserRoleViewPersistenceWrapper.getTURBasedOnRoleNameAndTenantId(
-							Constant.SYSADMIN, "ae783b6d-655a-11e7-aa10-fa163ed7d0ae");
+					List<UserRoleView> URVs = UserRoleViewPersistenceWrapper
+							.getTURBasedOnRoleNameAndTenantId(Constant.SYSADMIN, Constant.ROOTTENANTID);
 
 					StringBuffer strBuffer = new StringBuffer();
 					for (UserRoleView urv : URVs) {

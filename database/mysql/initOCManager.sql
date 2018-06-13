@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`services` (
   `description` MEDIUMTEXT NULL,
   `origin` VARCHAR(64) NULL,
   `serviceType` VARCHAR(64) NULL,
+  `category` VARCHAR(64) NULL DEFAULT 'service',
   PRIMARY KEY (`servicename`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC)),
   INDEX `origin_UNIQUE` (`origin` ASC))
@@ -80,6 +81,7 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`service_instances` (
   `cuzBsiName` MEDIUMTEXT NULL,
   `attributes` MEDIUMTEXT NULL,
   `serviceType` VARCHAR(64) NULL,
+  `category` VARCHAR(64) NULL DEFAULT 'service',
   PRIMARY KEY (`id`),
   INDEX `fk_service_instances_tenants1_idx` (`tenantId` ASC),
   INDEX `fk_service_instances_services1_idx` (`serviceName` ASC),
