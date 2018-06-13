@@ -1,7 +1,5 @@
 package com.asiainfo.ocmanager.persistence.model;
 
-import java.sql.Timestamp;
-
 /**
  * 
  * @author zhaoyim

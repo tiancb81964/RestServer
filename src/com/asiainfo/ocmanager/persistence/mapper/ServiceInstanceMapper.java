@@ -88,4 +88,20 @@ public interface ServiceInstanceMapper {
 	public List<ServiceInstance> selectServiceInstanceByServiceName(@Param("tenantId") String tenantId,
 			@Param("serviceName") String serviceName);
 
+	/**
+	 * 
+	 * @param category
+	 * @return
+	 */
+	public List<ServiceInstance> selectAllInstancesByCategory(@Param("category") String category);
+
+	/**
+	 * 
+	 * @param tenantId
+	 * @param category
+	 * @return
+	 */
+	public List<ServiceInstance> selectInstancesByTenantAndCategory(@Param("tenantId") String tenantId,
+			@Param("category") String category);
+
 }

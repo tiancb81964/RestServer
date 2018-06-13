@@ -109,8 +109,8 @@ public class ServiceInstanceUtils {
 					serviceInstance
 							.setInstanceName(resBodyJsonObj.getAsJsonObject("metadata").get("name").getAsString());
 					serviceInstance.setTenantId(tenantId);
-					serviceInstance.setServiceId(resBodyJsonObj.getAsJsonObject("spec")
-							.getAsJsonObject("provisioning").get("backingservice_spec_id").getAsString());
+					serviceInstance.setServiceId(resBodyJsonObj.getAsJsonObject("spec").getAsJsonObject("provisioning")
+							.get("backingservice_spec_id").getAsString());
 					serviceInstance.setServiceName(resBodyJsonObj.getAsJsonObject("spec")
 							.getAsJsonObject("provisioning").get("backingservice_name").getAsString());
 
@@ -183,9 +183,12 @@ public class ServiceInstanceUtils {
 						serviceInstance.setQuota(quota.toString());
 						serviceInstance.setAttributes(attributes.toString());
 
-						String serviceName1 = serviceInstance.getServiceName();
-						String serviceType1 = Catalog.getInstance().getServiceType(serviceName1);
-						serviceInstance.setServiceType(serviceType1);
+						// set service type which based on service name
+						serviceInstance
+								.setServiceType(Catalog.getInstance().getServiceType(serviceInstance.getServiceName()));
+						// set service category
+						serviceInstance.setCategory(
+								Catalog.getInstance().getServiceCategory(serviceInstance.getServiceName()));
 
 					}
 					serviceInstance.setStatus(phase);
