@@ -235,16 +235,62 @@ public class ServiceResource {
 		// TODO Auto-generated method stub
 		return 200;
 	}
-
+	
+	/**
+	 * get a broker dc
+	 * @param request
+	 * @return
+	 */
+	@GET
+	@Path("/broker/{id}/dc")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.BROKER_DC)
+	public Response getBrokerDC(@PathParam("id") String brokerid) {
+		//TODO:
+		return Response.ok().entity(getDCConfig()).build();
+	}
+	
+	private String getDCConfig() {
+		return "{\\r\\n    \\\"apiVersion\\\": \\\"v1\\\",\\r\\n    \\\"kind\\\": \\\"DeploymentConfig\\\",\\r\\n    \\\"metadata\\\": {\\r\\n        \\\"annotations\\\": {\\r\\n            \\\"dadafoundry.io\\/create-by\\\": \\\"chaizs\\\",\\r\\n            \\\"openshift.io\\/generated-by\\\": \\\"OpenShiftWebConsole\\\"\\r\\n        },\\r\\n        \\\"creationTimestamp\\\": \\\"2018-06-05T02:33:13Z\\\",\\r\\n        \\\"generation\\\": 3,\\r\\n        \\\"labels\\\": {\\r\\n            \\\"app\\\": \\\"cm-console\\\"\\r\\n        },\\r\\n        \\\"name\\\": \\\"cm-console\\\",\\r\\n        \\\"namespace\\\": \\\"southbase\\\",\\r\\n        \\\"resourceVersion\\\": \\\"9200111\\\",\\r\\n        \\\"selfLink\\\": \\\"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\\\",\\r\\n        \\\"uid\\\": \\\"cb8ea774-6868-11e8-ae4e-fa163ef134de\\\"\\r\\n    },\\r\\n    \\\"spec\\\": {\\r\\n        \\\"replicas\\\": 1,\\r\\n        \\\"selector\\\": {\\r\\n            \\\"app\\\": \\\"cm-console\\\",\\r\\n            \\\"deploymentconfig\\\": \\\"cm-console\\\"\\r\\n        },\\r\\n        \\\"strategy\\\": {\\r\\n            \\\"activeDeadlineSeconds\\\": 21600,\\r\\n            \\\"resources\\\": {},\\r\\n            \\\"rollingParams\\\": {\\r\\n                \\\"intervalSeconds\\\": 1,\\r\\n                \\\"maxSurge\\\": \\\"25%\\\",\\r\\n                \\\"maxUnavailable\\\": \\\"25%\\\",\\r\\n                \\\"timeoutSeconds\\\": 600,\\r\\n                \\\"updatePeriodSeconds\\\": 1\\r\\n            },\\r\\n            \\\"type\\\": \\\"Rolling\\\"\\r\\n        },\\r\\n        \\\"template\\\": {\\r\\n            \\\"metadata\\\": {\\r\\n                \\\"annotations\\\": {\\r\\n                    \\\"openshift.io\\/generated-by\\\": \\\"OpenShiftWebConsole\\\"\\r\\n                },\\r\\n                \\\"creationTimestamp\\\": null,\\r\\n                \\\"labels\\\": {\\r\\n                    \\\"app\\\": \\\"cm-console\\\",\\r\\n                    \\\"deploymentconfig\\\": \\\"cm-console\\\"\\r\\n                }\\r\\n            },\\r\\n            \\\"spec\\\": {\\r\\n                \\\"containers\\\": [\\r\\n                    {\\r\\n                        \\\"env\\\": [\\r\\n                            {\\r\\n                                \\\"name\\\": \\\"ADAPTER_API_SERVER\\\",\\r\\n                                \\\"value\\\": \\\"http:\\/\\/10.1.236.60:9090\\\"\\r\\n                            },\\r\\n                            {\\r\\n                                \\\"name\\\": \\\"SVCAMOUNT_API_SERVER\\\",\\r\\n                                \\\"value\\\": \\\"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\\\"\\r\\n                            }\\r\\n                        ],\\r\\n                        \\\"image\\\": \\\"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\\\",\\r\\n                        \\\"imagePullPolicy\\\": \\\"IfNotPresent\\\",\\r\\n                        \\\"name\\\": \\\"cm-console\\\",\\r\\n                        \\\"ports\\\": [\\r\\n                            {\\r\\n                                \\\"containerPort\\\": 9000,\\r\\n                                \\\"protocol\\\": \\\"TCP\\\"\\r\\n                            }\\r\\n                        ],\\r\\n                        \\\"resources\\\": {},\\r\\n                        \\\"terminationMessagePath\\\": \\\"\\/dev\\/termination-log\\\",\\r\\n                        \\\"terminationMessagePolicy\\\": \\\"File\\\"\\r\\n                    }\\r\\n                ],\\r\\n                \\\"dnsPolicy\\\": \\\"ClusterFirst\\\",\\r\\n                \\\"restartPolicy\\\": \\\"Always\\\",\\r\\n                \\\"schedulerName\\\": \\\"default-scheduler\\\",\\r\\n                \\\"securityContext\\\": {},\\r\\n                \\\"terminationGracePeriodSeconds\\\": 30\\r\\n            }\\r\\n        },\\r\\n        \\\"test\\\": false,\\r\\n        \\\"triggers\\\": [\\r\\n            {\\r\\n                \\\"type\\\": \\\"ConfigChange\\\"\\r\\n            }\\r\\n        ]\\r\\n    },\\r\\n    \\\"status\\\": {\\r\\n        \\\"availableReplicas\\\": 1,\\r\\n        \\\"conditions\\\": [\\r\\n            {\\r\\n                \\\"lastTransitionTime\\\": \\\"2018-06-05T02:34:59Z\\\",\\r\\n                \\\"lastUpdateTime\\\": \\\"2018-06-05T02:34:59Z\\\",\\r\\n                \\\"message\\\": \\\"Deployment config has minimum availability.\\\",\\r\\n                \\\"status\\\": \\\"True\\\",\\r\\n                \\\"type\\\": \\\"Available\\\"\\r\\n            },\\r\\n            {\\r\\n                \\\"lastTransitionTime\\\": \\\"2018-06-05T03:28:27Z\\\",\\r\\n                \\\"lastUpdateTime\\\": \\\"2018-06-05T03:28:29Z\\\",\\r\\n                \\\"message\\\": \\\"replication controller \\\\\\\"cm-console-2\\\\\\\" successfully rolled out\\\",\\r\\n                \\\"reason\\\": \\\"NewReplicationControllerAvailable\\\",\\r\\n                \\\"status\\\": \\\"True\\\",\\r\\n                \\\"type\\\": \\\"Progressing\\\"\\r\\n            }\\r\\n        ],\\r\\n        \\\"details\\\": {\\r\\n            \\\"causes\\\": [\\r\\n                {\\r\\n                    \\\"type\\\": \\\"ConfigChange\\\"\\r\\n                }\\r\\n            ],\\r\\n            \\\"message\\\": \\\"config change\\\"\\r\\n        },\\r\\n        \\\"latestVersion\\\": 2,\\r\\n        \\\"observedGeneration\\\": 3,\\r\\n        \\\"readyReplicas\\\": 1,\\r\\n        \\\"replicas\\\": 1,\\r\\n        \\\"unavailableReplicas\\\": 0,\\r\\n        \\\"updatedReplicas\\\": 1\\r\\n    }\\r\\n}\\r\\n";
+	}
+	
+	/**
+	 * update a broker
+	 * @param request
+	 * @return
+	 */
+	@PUT
+	@Path("/broker/{id}/dc")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.UPDATE, targetType = TargetType.BROKER_DC)
+	public Response updateBrokerDC(@Context HttpServletRequest request) {
+		//TODO:
+		return Response.ok().entity(getDCConfig()).build();
+	}
+	
+	/**
+	 * instantiate a broker
+	 * @param request
+	 * @return
+	 */
+	@PUT
+	@Path("/broker/{id}/dc/instantiate")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.INSTANTIATE, targetType = TargetType.BROKER_DC)
+	public Response instantiateBrokerDC(@Context HttpServletRequest request) {
+		//TODO:
+		return Response.ok().entity(getDCConfig()).build();
+	}
+	
 	/**
 	 * Register service broker
 	 *
 	 * @return service
 	 */
 	@PUT
-	@Path("/broker")
+	@Path("/broker/register")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.ASSIGN, targetType = TargetType.BROKER)
+	@Audit(action = Action.REGISTER, targetType = TargetType.BROKER)
 	public Response registerServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
 		String brokerIP = extractIP(reqBodyStr);
 		try {

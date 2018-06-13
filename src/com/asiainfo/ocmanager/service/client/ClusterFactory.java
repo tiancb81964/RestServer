@@ -5,13 +5,15 @@ package com.asiainfo.ocmanager.service.client;
  *
  */
 
-import com.asiainfo.ocmanager.persistence.model.User;
-import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
-import com.asiainfo.ocmanager.utils.ClustersIni;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.asiainfo.ocmanager.persistence.model.Cluster;
+import com.asiainfo.ocmanager.persistence.model.User;
+import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
+import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 /**
  * Cluster-related operations
@@ -26,7 +28,8 @@ public class ClusterFactory {
 		if (clients.contains(clusterName, RangerClient.class)) {
 			return (RangerClient) clients.get(clusterName, RangerClient.class);
 		}
-		RangerClient ranger = new RangerClient(ClustersIni.getInstance().getCluster(clusterName));
+		Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clusterName);
+		RangerClient ranger = new RangerClient(cluster);
 		synchronized (clients) {
 			clients.put(clusterName, RangerClient.class, ranger);
 		}
@@ -37,7 +40,8 @@ public class ClusterFactory {
 		if (clients.contains(clusterName, AmbariClient.class)) {
 			return (AmbariClient) clients.get(clusterName, AmbariClient.class);
 		}
-		AmbariClient ambari = new AmbariClient(ClustersIni.getInstance().getCluster(clusterName)); 
+		Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clusterName);
+		AmbariClient ambari = new AmbariClient(cluster); 
 		synchronized (clients) {
 			clients.put(clusterName, AmbariClient.class, ambari);
 		}

@@ -85,11 +85,6 @@ public class Constant {
 	public static final String KAFKA_SERVICENAME = "oc.kafka.serviceName";
 	public static final String RM_HTTP = "oc.yarn.resourcemanager.http.url";
 
-	public static final String RANGER_HOSTS = "oc.ranger.hosts";
-	public static final String RANGER_PORT = "oc.ranger.port";
-	public static final String RANGER_ADMIN = "oc.ranger.admin";
-	public static final String RANGER_PASSWD = "oc.ranger.admin.password";
-
 	public static final String HDP_VERSION = "oc.hdp.version";
 
 	public static final String LIFETIME_LISTENERS = "oc.tenant.lifetime.manager.listeners";
