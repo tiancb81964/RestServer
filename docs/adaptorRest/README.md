@@ -1329,7 +1329,7 @@ __response:__
 
 NOTE: 添加服务,服务是注册在service broker里面的,因此会添加service broker 中注册的所有服务
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/register
     请求方式：PUT
 
 #### 2.3.3.1请求参数
@@ -1391,6 +1391,7 @@ __request body:__
 }
 ```
 
+
 ##### 2.3.3.3.2返回报文示例
 
 __response:__
@@ -1416,6 +1417,535 @@ __response:__
     "phase": "New"
   }
 }
+```
+
+### 2.3.3启动Service broker（/ocmanager/v2/api/service/broker/{id}/dc/instantiate） 
+
+NOTE: 启动/实例化指定broker
+
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/123456/dc/instantiate
+    请求方式：PUT
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
+
+##### 2.3.3.3.2返回报文示例
+
+__response:__
+
+```
+{
+    "apiVersion": "v1",
+    "kind": "DeploymentConfig",
+    "metadata": {
+        "annotations": {
+            "dadafoundry.io/create-by": "chaizs",
+            "openshift.io/generated-by": "OpenShiftWebConsole"
+        },
+        "creationTimestamp": "2018-06-05T02:33:13Z",
+        "generation": 3,
+        "labels": {
+            "app": "cm-console"
+        },
+        "name": "cm-console",
+        "namespace": "southbase",
+        "resourceVersion": "9200111",
+        "selfLink": "/oapi/v1/namespaces/southbase/deploymentconfigs/cm-console",
+        "uid": "cb8ea774-6868-11e8-ae4e-fa163ef134de"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "app": "cm-console",
+            "deploymentconfig": "cm-console"
+        },
+        "strategy": {
+            "activeDeadlineSeconds": 21600,
+            "resources": {},
+            "rollingParams": {
+                "intervalSeconds": 1,
+                "maxSurge": "25%",
+                "maxUnavailable": "25%",
+                "timeoutSeconds": 600,
+                "updatePeriodSeconds": 1
+            },
+            "type": "Rolling"
+        },
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "openshift.io/generated-by": "OpenShiftWebConsole"
+                },
+                "creationTimestamp": null,
+                "labels": {
+                    "app": "cm-console",
+                    "deploymentconfig": "cm-console"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "ADAPTER_API_SERVER",
+                                "value": "http://10.1.236.60:9090"
+                            },
+                            {
+                                "name": "SVCAMOUNT_API_SERVER",
+                                "value": "http://svc-amount2.cloud.prd.asiainfo.com"
+                            }
+                        ],
+                        "image": "docker-registry.default.svc:5000/southbase/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "cm-console",
+                        "ports": [
+                            {
+                                "containerPort": 9000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File"
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "terminationGracePeriodSeconds": 30
+            }
+        },
+        "test": false,
+        "triggers": [
+            {
+                "type": "ConfigChange"
+            }
+        ]
+    },
+    "status": {
+        "availableReplicas": 1,
+        "conditions": [
+            {
+                "lastTransitionTime": "2018-06-05T02:34:59Z",
+                "lastUpdateTime": "2018-06-05T02:34:59Z",
+                "message": "Deployment config has minimum availability.",
+                "status": "True",
+                "type": "Available"
+            },
+            {
+                "lastTransitionTime": "2018-06-05T03:28:27Z",
+                "lastUpdateTime": "2018-06-05T03:28:29Z",
+                "message": "replication controller \"cm-console-2\" successfully rolled out",
+                "reason": "NewReplicationControllerAvailable",
+                "status": "True",
+                "type": "Progressing"
+            }
+        ],
+        "details": {
+            "causes": [
+                {
+                    "type": "ConfigChange"
+                }
+            ],
+            "message": "config change"
+        },
+        "latestVersion": 2,
+        "observedGeneration": 3,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "unavailableReplicas": 0,
+        "updatedReplicas": 1
+    }
+}
+```
+
+### 2.3.3获取Service broker dc（/ocmanager/v2/api/service/broker/{id}/dc） 
+
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/123456/dc
+    请求方式：GET
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+id|String|broker id|是|broker id|否
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+env|List|dc环境变量|dc环境变量|否
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
+
+##### 2.3.3.3.2返回报文示例
+
+__response:__
+
+```
+{
+    "apiVersion": "v1",
+    "kind": "DeploymentConfig",
+    "metadata": {
+        "annotations": {
+            "dadafoundry.io/create-by": "chaizs",
+            "openshift.io/generated-by": "OpenShiftWebConsole"
+        },
+        "creationTimestamp": "2018-06-05T02:33:13Z",
+        "generation": 3,
+        "labels": {
+            "app": "cm-broker"
+        },
+        "name": "cm-broker",
+        "namespace": "southbase",
+        "resourceVersion": "9200111",
+        "selfLink": "/oapi/v1/namespaces/southbase/deploymentconfigs/cm-broker",
+        "uid": "cb8ea774-6868-11e8-ae4e-fa163ef134de"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "app": "cm-broker",
+            "deploymentconfig": "cm-broker"
+        },
+        "strategy": {
+            "activeDeadlineSeconds": 21600,
+            "resources": {},
+            "rollingParams": {
+                "intervalSeconds": 1,
+                "maxSurge": "25%",
+                "maxUnavailable": "25%",
+                "timeoutSeconds": 600,
+                "updatePeriodSeconds": 1
+            },
+            "type": "Rolling"
+        },
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "openshift.io/generated-by": "OpenShiftWebConsole"
+                },
+                "creationTimestamp": null,
+                "labels": {
+                    "app": "cm-broker",
+                    "deploymentconfig": "cm-broker"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "ENV_ALPHA",
+                                "value": "VALUE"
+                            },
+                            {
+                                "name": "ENV_BETA",
+                                "value": "VALUE"
+                            }
+                        ],
+                        "image": "docker-registry.default.svc:5000/southbase/cm-broker",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "cm-broker",
+                        "ports": [
+                            {
+                                "containerPort": 9000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File"
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "terminationGracePeriodSeconds": 30
+            }
+        },
+        "test": false,
+        "triggers": [
+            {
+                "type": "ConfigChange"
+            }
+        ]
+    },
+    "status": {
+        "availableReplicas": 1,
+        "conditions": [
+            {
+                "lastTransitionTime": "2018-06-05T02:34:59Z",
+                "lastUpdateTime": "2018-06-05T02:34:59Z",
+                "message": "Deployment config has minimum availability.",
+                "status": "True",
+                "type": "Available"
+            },
+            {
+                "lastTransitionTime": "2018-06-05T03:28:27Z",
+                "lastUpdateTime": "2018-06-05T03:28:29Z",
+                "message": "replication controller \"cm-broker-2\" successfully rolled out",
+                "reason": "NewReplicationControllerAvailable",
+                "status": "True",
+                "type": "Progressing"
+            }
+        ],
+        "details": {
+            "causes": [
+                {
+                    "type": "ConfigChange"
+                }
+            ],
+            "message": "config change"
+        },
+        "latestVersion": 2,
+        "observedGeneration": 3,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "unavailableReplicas": 0,
+        "updatedReplicas": 1
+    }
+}
+
+```
+
+### 2.3.3更新Service broker dc（/ocmanager/v2/api/service/broker/{id}/dc） 
+
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/123456/dc
+    请求方式：PUT
+
+#### 2.3.3.1请求参数
+
+##### 2.3.3.1.1基本参数
+
+字段|类型|描述|是否必填|备注|是否常量|
+----------|----------------|----|--------|------------|---|
+id|String|broker id|是|broker id|否
+env|List|dc环境变量|dc环境变量|否
+
+#### 2.3.3.2返回参数
+
+##### 2.3.3.2.1基本参数
+
+字段|类型|描述|备注|是否常量|
+----------|----------------|----|------------|---|
+env|List|dc环境变量|dc环境变量|否
+
+#### 2.3.3.3报文示例
+
+##### 2.3.3.3.1请求报文示例
+
+__request body:__
+
+```
+{
+    "kind": "DeploymentConfig",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "cm-broker-${id}",
+        "labels": {
+            "app": "cm-broker"
+        },
+        "annotations": {
+            "dadafoundry.io/create-by": "clustermanager"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "app": "cm-broker",
+            "deploymentconfig": "cm-broker"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "cm-broker",
+                    "deploymentconfig": "cm-broker"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "cm-broker",
+                        "image": "${docker-image-url}",
+                        "ports": [
+                            {
+                                "containerPort": 9000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "env": [
+                            {
+                                "name": "ENV_ALPHA",
+                                "value": "VALUE"
+                            },
+                            {
+                                "name": "ENV_BETA",
+                                "value": "VALUE"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
+ 
+```
+
+##### 2.3.3.3.2返回报文示例
+
+__response:__
+
+```
+{
+    "apiVersion": "v1",
+    "kind": "DeploymentConfig",
+    "metadata": {
+        "annotations": {
+            "dadafoundry.io/create-by": "chaizs",
+            "openshift.io/generated-by": "OpenShiftWebConsole"
+        },
+        "creationTimestamp": "2018-06-05T02:33:13Z",
+        "generation": 3,
+        "labels": {
+            "app": "cm-broker"
+        },
+        "name": "cm-broker",
+        "namespace": "southbase",
+        "resourceVersion": "9200111",
+        "selfLink": "/oapi/v1/namespaces/southbase/deploymentconfigs/cm-broker",
+        "uid": "cb8ea774-6868-11e8-ae4e-fa163ef134de"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "app": "cm-broker",
+            "deploymentconfig": "cm-broker"
+        },
+        "strategy": {
+            "activeDeadlineSeconds": 21600,
+            "resources": {},
+            "rollingParams": {
+                "intervalSeconds": 1,
+                "maxSurge": "25%",
+                "maxUnavailable": "25%",
+                "timeoutSeconds": 600,
+                "updatePeriodSeconds": 1
+            },
+            "type": "Rolling"
+        },
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "openshift.io/generated-by": "OpenShiftWebConsole"
+                },
+                "creationTimestamp": null,
+                "labels": {
+                    "app": "cm-broker",
+                    "deploymentconfig": "cm-broker"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "ADAPTER_API_SERVER",
+                                "value": "http://10.1.236.60:9090"
+                            },
+                            {
+                                "name": "SVCAMOUNT_API_SERVER",
+                                "value": "http://svc-amount2.cloud.prd.asiainfo.com"
+                            }
+                        ],
+                        "image": "docker-registry.default.svc:5000/southbase/cm-broker",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "cm-broker",
+                        "ports": [
+                            {
+                                "containerPort": 9000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File"
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "terminationGracePeriodSeconds": 30
+            }
+        },
+        "test": false,
+        "triggers": [
+            {
+                "type": "ConfigChange"
+            }
+        ]
+    },
+    "status": {
+        "availableReplicas": 1,
+        "conditions": [
+            {
+                "lastTransitionTime": "2018-06-05T02:34:59Z",
+                "lastUpdateTime": "2018-06-05T02:34:59Z",
+                "message": "Deployment config has minimum availability.",
+                "status": "True",
+                "type": "Available"
+            },
+            {
+                "lastTransitionTime": "2018-06-05T03:28:27Z",
+                "lastUpdateTime": "2018-06-05T03:28:29Z",
+                "message": "replication controller \"cm-broker-2\" successfully rolled out",
+                "reason": "NewReplicationControllerAvailable",
+                "status": "True",
+                "type": "Progressing"
+            }
+        ],
+        "details": {
+            "causes": [
+                {
+                    "type": "ConfigChange"
+                }
+            ],
+            "message": "config change"
+        },
+        "latestVersion": 2,
+        "observedGeneration": 3,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "unavailableReplicas": 0,
+        "updatedReplicas": 1
+    }
+}
+
 ```
 
 ### 2.3.4删除Service broker（/ocmanager/v2/api/service/broker/{name}/） 

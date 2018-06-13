@@ -37,6 +37,8 @@ public @interface Audit {
 		LOGIN,
 		LOGOUT,
 		ASSIGN,
+		REGISTER,
+		INSTANTIATE,
 		UNASSIGN
 	}
 	
@@ -110,6 +112,10 @@ public @interface Audit {
 		 * service broker
 		 */
 		BROKER,
+		/**
+		 * service broker dc
+		 */
+		BROKER_DC,
 		/**
 		 * keytab
 		 */
