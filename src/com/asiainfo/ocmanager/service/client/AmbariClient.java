@@ -21,11 +21,16 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Ambari client
@@ -77,25 +82,202 @@ public class AmbariClient {
 			throw new RuntimeException("getYarnClientFiles hit exception -> ", e);
 		}
 	}
-	
+
 	public String getConfigs(String type, String tag) {
-		//TODO:
-		return null;
+		if (tag == null) {
+			tag = getLatestTag(type);
+		}
+		try {
+			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+			String url = ambariUrl + "/configurations?type=" + type + "&tag=" + tag;
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(new AuthScope(ambariHost.getHostName(), ambariHost.getPort()), ambariCreds);
+			AuthCache authCache = new BasicAuthCache();
+			BasicScheme basicAuth = new BasicScheme();
+			authCache.put(ambariHost, basicAuth);
+
+			HttpClientContext context = HttpClientContext.create();
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+			CloseableHttpResponse response1 = null;
+			try {
+				HttpGet httpGet = new HttpGet(url);
+				response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					LOG.error("Failed to getConfigs, return code: " + response1.getStatusLine().getStatusCode()
+							+ ", reason: " + response1.getEntity().toString());
+					throw new RuntimeException(
+							"Failed to getConfigs, return code: " + response1.getStatusLine().getStatusCode()
+									+ ", reason: " + response1.getEntity().toString());
+				}
+				String bodyStr = EntityUtils.toString(response1.getEntity(), "UTF-8");
+				return bodyStr;
+			} finally {
+				close(response1, httpclient);
+			}
+		} catch (Exception e) {
+			LOG.error("getConfigs hit exception -> ", e);
+			throw new RuntimeException("getConfigs hit exception -> ", e);
+		}
 	}
-	
+
+	private String getLatestTag(String type) {
+		try {
+			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+			String url = ambariUrl + "/configurations?type=" + type;
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(new AuthScope(ambariHost.getHostName(), ambariHost.getPort()), ambariCreds);
+			AuthCache authCache = new BasicAuthCache();
+			BasicScheme basicAuth = new BasicScheme();
+			authCache.put(ambariHost, basicAuth);
+
+			HttpClientContext context = HttpClientContext.create();
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+			CloseableHttpResponse response1 = null;
+			try {
+				HttpGet httpGet = new HttpGet(url);
+				response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					LOG.error("Failed to getLatestTag, return code: " + response1.getStatusLine().getStatusCode()
+							+ ", reason: " + response1.getEntity().toString());
+					throw new RuntimeException(
+							"Failed to getLatestTag, return code: " + response1.getStatusLine().getStatusCode()
+									+ ", reason: " + response1.getEntity().toString());
+				}
+				String bodyStr = EntityUtils.toString(response1.getEntity(), "UTF-8");
+				JsonObject parser = new JsonParser().parse(bodyStr).getAsJsonObject();
+				JsonArray items = parser.getAsJsonArray("items");
+				String latest = "";
+				for (JsonElement item : items) {
+					String tag = item.getAsJsonObject().getAsJsonPrimitive("tag").getAsString();
+					if (tag.compareTo(latest) > 0) {
+						latest = tag;
+					}
+				}
+				return latest;
+			} finally {
+				close(response1, httpclient);
+			}
+		} catch (Exception e) {
+			LOG.error("getLatestTag hit exception -> ", e);
+			throw new RuntimeException("getLatestTag hit exception -> ", e);
+		}
+	}
+
 	public String getComponent(String service, String component) {
-		//TODO:
-		return null;
+		try {
+			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+			String url = ambariUrl + "/services/" + service + "/components/" + component;
+
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(new AuthScope(ambariHost.getHostName(), ambariHost.getPort()), ambariCreds);
+			AuthCache authCache = new BasicAuthCache();
+			BasicScheme basicAuth = new BasicScheme();
+			authCache.put(ambariHost, basicAuth);
+
+			HttpClientContext context = HttpClientContext.create();
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+			CloseableHttpResponse response1 = null;
+			try {
+				HttpGet httpGet = new HttpGet(url);
+				response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					LOG.error("Failed to getComponent, return code: " + response1.getStatusLine().getStatusCode()
+							+ ", reason: " + response1.getEntity().toString());
+					throw new RuntimeException(
+							"Failed to getComponent, return code: " + response1.getStatusLine().getStatusCode()
+									+ ", reason: " + response1.getEntity().toString());
+				}
+				String bodyStr = EntityUtils.toString(response1.getEntity(), "UTF-8");
+				return bodyStr;
+			} finally {
+				close(response1, httpclient);
+			}
+		} catch (Exception e) {
+			LOG.error("getComponent hit exception -> ", e);
+			throw new RuntimeException("getComponent hit exception -> ", e);
+		}
 	}
-	
+
 	public String getService(String service) {
-		//TODO:
-		return null;
+		try {
+			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+			String url = ambariUrl + "/services/" + service;
+
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(new AuthScope(ambariHost.getHostName(), ambariHost.getPort()), ambariCreds);
+			AuthCache authCache = new BasicAuthCache();
+			BasicScheme basicAuth = new BasicScheme();
+			authCache.put(ambariHost, basicAuth);
+
+			HttpClientContext context = HttpClientContext.create();
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+			CloseableHttpResponse response1 = null;
+			try {
+				HttpGet httpGet = new HttpGet(url);
+				response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					LOG.error("Failed to getService, return code: " + response1.getStatusLine().getStatusCode()
+							+ ", reason: " + response1.getEntity().toString());
+					throw new RuntimeException(
+							"Failed to getService, return code: " + response1.getStatusLine().getStatusCode()
+									+ ", reason: " + response1.getEntity().toString());
+				}
+				String bodyStr = EntityUtils.toString(response1.getEntity(), "UTF-8");
+				return bodyStr;
+			} finally {
+				close(response1, httpclient);
+			}
+		} catch (Exception e) {
+			LOG.error("getService hit exception -> ", e);
+			throw new RuntimeException("getService hit exception -> ", e);
+		}
 	}
-	
+
 	public boolean isSecurity() {
-		//TODO:
-		return true;
+		try {
+			SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+			CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+			String url = ambariUrl;
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(new AuthScope(ambariHost.getHostName(), ambariHost.getPort()), ambariCreds);
+			AuthCache authCache = new BasicAuthCache();
+			BasicScheme basicAuth = new BasicScheme();
+			authCache.put(ambariHost, basicAuth);
+
+			HttpClientContext context = HttpClientContext.create();
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+			CloseableHttpResponse response1 = null;
+			try {
+				HttpGet httpGet = new HttpGet(url);
+				response1 = httpclient.execute(httpGet, context);
+				if (response1.getStatusLine().getStatusCode() != 200) {
+					LOG.error("Failed to isSecurity, return code: " + response1.getStatusLine().getStatusCode()
+							+ ", reason: " + response1.getEntity().toString());
+					throw new RuntimeException(
+							"Failed to isSecurity, return code: " + response1.getStatusLine().getStatusCode()
+									+ ", reason: " + response1.getEntity().toString());
+				}
+				String bodyStr = EntityUtils.toString(response1.getEntity(), "UTF-8");
+				JsonObject parser = new JsonParser().parse(bodyStr).getAsJsonObject();
+				JsonObject item = parser.getAsJsonObject("Clusters");
+				String type = item.getAsJsonPrimitive("security_type").getAsString();
+				return type.equalsIgnoreCase("KERBEROS");
+			} finally {
+				close(response1, httpclient);
+			}
+		} catch (Exception e) {
+			LOG.error("isSecurity hit exception -> ", e);
+			throw new RuntimeException("isSecurity hit exception -> ", e);
+		}
 	}
 
 	private void close(Closeable... c) {
