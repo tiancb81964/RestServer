@@ -519,7 +519,7 @@ __response:__
 
 ### 6更新Service broker dc（/ocmanager/v2/api/brokers/{id}/dc） 
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/123456/dc
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/brokers/123456/dc
     请求方式：PUT
 
 #### 6.1请求参数
@@ -733,11 +733,11 @@ __response:__
 
 ```
 
-### 7删除Service broker（/ocmanager/v2/api/service/broker/{name}/） 
+### 7删除Service broker（/ocmanager/v2/api/service/brokers/{name}/） 
 
 NOTE： 删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/broker/111aw2/
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/brokers/111aw2/
     请求方式：DELETE
 
 #### 7.1请求参数
@@ -778,7 +778,7 @@ phase|String|阶段|(status字段)Deleting表示删除服务|否
 ##### 7.3.1请求报文示例
 
 ```
-http://127.0.0.1:8080/ocmanager/v2/api/service/broker/111aw2/
+http://127.0.0.1:8080/ocmanager/v2/api/service/brokers/111aw2/
 ```
 
 ##### 7.3.2返回报文示例
