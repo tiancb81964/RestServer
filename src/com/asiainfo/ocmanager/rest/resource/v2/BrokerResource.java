@@ -62,7 +62,7 @@ public class BrokerResource {
 	@POST
 	@Path("/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_DC)
 	public Response createBrokerDC(@Context HttpServletRequest request) {
 		String clustername = request.getParameter("clustername");
 		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
@@ -82,7 +82,7 @@ public class BrokerResource {
 	@POST
 	@Path("/svc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_SVC)
 	public Response createBrokerSVC(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("dcname");
 		Preconditions.checkArgument(Strings.isNullOrEmpty(dcName));
@@ -104,7 +104,7 @@ public class BrokerResource {
 	@POST
 	@Path("/router")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_ROUTER)
 	public Response createBrokerRouter(@Context HttpServletRequest request) {
 		String svcname = request.getParameter("svcname");
 		Preconditions.checkArgument(Strings.isNullOrEmpty(svcname));
@@ -174,7 +174,7 @@ public class BrokerResource {
 
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.UPDATE, targetType = TargetType.BROKER_DC)
+	@Audit(action = Action.GET, targetType = TargetType.BROKER)
 	public Response getBrokers(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("clustername");
 		// TODO:

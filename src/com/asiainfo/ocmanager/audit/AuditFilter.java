@@ -65,9 +65,6 @@ public class AuditFilter implements ContainerResponseFilter {
 		else if (entity instanceof ResponseExceptionBean) {
 			return ((ResponseExceptionBean)entity).getException();
 		}
-		else if (entity instanceof String) {
-			return (String)entity;
-		}
 		return "null";
 	}
 
