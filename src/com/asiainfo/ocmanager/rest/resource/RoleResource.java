@@ -20,7 +20,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.RolePersistenceWrapper;
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/role")
 public class RoleResource {
 

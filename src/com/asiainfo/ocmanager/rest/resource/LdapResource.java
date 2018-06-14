@@ -23,7 +23,7 @@ import com.asiainfo.ocmanager.utils.ServerConfiguration;
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/ldap")
 public class LdapResource {
 	private static Logger logger = Logger.getLogger(LdapResource.class);

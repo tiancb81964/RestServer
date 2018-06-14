@@ -57,6 +57,7 @@ import com.google.gson.JsonParser;
  * @author zhaoyim
  *
  */
+@Deprecated
 @Path("/v1/api/service")
 public class ServiceResource {
 

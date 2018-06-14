@@ -17,6 +17,7 @@ import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 
+@Deprecated
 @Path("/v1/api/file")
 public class ExternalFileResource {
 	private static Logger logger = Logger.getLogger(ExternalFileResource.class);

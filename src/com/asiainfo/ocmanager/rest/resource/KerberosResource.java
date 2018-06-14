@@ -28,7 +28,7 @@ import com.asiainfo.ocmanager.utils.KerberosConfiguration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
+@Deprecated
 @Path("/v1/api/kerberos")
 public class KerberosResource {
 

@@ -28,6 +28,7 @@ import com.google.gson.JsonParser;
 /**
  * Created by gq on 17/7/17.
  */
+@Deprecated
 @Path("/v1/api/authc")
 public class AuthcResource {
 	private static Logger logger = LoggerFactory.getLogger(AuthcResource.class);

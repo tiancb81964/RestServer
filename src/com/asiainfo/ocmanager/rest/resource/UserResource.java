@@ -62,7 +62,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/user")
 public class UserResource {
 

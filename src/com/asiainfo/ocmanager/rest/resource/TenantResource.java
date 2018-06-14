@@ -76,7 +76,7 @@ import com.google.gson.JsonParser;
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/tenant")
 public class TenantResource {
 

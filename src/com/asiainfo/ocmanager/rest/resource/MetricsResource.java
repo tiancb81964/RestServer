@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.utils.ServerConfiguration;
 import com.google.common.base.Joiner;
-
+@Deprecated
 @Path("/v1/api/metrics")
 public class MetricsResource {
 	private static final Logger LOG = LoggerFactory.getLogger(MetricsResource.class);

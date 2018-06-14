@@ -1,15 +1,23 @@
 package com.asiainfo.ocmanager.rest.resource.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -24,14 +32,18 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBeanV2;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaBeanV2;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.model.OsResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponseV2;
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.utils.DateTimeUtil;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -554,6 +566,7 @@ public class TenantUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyStoreException
 	 */
+	@Deprecated
 	public static TenantResponse createTenant(Tenant tenant)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 		logger.debug("TenantUtils -> createTenant -> check can create tenant.");
@@ -627,11 +640,114 @@ public class TenantUtils {
 	}
 
 	/**
+	 * 
+	 * @param tenant
+	 * @return
+	 * @throws IOException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 */
+	public static TenantResponseV2 createTenantV2(Tenant tenant)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+		logger.debug("TenantUtils: createTenantV2: check can create tenant.");
+		TenantResponseV2 tenantRes = new TenantResponseV2();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canCreateTenant(tenant);
+
+		tenantRes.setCheckerRes(checkRes);
+
+		logger.debug("TenantUtils: createTenantV2: check can create tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils: createTenantV2: check can create tenant is false.");
+			return tenantRes;
+		}
+
+		// get the os clusters info and create namespace in every os cluster
+		Map<String, Properties> map = OsClusterIni.getConf();
+		for (Map.Entry<String, Properties> entry : map.entrySet()) {
+			String osClusterName = entry.getKey();
+			String osUrl = entry.getValue().get("os.url").toString();
+			String osToken = entry.getValue().get("os.token").toString();
+			OsResponse osResponse = TenantUtils.doCreateTenant(tenant, osUrl, osToken);
+			tenantRes.getTenantBean().getOsClustersInfo().put(osClusterName, osResponse.getResponseBody());
+			logger.info("TenantUtils: createTenantV2: namespace create in {} cluster with response body: {}",
+					osClusterName, osResponse.getResponseBody());
+		}
+
+		if (TenantPersistenceWrapper.getTenantById(tenant.getId()) == null) {
+			tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
+			TenantPersistenceWrapper.createTenant(tenant);
+			logger.debug("TenantUtils: createTenantV2: create tenant successfully in cm.");
+		} else {
+			logger.debug("TenantUtils: createTenantV2: tenant already in cm, ignore create in cm.");
+		}
+
+		Tenant cmInfo = TenantPersistenceWrapper.getTenantById(tenant.getId());
+		tenantRes.getTenantBean().setCmInfo(cmInfo);
+		return tenantRes;
+	}
+
+	private static OsResponse doCreateTenant(Tenant tenant, String osUrl, String osToken) throws KeyManagementException,
+			NoSuchAlgorithmException, KeyStoreException, ClientProtocolException, IOException {
+
+		OsResponse osResponse = new OsResponse();
+
+		logger.debug("TenantUtils: doCreateTenant: parepare the params for create.");
+		String dfRestUrl = osUrl + "/oapi/v1/projectrequests";
+
+		JsonObject jsonObj1 = new JsonObject();
+		jsonObj1.addProperty("apiVersion", "v1");
+		jsonObj1.addProperty("kind", "ProjectRequest");
+		// mapping DF tenant display name with adapter tenant name
+		jsonObj1.addProperty("displayName", tenant.getName());
+		if (tenant.getDescription() != null) {
+			jsonObj1.addProperty("description", tenant.getDescription());
+		}
+
+		JsonObject jsonObj2 = new JsonObject();
+		jsonObj2.addProperty("name", tenant.getId());
+		jsonObj1.add("metadata", jsonObj2);
+		String reqBody = jsonObj1.toString();
+
+		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		try {
+			HttpPost httpPost = new HttpPost(dfRestUrl);
+			httpPost.addHeader("Content-type", "application/json");
+			httpPost.addHeader("Authorization", "bearer " + osToken);
+
+			StringEntity se = new StringEntity(reqBody);
+			se.setContentType("application/json");
+			se.setContentEncoding("utf-8");
+			httpPost.setEntity(se);
+
+			logger.debug("TenantUtils: doCreateTenant: call os to start create.");
+			CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+			try {
+				int statusCode = response2.getStatusLine().getStatusCode();
+				String bodyStr = EntityUtils.toString(response2.getEntity());
+
+				osResponse.setStatusCode(statusCode);
+				osResponse.setResponseBody(bodyStr);
+				// tenantRes.setTenantBean(new TenantBean(tenant, bodyStr));
+			} finally {
+				response2.close();
+			}
+		} finally {
+			httpclient.close();
+		}
+
+		return osResponse;
+	}
+
+	/**
 	 * update tenant
 	 * 
 	 * @param tenant
 	 * @return
 	 */
+	@Deprecated
 	public static TenantResponse updateTenant(Tenant tenant) {
 		logger.debug("TenantUtils -> updateTenant -> check can update tenant.");
 		TenantResponse tenantRes = new TenantResponse();
@@ -654,6 +770,106 @@ public class TenantUtils {
 		logger.debug("TenantUtils -> updateTenant -> update successfully in ocm rest.");
 
 		return tenantRes;
+	}
+
+	/**
+	 * 
+	 * @param tenant
+	 * @return
+	 */
+	public static TenantResponseV2 updateTenantV2(Tenant tenant) {
+		logger.debug("TenantUtils: TenantResponseV2: check can update tenant.");
+		TenantResponseV2 tenantRes = new TenantResponseV2();
+		TenantQuotaCheckerResponse checkRes = TenantUtils.canUpdateTenant(tenant);
+
+		tenantRes.setCheckerRes(checkRes);
+
+		logger.debug("TenantUtils: TenantResponseV2: check can update tenant complete.");
+		if (!checkRes.isCanChange()) {
+			logger.debug("TenantUtils: TenantResponseV2: check can update tenant is false.");
+			return tenantRes;
+		}
+		// format the duetime
+		tenant.setDueTime(DateTimeUtil.formatDateTime(tenant.getDueTime()));
+
+		TenantPersistenceWrapper.updateTenant(tenant);
+		logger.debug("TenantUtils: TenantResponseV2: update successfully in ocm rest.");
+
+		return tenantRes;
+	}
+
+	/**
+	 * 
+	 * @param tenantId
+	 * @return
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static TenantResponseV2 deleteTenantV2(String tenantId) throws KeyManagementException,
+			NoSuchAlgorithmException, KeyStoreException, ClientProtocolException, IOException {
+
+		TenantResponseV2 tenantRes = new TenantResponseV2();
+		// get the os clusters info and delete namespace in every os cluster
+		Map<String, Properties> map = OsClusterIni.getConf();
+		for (Map.Entry<String, Properties> entry : map.entrySet()) {
+			String osClusterName = entry.getKey();
+			String osUrl = entry.getValue().get("os.url").toString();
+			String osToken = entry.getValue().get("os.token").toString();
+			OsResponse osResponse = TenantUtils.doDeleteTenant(tenantId, osUrl, osToken);
+			tenantRes.getTenantBean().getOsClustersInfo().put(osClusterName, osResponse.getResponseBody());
+			logger.info("TenantUtils: deleteTenantV2: namespace delete in {} cluster with response body: {}",
+					osClusterName, osResponse.getResponseBody());
+		}
+
+		// get the cminfo before delete from cm
+		Tenant cmInfo = TenantPersistenceWrapper.getTenantById(tenantId);
+
+		if (cmInfo != null) {
+			TenantPersistenceWrapper.deleteTenant(tenantId);
+			logger.debug("TenantUtils: deleteTenantV2: delete tenant successfully in cm.");
+		} else {
+			logger.debug("TenantUtils: deleteTenantV2: tenant already delete from cm, ignore delete in cm.");
+		}
+
+		tenantRes.getTenantBean().setCmInfo(cmInfo);
+
+		return tenantRes;
+	}
+
+	private static OsResponse doDeleteTenant(String tenantId, String osUrl, String osToken)
+			throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, ClientProtocolException,
+			IOException {
+
+		OsResponse osResponse = new OsResponse();
+
+		String dfRestUrl = osUrl + "/oapi/v1/projects/" + tenantId;
+
+		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
+
+		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		try {
+			HttpDelete httpDelete = new HttpDelete(dfRestUrl);
+			httpDelete.addHeader("Content-type", "application/json");
+			httpDelete.addHeader("Authorization", "bearer " + osToken);
+
+			logger.info("TenantUtils: doDeleteTenant: delete start");
+			CloseableHttpResponse response = httpclient.execute(httpDelete);
+
+			try {
+				int statusCode = response.getStatusLine().getStatusCode();
+				String bodyStr = EntityUtils.toString(response.getEntity());
+				osResponse.setStatusCode(statusCode);
+				osResponse.setResponseBody(bodyStr);
+			} finally {
+				response.close();
+			}
+		} finally {
+			httpclient.close();
+		}
+		return osResponse;
 	}
 
 }

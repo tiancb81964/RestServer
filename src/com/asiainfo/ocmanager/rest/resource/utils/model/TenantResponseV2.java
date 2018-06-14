@@ -1,12 +1,11 @@
 package com.asiainfo.ocmanager.rest.resource.utils.model;
 
-import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBeanV2;
 
-@Deprecated
-public class TenantResponse {
+public class TenantResponseV2 {
 
 	private TenantQuotaCheckerResponse checkerRes;
-	private TenantBean tenantBean;
+	private TenantBeanV2 tenantBean = new TenantBeanV2();
 
 	public TenantQuotaCheckerResponse getCheckerRes() {
 		return checkerRes;
@@ -16,11 +15,11 @@ public class TenantResponse {
 		this.checkerRes = checkerRes;
 	}
 
-	public TenantBean getTenantBean() {
+	public TenantBeanV2 getTenantBean() {
 		return tenantBean;
 	}
 
-	public void setTenantBean(TenantBean tenantBean) {
+	public void setTenantBean(TenantBeanV2 tenantBean) {
 		this.tenantBean = tenantBean;
 	}
 }
