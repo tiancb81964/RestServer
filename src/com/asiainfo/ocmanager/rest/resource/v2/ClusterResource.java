@@ -42,7 +42,9 @@ public class ClusterResource {
 			Map<String, String> map = Maps.newHashMap();
 			map.put("ENV_ALPHA", "VALUE");
 			map.put("ENV_BETA", "VALUE");
-			clusters.add(new ClusterBean("", "cluster_alpha", "hadoop", "http://10.1.236.111:8080", "admin", map));
+			clusters.add(new ClusterBean("1", "cluster_alpha", "hadoop", "http://10.1.236.111:8080", "admin", map));
+			map.put("ENV_XYZ", "VALUE");
+			clusters.add(new ClusterBean("2", "cluster_beta", "gbase", "http://10.1.236.111:8080", "admin", map));
 			return Response.ok().entity(clusters).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
