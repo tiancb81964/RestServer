@@ -58,12 +58,12 @@ import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.Catalog;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.gson.JsonArray;
@@ -800,8 +800,8 @@ public class TenantResource {
 				}
 
 				// begin to delete the instance
-				String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-				String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+				String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+				String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 				String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 				SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -989,8 +989,8 @@ public class TenantResource {
 			int statusCode = -1;
 			try {
 				synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-					String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-					String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+					String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+					String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 					String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
 
 					SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();

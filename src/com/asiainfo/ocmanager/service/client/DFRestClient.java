@@ -12,14 +12,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
 
 public class DFRestClient {
 
-	public CloseableHttpResponse sendGet(String uri, String entity) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+	public CloseableHttpResponse sendGet(String uri, String entity)
+			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + uri;
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
 		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();

@@ -30,8 +30,12 @@ public class OsClusterIni {
 
 	static {
 		try {
-			String base = OsClusterIni.class.getResource("/").getPath() + ".." + File.separator;
-			PATH = base + "conf" + File.separator + "osclusters.ini";
+			//TODO
+			// String base = OsClusterIni.class.getResource("/").getPath() +
+			// ".." + File.separator;
+			// PATH = base + "conf" + File.separator + "osclusters.ini";
+			String base = new TestDBConnectorFactory().getClass().getResource("/").getPath();
+			PATH = base.substring(0, base.length() - 4) + "WebContent/WEB-INF/conf/osclusters.ini";
 			if (!new File(PATH).exists()) {
 				logger.error("OsClusterIni: File not found: " + PATH);
 				throw new OcmanagerRuntimeException("File not found: " + PATH);
