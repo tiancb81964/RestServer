@@ -2,7 +2,8 @@ package com.asiainfo.ocmanager.service.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.http.HttpEntity;
@@ -40,9 +41,11 @@ import com.google.gson.JsonPrimitive;
 public class RangerClient {
 	private static final Logger LOG = LoggerFactory.getLogger(RangerClient.class);
 	private HttpClientContext context;
-	private URI rangerURI;
 	private static final String TEMP = "{\"name\" : \"{$USER_NAME}\", \"firstName\" : \"{$FIRST_NAME}\", \"lastName\" : \"\", \"emailAddress\" : \"\", \"password\" : \"{$PASSWORD}\", \"description\" : \"by ocm at {$CREATE_TIME}\", \"groupIdList\" : null, \"status\" : 1, \"userRoleList\" : [\"ROLE_USER\"]}";
 	private Cluster cluster;
+	private URL rangerurl;
+	private String rangeradmin = "admin";
+	private String rangerpassword = "admin";
 
 	protected RangerClient(Cluster cluster) {
 		this.cluster = cluster;
@@ -53,6 +56,18 @@ public class RangerClient {
 			LOG.error("Error while init ranger client: ", e);
 			throw e;
 		}
+	}
+
+	public URL getRangerurl() {
+		return rangerurl;
+	}
+
+	public String getRangeradmin() {
+		return rangeradmin;
+	}
+
+	public String getRangerpassword() {
+		return rangerpassword;
 	}
 
 	/**
@@ -70,7 +85,7 @@ public class RangerClient {
 		try {
 			httpClient = HttpClientBuilder.create().build();
 			validateUSer(user);
-			request = new HttpPost(this.rangerURI.resolve("/service/xusers/secure/users"));
+			request = new HttpPost(this.rangerurl.toURI().resolve("/service/xusers/secure/users"));
 			request.setEntity(toEntity(assembleBody(user)));
 			response = httpClient.execute(request, this.context);
 			if (response.getStatusLine().getStatusCode() == 200) {
@@ -156,18 +171,23 @@ public class RangerClient {
 
 	private void initContext() {
 		CredentialsProvider provider = new BasicCredentialsProvider();
-		AmbariClient ambari = ClusterFactory.getAmbari(this.cluster.getCluster_name());
+		AmbariClient ambari = ClusterClientFactory.getAmbari(this.cluster.getCluster_name());
 		String host = extractHost(ambari);
 		String port = extractPort(ambari);
 		// TODO: how to get user and password by ambari api
-		String admin = "admin";
-		String password = "admin";
+		rangeradmin = "admin";
+		rangerpassword = "admin";
 		provider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
-				new UsernamePasswordCredentials(admin, password));
+				new UsernamePasswordCredentials(rangeradmin, rangerpassword));
 		AuthCache authCache = new BasicAuthCache();
 		StringBuilder sb = new StringBuilder("http://");
 		sb.append(host).append(":").append(Integer.valueOf(port));
-		this.rangerURI = URI.create(sb.toString());
+		try {
+			this.rangerurl = new URL(sb.toString());
+		} catch (MalformedURLException e) {
+			LOG.error("Exception while parsing url: " + sb.toString());
+			throw new RuntimeException("Exception while parsing url: " + sb.toString());
+		}
 		authCache.put(new HttpHost(host, Integer.valueOf(port), "http"), new BasicScheme());
 		this.context.setCredentialsProvider(provider);
 		this.context.setAuthCache(authCache);

@@ -20,8 +20,8 @@ import com.google.common.collect.Table;
  * @author Ethan
  *
  */
-public class ClusterFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(ClusterFactory.class);
+public class ClusterClientFactory {
+	private static final Logger LOG = LoggerFactory.getLogger(ClusterClientFactory.class);
 	private static Table<String, Class<?>, Object> clients = HashBasedTable.create(); // clusterName, clientType,
 
 	public static RangerClient getRanger(String clusterName) {
@@ -49,7 +49,7 @@ public class ClusterFactory {
 	}
 	
 	public static void main(String[] args) {
-		RangerClient ranger = ClusterFactory.getRanger("ochadoop_testcluster");
+		RangerClient ranger = ClusterClientFactory.getRanger("ochadoop_testcluster");
 		User user = new User();
 		user.setUsername("ethanwang1");
 		try {

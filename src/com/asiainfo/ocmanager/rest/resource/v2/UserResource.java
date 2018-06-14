@@ -43,7 +43,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper
 import com.asiainfo.ocmanager.rest.resource.persistence.UserPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
-import com.asiainfo.ocmanager.service.client.ClusterFactory;
+import com.asiainfo.ocmanager.service.client.ClusterClientFactory;
 import com.asiainfo.ocmanager.service.client.RangerClient;
 import com.asiainfo.ocmanager.service.client.RangerClient.UserExistedException;
 import com.asiainfo.ocmanager.utils.ClusterConfig;
@@ -298,7 +298,7 @@ public class UserResource {
 	private boolean appendUser2Rangers(User user) throws Exception {
 		Map<String, ClusterConfig> clusters = ClustersIni.getInstance().getClusters();
 		clusters.forEach((k, v) -> {
-			RangerClient ranger = ClusterFactory.getRanger(k);
+			RangerClient ranger = ClusterClientFactory.getRanger(k);
 			/*
 			 * 1. user not exist in ranger and append succeed 2. user not exist and append
 			 * exception 3. user existed in ranger and append failed
