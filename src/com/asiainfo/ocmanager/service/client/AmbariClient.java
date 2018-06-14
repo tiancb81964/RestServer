@@ -311,14 +311,14 @@ public class AmbariClient {
 
 	private void init() {
 		try {
-			URL url = new URL(this.cluster.getAmbari_url());
+			URL url = new URL(this.cluster.getCluster_url());
 			ambariHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
-			ambariUrl = this.cluster.getAmbari_url() + "/api/v1/clusters/" + this.cluster.getCluster_name();
-			ambariCreds = new UsernamePasswordCredentials(this.cluster.getAmbari_user(),
-					this.cluster.getAmbari_password());
+			ambariUrl = this.cluster.getCluster_url() + "/api/v1/clusters/" + this.cluster.getCluster_name();
+			ambariCreds = new UsernamePasswordCredentials(this.cluster.getCluster_admin(),
+					this.cluster.getCluster_password());
 		} catch (MalformedURLException e) {
-			LOG.error("Error while parsing ambari url: " + this.cluster.getAmbari_url());
-			throw new RuntimeException("Error while parsing ambari url: " + this.cluster.getAmbari_url());
+			LOG.error("Error while parsing ambari url: " + this.cluster.getCluster_url());
+			throw new RuntimeException("Error while parsing ambari url: " + this.cluster.getCluster_url());
 		}
 	}
 }

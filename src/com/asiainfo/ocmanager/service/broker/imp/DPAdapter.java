@@ -17,10 +17,6 @@ import com.asiainfo.ocmanager.utils.KerberosConfiguration;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 
 public class DPAdapter implements BrokerInterface {
 	private Cluster cluster;
@@ -31,9 +27,9 @@ public class DPAdapter implements BrokerInterface {
 	}
 
 	private void check(Cluster cluster) {
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getAmbari_url()));
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getAmbari_user()));
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getAmbari_password()));
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getCluster_url()));
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getCluster_admin()));
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getCluster_password()));
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(cluster.getCluster_name()));
 	}
 
@@ -64,9 +60,9 @@ public class DPAdapter implements BrokerInterface {
 		map.put("BROKER_PASSWORD", "admin");
 		map.put("BROKER_ID", cluster.getCluster_name());
 
-		map.put("AMBARI_HOST", cluster.getAmbari_url());
-		map.put("AMBARI_ADMIN_USER", cluster.getAmbari_user());
-		map.put("AMBARI_ADMIN_PWD", cluster.getAmbari_password());
+		map.put("AMBARI_HOST", cluster.getCluster_url());
+		map.put("AMBARI_ADMIN_USER", cluster.getCluster_admin());
+		map.put("AMBARI_ADMIN_PWD", cluster.getCluster_password());
 
 		map.put("ETCD_HOST", ETCDProperties.getConf().getProperty("ETCD_HOST"));
 		map.put("ETCD_PORT", ETCDProperties.getConf().getProperty("ETCD_PORT"));
