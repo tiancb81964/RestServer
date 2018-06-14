@@ -114,6 +114,14 @@ public @interface Audit {
 		 */
 		BROKER_DC,
 		/**
+		 * service BROKER_SVC
+		 */
+		BROKER_SVC,
+		/**
+		 * service BROKER_ROUTER
+		 */
+		BROKER_ROUTER,
+		/**
 		 * keytab
 		 */
 		KEYTAB,
