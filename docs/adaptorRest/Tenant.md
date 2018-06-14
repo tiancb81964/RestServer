@@ -138,7 +138,7 @@ __response:__
 
 6. 获取指定租户的所有子租户
 ```
-GET /ocmanager/v2/api/tenant/{id}/children
+GET /ocmanager/v2/api/tenant/{tenantId}/children
 ```
 
 __response:__
