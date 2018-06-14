@@ -16,7 +16,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/ocdp/services")
 public class OCDPServicesResouce {
 

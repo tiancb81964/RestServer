@@ -23,7 +23,7 @@ import com.asiainfo.ocmanager.service.client.ClusterClientFactory;
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/ambari")
 public class AmbariResource {
 
