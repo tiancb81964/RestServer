@@ -184,6 +184,19 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`dashboard` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `ocmanager`.`clusters`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_CLUSTERS` (
+  `CLUSTER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `CLUSTER_NAME` VARCHAR(64) NOT NULL unique,
+  `CLUSTER_TYPE` VARCHAR(64) NOT NULL,
+  `CLUSTER_URL` VARCHAR(64) NULL,
+  `CLUSTER_ADMIN` VARCHAR(64) NULL,
+  `CLUSTER_PASSWORD` VARCHAR(64) NULL,
+  UNIQUE INDEX `fk_clusters_idx` (`CLUSTER_NAME` ASC))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `ocmanager`.`brokers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
@@ -199,19 +212,6 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
     FOREIGN KEY (`BINDED_CLUSTER`)
     REFERENCES `ocmanager`.`CM_CLUSTERS` (`CLUSTER_NAME`)
     ON DELETE RESTRICT)
-ENGINE = InnoDB;
-
--- -----------------------------------------------------
--- Table `ocmanager`.`clusters`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_CLUSTERS` (
-  `CLUSTER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `CLUSTER_NAME` VARCHAR(64) NOT NULL unique,
-  `CLUSTER_TYPE` VARCHAR(64) NOT NULL,
-  `AMBARI_URL` VARCHAR(64) NULL,
-  `AMBARI_USER` VARCHAR(64) NULL,
-  `AMBARI_PASSWORD` VARCHAR(64) NULL,
-  UNIQUE INDEX `fk_clusters_idx` (`CLUSTER_NAME` ASC))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------

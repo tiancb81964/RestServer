@@ -4,21 +4,21 @@ public class Cluster {
 	private String cluster_id;
 	private String cluster_name;
 	private String cluster_type;
-	private String ambari_url;
-	private String ambari_user;
-	private String ambari_password;
+	private String cluster_url;
+	private String cluster_admin;
+	private String cluster_password;
 
 	public Cluster() {
 	}
 
-	public Cluster(String cluster_id, String cluster_name, String cluster_type, String ambari_url, String ambari_user,
-			String ambari_password) {
+	public Cluster(String cluster_id, String cluster_name, String cluster_type, String cluster_url, String cluster_admin,
+			String cluster_password) {
 		this.cluster_id = cluster_id;
 		this.cluster_name = cluster_name;
 		this.cluster_type = cluster_type;
-		this.ambari_url = ambari_url;
-		this.ambari_user = ambari_user;
-		this.ambari_password = ambari_password;
+		this.cluster_url = cluster_url;
+		this.cluster_admin = cluster_admin;
+		this.cluster_password = cluster_password;
 	}
 
 	public String getCluster_id() {
@@ -45,28 +45,27 @@ public class Cluster {
 		this.cluster_type = cluster_type;
 	}
 
-	public String getAmbari_url() {
-		return ambari_url;
+	public String getCluster_url() {
+		return cluster_url;
 	}
 
-	public void setAmbari_url(String ambari_url) {
-		this.ambari_url = ambari_url;
+	public void setCluster_url(String cluster_url) {
+		this.cluster_url = cluster_url;
 	}
 
-	public String getAmbari_user() {
-		return ambari_user;
+	public String getCluster_admin() {
+		return cluster_admin;
 	}
 
-	public void setAmbari_user(String ambari_user) {
-		this.ambari_user = ambari_user;
+	public void setCluster_admin(String cluster_admin) {
+		this.cluster_admin = cluster_admin;
 	}
 
-	public String getAmbari_password() {
-		return ambari_password;
+	public String getCluster_password() {
+		return cluster_password;
 	}
 
-	public void setAmbari_password(String ambari_password) {
-		this.ambari_password = ambari_password;
+	public void setCluster_password(String cluster_password) {
+		this.cluster_password = cluster_password;
 	}
-
 }
