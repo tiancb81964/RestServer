@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.exception.OcmanagerRuntimeException;
-import com.asiainfo.ocmanager.persistence.test.TestDBConnectorFactory;
 import com.google.common.collect.Maps;
 
 /**
