@@ -9,6 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.ServiceResource;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -61,7 +62,7 @@ public class Catalog {
 			if (cuz instanceof JsonNull) {
 				return;
 			}
-			JsonObject jobj = (JsonObject)cuz;
+			JsonObject jobj = (JsonObject) cuz;
 			jobj.entrySet().forEach(e -> {
 				list.add(e.getKey());
 			});
@@ -129,7 +130,7 @@ public class Catalog {
 				List<String> keys = Catalog.getInstance().getServiceQuotaKeys(s);
 				System.out.println(">>> " + s + "->" + keys);
 			} catch (Exception e) {
-				System.out.println("ERROR: " + s );
+				System.out.println("ERROR: " + s);
 			}
 
 		});
@@ -160,8 +161,8 @@ public class Catalog {
 	public String getServiceType(String serviceName) {
 		JsonObject service = services.get(serviceName.toLowerCase());
 		if (service == null) {
-			LOG.error("Service [{}] not found in catalog.", serviceName);
-			throw new RuntimeException("Service not found in catalog: " + serviceName);
+			LOG.error("getServiceType: Service [{}] not found in catalog.", serviceName);
+			throw new RuntimeException("getServiceType: Service not found in catalog: " + serviceName);
 		}
 		JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
 		JsonPrimitive type = sm.getAsJsonPrimitive("type");
@@ -173,4 +174,22 @@ public class Catalog {
 			return serviceName.toLowerCase();
 		}
 	}
+
+	public String getServiceCategory(String serviceName) {
+		JsonObject service = services.get(serviceName.toLowerCase());
+		if (service == null) {
+			LOG.error("getServiceCategory: Service [{}] not found in catalog.", serviceName);
+			throw new RuntimeException("getServiceCategory: Service not found in catalog: " + serviceName);
+		}
+		JsonObject sm = service.getAsJsonObject("spec").getAsJsonObject("metadata");
+		JsonPrimitive category = sm.getAsJsonPrimitive("category");
+		if (category != null) {
+			return category.getAsString().toLowerCase();
+		} else {
+			LOG.debug("Can NOT find the service Category in the Catalog, set the category using default value: "
+					+ Constant.SERVICE);
+			return Constant.SERVICE;
+		}
+	}
+
 }

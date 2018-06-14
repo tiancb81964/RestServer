@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for auditting
+ * 
  * @author Ethan
  *
  */
@@ -15,35 +16,31 @@ import java.lang.annotation.Target;
 public @interface Audit {
 	/**
 	 * target type
+	 * 
 	 * @return
 	 */
 	TargetType targetType();
+
 	/**
 	 * action on entity
+	 * 
 	 * @return
 	 */
 	Action action();
-	
+
 	/**
 	 * User-end action type
+	 * 
 	 * @author Ethan
 	 *
 	 */
 	public static enum Action {
-		GET,
-		CREATE,
-		UPDATE,
-		DELETE,
-		LOGIN,
-		LOGOUT,
-		ASSIGN,
-		REGISTER,
-		INSTANTIATE,
-		UNASSIGN
+		GET, CREATE, UPDATE, DELETE, LOGIN, LOGOUT, ASSIGN, REGISTER, INSTANTIATE, UNASSIGN
 	}
-	
+
 	/**
 	 * Entity type to audit of user-end operation
+	 * 
 	 * @author Ethan
 	 *
 	 */
@@ -135,6 +132,14 @@ public @interface Audit {
 		/**
 		 * http request
 		 */
-		HTTP_REQUEST
+		HTTP_REQUEST,
+		/**
+		 * tool instance
+		 */
+		TOOL,
+		/**
+		 * tool instances
+		 */
+		TOOLS
 	}
 }

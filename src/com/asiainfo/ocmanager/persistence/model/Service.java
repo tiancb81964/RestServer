@@ -11,6 +11,7 @@ public class Service {
 	private String description;
 	private String origin;
 	private String serviceType;
+	private String category;
 
 	public Service() {
 
@@ -22,6 +23,16 @@ public class Service {
 		this.description = description;
 		this.origin = origin;
 		this.serviceType = serviceType;
+	}
+
+	public Service(String id, String servicename, String description, String origin, String serviceType,
+			String category) {
+		this.id = id;
+		this.servicename = servicename;
+		this.description = description;
+		this.origin = origin;
+		this.serviceType = serviceType;
+		this.category = category;
 	}
 
 	public String getId() {
@@ -62,6 +73,14 @@ public class Service {
 
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 }
