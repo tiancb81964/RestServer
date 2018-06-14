@@ -42,6 +42,7 @@ import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
+import com.asiainfo.ocmanager.service.client.etcdClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -353,6 +354,15 @@ public class BrokerResource {
 		// return
 		// Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
 		// }
+	}
+	@POST
+	@Path("/broker/{name}")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.DELETE, targetType = TargetType.BROKER)
+	public Response initEtcd (@PathParam("name") String serviceBrokerName,
+			@Context HttpServletRequest request) {
+		etcdClient etcd_client = etcdClient.getInstance();
+		return Response.ok().entity("the function of init ETCD hangs in the air.").tag(serviceBrokerName).build();
 	}
 
 }
