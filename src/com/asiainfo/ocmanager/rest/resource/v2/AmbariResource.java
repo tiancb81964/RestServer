@@ -16,7 +16,7 @@ import com.asiainfo.ocmanager.audit.Audit;
 import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.service.client.AmbariClient;
-import com.asiainfo.ocmanager.service.client.ClusterFactory;
+import com.asiainfo.ocmanager.service.client.ClusterClientFactory;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class AmbariResource {
 				filename = "yarnclient";
 			}
 			String cluster = request.getParameter("cluster");
-			AmbariClient ambari = ClusterFactory.getAmbari(cluster);
+			AmbariClient ambari = ClusterClientFactory.getAmbari(cluster);
 			byte[] file = ambari.getFile("/YARN/components/YARN_CLIENT?format=client_config_tar");
 			return Response.ok(file)
 					.header("Content-disposition", "attachment;filename=" + filename + tarGz)
@@ -76,7 +76,7 @@ public class AmbariResource {
 				filename = "hdfsclient";
 			}
 			String cluster = request.getParameter("cluster");
-			AmbariClient ambari = ClusterFactory.getAmbari(cluster);
+			AmbariClient ambari = ClusterClientFactory.getAmbari(cluster);
 			byte[] file = ambari.getFile("/HDFS/components/HDFS_CLIENT?format=client_config_tar");
 			return Response.ok(file)
 					.header("Content-disposition", "attachment;filename=" + filename + tarGz)
@@ -104,7 +104,7 @@ public class AmbariResource {
 				filename = "sparkclient";
 			}
 			String cluster = request.getParameter("cluster");
-			AmbariClient ambari = ClusterFactory.getAmbari(cluster);
+			AmbariClient ambari = ClusterClientFactory.getAmbari(cluster);
 			byte[] file = ambari.getFile("/SPARK/components/SPARK_CLIENT?format=client_config_tar");
 			return Response.ok(file)
 					.header("Content-disposition", "attachment;filename=" + filename + tarGz)

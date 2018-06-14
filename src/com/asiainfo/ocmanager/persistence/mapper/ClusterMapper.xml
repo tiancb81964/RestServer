@@ -5,6 +5,6 @@
 <mapper namespace="com.asiainfo.ocmanager.persistence.mapper.ClusterMapper">
 	<select id="getClusterByName" parameterType="java.lang.String"
 		resultType="com.asiainfo.ocmanager.persistence.model.Cluster">
-		select * from clusters where cluster_name=#{clustername}
+		select * from CM_CLUSTERS where cluster_name=#{clustername}
 	</select>
 </mapper>

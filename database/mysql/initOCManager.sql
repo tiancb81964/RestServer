@@ -51,7 +51,12 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`services` (
   `category` VARCHAR(64) NULL DEFAULT 'service',
   PRIMARY KEY (`servicename`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC)),
-  INDEX `origin_UNIQUE` (`origin` ASC))
+  INDEX `origin_UNIQUE` (`origin` ASC)),
+  CONSTRAINT `fk_brokers_services`
+    FOREIGN KEY (`origin`)
+    REFERENCES `ocmanager`.`CM_BROKERS` (`BROKER_NAME`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
 ENGINE = InnoDB;
 
 
@@ -179,6 +184,19 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`dashboard` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `ocmanager`.`clusters`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_CLUSTERS` (
+  `CLUSTER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `CLUSTER_NAME` VARCHAR(64) NOT NULL unique,
+  `CLUSTER_TYPE` VARCHAR(64) NOT NULL,
+  `CLUSTER_URL` VARCHAR(64) NULL,
+  `CLUSTER_ADMIN` VARCHAR(64) NULL,
+  `CLUSTER_PASSWORD` VARCHAR(64) NULL,
+  UNIQUE INDEX `fk_clusters_idx` (`CLUSTER_NAME` ASC))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `ocmanager`.`brokers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
@@ -190,29 +208,10 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
   `DC_NAME` VARCHAR(64) NOT NULL,
   INDEX `fk_brokers_brokername_idx` (`BROKER_NAME` ASC),
   INDEX `fk_brokers_clustername_idx` (`BINDED_CLUSTER` ASC),
-  CONSTRAINT `fk_brokers_services`
-    FOREIGN KEY (`BROKER_NAME`)
-    REFERENCES `ocmanager`.`services` (`origin`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT)
-ENGINE = InnoDB;
-
--- -----------------------------------------------------
--- Table `ocmanager`.`clusters`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_CLUSTERS` (
-  `CLUSTER_ID` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `CLUSTER_NAME` VARCHAR(64) NOT NULL unique,
-  `CLUSTER_TYPE` VARCHAR(64) NOT NULL,
-  `AMBARI_URL` VARCHAR(64) NULL,
-  `AMBARI_USER` VARCHAR(64) NULL,
-  `AMBARI_PASSWORD` VARCHAR(64) NULL,
-  INDEX `fk_clusters_idx` (`CLUSTER_NAME` ASC),
   CONSTRAINT `fk_clusters_brokers`
-    FOREIGN KEY (`CLUSTER_NAME`)
-    REFERENCES `ocmanager`.`CM_BROKERS` (`BINDED_CLUSTER`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT)
+    FOREIGN KEY (`BINDED_CLUSTER`)
+    REFERENCES `ocmanager`.`CM_CLUSTERS` (`CLUSTER_NAME`)
+    ON DELETE RESTRICT)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
