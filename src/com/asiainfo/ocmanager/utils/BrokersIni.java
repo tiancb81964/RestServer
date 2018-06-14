@@ -60,7 +60,7 @@ public class BrokersIni {
 		try {
 			Wini file = new Wini(new File(PATH));
 			for (Entry<String, Section> en : file.entrySet()) {
-				conf.put(en.getKey(), toProperties(en.getValue()));
+				conf.put(en.getKey(), IniUtil.toProperties(en.getValue()));
 			}
 		} catch (InvalidFileFormatException e) {
 			LOG.error("Illegal format in file: " + PATH, e);
@@ -69,14 +69,6 @@ public class BrokersIni {
 			LOG.error("Error while parsing config file: " + PATH, e);
 			throw new RuntimeException("Error while parsing config file: " + PATH, e);
 		}
-	}
-
-	private Properties toProperties(Section value) {
-		Properties props = new Properties();
-		for(Entry<String, String> entry : value.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		return props;
 	}
 
 	/**
