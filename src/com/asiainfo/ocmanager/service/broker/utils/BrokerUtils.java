@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.persistence.model.Cluster;
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.service.broker.imp.DPAdapter;
 import com.asiainfo.ocmanager.service.broker.imp.GBaseAdapter;
 
@@ -16,7 +16,7 @@ import com.asiainfo.ocmanager.service.broker.imp.GBaseAdapter;
 public class BrokerUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(BrokerUtils.class);
 	
-	public static BrokerInterface getAdapter(Cluster cluster) {
+	public static BrokerAdapterInterface getAdapter(Cluster cluster) {
 		if (cluster.getCluster_type().equals(new DPAdapter().getType())) {
 			return new DPAdapter(cluster);
 		}

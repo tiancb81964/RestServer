@@ -1,13 +1,15 @@
 package com.asiainfo.ocmanager.service.broker.imp;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.asiainfo.ocmanager.auth.LdapWrapper;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.service.client.AmbariClient;
 import com.asiainfo.ocmanager.service.client.ClusterClientFactory;
 import com.asiainfo.ocmanager.service.client.RangerClient;
@@ -18,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
-public class DPAdapter implements BrokerInterface {
+public class DPAdapter implements BrokerAdapterInterface {
 	private Cluster cluster;
 
 	public DPAdapter(Cluster cluster) {
@@ -147,6 +149,12 @@ public class DPAdapter implements BrokerInterface {
 	@Override
 	public Cluster getCluster() {
 		return this.cluster;
+	}
+
+	@Override
+	public List<CustomEvnBean> customEnvs() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

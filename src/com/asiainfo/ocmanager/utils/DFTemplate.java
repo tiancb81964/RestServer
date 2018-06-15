@@ -14,7 +14,7 @@ import javax.json.JsonArrayBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 
 /**
  * DF request template
@@ -32,7 +32,7 @@ public class DFTemplate {
 		private static final String IMAGE_URL = "${image-url}";
 		private static final String ENV_LIST = "\"${env_list}\"";
 
-		public static String assembleString(BrokerInterface adapter) {
+		public static String assembleString(BrokerAdapterInterface adapter) {
 			String image = adapter.getImage();
 			String str = template.replace(IMAGE_URL, image);
 			str = str.replace(ID_POSTFIX, adapter.getCluster().getCluster_name() + UUID.randomUUID().toString());
