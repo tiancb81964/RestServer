@@ -28,6 +28,30 @@ clustername|String||是|目标集群名|否
 
 ##### 1.3.1请求报文示例
 
+__request:__
+
+```
+{
+    "cluster_admin": "admin",
+    "cluster_id": "1",
+    "cluster_name": "cluster_alpha",
+    "cluster_type": "hadoop",
+    "cluster_url": "http://10.1.236.111:8080",
+    "env": [
+        {
+            "description": "http ranger url",
+            "key": "RANGER_URL",
+            "value": "http://192.168.1.1:6080"
+        },
+        {
+            "description": "http ranger url",
+            "key": "RANGER_URL",
+            "value": "http://192.168.1.1:6080"
+        }
+    ]
+}
+```
+
 ##### 1.3.2返回报文示例
 
 __response:__

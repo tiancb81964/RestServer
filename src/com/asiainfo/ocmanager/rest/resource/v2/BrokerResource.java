@@ -32,6 +32,7 @@ import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Broker;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
@@ -40,11 +41,12 @@ import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceW
 import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
-import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
+import com.asiainfo.ocmanager.service.broker.utils.BrokerAdaptorUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -63,12 +65,14 @@ public class BrokerResource {
 	@Path("/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_DC)
-	public Response createBrokerDC(@Context HttpServletRequest request) {
-		String clustername = request.getParameter("clustername");
-		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+	public Response createBrokerDC(String requestBody, @Context HttpServletRequest request) {
+		String clustername = null;
 		try {
+			List<CustomEvnBean> cusEnvs = customEnvs(requestBody);
+			Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+			clustername = request.getParameter("clustername");
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
-			BrokerAdapterInterface adapter = BrokerUtils.getAdapter(cluster);
+			BrokerAdapterInterface adapter = BrokerAdaptorUtils.getAdapter(cluster, cusEnvs);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
 			String rsp = createdc(dcreq);
 			// TODP: insert broker info into CM_BROKERS table
@@ -77,6 +81,19 @@ public class BrokerResource {
 			logger.error("createBrokerDC hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
 		}
+	}
+
+	private List<CustomEvnBean> customEnvs(String requestBody) {
+		JsonObject json = new JsonParser().parse(requestBody).getAsJsonObject();
+		JsonArray kvs = json.getAsJsonArray("env");
+		List<CustomEvnBean> list = Lists.newArrayList();
+		kvs.forEach(kv -> {
+			JsonObject obj = kv.getAsJsonObject();
+			CustomEvnBean bean = new CustomEvnBean(obj.getAsJsonPrimitive("key").getAsString(),
+					obj.getAsJsonPrimitive("value").getAsString(), obj.getAsJsonPrimitive("description").getAsString());
+			list.add(bean);
+		});
+		return list;
 	}
 
 	@POST

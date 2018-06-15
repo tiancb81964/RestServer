@@ -8,7 +8,7 @@ public class ClusterBean {
 	private String cluster_type;
 	private String cluster_url;
 	private String cluster_admin;
-	private List<CustomEvnBean> envs;
+	private List<CustomEvnBean> env;
 
 	public ClusterBean(String cluster_id, String cluster_name, String cluster_type, String cluster_url,
 			String cluster_admin, List<CustomEvnBean> env) {
@@ -17,7 +17,7 @@ public class ClusterBean {
 		this.cluster_type = cluster_type;
 		this.cluster_url = cluster_url;
 		this.cluster_admin = cluster_admin;
-		this.envs = env;
+		this.env = env;
 	}
 
 	public String getCluster_id() {
@@ -61,11 +61,11 @@ public class ClusterBean {
 	}
 
 	public List<CustomEvnBean> getEnv() {
-		return envs;
+		return env;
 	}
 
 	public void setEnv(List<CustomEvnBean> env) {
-		this.envs = env;
+		this.env = env;
 	}
 
 }
