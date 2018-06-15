@@ -18,6 +18,13 @@ public class Broker {
 		this.binded_cluster = binded_cluster;
 		this.dc_name = dc_name;
 	}
+	public Broker(String broker_name, String broker_image, String binded_cluster, String dc_name) {
+		super();
+		this.broker_name = broker_name;
+		this.broker_image = broker_image;
+		this.binded_cluster = binded_cluster;
+		this.dc_name = dc_name;
+	}
 	public String getBroker_id() {
 		return broker_id;
 	}
