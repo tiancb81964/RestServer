@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asiainfo.ocmanager.persistence.mapper.BrokerMapper">
+	<insert id="insert" parameterType="com.asiainfo.ocmanager.persistence.model.Broker">
+		insert into CM_BROKERS
+		(broker_image, broker_name, broker_url, binded_cluster,
+		dc_name)
+		values
+		(#{broker_image}, #{broker_name},
+		#{broker_url}, #{binded_cluster},
+		#{dc_name})
+	</insert>
+
+	<update id="updateURL" parameterType="java.lang.String">
+		update CM_BROKERS set broker_url = #{broker_url} where broker_name = #{broker_name}
+	</update>
+</mapper>
