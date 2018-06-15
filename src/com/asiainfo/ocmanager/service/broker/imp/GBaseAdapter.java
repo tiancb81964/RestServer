@@ -11,6 +11,14 @@ import com.asiainfo.ocmanager.utils.BrokersIni;
 
 public class GBaseAdapter implements BrokerAdapterInterface {
 
+	public GBaseAdapter(Cluster cluster, List<CustomEvnBean> customEnvs) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public GBaseAdapter() {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public String getType() {
 		// TODO Auto-generated method stub

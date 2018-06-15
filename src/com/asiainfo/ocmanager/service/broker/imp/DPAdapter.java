@@ -18,14 +18,17 @@ import com.asiainfo.ocmanager.utils.ETCDProperties;
 import com.asiainfo.ocmanager.utils.KerberosConfiguration;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class DPAdapter implements BrokerAdapterInterface {
 	private Cluster cluster;
+	private List<CustomEvnBean> customEnvs;
 
-	public DPAdapter(Cluster cluster) {
+	public DPAdapter(Cluster cluster, List<CustomEvnBean> customEnvs) {
 		check(cluster);
 		this.cluster = cluster;
+		this.customEnvs = customEnvs;
 	}
 
 	private void check(Cluster cluster) {
@@ -53,11 +56,18 @@ public class DPAdapter implements BrokerAdapterInterface {
 	public Map<String, String> getEnv() {
 		AmbariClient ambari = ClusterClientFactory.getAmbari(this.cluster.getCluster_name());
 		HashMap<String, String> envs = Maps.newHashMap();
-		insert(ambari, envs);
+		insertInternalEnvs(ambari, envs);
+		insertCustomizedEnvs(envs);
 		return envs;
 	}
 
-	private void insert(AmbariClient ambari, HashMap<String, String> map) {
+	private void insertCustomizedEnvs(HashMap<String, String> envs) {
+		for (CustomEvnBean kv : this.customEnvs) {
+			envs.put(kv.getKey(), kv.getValue());
+		}
+	}
+
+	private void insertInternalEnvs(AmbariClient ambari, HashMap<String, String> map) {
 		map.put("BROKER_USERNAME", "admin");
 		map.put("BROKER_PASSWORD", "admin");
 		map.put("BROKER_ID", cluster.getCluster_name());
@@ -87,8 +97,6 @@ public class DPAdapter implements BrokerAdapterInterface {
 
 		RangerClient ranger = ClusterClientFactory.getRanger(cluster.getCluster_name());
 		map.put("RANGER_URL", ranger.getRangerurl().toString());
-		map.put("RANGER_ADMIN_USER", ranger.getRangeradmin());
-		map.put("RANGER_ADMIN_PASSWORD", ranger.getRangerpassword());
 
 		// TODO: to get all props from ambari rest api
 		if (haenabled(ambari)) {
@@ -98,8 +106,7 @@ public class DPAdapter implements BrokerAdapterInterface {
 			map.put("HDFS_NAMENODE1", "ABCD");
 			map.put("HDFS_NAMENODE2", "ABCD");
 			map.put("HDFS_RPC_PORT", "ABCD");
-		}
-		else {
+		} else {
 			map.put("HDFS_NAME_NODE", "ABCD");
 			map.put("HDFS_RPC_PORT", "ABCD");
 			map.put("HDFS_PORT", "ABCD");
@@ -126,17 +133,10 @@ public class DPAdapter implements BrokerAdapterInterface {
 		map.put("KAFKA_HOSTS", "ABCD");
 		map.put("KAFKA_PORT", "ABCD");
 		map.put("KAFKA_REP_FACTOR", "ABCD");
-		
+
 		if (ambari.isSecurity()) {
-			map.put("HDFS_SUPER_USER", "ABCD");
-			map.put("HDFS_USER_KEYTAB", "ABCD");
-			map.put("HBASE_MASTER_PRINCIPAL", "ABCD");
-			map.put("HBASE_MASTER_USER_KEYTAB", "ABCD");
 			map.put("HBASE_ZOOKEEPER_ZNODE_PARENT", "/hbase-secure");
-			map.put("HIVE_SUPER_USER", "ABCD");
-			map.put("HIVE_SUPER_USER_KEYTAB", "ABCD");
-		}
-		else {
+		} else {
 			map.put("HADOOP_USER_NAME", "ABCD");
 		}
 	}
@@ -153,8 +153,16 @@ public class DPAdapter implements BrokerAdapterInterface {
 
 	@Override
 	public List<CustomEvnBean> customEnvs() {
-		// TODO Auto-generated method stub
-		return null;
+		List<CustomEvnBean> list = Lists.newArrayList();
+		list.add(new CustomEvnBean("RANGER_ADMIN_USER", "ranger admin name"));
+		list.add(new CustomEvnBean("RANGER_ADMIN_PASSWORD", "ranger admin password"));
+		list.add(new CustomEvnBean("HDFS_SUPER_USER", "namenode principal"));
+		list.add(new CustomEvnBean("HDFS_USER_KEYTAB", "namenode keytab"));
+		list.add(new CustomEvnBean("HBASE_MASTER_PRINCIPAL", "hbase master principal"));
+		list.add(new CustomEvnBean("HBASE_MASTER_USER_KEYTAB", "hbase master keytab"));
+		list.add(new CustomEvnBean("HIVE_SUPER_USER", "hiveserver2 principal"));
+		list.add(new CustomEvnBean("HIVE_SUPER_USER_KEYTAB", "hiveserver2 keytab"));
+		return list;
 	}
 
 }

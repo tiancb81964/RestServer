@@ -32,19 +32,22 @@ import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Broker;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.persistence.BrokerPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
-import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
+import com.asiainfo.ocmanager.service.broker.utils.BrokerAdaptorUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -63,20 +66,46 @@ public class BrokerResource {
 	@Path("/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_DC)
-	public Response createBrokerDC(@Context HttpServletRequest request) {
-		String clustername = request.getParameter("clustername");
-		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+	public Response createBrokerDC(String requestBody, @Context HttpServletRequest request) {
+		String clustername = null;
 		try {
+			List<CustomEvnBean> cusEnvs = customEnvs(requestBody);
+			Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+			clustername = request.getParameter("clustername");
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
-			BrokerAdapterInterface adapter = BrokerUtils.getAdapter(cluster);
+			BrokerAdapterInterface adapter = BrokerAdaptorUtils.getAdapter(cluster, cusEnvs);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
-			String rsp = createdc(dcreq);
-			// TODP: insert broker info into CM_BROKERS table
-			return Response.ok().entity(rsp).tag(clustername).build();
+			CloseableHttpResponse rsp = createdc(dcreq);
+			if (success(rsp)) {
+				String clusterName = adapter.getCluster().getCluster_name().toLowerCase();
+				BrokerPersistenceWrapper.insert(new Broker(clusterName, adapter.getImage(), clusterName, clusterName));
+				return Response.ok().entity(rsp).tag(clustername).build();
+			}
+			logger.error("Response failed: " + rsp.getStatusLine().getStatusCode());
+			return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(clustername)
+					.build();
 		} catch (Exception e) {
 			logger.error("createBrokerDC hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
 		}
+	}
+
+	private boolean success(CloseableHttpResponse rsp) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	private List<CustomEvnBean> customEnvs(String requestBody) {
+		JsonObject json = new JsonParser().parse(requestBody).getAsJsonObject();
+		JsonArray kvs = json.getAsJsonArray("env");
+		List<CustomEvnBean> list = Lists.newArrayList();
+		kvs.forEach(kv -> {
+			JsonObject obj = kv.getAsJsonObject();
+			CustomEvnBean bean = new CustomEvnBean(obj.getAsJsonPrimitive("key").getAsString(),
+					obj.getAsJsonPrimitive("value").getAsString(), obj.getAsJsonPrimitive("description").getAsString());
+			list.add(bean);
+		});
+		return list;
 	}
 
 	@POST
@@ -88,8 +117,12 @@ public class BrokerResource {
 		Preconditions.checkArgument(Strings.isNullOrEmpty(dcName));
 		try {
 			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
-			String rsp = createsvc(svcreq);
-			// TODP: insert broker info into CM_BROKERS table
+			CloseableHttpResponse rsp = createsvc(svcreq);
+			if (!success(rsp)) {
+				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
+				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(dcName)
+						.build();
+			}
 			return Response.ok().entity(getSVCConfig()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
@@ -110,8 +143,13 @@ public class BrokerResource {
 		Preconditions.checkArgument(Strings.isNullOrEmpty(svcname));
 		try {
 			String svcreq = DFTemplate.Create_Router.assembleString(svcname);
-			String rsp = createrouter(svcreq);
-			// TODP: insert broker info into CM_BROKERS table
+			CloseableHttpResponse rsp = createrouter(svcreq);
+			if (!success(rsp)) {
+				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
+				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(svcreq)
+						.build();
+			}
+			BrokerPersistenceWrapper.updateURL(brokerName(svcname), svcname + DFTemplate.Create_Router.HOST_POSTFIX);
 			return Response.ok().entity(getRouterConfig()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
@@ -119,23 +157,27 @@ public class BrokerResource {
 		}
 	}
 
+	private String brokerName(String svcname) {
+		return svcname;
+	}
+
 	private String getRouterConfig() {
 		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Route\",     \"metadata\": {         \"creationTimestamp\": \"2018-06-05T02:35:50Z\",         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9195063\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/routes\\/cm-broker\",         \"uid\": \"28f36555-6869-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"host\": \"cm.southbase.prd.dataos.io\",         \"port\": {             \"targetPort\": \"9000-tcp\"         },         \"tls\": {             \"insecureEdgeTerminationPolicy\": \"Redirect\",             \"termination\": \"edge\"         },         \"to\": {             \"kind\": \"Service\",             \"name\": \"cm-broker\",             \"weight\": 50         },         \"wildcardPolicy\": \"None\"     },     \"status\": {         \"ingress\": [             {                 \"conditions\": [                     {                         \"lastTransitionTime\": \"2018-06-05T02:35:50Z\",                         \"status\": \"True\",                         \"type\": \"Admitted\"                     }                 ],                 \"host\": \"cm.southbase.prd.dataos.io\",                 \"routerName\": \"router\",                 \"wildcardPolicy\": \"None\"             }         ]     } } ";
 	}
 
-	private String createsvc(String svcreq) {
+	private CloseableHttpResponse createsvc(String svcreq) {
 		// TODO Auto-generated method stub
-		return "svc_name_987654321";
+		return null;
 	}
 
-	private String createdc(String dcreq) {
+	private CloseableHttpResponse createdc(String dcreq) {
 		// TODO Auto-generated method stub
-		return "dc_name_123456789";
+		return null;
 	}
 
-	private String createrouter(String reqBody) {
+	private CloseableHttpResponse createrouter(String reqBody) {
 		// TODO Auto-generated method stub
-		return "rsp";
+		return null;
 	}
 
 	/**

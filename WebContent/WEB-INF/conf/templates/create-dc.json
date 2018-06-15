@@ -2,7 +2,7 @@
     "kind": "DeploymentConfig",
     "apiVersion": "v1",
     "metadata": {
-        "name": "cm-broker-${id}",
+        "name": "${id}",
         "labels": {
             "app": "cm-broker"
         },

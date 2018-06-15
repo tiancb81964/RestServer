@@ -2,10 +2,10 @@
     "kind": "Route",
     "apiVersion": "v1",
     "metadata": {
-        "name": "cm-broker-${id}"
+        "name": "${id}"
     },
     "spec": {
-        "host": "${cm-router-prefix}.cm.southbase.prd.dataos.io",
+        "host": "${cm-router-prefix}",
         "to": {
             "kind": "Service",
             "name": "${cm-svc-name}"
