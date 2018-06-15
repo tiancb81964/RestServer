@@ -27,9 +27,10 @@ public class SSLSocketIgnoreCA {
 				return true;
 			}
 		}).build();
-		// Allow TLSv1 protocol only
-		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
-				SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		// support "TLSv1", "TLSv1.2", "SSLv3"
+		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,
+				new String[] { "TLSv1", "TLSv1.2", "SSLv3" }, null,
+				SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 
 		return sslsf;
 	}
