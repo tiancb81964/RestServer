@@ -19,6 +19,9 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.persistence.model.ApplyBill;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -39,7 +42,7 @@ public class ApplyBillResource {
 
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	// @Audit(action = Action.GET, targetType = TargetType.USERS)
+	@Audit(action = Action.GET, targetType = TargetType.APPLY_BILLS)
 	public Response getApplyBills() {
 		try {
 			List<ApplyBill> bills = ApplyBillPersistenceWrapper.getAllApplyBills();
@@ -56,34 +59,34 @@ public class ApplyBillResource {
 	@GET
 	@Path("user/{userName}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	// @Audit(action = Action.GET, targetType = TargetType.USERS)
+	@Audit(action = Action.GET, targetType = TargetType.APPLY_BILLS)
 	public Response getApplyBillsByUser(@PathParam("userName") String userName) {
 		try {
 			List<ApplyBill> bills = ApplyBillPersistenceWrapper.getApplyBillsByUser(userName);
-			return Response.ok().entity(bills).build();
+			return Response.ok().entity(bills).tag(userName).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "ApplyBillResource", "getApplyBillsByUser");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(userName).build();
 		}
 	}
 
 	@POST
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.CREATE, targetType = TargetType.APPLY_BILL)
 	public Response createApplyBill(ApplyBill applyBill, @Context HttpServletRequest request) {
 		try {
 			ApplyBill bill = ApplyBillPersistenceWrapper.createApplyBill(applyBill);
-			return Response.ok().entity(bill).build();
+			return Response.ok().entity(bill).tag(applyBill.getId()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "ApplyBillResource", "createApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(applyBill.getId()).build();
 		}
 
 	}
@@ -91,17 +94,17 @@ public class ApplyBillResource {
 	@PUT
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.UPDATE, targetType = TargetType.APPLY_BILL)
 	public Response updateApplyBill(ApplyBill applyBill, @Context HttpServletRequest request) {
 		try {
 			ApplyBill bill = ApplyBillPersistenceWrapper.updateApplyBill(applyBill);
-			return Response.ok().entity(bill).build();
+			return Response.ok().entity(bill).tag(applyBill.getId()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "ApplyBillResource", "updateApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(applyBill.getId()).build();
 		}
 
 	}
@@ -110,18 +113,18 @@ public class ApplyBillResource {
 	@Path("{id}/status/{status}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.CREATE, targetType = TargetType.APPLY_BILL)
 	public Response updateApplyBillStatus(@PathParam("id") String id, @PathParam("status") int status,
 			@Context HttpServletRequest request) {
 		try {
 			ApplyBill bill = ApplyBillPersistenceWrapper.updateApplyBillStatus(id, status);
-			return Response.ok().entity(bill).build();
+			return Response.ok().entity(bill).tag(id).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "ApplyBillResource", "updateApplyBillStatus");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(id).build();
 		}
 
 	}
@@ -129,18 +132,19 @@ public class ApplyBillResource {
 	@DELETE
 	@Path("{id}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	// @Audit(action = Action.DELETE, targetType = TargetType.USER)
+	@Audit(action = Action.DELETE, targetType = TargetType.APPLY_BILL)
 	public Response deleteApplyBill(@PathParam("id") String id, @Context HttpServletRequest request) {
 		try {
 			ApplyBillPersistenceWrapper.deleteApplyBill(id);
 			return Response.ok()
-					.entity(new ResourceResponseBean("delete bill success", id, ResponseCodeConstant.SUCCESS)).build();
+					.entity(new ResourceResponseBean("delete bill success", id, ResponseCodeConstant.SUCCESS)).tag(id)
+					.build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "ApplyBillResource", "deleteApplyBill");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(id).build();
 		}
 	}
 
