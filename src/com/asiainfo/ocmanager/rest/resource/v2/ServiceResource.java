@@ -35,8 +35,8 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -182,7 +182,6 @@ public class ServiceResource {
 		}
 	}
 
-
 	/**
 	 * call data foundry rest api
 	 *
@@ -196,8 +195,8 @@ public class ServiceResource {
 	public static String callDFToGetAllServices() throws KeyManagementException, NoSuchAlgorithmException,
 			KeyStoreException, ClientProtocolException, IOException {
 
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/openshift/backingservices";
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();

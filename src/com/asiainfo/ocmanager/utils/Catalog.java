@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.constant.Constant;
-import com.asiainfo.ocmanager.rest.resource.ServiceResource;
+import com.asiainfo.ocmanager.rest.resource.v2.ServiceResource;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;

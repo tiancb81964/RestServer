@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asiainfo.ocmanager.rest.bean.ServiceInstanceDefaultQuotaBean;
-import com.asiainfo.ocmanager.rest.resource.ServiceResource;
+import com.asiainfo.ocmanager.rest.resource.v2.ServiceResource;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

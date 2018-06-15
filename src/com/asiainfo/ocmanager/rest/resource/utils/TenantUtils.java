@@ -1,19 +1,15 @@
 package com.asiainfo.ocmanager.rest.resource.utils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -32,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBean;
-import com.asiainfo.ocmanager.rest.bean.TenantBeanV2;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaBeanV2;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
@@ -40,7 +35,6 @@ import com.asiainfo.ocmanager.rest.resource.utils.model.OsResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponseV2;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.utils.DateTimeUtil;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
@@ -179,8 +173,8 @@ public class TenantUtils {
 	 */
 	public static ResourceResponseBean removeOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
 				+ "/binding";
 
@@ -239,8 +233,8 @@ public class TenantUtils {
 	public static ResourceResponseBean generateOCDPServiceCredentials(String tenantId, String instanceName,
 			String userName, String accesses)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName
 				+ "/binding";
 
@@ -303,8 +297,8 @@ public class TenantUtils {
 	 */
 	public static String getTenantServiceInstancesFromDf(String tenantId, String instanceName)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -344,8 +338,8 @@ public class TenantUtils {
 	public static String getTenantAllServiceInstancesFromDf(String tenantId)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
 
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances";
 
 		SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -408,8 +402,8 @@ public class TenantUtils {
 	 */
 	public static ResourceResponseBean updateTenantServiceInstanceInDf(String tenantId, String instanceName,
 			String reqBodyStr) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 		// parse the req body make sure it is json
@@ -582,8 +576,8 @@ public class TenantUtils {
 		}
 
 		logger.debug("TenantUtils -> createTenant -> parepare the params for create.");
-		String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-		String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+		String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+		String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 		String dfRestUrl = url + "/oapi/v1/projectrequests";
 
 		JsonObject jsonObj1 = new JsonObject();
@@ -666,8 +660,8 @@ public class TenantUtils {
 		Map<String, Properties> map = OsClusterIni.getConf();
 		for (Map.Entry<String, Properties> entry : map.entrySet()) {
 			String osClusterName = entry.getKey();
-			String osUrl = entry.getValue().get("os.url").toString();
-			String osToken = entry.getValue().get("os.token").toString();
+			String osUrl = entry.getValue().get(Constant.OS_URL).toString();
+			String osToken = entry.getValue().get(Constant.OS_TOKEN).toString();
 			OsResponse osResponse = TenantUtils.doCreateTenant(tenant, osUrl, osToken);
 			tenantRes.getTenantBean().getOsClustersInfo().put(osClusterName, osResponse.getResponseBody());
 			logger.info("TenantUtils: createTenantV2: namespace create in {} cluster with response body: {}",
@@ -816,8 +810,8 @@ public class TenantUtils {
 		Map<String, Properties> map = OsClusterIni.getConf();
 		for (Map.Entry<String, Properties> entry : map.entrySet()) {
 			String osClusterName = entry.getKey();
-			String osUrl = entry.getValue().get("os.url").toString();
-			String osToken = entry.getValue().get("os.token").toString();
+			String osUrl = entry.getValue().get(Constant.OS_URL).toString();
+			String osToken = entry.getValue().get(Constant.OS_TOKEN).toString();
 			OsResponse osResponse = TenantUtils.doDeleteTenant(tenantId, osUrl, osToken);
 			tenantRes.getTenantBean().getOsClustersInfo().put(osClusterName, osResponse.getResponseBody());
 			logger.info("TenantUtils: deleteTenantV2: namespace delete in {} cluster with response body: {}",
