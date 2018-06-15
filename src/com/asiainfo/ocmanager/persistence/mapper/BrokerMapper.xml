@@ -16,4 +16,12 @@
 	<update id="updateURL" parameterType="java.lang.String">
 		update CM_BROKERS set broker_url = #{broker_url} where broker_name = #{broker_name}
 	</update>
+	
+	<update id="updateStatus" parameterType="java.lang.String">
+		update CM_BROKERS set latest_status = #{latest_status} where broker_name = #{broker_name}
+	</update>
+	
+	<select id="getBrokers" resultType="com.asiainfo.ocmanager.persistence.model.Broker">
+		select * from CM_BROKERS
+	</select>
 </mapper>

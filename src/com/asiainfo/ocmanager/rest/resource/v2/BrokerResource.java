@@ -30,6 +30,7 @@ import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Broker;
+import com.asiainfo.ocmanager.persistence.model.Broker.BrokerStatus;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
@@ -78,8 +79,9 @@ public class BrokerResource {
 			CloseableHttpResponse rsp = createdc(dcreq);
 			if (success(rsp)) {
 				String clusterName = adapter.getCluster().getCluster_name().toLowerCase();
-				BrokerPersistenceWrapper.insert(new Broker(clusterName, adapter.getImage(), clusterName, clusterName));
-				return Response.ok().entity(rsp).tag(clustername).build();
+				BrokerPersistenceWrapper.insert(new Broker(clusterName, adapter.getImage(), clusterName, clusterName, BrokerStatus.DC_CREATED));
+				//TODO:
+				return Response.ok().entity(getDCConfig()).tag(clustername).build();
 			}
 			logger.error("Response failed: " + rsp.getStatusLine().getStatusCode());
 			return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(clustername)
@@ -123,6 +125,8 @@ public class BrokerResource {
 				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(dcName)
 						.build();
 			}
+			BrokerPersistenceWrapper.updateStatus(brokerName(dcName), BrokerStatus.SVC_CREATED.name());
+			//TODO:
 			return Response.ok().entity(getSVCConfig()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
@@ -150,6 +154,8 @@ public class BrokerResource {
 						.build();
 			}
 			BrokerPersistenceWrapper.updateURL(brokerName(svcname), svcname + DFTemplate.Create_Router.HOST_POSTFIX);
+			BrokerPersistenceWrapper.updateStatus(brokerName(svcname), BrokerStatus.ROUTER_CREATED.name());
+			//TODO:
 			return Response.ok().entity(getRouterConfig()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
@@ -217,13 +223,14 @@ public class BrokerResource {
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.BROKER)
-	public Response getBrokers(@Context HttpServletRequest request) {
-		String dcName = request.getParameter("clustername");
-		// TODO:
-		List<Broker> list = Lists.newArrayList();
-		list.add(new Broker("1", "broker1", "http://myimage.com", "https://mybroker.com", "cluster1",
-				"cm-broker-123456"));
-		return Response.ok().entity(list).build();
+	public Response getBrokers() {
+		try {
+			List<Broker> brokers = BrokerPersistenceWrapper.getBrokers();
+			return Response.ok().entity(brokers).build();
+		} catch (Exception e) {
+			logger.error("getBrokers hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+		}
 	}
 
 	/**
@@ -238,7 +245,14 @@ public class BrokerResource {
 	@Audit(action = Action.INSTANTIATE, targetType = TargetType.BROKER_DC)
 	public Response instantiateBrokerDC(@Context HttpServletRequest request) {
 		// TODO:
+		String brokerName = "";
+		BrokerPersistenceWrapper.updateStatus(brokerName, BrokerStatus.DC_INSTANTIATED.name());
 		return Response.ok().entity(getDCConfig()).build();
+	}
+	
+	public static void main(String[] args) {
+		BrokerPersistenceWrapper.updateStatus("ocdp", BrokerStatus.CATALOG_INITIALIZED.name());
+		System.out.println(">>> end of main");
 	}
 
 	/**
@@ -301,7 +315,7 @@ public class BrokerResource {
 					// int statusCode =
 					// response2.getStatusLine().getStatusCode();
 					String bodyStr = EntityUtils.toString(response2.getEntity());
-
+					BrokerPersistenceWrapper.updateStatus(extractName(reqBodyJson), BrokerStatus.REGISTERED.name());
 					return Response.ok().entity(bodyStr).tag(brokerIP).build();
 				} finally {
 					response2.close();
@@ -309,12 +323,16 @@ public class BrokerResource {
 			} finally {
 				httpclient.close();
 			}
-			// TODO: update binded_cluster colume of CM_BROKERS table
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("addServiceBroker hit exception-> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(brokerIP).build();
 		}
+	}
+
+	private String extractName(JsonElement reqBodyJson) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private String extractIP(String reqBodyStr) {
