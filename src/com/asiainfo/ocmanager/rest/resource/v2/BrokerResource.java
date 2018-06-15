@@ -38,7 +38,7 @@ import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
@@ -68,7 +68,7 @@ public class BrokerResource {
 		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
 		try {
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
-			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
+			BrokerAdapterInterface adapter = BrokerUtils.getAdapter(cluster);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
 			String rsp = createdc(dcreq);
 			// TODP: insert broker info into CM_BROKERS table
