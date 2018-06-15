@@ -244,7 +244,65 @@ GET /ocmanager/v2/api/tenant/{tenantId}/service/instance/{instanceName}/access/i
 
 __response:__
 ```
-TODO
+{
+  "kind": "BackingServiceInstance",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "zhaoyim12345678900",
+    "namespace": "000999",
+    "selfLink": "/oapi/v1/namespaces/000999/backingserviceinstances/zhaoyim12345678900",
+    "uid": "936b2ccd-7046-11e8-ac16-fa163e4dfe45",
+    "resourceVersion": "1234198",
+    "creationTimestamp": "2018-06-15T02:48:25Z",
+    "annotations": {
+      "datafoundry.io/servicebroker": "cluster61"
+    }
+  },
+  "spec": {
+    "provisioning": {
+      "dashboard_url": "",
+      "backingservice_name": "HDFS",
+      "backingservice_spec_id": "ae67d4ba-5c4e-4937-a68b-5b47cfe356d9",
+      "backingservice_plan_guid": "72150b09-1025-4533-8bae-0e04ef68ac13",
+      "backingservice_plan_name": "shared",
+      "parameters": {
+        "accesses": "read,write,execute",
+        "cuzBsiName": "zhaoyim12345678900",
+        "instance_id": "936c64e7-7046-11e8-ac16-fa163e4dfe45",
+        "nameSpaceQuota": "1",
+        "storageSpaceQuota": "1",
+        "user_name": "gsm"
+      },
+      "credentials": {
+        "HDFS_Path": "zhaoyim12345678900",
+        "host": "10.1.236.61",
+        "port": "50070",
+        "uri": "http://10.1.236.61:50070/webhdfs/v1"
+      }
+    },
+    "userprovidedservice": {
+      "credentials": null
+    },
+    "binding": [{
+      "bound_time": "2018-06-15T02:48:30Z",
+      "bind_uuid": "955a27f4-7046-11e8-ac16-fa163e4dfe45",
+      "bind_hadoop_user": "gsm",
+      "credentials": {
+        "HDFS_Path": "zhaoyim12345678900",
+        "host": "10.1.236.61",
+        "port": "50070",
+        "uri": "http://10.1.236.61:50070/webhdfs/v1",
+        "username": "gsm"
+      }
+    }],
+    "bound": 1,
+    "instance_id": "936c64e7-7046-11e8-ac16-fa163e4dfe45",
+    "tags": null
+  },
+  "status": {
+    "phase": "Bound"
+  }
+}
 ```
 
 

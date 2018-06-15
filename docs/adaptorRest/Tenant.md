@@ -1,4 +1,4 @@
-## CM Instance REST APIs
+## CM Tenant REST APIs
 
 __NOTE: All the rest request should set__ _Accept: application/json_ __and__ _Content-Type: application/json_
 
