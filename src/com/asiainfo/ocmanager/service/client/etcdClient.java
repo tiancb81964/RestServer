@@ -4,13 +4,15 @@ import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.justinsb.etcd.EtcdClient;
 import com.justinsb.etcd.EtcdClientException;
 import com.justinsb.etcd.EtcdNode;
 import com.justinsb.etcd.EtcdResult;
-
 import com.asiainfo.ocmanager.utils.ETCDProperties;
 
 /**
@@ -20,6 +22,8 @@ import com.asiainfo.ocmanager.utils.ETCDProperties;
  *
  */
 public class etcdClient {
+	
+	private static Logger logger = LoggerFactory.getLogger(etcdClient.class);
 	
 	private Properties props = new Properties();
 	private static final String ETCD_HOST = "ETCD_HOST";
@@ -52,11 +56,11 @@ public class etcdClient {
 				URI.create("http://" + etcd_user + ":" + etcd_password + "@" + etcd_host + ":" + etcd_port));
 	}
 
-	private void check(String brokerId) {
+	public void check(String brokerId) {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(brokerId), "BrokerID must not be null");
-		if (noChildren(PATH_PREFIX + brokerId)) {
-			System.out.println("ERROR: Broker path not found in ETCD: " + PATH_PREFIX);
-			throw new RuntimeException("Broker path not found in ETCD: " + PATH_PREFIX);
+		if (!noChildren(PATH_PREFIX + brokerId)) {
+			logger.error("Broker path already exist in ETCD: " + PATH_PREFIX);
+			throw new RuntimeException("Broker path already exist in ETCD: " + PATH_PREFIX);
 		}
 	}
 
@@ -65,15 +69,16 @@ public class etcdClient {
 		try {
 			children = innerClient.listDirectory(pATH_PREFIX2);
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("noChildren() hit EtcdClientException",e);
+			throw new RuntimeException("fail to check: " + pATH_PREFIX2);
 		}
 		return (children == null || children.isEmpty());
 	}
 
 	private String assemblePath(String suffix, String brokerId) {
-		check(brokerId);
+		//check(brokerId);
 		if (!suffix.startsWith("/")) {
-			System.out.println("ERROR: Path not start with '/': " + suffix);
+			logger.error("Path not start with '/': " + suffix);
 			throw new RuntimeException("Path must start with '/': " + suffix);
 		}
 		return this.PATH_PREFIX + brokerId + suffix;
@@ -84,7 +89,8 @@ public class etcdClient {
 		try {
 			result = this.innerClient.get(assemblePath(key, brokerId));
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("read() hit EtcdClientException",e);
+			throw new RuntimeException("fail to read DIR: " + key + brokerId);
 		}
 		return result;
 	}
@@ -99,7 +105,8 @@ public class etcdClient {
 		try {
 			result = this.innerClient.set(assemblePath(key, brokerId), value);
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("write() hit EtcdClientException",e);
+			throw new RuntimeException("fail to write to: " + key + brokerId + value);
 		}
 		return result;
 	}
@@ -109,7 +116,8 @@ public class etcdClient {
 		try {
 			result = this.innerClient.createDirectory(assemblePath(key, brokerId));
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("createDir() hit EtcdClientException",e);
+			throw new RuntimeException("fail to create DIR: " + key + brokerId);
 		}
 		return result;
 	}
@@ -119,7 +127,8 @@ public class etcdClient {
 		try {
 			result = this.innerClient.delete(assemblePath(key, brokerId));
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("delete() hit EtcdClientException",e);
+			throw new RuntimeException("fail to delete: " + key + brokerId);
 		}
 		return result;
 	}
@@ -129,7 +138,8 @@ public class etcdClient {
 		try {
 			result = this.innerClient.deleteDirectory(assemblePath(key, brokerId));
 		} catch (EtcdClientException e) {
-			e.printStackTrace();
+			logger.error("deleteDir() hit EtcdClientException",e);
+			throw new RuntimeException("fail to delete DIR: " + key + brokerId);
 		}
 		return result;
 	}
