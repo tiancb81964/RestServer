@@ -58,6 +58,7 @@ public class Constant {
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";
 	public static final String SEMICOLON = ";";
+	public static final String COMMA = ",";
 
 	// prefix for parameters
 	public static final String ATTRIBUTES = "ATTR_";

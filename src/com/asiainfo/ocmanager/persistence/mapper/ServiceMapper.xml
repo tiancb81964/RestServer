@@ -18,4 +18,13 @@
 		insert into services (id, servicename, description, origin, serviceType, category)
 		  values (#{id}, #{servicename}, #{description}, #{origin}, #{serviceType}, #{category})
 	</insert>
+	<!-- select service by id -->
+	<select id="selectServicesByOrigin"
+		resultType="com.asiainfo.ocmanager.persistence.model.Service">
+		select * from services where origin in
+		<foreach collection="originList" item="origin" index="index" open="("
+			close=")" separator=",">
+			#{origin}
+		</foreach>
+	</select>
 </mapper>
