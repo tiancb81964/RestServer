@@ -172,6 +172,17 @@ __response:__
 ```
 
 
+7. 获取当前租户可以访问的集群列表（是当前租户父租户的子集）
+```
+GET /ocmanager/v2/api/tenant/{tenantId}/access/clusters
+```
+
+__response:__
+```
+{
+  "accessedCluster": ["etcd-34", "cluster61", "cluster2"]
+}
+```
 
 
 

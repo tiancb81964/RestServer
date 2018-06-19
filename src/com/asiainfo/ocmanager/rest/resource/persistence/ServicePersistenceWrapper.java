@@ -81,4 +81,27 @@ public class ServicePersistenceWrapper {
 		}
 	}
 
+	/**
+	 * 
+	 * @param originList
+	 * @return
+	 */
+	public static List<Service> getServicesByOrigin(List<String> originList) {
+		SqlSession session = DBConnectorFactory.getSession();
+		List<Service> services = new ArrayList<Service>();
+		try {
+			ServiceMapper mapper = session.getMapper(ServiceMapper.class);
+
+			services = mapper.selectServicesByOrigin(originList);
+
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return services;
+	}
+
 }

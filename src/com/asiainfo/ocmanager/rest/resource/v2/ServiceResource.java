@@ -5,6 +5,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -30,11 +31,14 @@ import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.persistence.model.Service;
 import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
+import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.gson.JsonArray;
@@ -280,6 +284,76 @@ public class ServiceResource {
 			logger.error("getServicePlanInfo hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceName).build();
 		}
+	}
+
+	@GET
+	@Path("df/{serviceName}")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICE)
+	public Response getServiceDFInfo(@PathParam("serviceName") String serviceName) {
+		try {
+			String servicesStr = ServiceResource.callDFToGetAllServices();
+			JsonObject servicesJson = new JsonParser().parse(servicesStr).getAsJsonObject();
+			JsonArray items = servicesJson.getAsJsonArray("items");
+			if (items != null) {
+				for (int i = 0; i < items.size(); i++) {
+					JsonObject spec = items.get(i).getAsJsonObject().getAsJsonObject("spec");
+					String name = spec.get("name").getAsString();
+					// String plan = spec.getAsJsonArray("plans").toString();
+					if (serviceName.toLowerCase().equals(name.toLowerCase())) {
+						return Response.ok().entity(items.get(i).toString()).tag(serviceName).build();
+					}
+				}
+			}
+
+			return Response.status(Status.NOT_FOUND)
+					.entity(new ResourceResponseBean("get service info failed",
+							"can NOT find the service info, please make sure you input the correct service name"
+									+ " or the service is added successfully in the CM.",
+							ResponseCodeConstant.SERVICE_NOT_FOUND))
+					.tag(serviceName).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("{} : {} hit exception", "ServiceResource", "getServiceDFInfo");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(serviceName).build();
+		}
+	}
+
+	@GET
+	@Path("access/{tenantId}/services")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.SERVICE)
+	public Response getTenantCanAccessedServices(@PathParam("tenantId") String tenantId) {
+
+		try {
+			Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
+			List<String> origin = new ArrayList<String>();
+
+			// if the cluster field is null return empty list
+			if (tenant.getClusters() == null) {
+				return Response.ok().entity(origin).tag(tenantId).build();
+			}
+
+			// origin is the tenant access cluster
+			List<String> accessClustersList = Arrays.asList(tenant.getClusters().split(Constant.COMMA));
+
+			for (String s : accessClustersList) {
+				origin.add(s.trim());
+			}
+
+			List<Service> services = ServicePersistenceWrapper.getServicesByOrigin(origin);
+
+			return Response.ok().entity(services).tag(tenantId).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("{} : {} hit exception", "ServiceResource", "getTenantCanAccessedServices");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(tenantId).build();
+		}
+
 	}
 
 }

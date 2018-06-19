@@ -172,7 +172,10 @@ public @interface Audit {
 		/**
 		 * processes
 		 */
-		PROCESSES
-
+		PROCESSES,
+		/**
+		 * clusters
+		 */
+		CLUSTERS
 	}
 }
