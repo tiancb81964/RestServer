@@ -18,6 +18,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -44,7 +47,7 @@ public class TenantWorkflowResource {
 	@Path("{tenantId}/start/process")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.START, targetType = TargetType.PROCESS)
 	public Response startTenantProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
 			@Context HttpServletRequest request) {
 
@@ -56,7 +59,7 @@ public class TenantWorkflowResource {
 						.entity(new ResourceResponseBean("start sub tenant process failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(assignee.getAssigneeName()).build();
 			}
 
 			TenantProcess subTenantProcess = new TenantProcess();
@@ -64,13 +67,14 @@ public class TenantWorkflowResource {
 			variables.put(WorkflowConstant.TPPROCESSBINDINGTENANTID_, tenantId);
 			ProcessInstance pi = subTenantProcess.startProcessInstance(assignee.getAssigneeName(), variables);
 
-			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
+			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName()))
+					.tag(assignee.getAssigneeName()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "SubTenantWorkflowResource", "startSubTenantProcess");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(assignee.getAssigneeName()).build();
 		}
 	}
 
@@ -78,7 +82,7 @@ public class TenantWorkflowResource {
 	@Path("complete/task/{taskId}/{flowAction}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.COMPLETE, targetType = TargetType.TASK)
 	public Response completeTenantTask(Assignee assignee, @PathParam("taskId") String taskId,
 			@PathParam("flowAction") String flowAction, @Context HttpServletRequest request) {
 
@@ -88,7 +92,7 @@ public class TenantWorkflowResource {
 					.entity(new ResourceResponseBean("complete sub tenant process failed",
 							"token is null or empty, please check the token in request header.",
 							ResponseCodeConstant.EMPTY_TOKEN))
-					.build();
+					.tag(assignee.getAssigneeName()).build();
 		}
 
 		TenantProcess subTenantProcess = new TenantProcess();
@@ -101,7 +105,7 @@ public class TenantWorkflowResource {
 					.entity(new ResourceResponseBean("complete sub tenant process failed",
 							"the assignee role is not belong to the sub tenant process, please contact admin.",
 							ResponseCodeConstant.EMPTY_TOKEN))
-					.build();
+					.tag(assignee.getAssigneeName()).build();
 		}
 
 		if (urv.getRoleName().equals(Constant.TEAMMEMBER)) {
@@ -114,9 +118,11 @@ public class TenantWorkflowResource {
 			subTenantProcess.completeParentTenantAdminTask(taskId);
 		}
 
-		return Response.ok().entity(new ResourceResponseBean("complete task success",
-				"taskId: " + taskId + "  assignee: " + assignee.getAssigneeName(), ResponseCodeConstant.SUCCESS))
-				.build();
+		return Response.ok()
+				.entity(new ResourceResponseBean("complete task success",
+						"taskId: " + taskId + "  assignee: " + assignee.getAssigneeName(),
+						ResponseCodeConstant.SUCCESS))
+				.tag(assignee.getAssigneeName()).build();
 	}
 
 }

@@ -222,8 +222,7 @@ public class ServiceResource {
 	private String extractIP(String reqBodyStr) {
 		JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
 		JsonObject spec = reqBodyJson.getAsJsonObject().getAsJsonObject("spec");
-		JsonObject url = spec.getAsJsonObject("url");
-		return url.getAsString();
+		return spec.get("url").getAsString();
 	}
 
 	/**

@@ -18,6 +18,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asiainfo.ocmanager.audit.Audit;
+import com.asiainfo.ocmanager.audit.Audit.Action;
+import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
@@ -43,7 +46,7 @@ public class InstanceWorkflowResource {
 	@Path("{tenantId}/start/process")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.START, targetType = TargetType.PROCESS)
 	public Response startInstanceProcess(Assignee assignee, @PathParam("tenantId") String tenantId,
 			@Context HttpServletRequest request) {
 		try {
@@ -53,7 +56,7 @@ public class InstanceWorkflowResource {
 						.entity(new ResourceResponseBean("start instance process failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(assignee.getAssigneeName()).build();
 			}
 
 			// String loginUser = TokenPaserUtils.paserUserName(token);
@@ -63,13 +66,14 @@ public class InstanceWorkflowResource {
 			variables.put(WorkflowConstant.IPPROCESSBINDINGTENANTID_, tenantId);
 			ProcessInstance pi = siPro.startProcessInstance(assignee.getAssigneeName(), variables);
 
-			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName())).build();
+			return Response.ok().entity(new ProcessInstanceBean(pi.getId(), pi.getName()))
+					.tag(assignee.getAssigneeName()).build();
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.info("{} : {} hit exception", "InstanceWorkflowResource", "startInstanceProcess");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(assignee.getAssigneeName()).build();
 		}
 	}
 
@@ -77,7 +81,7 @@ public class InstanceWorkflowResource {
 	@Path("complete/task/{taskId}/{flowAction}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Consumes(MediaType.APPLICATION_JSON)
-	// @Audit(action = Action.CREATE, targetType = TargetType.USER)
+	@Audit(action = Action.COMPLETE, targetType = TargetType.TASK)
 	public Response completeInstanceTask(Assignee assignee, @PathParam("taskId") String taskId,
 			@PathParam("flowAction") String flowAction, @Context HttpServletRequest request) {
 
@@ -88,7 +92,7 @@ public class InstanceWorkflowResource {
 						.entity(new ResourceResponseBean("complete instance process failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(assignee.getAssigneeName()).build();
 			}
 
 			InstanceProcess siPro = new InstanceProcess();
@@ -102,7 +106,7 @@ public class InstanceWorkflowResource {
 						.entity(new ResourceResponseBean("complete instance process failed",
 								"the assignee role is not belong to the instance process, please contact admin.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.build();
+						.tag(assignee.getAssigneeName()).build();
 			}
 
 			if (urv.getRoleName().equals(Constant.TEAMMEMBER)) {
@@ -121,7 +125,7 @@ public class InstanceWorkflowResource {
 			logger.info("{} : {} hit exception", "InstanceWorkflowResource", "completeInstanceTask");
 			ResponseExceptionBean ex = new ResponseExceptionBean();
 			ex.setException(e.toString());
-			return Response.status(Status.BAD_REQUEST).entity(ex).build();
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(assignee.getAssigneeName()).build();
 		}
 	}
 
