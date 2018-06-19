@@ -2,6 +2,7 @@ package com.asiainfo.ocmanager.rest.resource.v2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -41,12 +42,13 @@ import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
-import com.asiainfo.ocmanager.rest.bean.TenantBean;
+import com.asiainfo.ocmanager.rest.bean.TenantBeanV2;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaResponse;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaResponse.ServiceInstanceQuotaResponse;
 import com.asiainfo.ocmanager.rest.bean.service.instance.ServiceInstanceQuotaConst;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUnAssignRoleExecutor;
 import com.asiainfo.ocmanager.rest.resource.executor.TenantResourceUpdateRoleExecutor;
@@ -59,13 +61,13 @@ import com.asiainfo.ocmanager.rest.resource.utils.TenantJsonParserUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.TenantUtils;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceQuotaCheckerResponse;
 import com.asiainfo.ocmanager.rest.resource.utils.model.ServiceInstanceResponse;
-import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponse;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
+import com.asiainfo.ocmanager.rest.resource.utils.model.TenantResponseV2;
 import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
 import com.asiainfo.ocmanager.utils.Catalog;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.asiainfo.ocmanager.utils.TenantTree.TenantTreeNode;
 import com.asiainfo.ocmanager.utils.TenantTreeUtil;
 import com.google.common.collect.Lists;
@@ -253,8 +255,10 @@ public class TenantResource {
 	public Response getTenantServices(@PathParam("id") String tenantId) {
 		// TODO:
 		ArrayList<Object> list = Lists.newArrayList();
-		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8450", "hbase_hunan", "hunan province", "hunan_broker", "hbase"));
-		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8451", "hdfs_shaanxi", "shaanxi province", "shaanxi_broker", "hdfs"));
+		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8450", "hbase_hunan", "hunan province", "hunan_broker",
+				"hbase"));
+		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8451", "hdfs_shaanxi", "shaanxi province",
+				"shaanxi_broker", "hdfs"));
 		list.add(new Service("d9845ade-9410-4c7f-8689-4e032c1a8452", "kafka_bj", "bj", "bj_broker", "kafka"));
 		return Response.ok().entity(list).tag(tenantId).build();
 	}
@@ -366,7 +370,11 @@ public class TenantResource {
 
 			// lock parent tenant
 			synchronized (TenantLockerPool.getInstance().getLocker(tenant.getParentId())) {
-				TenantResponse tenantRes = TenantUtils.createTenant(tenant);
+
+				TenantResponseV2 tenantRes = TenantUtils.createTenantV2(tenant);
+
+				// create tenant already check whether can create with quota.
+				// here only get the error message then throw out
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("Failed to create tenant due to exceeded parent tenant quota: "
 							+ tenantRes.getCheckerRes().getMessages());
@@ -381,8 +389,10 @@ public class TenantResource {
 			}
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.error("createTenant hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(tenant.getName()).build();
+			logger.info("{} : {} hit exception", "TenantResource", "createTenant");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(tenant.getName()).build();
 		}
 	}
 
@@ -586,8 +596,10 @@ public class TenantResource {
 				// check whether parameters format is legal
 				try {
 					JsonObject incrementalParameters = getIncremental(tenantId, instanceName, parameterObj);
-					// Pair<String, ServiceType> bsi = getInstanceIDandType(tenantId, instanceName);
-					// validateUpdateParameter(tenantId, bsi, toMap(parameterObj.entrySet()));
+					// Pair<String, ServiceType> bsi =
+					// getInstanceIDandType(tenantId, instanceName);
+					// validateUpdateParameter(tenantId, bsi,
+					// toMap(parameterObj.entrySet()));
 					ServiceInstanceResponse serviceInstRes = new ServiceInstanceResponse();
 					ServiceInstanceQuotaCheckerResponse checkRes = ServiceInstanceUtils.canCreateBsi(
 							provisioning.get("backingservice_name").getAsString(), tenantId, incrementalParameters);
@@ -794,8 +806,8 @@ public class TenantResource {
 				}
 
 				// begin to delete the instance
-				String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-				String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+				String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+				String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 				String dfRestUrl = url + "/oapi/v1/namespaces/" + tenantId + "/backingserviceinstances/" + instanceName;
 
 				SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
@@ -885,7 +897,7 @@ public class TenantResource {
 
 			synchronized (TenantLockerPool.getInstance()
 					.getLocker(origin.getParentId() != null ? origin.getParentId() : origin.getId())) {
-				TenantResponse tenantRes = TenantUtils.updateTenant(tenant);
+				TenantResponseV2 tenantRes = TenantUtils.updateTenantV2(tenant);
 				if (!tenantRes.getCheckerRes().isCanChange()) {
 					logger.error("Failed to update tenant due to exceeded parent tenant quota: "
 							+ tenantRes.getCheckerRes().getMessages());
@@ -897,12 +909,15 @@ public class TenantResource {
 				}
 			}
 
-			return Response.ok().entity(new TenantBean(tenant, "no dataFoundryInfo")).tag(tenant.getName()).build();
+			return Response.ok().entity(new TenantBeanV2(tenant, new HashMap<String, String>())).tag(tenant.getName())
+					.build();
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.error("updateTenant hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(tenant.getName()).build();
+			logger.info("{} : {} hit exception", "TenantResource", "updateTenant");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(tenant.getName()).build();
 		}
 	}
 
@@ -982,52 +997,25 @@ public class TenantResource {
 				return Response.status(Status.NOT_ACCEPTABLE).tag(tenantId)
 						.entity("The tenant can not be deleted, because it have users binding with it.").build();
 			}
-			int statusCode = -1;
+
 			try {
 				synchronized (TenantLockerPool.getInstance().getLocker(tenantId)) {
-					String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-					String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
-					String dfRestUrl = url + "/oapi/v1/projects/" + tenantId;
-
-					SSLConnectionSocketFactory sslsf = SSLSocketIgnoreCA.createSSLSocketFactory();
-
-					CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-					try {
-						HttpDelete httpDelete = new HttpDelete(dfRestUrl);
-						httpDelete.addHeader("Content-type", "application/json");
-						httpDelete.addHeader("Authorization", "bearer " + token);
-
-						logger.info("deleteTenant -> delete start");
-						CloseableHttpResponse response1 = httpclient.execute(httpDelete);
-
-						try {
-							Tenant tenant = TenantPersistenceWrapper.getTenantById(tenantId);
-
-							statusCode = response1.getStatusLine().getStatusCode();
-							if (statusCode == 200) {
-								TenantPersistenceWrapper.deleteTenant(tenantId);
-								logger.info("deleteTenant -> delete successfully");
-							}
-							String bodyStr = EntityUtils.toString(response1.getEntity());
-
-							return Response.ok().entity(new TenantBean(tenant, bodyStr)).tag(tenantId).build();
-						} finally {
-							response1.close();
-						}
-					} finally {
-						httpclient.close();
-					}
+					TenantResponseV2 tenantRes = TenantUtils.deleteTenantV2(tenantId);
+					return Response.ok().entity(tenantRes.getTenantBean()).tag(tenantId).build();
 				}
 			} finally {
-				if (statusCode == 200) {
+				// if the tenant is not in the cm, unregister
+				if (TenantPersistenceWrapper.getTenantById(tenantId) == null) {
 					TenantLockerPool.getInstance().unregister(getTenant(tenantId));
 				}
 			}
 
 		} catch (Exception e) {
 			// system out the exception into the console log
-			logger.error("deleteTenant hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(tenantId).build();
+			logger.info("{} : {} hit exception", "TenantResource", "deleteTenant");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(tenantId).build();
 		}
 	}
 

@@ -1,5 +1,7 @@
 package com.asiainfo.ocmanager.rest.resource.v2;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +24,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.ini4j.InvalidFileFormatException;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +41,20 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
-import com.asiainfo.ocmanager.rest.utils.DataFoundryConfiguration;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.asiainfo.ocmanager.service.client.etcdClient;
+import com.asiainfo.ocmanager.utils.OsClusterIni;
+import com.asiainfo.ocmanager.utils.ServicesIni;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonArray;
 
 /**
  *
@@ -91,11 +97,15 @@ public class BrokerResource {
 			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
 			String rsp = createsvc(svcreq);
 			// TODP: insert broker info into CM_BROKERS table
-			return Response.ok().entity(rsp).tag(dcName).build();
+			return Response.ok().entity(getSVCConfig()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(dcName).build();
 		}
+	}
+
+	private String getSVCConfig() {
+		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Service\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"clustermanager\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"labels\": {             \"app\": \"cm-broker\"         },         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9194792\",         \"selfLink\": \"\\/api\\/v1\\/namespaces\\/southbase\\/services\\/cm-broker\",         \"uid\": \"cb7f1b68-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"clusterIP\": \"172.25.247.231\",         \"ports\": [             {                 \"name\": \"9000-tcp\",                 \"port\": 9000,                 \"protocol\": \"TCP\",                 \"targetPort\": 9000             }         ],         \"selector\": {             \"app\": \"cm-broker\",             \"deploymentconfig\": \"cm-broker\"         },         \"sessionAffinity\": \"None\",         \"type\": \"ClusterIP\"     },     \"status\": {         \"loadBalancer\": {}     } } ";
 	}
 
 	@POST
@@ -109,11 +119,15 @@ public class BrokerResource {
 			String svcreq = DFTemplate.Create_Router.assembleString(svcname);
 			String rsp = createrouter(svcreq);
 			// TODP: insert broker info into CM_BROKERS table
-			return Response.ok().entity(rsp).tag(svcname).build();
+			return Response.ok().entity(getRouterConfig()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(svcname).build();
 		}
+	}
+
+	private String getRouterConfig() {
+		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Route\",     \"metadata\": {         \"creationTimestamp\": \"2018-06-05T02:35:50Z\",         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9195063\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/routes\\/cm-broker\",         \"uid\": \"28f36555-6869-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"host\": \"cm.southbase.prd.dataos.io\",         \"port\": {             \"targetPort\": \"9000-tcp\"         },         \"tls\": {             \"insecureEdgeTerminationPolicy\": \"Redirect\",             \"termination\": \"edge\"         },         \"to\": {             \"kind\": \"Service\",             \"name\": \"cm-broker\",             \"weight\": 50         },         \"wildcardPolicy\": \"None\"     },     \"status\": {         \"ingress\": [             {                 \"conditions\": [                     {                         \"lastTransitionTime\": \"2018-06-05T02:35:50Z\",                         \"status\": \"True\",                         \"type\": \"Admitted\"                     }                 ],                 \"host\": \"cm.southbase.prd.dataos.io\",                 \"routerName\": \"router\",                 \"wildcardPolicy\": \"None\"             }         ]     } } ";
 	}
 
 	private String createsvc(String svcreq) {
@@ -147,7 +161,7 @@ public class BrokerResource {
 	}
 
 	private String getDCConfig() {
-		return "{     \"apiVersion\": \"v1\",     \"kind\": \"DeploymentConfig\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"chaizs\",             \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"generation\": 3,         \"labels\": {             \"app\": \"cm-console\"         },         \"name\": \"cm-console\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9200111\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\",         \"uid\": \"cb8ea774-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"replicas\": 1,         \"selector\": {             \"app\": \"cm-console\",             \"deploymentconfig\": \"cm-console\"         },         \"strategy\": {             \"activeDeadlineSeconds\": 21600,             \"resources\": {},             \"rollingParams\": {                 \"intervalSeconds\": 1,                 \"maxSurge\": \"25%\",                 \"maxUnavailable\": \"25%\",                 \"timeoutSeconds\": 600,                 \"updatePeriodSeconds\": 1             },             \"type\": \"Rolling\"         },         \"template\": {             \"metadata\": {                 \"annotations\": {                     \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"                 },                 \"creationTimestamp\": null,                 \"labels\": {                     \"app\": \"cm-console\",                     \"deploymentconfig\": \"cm-console\"                 }             },             \"spec\": {                 \"containers\": [                     {                         \"env\": [                             {                                 \"name\": \"ADAPTER_API_SERVER\",                                 \"value\": \"http:\\/\\/10.1.236.60:9090\"                             },                             {                                 \"name\": \"SVCAMOUNT_API_SERVER\",                                 \"value\": \"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\"                             }                         ],                         \"image\": \"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\",                         \"imagePullPolicy\": \"IfNotPresent\",                         \"name\": \"cm-console\",                         \"ports\": [                             {                                 \"containerPort\": 9000,                                 \"protocol\": \"TCP\"                             }                         ],                         \"resources\": {},                         \"terminationMessagePath\": \"\\/dev\\/termination-log\",                         \"terminationMessagePolicy\": \"File\"                     }                 ],                 \"dnsPolicy\": \"ClusterFirst\",                 \"restartPolicy\": \"Always\",                 \"schedulerName\": \"default-scheduler\",                 \"securityContext\": {},                 \"terminationGracePeriodSeconds\": 30             }         },         \"test\": false,         \"triggers\": [             {                 \"type\": \"ConfigChange\"             }         ]     },     \"status\": {         \"availableReplicas\": 1,         \"conditions\": [             {                 \"lastTransitionTime\": \"2018-06-05T02:34:59Z\",                 \"lastUpdateTime\": \"2018-06-05T02:34:59Z\",                 \"message\": \"Deployment config has minimum availability.\",                 \"status\": \"True\",                 \"type\": \"Available\"             },             {                 \"lastTransitionTime\": \"2018-06-05T03:28:27Z\",                 \"lastUpdateTime\": \"2018-06-05T03:28:29Z\",                 \"message\": \"replication controller \\\"cm-console-2\\\" successfully rolled out\",                 \"reason\": \"NewReplicationControllerAvailable\",                 \"status\": \"True\",                 \"type\": \"Progressing\"             }         ],         \"details\": {             \"causes\": [                 {                     \"type\": \"ConfigChange\"                 }             ],             \"message\": \"config change\"         },         \"latestVersion\": 2,         \"observedGeneration\": 3,         \"readyReplicas\": 1,         \"replicas\": 1,         \"unavailableReplicas\": 0,         \"updatedReplicas\": 1     } } ";
+		return "{     \"apiVersion\": \"v1\",     \"kind\": \"DeploymentConfig\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"chaizs\",             \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"generation\": 3,         \"labels\": {             \"app\": \"cm-console\"         },         \"name\": \"cm-console\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9200111\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\",         \"uid\": \"cb8ea774-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"replicas\": 1,         \"selector\": {             \"app\": \"cm-console\",             \"deploymentconfig\": \"cm-console\"         },         \"strategy\": {             \"activeDeadlineSeconds\": 21600,             \"resources\": {},             \"rollingParams\": {                 \"intervalSeconds\": 1,                 \"maxSurge\": \"25%\",                 \"maxUnavailable\": \"25%\",                 \"timeoutSeconds\": 600,                 \"updatePeriodSeconds\": 1             },             \"type\": \"Rolling\"         },         \"template\": {             \"metadata\": {                 \"annotations\": {                     \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"                 },                 \"creationTimestamp\": null,                 \"labels\": {                     \"app\": \"cm-console\",                     \"deploymentconfig\": \"cm-console\"                 }             },             \"spec\": {                 \"containers\": [                     {                         \"env\": [                             {                                 \"name\": \"ADAPTER_API_SERVER\",                                 \"value\": \"http:\\/\\/10.1.236.60:9090\"                             },                             {                                 \"name\": \"SVCAMOUNT_API_SERVER\",                                 \"value\": \"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\"                             }                         ],                         \"image\": \"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\",                         \"imagePullPolicy\": \"IfNotPresent\",                         \"name\": \"cm-console\",                         \"ports\": [                             {                                 \"containerPort\": 9000,                                 \"protocol\": \"TCP\"                             }                         ],                         \"resources\": {},                         \"terminationMessagePath\": \"\\/dev\\/termination-log\",                         \"terminationMessagePolicy\": \"File\"                     }                 ],                 \"dnsPolicy\": \"ClusterFirst\",                 \"restartPolicy\": \"Always\",                 \"schedulerName\": \"default-scheduler\",                 \"securityContext\": {},                 \"terminationGracePeriodSeconds\": 30             }         },         \"test\": false,         \"triggers\": [             {                 \"type\": \"ConfigChange\"             }         ]     },     \"status\": {         \"availableReplicas\": 1,         \"conditions\": [             {                 \"lastTransitionTime\": \"2018-06-05T02:34:59Z\",                 \"lastUpdateTime\": \"2018-06-05T02:34:59Z\",                 \"message\": \"Deployment config has minimum availability.\",                 \"status\": \"True\",                 \"type\": \"Available\"             },             {                 \"lastTransitionTime\": \"2018-06-05T03:28:27Z\",                 \"lastUpdateTime\": \"2018-06-05T03:28:29Z\",                 \"message\": \"replication controller \"cm-console-2\" successfully rolled out\",                 \"reason\": \"NewReplicationControllerAvailable\",                 \"status\": \"True\",                 \"type\": \"Progressing\"             }         ],         \"details\": {             \"causes\": [                 {                     \"type\": \"ConfigChange\"                 }             ],             \"message\": \"config change\"         },         \"latestVersion\": 2,         \"observedGeneration\": 3,         \"readyReplicas\": 1,         \"replicas\": 1,         \"unavailableReplicas\": 0,         \"updatedReplicas\": 1     } } ";
 	}
 
 	/**
@@ -228,8 +242,8 @@ public class BrokerResource {
 						.tag(brokerIP).build();
 			}
 
-			String url = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_URL);
-			String token = DataFoundryConfiguration.getDFProperties().get(Constant.DATAFOUNDRY_TOKEN);
+			String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
+			String token = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_TOKEN);
 			String dfRestUrl = url + "/oapi/v1/servicebrokers";
 
 			// parse the req body make sure it is json
@@ -356,13 +370,59 @@ public class BrokerResource {
 		// }
 	}
 	@POST
-	@Path("/broker/{name}")
+	@Path("/broker/catalog/{name}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.DELETE, targetType = TargetType.BROKER)
-	public Response initEtcd (@PathParam("name") String serviceBrokerName,
-			@Context HttpServletRequest request) {
-		etcdClient etcd_client = etcdClient.getInstance();
-		return Response.ok().entity("the function of init ETCD hangs in the air.").tag(serviceBrokerName).build();
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	public Response initEtcd (@PathParam("name") String serviceBrokerName) {
+		//get file path
+		File inFile = null;
+		String path = null;
+		try {
+			String base = ServicesIni.class.getResource("/").getPath() + ".." + File.separator;
+			path = base + "conf" + File.separator + "initEtcd.json";
+			inFile = new File(path);
+			if (!inFile.exists()) {
+				logger.error("File not found: " + path);
+				throw new RuntimeException("File not found: " + path);
+			}
+		} catch(Exception e) {
+			logger.error("fail to get file path", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
+		}
+		//get jsonArray from file
+		JsonArray actionList = null;
+		try {
+			String input = FileUtils.readFileToString(inFile, "UTF-8");
+			JsonElement jsoninfile = new JsonParser().parse(input);
+			actionList = jsoninfile.getAsJsonArray();
+		} catch (Exception e) {
+			logger.error("fail to get jsonArray from file: " + path, e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
+		}
+		//init etcd client
+		try {
+			etcdClient etcd_client = etcdClient.getInstance();
+			etcd_client.check(serviceBrokerName);
+			if (actionList != null) {
+				for (int actionNum = 0; actionNum < actionList.size(); actionNum++) {
+					JsonObject action = actionList.get(actionNum).getAsJsonObject();
+					switch (action.get("action").getAsString()) {
+					case "createDir" :
+						etcd_client.createDir(action.get("key").getAsString(), serviceBrokerName);
+						break;
+					case "write" :
+						etcd_client.write(action.get("key").getAsString(), action.get("value").getAsString(), serviceBrokerName);
+						break;
+					default :
+						logger.error("error action when init etcd");
+						throw new RuntimeException("unexpect action : " + action);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("fail to init etcd", e);
+			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
+		}
+		return Response.ok().entity(actionList.getAsString()).tag(serviceBrokerName).build();
 	}
-
 }

@@ -23,7 +23,7 @@ import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.utils.PeekerUtils;
 import com.asiainfo.ocmanager.service.broker.ResourcePeeker;
 import com.asiainfo.ocmanager.service.broker.utils.ResourcePeekerFactory;
-
+@Deprecated
 @Path("/v1/api/quota")
 public class QuotaResource {
 	private static final Logger LOG = LoggerFactory.getLogger(QuotaResource.class);

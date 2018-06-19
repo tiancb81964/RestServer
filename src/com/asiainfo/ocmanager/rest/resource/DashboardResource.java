@@ -26,7 +26,7 @@ import com.asiainfo.ocmanager.rest.resource.persistence.DashboardPersistenceWrap
  * @author zhaoyim
  *
  */
-
+@Deprecated
 @Path("/v1/api/dashboard")
 public class DashboardResource {
 

@@ -18,7 +18,7 @@ public class DateTimeUtil {
 
 	public static String formatDateTime(String inDateTime) {
 
-		if (inDateTime.equals("") || inDateTime == null) {
+		if (inDateTime == null || inDateTime.equals("")) {
 			LOG.debug("DateTimeUtil inDateTime is empty return directly.");
 			return null;
 		}
@@ -26,13 +26,18 @@ public class DateTimeUtil {
 		SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		try {
-			inDateTime = inDateTime.replace("Z", " UTC");
-			SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
-			Date outDateTime = inFormat.parse(inDateTime);
-			return outFormat.format(outDateTime);
+			if (inDateTime.endsWith("Z")) {
+				inDateTime = inDateTime.replace("Z", " UTC");
+				SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+				Date outDateTime = inFormat.parse(inDateTime);
+				return outFormat.format(outDateTime);
+			} else {
+				return inDateTime;
+			}
+
 		} catch (ParseException e) {
 			LOG.debug("DateTimeUtil hit exception {}.", e);
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		LOG.debug("DateTimeUtil set outDateTime to null.");
 		return null;

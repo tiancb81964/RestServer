@@ -94,4 +94,11 @@ public class Constant {
 	/*****************************************************************/
 	public static final String PRD_SSO_VALIDATE_URL = "prd.sso.validate.url";
 
+	/*****************************************************************/
+	/****************** ini and properties const *********************/
+	/*****************************************************************/
+	public static final String SERVICE_CLUSTER = "service_cluster";
+	public static final String OS_URL = "os.url";
+	public static final String OS_TOKEN = "os.token";
+
 }

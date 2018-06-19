@@ -7,6 +7,7 @@ import com.asiainfo.ocmanager.persistence.model.Tenant;
  * @author zhaoyim
  *
  */
+@Deprecated
 public class TenantBean {
 
 	private Tenant databaseInfo;
