@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.asiainfo.ocmanager.rest.bean.ClusterBean;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,11 +41,14 @@ public class ClusterResource {
 			//TODO:
 			List<ClusterBean> clusters = Lists.newArrayList();
 			Map<String, String> map = Maps.newHashMap();
-			map.put("ENV_ALPHA", "VALUE");
-			map.put("ENV_BETA", "VALUE");
-			clusters.add(new ClusterBean("1", "cluster_alpha", "hadoop", "http://10.1.236.111:8080", "admin", map));
-			map.put("ENV_XYZ", "VALUE");
-			clusters.add(new ClusterBean("2", "cluster_beta", "gbase", "http://10.1.236.111:8080", "admin", map));
+			CustomEvnBean bean = new CustomEvnBean();
+			bean.setKey("RANGER_URL");
+			bean.setDescription("http ranger url");
+			CustomEvnBean bean1 = new CustomEvnBean();
+			bean1.setKey("RANGER_URL");
+			bean1.setDescription("http ranger url");
+			clusters.add(new ClusterBean("1", "cluster_alpha", "hadoop", "http://10.1.236.111:8080", "admin", Lists.newArrayList(bean, bean1)));
+			clusters.add(new ClusterBean("2", "cluster_beta", "gbase", "http://10.1.236.111:8080", "admin", Lists.newArrayList(bean, bean1)));
 			return Response.ok().entity(clusters).build();
 		} catch (Exception e) {
 			// system out the exception into the console log

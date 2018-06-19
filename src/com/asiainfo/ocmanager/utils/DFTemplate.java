@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -14,7 +13,7 @@ import javax.json.JsonArrayBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 
 /**
  * DF request template
@@ -28,14 +27,14 @@ public class DFTemplate {
 
 	public static class Create_DC {
 		private static String template = parseTemplate("create-dc.json");
-		private static final String ID_POSTFIX = "${id}";
+		private static final String ID = "${id}";
 		private static final String IMAGE_URL = "${image-url}";
 		private static final String ENV_LIST = "\"${env_list}\"";
 
-		public static String assembleString(BrokerInterface adapter) {
+		public static String assembleString(BrokerAdapterInterface adapter) {
 			String image = adapter.getImage();
 			String str = template.replace(IMAGE_URL, image);
-			str = str.replace(ID_POSTFIX, adapter.getCluster().getCluster_name() + UUID.randomUUID().toString());
+			str = str.replace(ID, adapter.getCluster().getCluster_name().toLowerCase());
 			str = str.replace(ENV_LIST, envToJson(adapter.getEnv()));
 			return str;
 		}
@@ -43,11 +42,11 @@ public class DFTemplate {
 
 	public static class Create_SVC {
 		private static String template = parseTemplate("create-svc.json");
-		private static final String ID_POSTFIX = "${id}";
+		private static final String ID = "${id}";
 		private static final String DC_NAME = "${cm-dc-name}";
 
 		public static String assembleString(String dcName) {
-			String str = template.replace(ID_POSTFIX, UUID.randomUUID().toString());
+			String str = template.replace(ID, dcName);
 			str = str.replace(DC_NAME, dcName);
 			return str;
 		}
@@ -55,14 +54,15 @@ public class DFTemplate {
 
 	public static class Create_Router {
 		private static String template = parseTemplate("create-router.json");
-		private static final String ID_POSTFIX = "${id}";
+		private static final String ID = "${id}";
 		private static final String SVC_NAME = "${cm-svc-name}";
-		private static final String URI_PREFIX = "${cm-router-prefix}";
+		private static final String ROUTER_HOST = "${cm-router-prefix}";
+		public static final String HOST_POSTFIX = ".cm.prd.dataos.io";
 
 		public static String assembleString(String svcName) {
-			String str = template.replace(ID_POSTFIX, UUID.randomUUID().toString());
+			String str = template.replace(ID, svcName);
 			str = str.replace(SVC_NAME, svcName);
-			str = str.replace(URI_PREFIX, UUID.randomUUID().toString());
+			str = str.replace(ROUTER_HOST, svcName + HOST_POSTFIX);
 			return str;
 		}
 	}
@@ -79,7 +79,7 @@ public class DFTemplate {
 		private JsonArrayBuilder sb = Json.createArrayBuilder();
 
 		public JsonArray add(String key, String value) {
-			sb.add(Json.createObjectBuilder().add(key, value));
+			sb.add(Json.createObjectBuilder().add("name", key).add("value", value));
 			return this;
 		}
 

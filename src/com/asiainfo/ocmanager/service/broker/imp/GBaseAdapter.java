@@ -1,13 +1,23 @@
 package com.asiainfo.ocmanager.service.broker.imp;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.asiainfo.ocmanager.persistence.model.Cluster;
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.utils.BrokersIni;
 
-public class GBaseAdapter implements BrokerInterface {
+public class GBaseAdapter implements BrokerAdapterInterface {
+
+	public GBaseAdapter(Cluster cluster, List<CustomEvnBean> customEnvs) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public GBaseAdapter() {
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public String getType() {
@@ -29,6 +39,12 @@ public class GBaseAdapter implements BrokerInterface {
 
 	@Override
 	public Cluster getCluster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<CustomEvnBean> customEnvs() {
 		// TODO Auto-generated method stub
 		return null;
 	}

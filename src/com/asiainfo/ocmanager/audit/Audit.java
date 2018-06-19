@@ -35,7 +35,7 @@ public @interface Audit {
 	 *
 	 */
 	public static enum Action {
-		GET, CREATE, UPDATE, DELETE, LOGIN, LOGOUT, ASSIGN, REGISTER, INSTANTIATE, UNASSIGN
+		GET, CREATE, UPDATE, DELETE, LOGIN, LOGOUT, ASSIGN, REGISTER, INSTANTIATE, UNASSIGN, ACCEPT, DEPLOY, START, COMPLETE
 	}
 
 	/**
@@ -114,6 +114,14 @@ public @interface Audit {
 		 */
 		BROKER_DC,
 		/**
+		 * service BROKER_SVC
+		 */
+		BROKER_SVC,
+		/**
+		 * service BROKER_ROUTER
+		 */
+		BROKER_ROUTER,
+		/**
 		 * keytab
 		 */
 		KEYTAB,
@@ -140,6 +148,34 @@ public @interface Audit {
 		/**
 		 * tool instances
 		 */
-		TOOLS
+		TOOLS,
+		/**
+		 * apply Bill
+		 */
+		APPLY_BILL,
+		/**
+		 * apply Bills
+		 */
+		APPLY_BILLS,
+		/**
+		 * task
+		 */
+		TASK,
+		/**
+		 * tasks
+		 */
+		TASKS,
+		/**
+		 * process
+		 */
+		PROCESS,
+		/**
+		 * processes
+		 */
+		PROCESSES,
+		/**
+		 * clusters
+		 */
+		CLUSTERS
 	}
 }

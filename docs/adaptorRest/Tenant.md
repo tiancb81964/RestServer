@@ -1,4 +1,4 @@
-## CM Instance REST APIs
+## CM Tenant REST APIs
 
 __NOTE: All the rest request should set__ _Accept: application/json_ __and__ _Content-Type: application/json_
 
@@ -13,8 +13,9 @@ __request body:__
     "id": "zhaoyim9998877",
     "name": "zhaoyim9998877",
     "description": "test00001",
+    "dueTime": "2018-10-10",
     "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-"quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}"
+    "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}"
 }
 ```
 
@@ -22,8 +23,9 @@ __response:__
 ```
 {
   "cmInfo": {
-    "createTime": "2018-06-14 14:53:20.0",
+    "createTime": "2018-06-15 16:37:09.0",
     "description": "test00001",
+    "dueTime": "2018-10-10 00:00:00.0",
     "id": "zhaoyim9998877",
     "level": 0,
     "name": "zhaoyim9998877",
@@ -32,8 +34,8 @@ __response:__
     "status": "active"
   },
   "osClustersInfo": {
-    "application_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"project \\\"zhaoyim9998877\\\" already exists\",\"reason\":\"AlreadyExists\",\"details\":{\"name\":\"zhaoyim9998877\",\"kind\":\"project\"},\"code\":409}\n",
-    "service_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"project \\\"zhaoyim9998877\\\" already exists\",\"reason\":\"AlreadyExists\",\"details\":{\"name\":\"zhaoyim9998877\",\"kind\":\"project\"},\"code\":409}\n"
+    "application_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zhaoyim9998877\",\"selfLink\":\"/oapi/v1/projectrequests/zhaoyim9998877\",\"uid\":\"0003caaf-7075-11e8-b5f1-fa163ef134de\",\"resourceVersion\":\"10408673\",\"creationTimestamp\":\"2018-06-15T08:20:44Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"zhaoyim9998877\",\"openshift.io/requester\":\"system:serviceaccount:default:cm-cluster-admin\",\"openshift.io/sa.scc.mcs\":\"s0:c20,c0\",\"openshift.io/sa.scc.supplemental-groups\":\"1000380000/10000\",\"openshift.io/sa.scc.uid-range\":\"1000380000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
+    "service_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zhaoyim9998877\",\"selfLink\":\"/oapi/v1/projectrequests/zhaoyim9998877\",\"uid\":\"feacbc2f-7075-11e8-ac16-fa163e4dfe45\",\"resourceVersion\":\"1237868\",\"creationTimestamp\":\"2018-06-15T08:27:52Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"zhaoyim9998877\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c65,c50\",\"openshift.io/sa.scc.supplemental-groups\":\"1004260000/10000\",\"openshift.io/sa.scc.uid-range\":\"1004260000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n"
   }
 }
 ```
@@ -138,7 +140,7 @@ __response:__
 
 6. 获取指定租户的所有子租户
 ```
-GET /ocmanager/v2/api/tenant/{id}/children
+GET /ocmanager/v2/api/tenant/{tenantId}/children
 ```
 
 __response:__
@@ -170,6 +172,17 @@ __response:__
 ```
 
 
+7. 获取当前租户可以访问的集群列表（是当前租户父租户的子集）
+```
+GET /ocmanager/v2/api/tenant/{tenantId}/access/clusters
+```
+
+__response:__
+```
+{
+  "accessedCluster": ["etcd-34", "cluster61", "cluster2"]
+}
+```
 
 
 

@@ -36,14 +36,16 @@ import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Broker;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.persistence.BrokerPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.service.broker.BrokerInterface;
-import com.asiainfo.ocmanager.service.broker.utils.BrokerUtils;
+import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
+import com.asiainfo.ocmanager.service.broker.utils.BrokerAdaptorUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.asiainfo.ocmanager.service.client.etcdClient;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
@@ -51,6 +53,7 @@ import com.asiainfo.ocmanager.utils.ServicesIni;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -69,34 +72,64 @@ public class BrokerResource {
 	@POST
 	@Path("/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
-	public Response createBrokerDC(@Context HttpServletRequest request) {
-		String clustername = request.getParameter("clustername");
-		Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_DC)
+	public Response createBrokerDC(String requestBody, @Context HttpServletRequest request) {
+		String clustername = null;
 		try {
+			List<CustomEvnBean> cusEnvs = customEnvs(requestBody);
+			Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
+			clustername = request.getParameter("clustername");
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
-			BrokerInterface adapter = BrokerUtils.getAdapter(cluster);
+			BrokerAdapterInterface adapter = BrokerAdaptorUtils.getAdapter(cluster, cusEnvs);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
-			String rsp = createdc(dcreq);
-			// TODP: insert broker info into CM_BROKERS table
-			return Response.ok().entity(rsp).tag(clustername).build();
+			CloseableHttpResponse rsp = createdc(dcreq);
+			if (success(rsp)) {
+				String clusterName = adapter.getCluster().getCluster_name().toLowerCase();
+				BrokerPersistenceWrapper.insert(new Broker(clusterName, adapter.getImage(), clusterName, clusterName));
+				return Response.ok().entity(rsp).tag(clustername).build();
+			}
+			logger.error("Response failed: " + rsp.getStatusLine().getStatusCode());
+			return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(clustername)
+					.build();
 		} catch (Exception e) {
 			logger.error("createBrokerDC hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
 		}
 	}
 
+	private boolean success(CloseableHttpResponse rsp) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	private List<CustomEvnBean> customEnvs(String requestBody) {
+		JsonObject json = new JsonParser().parse(requestBody).getAsJsonObject();
+		JsonArray kvs = json.getAsJsonArray("env");
+		List<CustomEvnBean> list = Lists.newArrayList();
+		kvs.forEach(kv -> {
+			JsonObject obj = kv.getAsJsonObject();
+			CustomEvnBean bean = new CustomEvnBean(obj.getAsJsonPrimitive("key").getAsString(),
+					obj.getAsJsonPrimitive("value").getAsString(), obj.getAsJsonPrimitive("description").getAsString());
+			list.add(bean);
+		});
+		return list;
+	}
+
 	@POST
 	@Path("/svc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_SVC)
 	public Response createBrokerSVC(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("dcname");
 		Preconditions.checkArgument(Strings.isNullOrEmpty(dcName));
 		try {
 			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
-			String rsp = createsvc(svcreq);
-			// TODP: insert broker info into CM_BROKERS table
+			CloseableHttpResponse rsp = createsvc(svcreq);
+			if (!success(rsp)) {
+				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
+				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(dcName)
+						.build();
+			}
 			return Response.ok().entity(getSVCConfig()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
@@ -111,14 +144,19 @@ public class BrokerResource {
 	@POST
 	@Path("/router")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_ROUTER)
 	public Response createBrokerRouter(@Context HttpServletRequest request) {
 		String svcname = request.getParameter("svcname");
 		Preconditions.checkArgument(Strings.isNullOrEmpty(svcname));
 		try {
 			String svcreq = DFTemplate.Create_Router.assembleString(svcname);
-			String rsp = createrouter(svcreq);
-			// TODP: insert broker info into CM_BROKERS table
+			CloseableHttpResponse rsp = createrouter(svcreq);
+			if (!success(rsp)) {
+				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
+				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(svcreq)
+						.build();
+			}
+			BrokerPersistenceWrapper.updateURL(brokerName(svcname), svcname + DFTemplate.Create_Router.HOST_POSTFIX);
 			return Response.ok().entity(getRouterConfig()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
@@ -126,23 +164,27 @@ public class BrokerResource {
 		}
 	}
 
+	private String brokerName(String svcname) {
+		return svcname;
+	}
+
 	private String getRouterConfig() {
 		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Route\",     \"metadata\": {         \"creationTimestamp\": \"2018-06-05T02:35:50Z\",         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9195063\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/routes\\/cm-broker\",         \"uid\": \"28f36555-6869-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"host\": \"cm.southbase.prd.dataos.io\",         \"port\": {             \"targetPort\": \"9000-tcp\"         },         \"tls\": {             \"insecureEdgeTerminationPolicy\": \"Redirect\",             \"termination\": \"edge\"         },         \"to\": {             \"kind\": \"Service\",             \"name\": \"cm-broker\",             \"weight\": 50         },         \"wildcardPolicy\": \"None\"     },     \"status\": {         \"ingress\": [             {                 \"conditions\": [                     {                         \"lastTransitionTime\": \"2018-06-05T02:35:50Z\",                         \"status\": \"True\",                         \"type\": \"Admitted\"                     }                 ],                 \"host\": \"cm.southbase.prd.dataos.io\",                 \"routerName\": \"router\",                 \"wildcardPolicy\": \"None\"             }         ]     } } ";
 	}
 
-	private String createsvc(String svcreq) {
+	private CloseableHttpResponse createsvc(String svcreq) {
 		// TODO Auto-generated method stub
-		return "svc_name_987654321";
+		return null;
 	}
 
-	private String createdc(String dcreq) {
+	private CloseableHttpResponse createdc(String dcreq) {
 		// TODO Auto-generated method stub
-		return "dc_name_123456789";
+		return null;
 	}
 
-	private String createrouter(String reqBody) {
+	private CloseableHttpResponse createrouter(String reqBody) {
 		// TODO Auto-generated method stub
-		return "rsp";
+		return null;
 	}
 
 	/**
@@ -161,7 +203,7 @@ public class BrokerResource {
 	}
 
 	private String getDCConfig() {
-		return "{     \"apiVersion\": \"v1\",     \"kind\": \"DeploymentConfig\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"chaizs\",             \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"generation\": 3,         \"labels\": {             \"app\": \"cm-console\"         },         \"name\": \"cm-console\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9200111\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\",         \"uid\": \"cb8ea774-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"replicas\": 1,         \"selector\": {             \"app\": \"cm-console\",             \"deploymentconfig\": \"cm-console\"         },         \"strategy\": {             \"activeDeadlineSeconds\": 21600,             \"resources\": {},             \"rollingParams\": {                 \"intervalSeconds\": 1,                 \"maxSurge\": \"25%\",                 \"maxUnavailable\": \"25%\",                 \"timeoutSeconds\": 600,                 \"updatePeriodSeconds\": 1             },             \"type\": \"Rolling\"         },         \"template\": {             \"metadata\": {                 \"annotations\": {                     \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"                 },                 \"creationTimestamp\": null,                 \"labels\": {                     \"app\": \"cm-console\",                     \"deploymentconfig\": \"cm-console\"                 }             },             \"spec\": {                 \"containers\": [                     {                         \"env\": [                             {                                 \"name\": \"ADAPTER_API_SERVER\",                                 \"value\": \"http:\\/\\/10.1.236.60:9090\"                             },                             {                                 \"name\": \"SVCAMOUNT_API_SERVER\",                                 \"value\": \"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\"                             }                         ],                         \"image\": \"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\",                         \"imagePullPolicy\": \"IfNotPresent\",                         \"name\": \"cm-console\",                         \"ports\": [                             {                                 \"containerPort\": 9000,                                 \"protocol\": \"TCP\"                             }                         ],                         \"resources\": {},                         \"terminationMessagePath\": \"\\/dev\\/termination-log\",                         \"terminationMessagePolicy\": \"File\"                     }                 ],                 \"dnsPolicy\": \"ClusterFirst\",                 \"restartPolicy\": \"Always\",                 \"schedulerName\": \"default-scheduler\",                 \"securityContext\": {},                 \"terminationGracePeriodSeconds\": 30             }         },         \"test\": false,         \"triggers\": [             {                 \"type\": \"ConfigChange\"             }         ]     },     \"status\": {         \"availableReplicas\": 1,         \"conditions\": [             {                 \"lastTransitionTime\": \"2018-06-05T02:34:59Z\",                 \"lastUpdateTime\": \"2018-06-05T02:34:59Z\",                 \"message\": \"Deployment config has minimum availability.\",                 \"status\": \"True\",                 \"type\": \"Available\"             },             {                 \"lastTransitionTime\": \"2018-06-05T03:28:27Z\",                 \"lastUpdateTime\": \"2018-06-05T03:28:29Z\",                 \"message\": \"replication controller \"cm-console-2\" successfully rolled out\",                 \"reason\": \"NewReplicationControllerAvailable\",                 \"status\": \"True\",                 \"type\": \"Progressing\"             }         ],         \"details\": {             \"causes\": [                 {                     \"type\": \"ConfigChange\"                 }             ],             \"message\": \"config change\"         },         \"latestVersion\": 2,         \"observedGeneration\": 3,         \"readyReplicas\": 1,         \"replicas\": 1,         \"unavailableReplicas\": 0,         \"updatedReplicas\": 1     } } ";
+		return "{     \"apiVersion\": \"v1\",     \"kind\": \"DeploymentConfig\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"chaizs\",             \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"generation\": 3,         \"labels\": {             \"app\": \"cm-console\"         },         \"name\": \"cm-console\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9200111\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\",         \"uid\": \"cb8ea774-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"replicas\": 1,         \"selector\": {             \"app\": \"cm-console\",             \"deploymentconfig\": \"cm-console\"         },         \"strategy\": {             \"activeDeadlineSeconds\": 21600,             \"resources\": {},             \"rollingParams\": {                 \"intervalSeconds\": 1,                 \"maxSurge\": \"25%\",                 \"maxUnavailable\": \"25%\",                 \"timeoutSeconds\": 600,                 \"updatePeriodSeconds\": 1             },             \"type\": \"Rolling\"         },         \"template\": {             \"metadata\": {                 \"annotations\": {                     \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"                 },                 \"creationTimestamp\": null,                 \"labels\": {                     \"app\": \"cm-console\",                     \"deploymentconfig\": \"cm-console\"                 }             },             \"spec\": {                 \"containers\": [                     {                         \"env\": [                             {                                 \"name\": \"ADAPTER_API_SERVER\",                                 \"value\": \"http:\\/\\/10.1.236.60:9090\"                             },                             {                                 \"name\": \"SVCAMOUNT_API_SERVER\",                                 \"value\": \"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\"                             }                         ],                         \"image\": \"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\",                         \"imagePullPolicy\": \"IfNotPresent\",                         \"name\": \"cm-console\",                         \"ports\": [                             {                                 \"containerPort\": 9000,                                 \"protocol\": \"TCP\"                             }                         ],                         \"resources\": {},                         \"terminationMessagePath\": \"\\/dev\\/termination-log\",                         \"terminationMessagePolicy\": \"File\"                     }                 ],                 \"dnsPolicy\": \"ClusterFirst\",                 \"restartPolicy\": \"Always\",                 \"schedulerName\": \"default-scheduler\",                 \"securityContext\": {},                 \"terminationGracePeriodSeconds\": 30             }         },         \"test\": false,         \"triggers\": [             {                 \"type\": \"ConfigChange\"             }         ]     },     \"status\": {         \"availableReplicas\": 1,         \"conditions\": [             {                 \"lastTransitionTime\": \"2018-06-05T02:34:59Z\",                 \"lastUpdateTime\": \"2018-06-05T02:34:59Z\",                 \"message\": \"Deployment config has minimum availability.\",                 \"status\": \"True\",                 \"type\": \"Available\"             },             {                 \"lastTransitionTime\": \"2018-06-05T03:28:27Z\",                 \"lastUpdateTime\": \"2018-06-05T03:28:29Z\",                 \"message\": \"replication controller \'cm-console-2\' successfully rolled out\",                 \"reason\": \"NewReplicationControllerAvailable\",                 \"status\": \"True\",                 \"type\": \"Progressing\"             }         ],         \"details\": {             \"causes\": [                 {                     \"type\": \"ConfigChange\"                 }             ],             \"message\": \"config change\"         },         \"latestVersion\": 2,         \"observedGeneration\": 3,         \"readyReplicas\": 1,         \"replicas\": 1,         \"unavailableReplicas\": 0,         \"updatedReplicas\": 1     } } ";
 	}
 
 	/**
@@ -181,7 +223,7 @@ public class BrokerResource {
 
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.UPDATE, targetType = TargetType.BROKER_DC)
+	@Audit(action = Action.GET, targetType = TargetType.BROKER)
 	public Response getBrokers(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("clustername");
 		// TODO:
@@ -285,8 +327,7 @@ public class BrokerResource {
 	private String extractIP(String reqBodyStr) {
 		JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
 		JsonObject spec = reqBodyJson.getAsJsonObject().getAsJsonObject("spec");
-		JsonObject url = spec.getAsJsonObject("url");
-		return url.getAsString();
+		return spec.get("url").getAsString();
 	}
 
 	/**
