@@ -12,6 +12,7 @@
           U.email as "userEmail",
           U.password as "userPassword",
           U.phone as "userPhone",
+          U.createTime as "userCreateTime",
 		  R.id as "roleId",
 		  R.rolename as "roleName",
 		  TUR.tenant_id as "tenantId"

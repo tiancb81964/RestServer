@@ -10,12 +10,13 @@ POST /ocmanager/v2/api/tenant
 __request body:__
 ```
 {
-    "id": "zhaoyim9998877",
-    "name": "zhaoyim9998877",
-    "description": "test00001",
+    "id": "zzz002",
+    "name": "zzz002",
+    "description": "zzz002",
     "dueTime": "2018-10-10",
     "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-    "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}"
+    "clusters": "cluster61, cluster2",
+    "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}"
 }
 ```
 
@@ -23,19 +24,20 @@ __response:__
 ```
 {
   "cmInfo": {
-    "createTime": "2018-06-15 16:37:09.0",
-    "description": "test00001",
+    "clusters": "cluster61, cluster2",
+    "createTime": "2018-06-19 18:07:12.0",
+    "description": "zzz002",
     "dueTime": "2018-10-10 00:00:00.0",
-    "id": "zhaoyim9998877",
+    "id": "zzz002",
     "level": 0,
-    "name": "zhaoyim9998877",
+    "name": "zzz002",
     "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-    "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}",
+    "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}",
     "status": "active"
   },
   "osClustersInfo": {
-    "application_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zhaoyim9998877\",\"selfLink\":\"/oapi/v1/projectrequests/zhaoyim9998877\",\"uid\":\"0003caaf-7075-11e8-b5f1-fa163ef134de\",\"resourceVersion\":\"10408673\",\"creationTimestamp\":\"2018-06-15T08:20:44Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"zhaoyim9998877\",\"openshift.io/requester\":\"system:serviceaccount:default:cm-cluster-admin\",\"openshift.io/sa.scc.mcs\":\"s0:c20,c0\",\"openshift.io/sa.scc.supplemental-groups\":\"1000380000/10000\",\"openshift.io/sa.scc.uid-range\":\"1000380000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
-    "service_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zhaoyim9998877\",\"selfLink\":\"/oapi/v1/projectrequests/zhaoyim9998877\",\"uid\":\"feacbc2f-7075-11e8-ac16-fa163e4dfe45\",\"resourceVersion\":\"1237868\",\"creationTimestamp\":\"2018-06-15T08:27:52Z\",\"annotations\":{\"openshift.io/description\":\"test00001\",\"openshift.io/display-name\":\"zhaoyim9998877\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c65,c50\",\"openshift.io/sa.scc.supplemental-groups\":\"1004260000/10000\",\"openshift.io/sa.scc.uid-range\":\"1004260000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n"
+    "application_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zzz002\",\"selfLink\":\"/oapi/v1/projectrequests/zzz002\",\"uid\":\"3eb8daf4-73a6-11e8-b920-fa163ef134de\",\"resourceVersion\":\"10817211\",\"creationTimestamp\":\"2018-06-19T09:50:48Z\",\"annotations\":{\"openshift.io/description\":\"zzz002\",\"openshift.io/display-name\":\"zzz002\",\"openshift.io/requester\":\"system:serviceaccount:default:cm-cluster-admin\",\"openshift.io/sa.scc.mcs\":\"s0:c22,c9\",\"openshift.io/sa.scc.supplemental-groups\":\"1000480000/10000\",\"openshift.io/sa.scc.uid-range\":\"1000480000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n",
+    "service_cluster": "{\"kind\":\"Project\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"zzz002\",\"selfLink\":\"/oapi/v1/projectrequests/zzz002\",\"uid\":\"3d398b2e-73a7-11e8-ac16-fa163e4dfe45\",\"resourceVersion\":\"1275245\",\"creationTimestamp\":\"2018-06-19T09:57:55Z\",\"annotations\":{\"openshift.io/description\":\"zzz002\",\"openshift.io/display-name\":\"zzz002\",\"openshift.io/requester\":\"system:serviceaccount:default:ocm\",\"openshift.io/sa.scc.mcs\":\"s0:c66,c0\",\"openshift.io/sa.scc.supplemental-groups\":\"1004290000/10000\",\"openshift.io/sa.scc.uid-range\":\"1004290000/10000\"}},\"spec\":{\"finalizers\":[\"openshift.io/origin\",\"kubernetes\"]},\"status\":{\"phase\":\"Active\"}}\n"
   }
 }
 ```
@@ -48,10 +50,10 @@ POST /ocmanager/v2/api/tenant
 __request body:__
 ```
 {
-    "id": "zhaoyim9998877",
-    "description": "zhaoyim9998877 Changed",
-    "dueTime": "2018-10-10",
-"quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}"
+    "id": "zzz002",
+    "description": "zzz002 changed",
+    "clusters": "cluster61",
+    "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}"
 }
 ```
 
@@ -59,12 +61,12 @@ __response:__
 ```
 {
   "cmInfo": {
-    "description": "zhaoyim9998877 Changed",
-    "dueTime": "2018-10-10",
-    "id": "zhaoyim9998877",
+    "clusters": "cluster61",
+    "description": "zzz002 changed",
+    "id": "zzz002",
     "level": 0,
-    "name": "zhaoyim9998877",
-    "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}"
+    "name": "zzz002",
+    "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}"
   },
   "osClustersInfo": {}
 }
@@ -80,22 +82,23 @@ DELETE /ocmanager/v2/api/tenant/{tenantId}
 
 __response:__
 ```
-{
-  "cmInfo": {
-    "createTime": "2018-06-14 16:45:23.0",
-    "description": "test00001",
-    "id": "zhaoyim9998877",
-    "level": 0,
-    "name": "zhaoyim9998877",
-    "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-    "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}",
-    "status": "active"
-  },
-  "osClustersInfo": {
-    "application_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n",
-    "service_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n"
-  }
-}
+    {
+      "cmInfo": {
+        "clusters": "cluster61",
+        "createTime": "2018-06-19 18:07:12.0",
+        "description": "zzz002 changed",
+        "id": "zzz002",
+        "level": 0,
+        "name": "zzz002",
+        "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
+        "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}",
+        "status": "active"
+      },
+      "osClustersInfo": {
+        "application_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n",
+        "service_cluster": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Success\",\"code\":200}\n"
+      }
+    }
 ```
 
 4. 获取所有租户
@@ -106,16 +109,17 @@ __response:__
 ```
 [
     {
-      "createTime": "2018-06-14 18:02:00.0",
-      "description": "test00001",
-      "id": "zhaoyim9998877",
+      "clusters": "cluster61",
+      "createTime": "2018-06-19 18:07:12.0",
+      "description": "zzz002 changed",
+      "id": "zzz002",
       "level": 0,
-      "name": "zhaoyim9998877",
+      "name": "zzz002",
       "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-      "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}",
+      "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}",
       "status": "active"
     },
-...
+    ...
 ]
 ```
 
@@ -127,13 +131,14 @@ GET /ocmanager/v2/api/tenant/{tenantId}
 __response:__
 ```
 {
-  "createTime": "2018-06-14 18:02:00.0",
-  "description": "test00001",
-  "id": "zhaoyim9998877",
+  "clusters": "cluster61",
+  "createTime": "2018-06-19 18:07:12.0",
+  "description": "zzz002 changed",
+  "id": "zzz002",
   "level": 0,
-  "name": "zhaoyim9998877",
+  "name": "zzz002",
   "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-  "quota": "{\"hive\":{\"storageSpaceQuota\":3000},\"hive_cluster2\":{\"storageSpaceQuota\":3000},\"spark_cluster2\":{\"yarnQueueQuota\":3000},\"hive_testcluster1\":{\"storageSpaceQuota\":3000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":3000},\"storm\":{\"workers\":3000,\"memory\":3000,\"supervisors\":3000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":3000},\"kafka_cluster2\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs_cluster2\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"anaconda\":{\"cpu\":3000,\"memory\":3000},\"zeppelin\":{\"cpu\":3000,\"memory\":3000},\"hbase_cluster2\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"spark_testcluster1\":{\"yarnQueueQuota\":3000},\"dataiku\":{\"cpu\":3000,\"memory\":3000},\"redis\":{\"memory\":3000,\"nodes\":3000,\"volumeSize\":3000,\"replicas\":3000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000},\"mapreduce\":{\"yarnQueueQuota\":3000},\"elasticsearch\":{\"volume\":3000,\"cpu\":3000,\"mem\":3000,\"replicas\":3000},\"spark\":{\"yarnQueueQuota\":3000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"kafka_testcluster1\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"kafka\":{\"topicQuota\":3000,\"topicTTL\":3000,\"partitionSize\":3000},\"hdfs\":{\"nameSpaceQuota\":3000,\"storageSpaceQuota\":3000},\"hbase\":{\"maximumRegionsQuota\":3000,\"maximumTablesQuota\":3000}}",
+  "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}",
   "status": "active"
 }
 ```
@@ -147,24 +152,14 @@ __response:__
 ```
 [
     {
-      "createTime": "2018-06-13 12:52:59.0",
-      "description": "test7777",
-      "id": "000999",
+      "clusters": "cluster61",
+      "createTime": "2018-06-19 18:07:12.0",
+      "description": "zzz002 changed",
+      "id": "zzz002",
       "level": 0,
-      "name": "zhaoyim001",
+      "name": "zzz002",
       "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-      "quota": "{\"hive\":{\"storageSpaceQuota\":1000000},\"hive_cluster2\":{\"storageSpaceQuota\":1000000},\"spark_cluster2\":{\"yarnQueueQuota\":1000000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000000},\"storm\":{\"workers\":1000000,\"memory\":1000000,\"supervisors\":1000000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000000},\"kafka_cluster2\":{\"topicQuota\":1000000,\"topicTTL\":1000000,\"partitionSize\":1000000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000000,\"storageSpaceQuota\":1000000},\"anaconda\":{\"cpu\":1000000,\"memory\":1000000},\"zeppelin\":{\"cpu\":1000000,\"memory\":1000000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000000,\"maximumTablesQuota\":1000000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000000},\"dataiku\":{\"cpu\":1000000,\"memory\":1000000},\"redis\":{\"memory\":1000000,\"nodes\":1000000,\"volumeSize\":1000000,\"replicas\":1000000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000000,\"maximumTablesQuota\":1000000},\"mapreduce\":{\"yarnQueueQuota\":1000000},\"elasticsearch\":{\"volume\":1000000,\"cpu\":1000000,\"mem\":1000000,\"replicas\":1000000},\"spark\":{\"yarnQueueQuota\":1000000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000000,\"storageSpaceQuota\":1000000},\"kafka_testcluster1\":{\"topicQuota\":1000000,\"topicTTL\":1000000,\"partitionSize\":1000000},\"kafka\":{\"topicQuota\":1000000,\"topicTTL\":1000000,\"partitionSize\":1000000},\"hdfs\":{\"nameSpaceQuota\":1000000,\"storageSpaceQuota\":1000000},\"hbase\":{\"maximumRegionsQuota\":1000000,\"maximumTablesQuota\":1000000}}",
-      "status": "active"
-    },
-    {
-      "createTime": "2018-04-13 10:44:08.0",
-      "description": "",
-      "dueTime": "2018-06-26 00:00:00.0",
-      "id": "admin-1523586795",
-      "level": 0,
-      "name": "ethanwang",
-      "parentId": "ae783b6d-655a-11e7-aa10-fa163ed7d0ae",
-      "quota": "{\"hive\":{\"storageSpaceQuota\":0},\"hive_cluster2\":{\"storageSpaceQuota\":0},\"spark_cluster2\":{\"yarnQueueQuota\":0},\"hive_testcluster1\":{\"storageSpaceQuota\":0},\"mapreduce_cluster2\":{\"yarnQueueQuota\":0},\"storm\":{\"workers\":0,\"memory\":0,\"supervisors\":0},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":0},\"kafka_cluster2\":{\"topicQuota\":0,\"topicTTL\":0,\"partitionSize\":0},\"hdfs_cluster2\":{\"nameSpaceQuota\":0,\"storageSpaceQuota\":0},\"anaconda\":{\"cpu\":0,\"memory\":0},\"zeppelin\":{\"cpu\":0,\"memory\":0},\"hbase_cluster2\":{\"maximumRegionsQuota\":0,\"maximumTablesQuota\":0},\"spark_testcluster1\":{\"yarnQueueQuota\":0},\"dataiku\":{\"cpu\":0,\"memory\":0},\"redis\":{\"memory\":0,\"nodes\":0,\"volumeSize\":0,\"replicas\":0},\"hbase_testcluster1\":{\"maximumRegionsQuota\":0,\"maximumTablesQuota\":0},\"mapreduce\":{\"yarnQueueQuota\":0},\"elasticsearch\":{\"volume\":0,\"cpu\":0,\"mem\":0,\"replicas\":0},\"spark\":{\"yarnQueueQuota\":0},\"hdfs_testcluster1\":{\"nameSpaceQuota\":0,\"storageSpaceQuota\":0},\"kafka_testcluster1\":{\"topicQuota\":0,\"topicTTL\":0,\"partitionSize\":0},\"kafka\":{\"topicQuota\":0,\"topicTTL\":0,\"partitionSize\":0},\"hdfs\":{\"nameSpaceQuota\":0,\"storageSpaceQuota\":0},\"hbase\":{\"maximumRegionsQuota\":0,\"maximumTablesQuota\":0}}",
+      "quota": "{\"hive_cluster2\":{\"storageSpaceQuota\":1000},\"spark_cluster2\":{\"yarnQueueQuota\":1000},\"hive_testcluster1\":{\"storageSpaceQuota\":1000},\"mapreduce_cluster2\":{\"yarnQueueQuota\":1000},\"mapreduce_cluster61\":{\"yarnQueueQuota\":1000},\"storm\":{\"workers\":1000,\"memory\":1000,\"supervisors\":1000},\"spark_cluster61\":{\"yarnQueueQuota\":1000},\"mapreduce_testcluster1\":{\"yarnQueueQuota\":1000},\"kafka_cluster61\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"kafka_cluster2\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hdfs_cluster2\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"anaconda\":{\"cpu\":1000,\"memory\":1000},\"zeppelin\":{\"cpu\":1000,\"memory\":1000},\"hbase_cluster2\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"spark_testcluster1\":{\"yarnQueueQuota\":1000},\"dataiku\":{\"cpu\":1000,\"memory\":1000},\"redis\":{\"memory\":1000,\"nodes\":1000,\"volumeSize\":1000,\"replicas\":1000},\"hbase_testcluster1\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000},\"hdfs_cluster61\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"elasticsearch\":{\"volume\":1000,\"cpu\":1000,\"mem\":1000,\"replicas\":1000},\"hive_cluster61\":{\"storageSpaceQuota\":1000},\"hdfs_testcluster1\":{\"nameSpaceQuota\":1000,\"storageSpaceQuota\":1000},\"kafka_testcluster1\":{\"topicQuota\":1000,\"topicTTL\":1000,\"partitionSize\":1000},\"hbase_cluster61\":{\"maximumRegionsQuota\":1000,\"maximumTablesQuota\":1000}}",
       "status": "active"
     },
     ...
@@ -184,6 +179,40 @@ __response:__
 }
 ```
 
+
+8. 获取租户下所有用户以及用户角色
+```
+GET /ocmanager/v2/api/tenant/{tenantId}/users
+```
+
+__response:__
+```
+[
+    {
+      "roleId": "a10170cb-524a-11e7-9dbb-fa163ed7d0ae",
+      "roleName": "system.admin",
+      "tenantId": "zhaoyim9998877",
+      "userCreateTime": "2018-04-03 15:20:46.0",
+      "userDescription": "System Admin User",
+      "userEmail": "admin@admin.com",
+      "userId": "2ef26018-003d-4b2b-b786-0481d4ee9fa8",
+      "userName": "admin",
+      "userPassword": "*4ACFE3202A5FF5CF467898FC58AAB1D615029441",
+      "userPhone": "admin phone number"
+    }, {
+      "roleId": "a13dd087-524a-11e7-9dbb-fa163ed7d0ae",
+      "roleName": "team.member",
+      "tenantId": "zhaoyim9998877",
+      "userCreateTime": "2018-04-03 17:22:54.0",
+      "userDescription": "",
+      "userEmail": "aa@132.com",
+      "userId": "f1f9616e-95ff-49c3-911a-5a3c793c8fd1",
+      "userName": "demouser001",
+      "userPassword": ""
+    },
+    ...
+]
+```
 
 
 

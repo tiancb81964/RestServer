@@ -7,6 +7,7 @@ public class UserRoleView {
 	private String userEmail;
 	private String userPhone;
 	private String userPassword;
+	private String userCreateTime;
 	private String roleId;
 	private String roleName;
 	private String tenantId;
@@ -99,6 +100,14 @@ public class UserRoleView {
 
 	public void setUserPassword(String userPassword) {
 		this.userPassword = userPassword;
+	}
+
+	public String getUserCreateTime() {
+		return userCreateTime;
+	}
+
+	public void setUserCreateTime(String userCreateTime) {
+		this.userCreateTime = userCreateTime;
 	}
 
 }
