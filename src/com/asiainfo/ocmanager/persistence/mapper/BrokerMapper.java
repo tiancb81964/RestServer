@@ -22,4 +22,6 @@ public interface BrokerMapper {
 	
 	public void updateStatus(@Param("broker_name")String broker_name, @Param("latest_status")String latest_status);
 	
+	public Broker getBrokerByName(@Param("broker_name")String broker_name);
+	
 }

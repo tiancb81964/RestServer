@@ -29,6 +29,21 @@ public class BrokerPersistenceWrapper {
 		}
 	}
 	
+	public static Broker getBrokerByName(String name) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			BrokerMapper mapper = session.getMapper(BrokerMapper.class);
+			Broker broker = mapper.getBrokerByName(name);
+			session.commit();
+			return broker;
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+	
 	public static void updateURL(String broker_name, String url) {
 		SqlSession session = DBConnectorFactory.getSession();
 		try {

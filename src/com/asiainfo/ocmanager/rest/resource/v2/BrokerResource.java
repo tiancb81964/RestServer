@@ -41,6 +41,7 @@ import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.BrokerPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
@@ -80,7 +81,9 @@ public class BrokerResource {
 			clustername = request.getParameter("clustername");
 			Preconditions.checkArgument(!Strings.isNullOrEmpty(clustername));
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
-			//TODO:check not null
+			if (cluster == null) {
+				logger.error("Cluster not found by name: " + clustername);
+			}
 			BrokerAdapterInterface adapter = BrokerAdaptorUtils.getAdapter(cluster, cusEnvs);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
 			DFRestResponse rsp = createdc(dcreq);
@@ -94,7 +97,8 @@ public class BrokerResource {
 			return Response.status(Status.BAD_REQUEST).entity(rsp).tag(clustername).build();
 		} catch (Exception e) {
 			logger.error("createBrokerDC hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(clustername)
+					.build();
 		}
 	}
 
@@ -137,7 +141,8 @@ public class BrokerResource {
 			return Response.ok().entity(rsp.getEntity()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(dcName).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(dcName)
+					.build();
 		}
 	}
 
@@ -160,7 +165,8 @@ public class BrokerResource {
 			return Response.ok().entity(rsp.getEntity()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(svcname).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(svcname)
+					.build();
 		}
 	}
 
@@ -170,7 +176,7 @@ public class BrokerResource {
 
 	private DFRestResponse createsvc(String svcreq) {
 		try {
-			DFRestResponse rsp = new DFRestClient().sendPost("/oapi/v1/namespaces/dp-brokers/services", svcreq);
+			DFRestResponse rsp = new DFRestClient().sendPost("/api/v1/namespaces/dp-brokers/services", svcreq);
 			return rsp;
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
 			logger.error("Exception while create svc: ", e);
@@ -205,12 +211,29 @@ public class BrokerResource {
 	 * @return
 	 */
 	@GET
-	@Path("/{id}/dc")
+	@Path("/{name}/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.BROKER_DC)
-	public Response getBrokerDC(@PathParam("id") String brokerid) {
-		// TODO:
-		return Response.ok().entity(getDCConfig()).build();
+	public Response getBrokerDC(@PathParam("name") String brokerName) {
+		try {
+			Broker broker = BrokerPersistenceWrapper.getBrokerByName(brokerName);
+			if (broker == null) {
+				logger.error("Broker not found by name: " + brokerName);
+				return Response.status(Status.BAD_REQUEST).entity("Broker not found by name: " + brokerName)
+						.tag(brokerName).build();
+			}
+			String dcName = broker.getDc_name();
+			DFRestResponse rsp = new DFRestClient().sendGet(dcURI(dcName), null);
+			return Response.ok().entity(rsp).build();
+		} catch (Exception e) {
+			logger.error("getBrokerDC hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerName)
+					.build();
+		}
+	}
+
+	private String dcURI(String dcName) {
+		return "/oapi/v1/namespaces/dp-brokers/deploymentconfigs/" + dcName;
 	}
 
 	private String getDCConfig() {
@@ -224,12 +247,18 @@ public class BrokerResource {
 	 * @return
 	 */
 	@PUT
-	@Path("/{id}/dc")
+	@Path("/{name}/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.UPDATE, targetType = TargetType.BROKER_DC)
-	public Response updateBrokerDC(@Context HttpServletRequest request) {
-		// TODO:
-		return Response.ok().entity(getDCConfig()).build();
+	public Response updateBrokerDC(@PathParam("name") String brokerName, String requestBody) {
+		try {
+			DFRestResponse rsp = new DFRestClient().sendPut(dcURI(brokerName), requestBody);
+			return Response.ok().entity(rsp).tag(brokerName).build();
+		} catch (Exception e) {
+			logger.error("updateBrokerDC hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerName)
+					.build();
+		}
 	}
 
 	@GET
@@ -241,7 +270,7 @@ public class BrokerResource {
 			return Response.ok().entity(brokers).build();
 		} catch (Exception e) {
 			logger.error("getBrokers hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).build();
 		}
 	}
 
@@ -338,13 +367,15 @@ public class BrokerResource {
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("addServiceBroker hit exception-> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(brokerIP).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerIP)
+					.build();
 		}
 	}
 
 	private String extractName(JsonElement reqBodyJson) {
-		// TODO Auto-generated method stub
-		return null;
+		JsonObject meta = reqBodyJson.getAsJsonObject().getAsJsonObject("metadata");
+		String name = meta.getAsJsonPrimitive("name").getAsString();
+		return name;
 	}
 
 	private String extractIP(String reqBodyStr) {

@@ -17,6 +17,10 @@ public class ResponseExceptionBean {
 		this.exception = exception;
 	}
 
+	public ResponseExceptionBean(String exception) {
+		this.exception = exception;
+	}
+
 	@Override
 	public String toString() {
 		return "ResponseExceptionBean: {exception: " + exception + "}";
