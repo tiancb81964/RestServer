@@ -206,7 +206,8 @@ CREATE TABLE IF NOT EXISTS `ocmanager`.`CM_BROKERS` (
   `BROKER_URL` VARCHAR(64) NULL,
   `BINDED_CLUSTER` VARCHAR(64) NOT NULL,
   `DC_NAME` VARCHAR(64) NOT NULL,
-  INDEX `fk_brokers_brokername_idx` (`BROKER_NAME` ASC),
+  `LATEST_STATUS` VARCHAR(64) NOT NULL,
+  UNIQUE INDEX `fk_brokers_brokername_idx` (`BROKER_NAME` ASC),
   INDEX `fk_brokers_clustername_idx` (`BINDED_CLUSTER` ASC),
   CONSTRAINT `fk_clusters_brokers`
     FOREIGN KEY (`BINDED_CLUSTER`)

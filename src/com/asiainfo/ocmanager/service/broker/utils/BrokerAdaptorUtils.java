@@ -20,6 +20,10 @@ public class BrokerAdaptorUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(BrokerAdaptorUtils.class);
 	
 	public static BrokerAdapterInterface getAdapter(Cluster cluster, List<CustomEvnBean> customEnvs) {
+		if (cluster == null) {
+			LOG.error("Cluster is null");
+			throw new RuntimeException("Cluster is null");
+		}
 		if (cluster.getCluster_type().equals(new DPAdapter().getType())) {
 			return new DPAdapter(cluster, customEnvs);
 		}
