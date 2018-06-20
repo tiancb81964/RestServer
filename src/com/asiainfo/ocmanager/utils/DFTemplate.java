@@ -70,6 +70,11 @@ public class DFTemplate {
 	private static String envToJson(Map<String, String> env) {
 		JsonArray array = new JsonArray();
 		for (Entry<String, String> en : env.entrySet()) {
+			if (en.getValue() == null) {
+				LOG.warn("Environment kv value is null: " + en.toString());
+				array.add(en.getKey(), "");
+				continue;
+			}
 			array.add(en.getKey(), en.getValue());
 		}
 		return array.toString();
