@@ -42,7 +42,6 @@ import com.asiainfo.ocmanager.rest.resource.persistence.TenantPersistenceWrapper
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -67,50 +66,6 @@ public class ServiceResource {
 	public Response getServices() {
 
 		try {
-			// TODO should call df service api and compare with adapter db
-			// service data, insert the data which is not in the adapter db
-			// every time when call the get all services api it will symnc the
-			// adapter db with df services data
-			// this is not a good solution should be enhance in future
-			List<Service> servicesInDB = ServicePersistenceWrapper.getAllServices();
-
-			// get all the services in the adapter db
-			List<String> dbServiceNameList = new ArrayList<String>();
-			for (Service s : servicesInDB) {
-				dbServiceNameList.add(s.getServicename().toLowerCase());
-			}
-
-			String servicesFromDf = ServiceResource.callDFToGetAllServices();
-			JsonObject servicesFromDfJson = new JsonParser().parse(servicesFromDf).getAsJsonObject();
-			JsonArray items = servicesFromDfJson.getAsJsonArray("items");
-
-			if (items != null) {
-				for (int i = 0; i < items.size(); i++) {
-					String name = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("name").getAsString();
-					String id = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("id").getAsString();
-					String description = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("description")
-							.getAsString();
-					String origin = items.get(i).getAsJsonObject().getAsJsonObject("metadata").getAsJsonObject("labels")
-							.get("asiainfo.io/servicebroker").getAsString();
-
-					JsonObject specMetadata = items.get(i).getAsJsonObject().getAsJsonObject("spec")
-							.getAsJsonObject("metadata");
-
-					if (servicesInDB.size() == 0) {
-						ServicePersistenceWrapper.addService(
-								new Service(id, name, description, origin, this.parseServiceType(specMetadata, name),
-										this.parseServiceCategory(specMetadata, name)));
-					} else {
-						if (!dbServiceNameList.contains(name.toLowerCase())) {
-							ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
-									this.parseServiceType(specMetadata, name),
-									this.parseServiceCategory(specMetadata, name)));
-						}
-					}
-
-				}
-			}
-
 			List<Service> services = ServicePersistenceWrapper.getAllServices();
 
 			return Response.ok().entity(services).tag("all-services").build();
@@ -118,31 +73,6 @@ public class ServiceResource {
 			// system out the exception into the console log
 			logger.error("getServices  hit exception -> ", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag("all-services").build();
-		}
-	}
-
-	private String parseServiceType(JsonObject specMetadata, String serviceName) {
-		JsonElement typeJE = specMetadata.get("type");
-		if (typeJE == null) {
-			logger.debug("The service {} is not have spec:metadata:type, please check with admin.", serviceName);
-			// if the service did not have the type return the service name
-			return serviceName;
-		} else {
-			String serviceType = specMetadata.get("type").getAsString();
-			return serviceType;
-		}
-	}
-
-	private String parseServiceCategory(JsonObject specMetadata, String serviceName) {
-		JsonElement categoryJE = specMetadata.get("category");
-		if (categoryJE == null) {
-			logger.debug("The service {} is not have category, please check with admin.", serviceName);
-			// if the service did not have the category return the default value
-			// service
-			return Constant.SERVICE;
-		} else {
-			String serviceCategory = specMetadata.get("category").getAsString();
-			return serviceCategory;
 		}
 	}
 

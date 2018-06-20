@@ -29,6 +29,10 @@ public class OsClusterIni {
 
 	static {
 		try {
+			// String currentClassPath =
+			// OsClusterIni.class.getResource("/").getPath();
+			// String base = currentClassPath.substring(0,
+			// currentClassPath.length() - 4) + "WebContent/WEB-INF/";
 			String base = OsClusterIni.class.getResource("/").getPath() + ".." + File.separator;
 			PATH = base + "conf" + File.separator + "osclusters.ini";
 			if (!new File(PATH).exists()) {

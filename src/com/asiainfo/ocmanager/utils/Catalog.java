@@ -123,20 +123,6 @@ public class Catalog {
 		});
 	}
 
-	public static void main(String[] args) {
-		Collection<String> svc = Catalog.getInstance().listAllServices().values();
-		svc.forEach(s -> {
-			try {
-				List<String> keys = Catalog.getInstance().getServiceQuotaKeys(s);
-				System.out.println(">>> " + s + "->" + keys);
-			} catch (Exception e) {
-				System.out.println("ERROR: " + s);
-			}
-
-		});
-
-	}
-
 	/**
 	 * Get service by the specified service name.
 	 * 

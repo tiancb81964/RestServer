@@ -29,6 +29,13 @@ public interface ServiceMapper {
 
 	/**
 	 * 
+	 * @param serviceType
+	 * @return
+	 */
+	public List<Service> selectServicesByServiceType(@Param("serviceTypes") List<String> serviceTypes);
+
+	/**
+	 * 
 	 * @param serviceId
 	 * @return
 	 */
@@ -40,5 +47,18 @@ public interface ServiceMapper {
 	 * @return
 	 */
 	public void insertService(Service service);
+
+	/**
+	 * 
+	 * @param service
+	 */
+	public void updateService(Service service);
+
+	/**
+	 * 
+	 * @param servicename
+	 * @return
+	 */
+	public Service selectServiceByName(@Param("servicename") String servicename);
 
 }
