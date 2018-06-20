@@ -13,6 +13,7 @@ import com.justinsb.etcd.EtcdClient;
 import com.justinsb.etcd.EtcdClientException;
 import com.justinsb.etcd.EtcdNode;
 import com.justinsb.etcd.EtcdResult;
+
 import com.asiainfo.ocmanager.utils.ETCDProperties;
 
 /**
@@ -21,32 +22,32 @@ import com.asiainfo.ocmanager.utils.ETCDProperties;
  * @author tiancb
  *
  */
-public class etcdClient {
+public class CmEtcdClient {
 	
-	private static Logger logger = LoggerFactory.getLogger(etcdClient.class);
+	private static Logger logger = LoggerFactory.getLogger(CmEtcdClient.class);
 	
 	private Properties props = new Properties();
 	private static final String ETCD_HOST = "ETCD_HOST";
 	private static final String ETCD_PORT = "ETCD_PORT";
 	private static final String ETCD_USER = "ETCD_USER";
 	private static final String ETCD_PWD = "ETCD_PWD";
-	private static etcdClient instance;
+	private static CmEtcdClient instance;
 	
 	private EtcdClient innerClient;
 	public final String PATH_PREFIX = "/dp-brokers/";
 	
-	public static etcdClient getInstance() {
+	public static CmEtcdClient getInstance() {
 		if (instance == null) {
-			synchronized (etcdClient.class) {
+			synchronized (CmEtcdClient.class) {
 				if (instance == null) {
-					instance = new etcdClient();
+					instance = new CmEtcdClient();
 				}
 			}
 		}
 		return instance;
 	}
 
-	public etcdClient() {
+	public CmEtcdClient() {
 		props = ETCDProperties.getConf();
 		String etcd_user = props.getProperty(ETCD_USER);
 		String etcd_password = props.getProperty(ETCD_PWD);
@@ -56,11 +57,18 @@ public class etcdClient {
 				URI.create("http://" + etcd_user + ":" + etcd_password + "@" + etcd_host + ":" + etcd_port));
 	}
 
+	public static void main(String[] args) throws EtcdClientException {
+		EtcdClient client = new EtcdClient(
+				URI.create("http://admin:admin@10.1.236.147:2379"));
+		EtcdResult rsp = client.createDirectory("/testetest/dir");
+		System.out.println("end of main: " + rsp);
+	}
+
 	public void check(String brokerId) {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(brokerId), "BrokerID must not be null");
 		if (!noChildren(PATH_PREFIX + brokerId)) {
-			logger.error("Broker path already exist in ETCD: " + PATH_PREFIX);
-			throw new RuntimeException("Broker path already exist in ETCD: " + PATH_PREFIX);
+			logger.error("Broker path already exist in ETCD: " + PATH_PREFIX + brokerId);
+			throw new RuntimeException("Broker path already exist in ETCD: " + PATH_PREFIX + brokerId);
 		}
 	}
 
@@ -75,71 +83,63 @@ public class etcdClient {
 		return (children == null || children.isEmpty());
 	}
 
-	private String assemblePath(String suffix, String brokerId) {
-		//check(brokerId);
-		if (!suffix.startsWith("/")) {
-			logger.error("Path not start with '/': " + suffix);
-			throw new RuntimeException("Path must start with '/': " + suffix);
-		}
-		return this.PATH_PREFIX + brokerId + suffix;
-	}
 
-	public EtcdResult read(String key, String brokerId) {
+	public EtcdResult read(String key) {
 		EtcdResult result = new EtcdResult();
 		try {
-			result = this.innerClient.get(assemblePath(key, brokerId));
+			result = this.innerClient.get(key);
 		} catch (EtcdClientException e) {
 			logger.error("read() hit EtcdClientException",e);
-			throw new RuntimeException("fail to read DIR: " + key + brokerId);
+			throw new RuntimeException("fail to read DIR: " + key);
 		}
 		return result;
 	}
 
-	public String readToString(String key, String brokerId) {
-		EtcdResult result = this.read(key, brokerId);
+	public String readToString(String key) {
+		EtcdResult result = this.read(key);
 		return (result != null && result.node != null) ? result.node.value : null;
 	}
 
-	public EtcdResult write(String key, String value, String brokerId) {
+	public EtcdResult write(String key, String value) {
 		EtcdResult result = new EtcdResult();
 		try {
-			result = this.innerClient.set(assemblePath(key, brokerId), value);
+			result = this.innerClient.set(key, value);
 		} catch (EtcdClientException e) {
 			logger.error("write() hit EtcdClientException",e);
-			throw new RuntimeException("fail to write to: " + key + brokerId + value);
+			throw new RuntimeException("fail to write to: " + key + value);
 		}
 		return result;
 	}
 
-	public EtcdResult createDir(String key, String brokerId) {
+	public EtcdResult createDir(String key) {
 		EtcdResult result = new EtcdResult();
 		try {
-			result = this.innerClient.createDirectory(assemblePath(key, brokerId));
+			result = this.innerClient.createDirectory(key);
 		} catch (EtcdClientException e) {
 			logger.error("createDir() hit EtcdClientException",e);
-			throw new RuntimeException("fail to create DIR: " + key + brokerId);
+			throw new RuntimeException("fail to create DIR: " + key);
 		}
 		return result;
 	}
 
-	public EtcdResult delete(String key, String brokerId) {
+	public EtcdResult delete(String key) {
 		EtcdResult result = new EtcdResult();
 		try {
-			result = this.innerClient.delete(assemblePath(key, brokerId));
+			result = this.innerClient.delete(key);
 		} catch (EtcdClientException e) {
 			logger.error("delete() hit EtcdClientException",e);
-			throw new RuntimeException("fail to delete: " + key + brokerId);
+			throw new RuntimeException("fail to delete: " + key);
 		}
 		return result;
 	}
 
-	public EtcdResult deleteDir(String key, String brokerId) {
+	public EtcdResult deleteDir(String key) {
 		EtcdResult result = new EtcdResult();
 		try {
-			result = this.innerClient.deleteDirectory(assemblePath(key, brokerId));
+			result = this.innerClient.deleteDirectory(key);
 		} catch (EtcdClientException e) {
 			logger.error("deleteDir() hit EtcdClientException",e);
-			throw new RuntimeException("fail to delete DIR: " + key + brokerId);
+			throw new RuntimeException("fail to delete DIR: " + key);
 		}
 		return result;
 	}
