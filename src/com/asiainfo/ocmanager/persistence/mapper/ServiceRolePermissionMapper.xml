@@ -14,4 +14,15 @@
 			from
 			services_roles_permission where role_id=#{roleId} and service_servicename = #{serviceName}
 	</select>
+	<!-- delete all record in services_roles_permission -->
+	<delete id="deleteAll">
+		delete from services_roles_permission
+	</delete>
+	<!-- insert record into services_roles_permission -->
+	<insert id="insertServiceRolePermission" keyProperty="id"
+		parameterType="com.asiainfo.ocmanager.persistence.model.ServiceRolePermission">
+		insert into services_roles_permission
+			(service_servicename, role_id, ServicePermission)
+			values (#{serviceName}, #{roleId}, #{ServicePermission})
+	</insert>
 </mapper>

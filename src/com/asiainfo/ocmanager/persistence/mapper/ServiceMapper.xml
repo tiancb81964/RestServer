@@ -18,13 +18,37 @@
 		insert into services (id, servicename, description, origin, serviceType, category)
 		  values (#{id}, #{servicename}, #{description}, #{origin}, #{serviceType}, #{category})
 	</insert>
-	<!-- select service by id -->
+	<!-- select service by origin -->
 	<select id="selectServicesByOrigin"
 		resultType="com.asiainfo.ocmanager.persistence.model.Service">
 		select * from services where origin in
 		<foreach collection="originList" item="origin" index="index" open="("
 			close=")" separator=",">
 			#{origin}
+		</foreach>
+	</select>
+	<!-- update service by service name -->
+	<update id="updateService" parameterType="com.asiainfo.ocmanager.persistence.model.Service">
+		update services set
+		id = #{id},
+		description = #{description},
+		origin = #{origin},
+		serviceType = #{serviceType},
+		category = #{category}
+		where servicename = #{servicename}
+	</update>
+	<!-- select service by name -->
+	<select id="selectServiceByName" parameterType="java.lang.String"
+		resultType="com.asiainfo.ocmanager.persistence.model.Service">
+		select * from services where servicename=#{servicename}
+	</select>
+	<!-- select service by id -->
+	<select id="selectServicesByServiceType"
+		resultType="com.asiainfo.ocmanager.persistence.model.Service">
+		select * from services where serviceType in
+		<foreach collection="serviceTypes" item="serviceType" index="index" open="("
+			close=")" separator=",">
+			#{serviceType}
 		</foreach>
 	</select>
 </mapper>

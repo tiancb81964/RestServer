@@ -35,4 +35,41 @@ public class ServiceRolePermissionWrapper {
 		return permission;
 	}
 
+	/**
+	 * 
+	 */
+	public static void deleteAll() {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			ServiceRolePermissionMapper mapper = session.getMapper(ServiceRolePermissionMapper.class);
+			mapper.deleteAll();
+
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * 
+	 * @param srp
+	 */
+	public static void addServiceRolePermission(ServiceRolePermission srp) {
+		SqlSession session = DBConnectorFactory.getSession();
+		try {
+			ServiceRolePermissionMapper mapper = session.getMapper(ServiceRolePermissionMapper.class);
+			mapper.insertServiceRolePermission(srp);
+
+			session.commit();
+		} catch (Exception e) {
+			session.rollback();
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
 }
