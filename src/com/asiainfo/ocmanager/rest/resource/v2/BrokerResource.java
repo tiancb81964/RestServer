@@ -129,8 +129,8 @@ public class BrokerResource {
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_SVC)
 	public Response createBrokerSVC(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("dcname");
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(dcName));
 		try {
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(dcName));
 			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
 			DFRestResponse rsp = createsvc(svcreq);
 			if (!success(rsp)) {
@@ -152,8 +152,8 @@ public class BrokerResource {
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_ROUTER)
 	public Response createBrokerRouter(@Context HttpServletRequest request) {
 		String svcname = request.getParameter("svcname");
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(svcname));
 		try {
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(svcname));
 			String svcreq = DFTemplate.Create_Router.assembleString(svcname);
 			DFRestResponse rsp = createrouter(svcreq);
 			if (!success(rsp)) {
@@ -285,7 +285,7 @@ public class BrokerResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.REGISTER, targetType = TargetType.BROKER)
 	public Response registerServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
-		String brokerIP = extractIP(reqBodyStr);
+		String brokerurl = extractURL(reqBodyStr);
 		try {
 
 			String adToken = request.getHeader("token");
@@ -294,7 +294,7 @@ public class BrokerResource {
 						.entity(new ResourceResponseBean("add service broker failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.tag(brokerIP).build();
+						.tag(brokerurl).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(adToken);
@@ -308,7 +308,7 @@ public class BrokerResource {
 						.entity(new ResourceResponseBean("add service broker failed",
 								"the user is not system admin role, does NOT have the add service broker permission.",
 								ResponseCodeConstant.NO_ADD_SERVICE_BROKER_PERMISSION))
-						.tag(brokerIP).build();
+						.tag(brokerurl).build();
 			}
 
 			String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
@@ -336,7 +336,7 @@ public class BrokerResource {
 					// response2.getStatusLine().getStatusCode();
 					String bodyStr = EntityUtils.toString(response2.getEntity());
 					BrokerPersistenceWrapper.updateStatus(extractName(reqBodyJson), BrokerStatus.REGISTERED.name());
-					return Response.ok().entity(bodyStr).tag(brokerIP).build();
+					return Response.ok().entity(bodyStr).tag(brokerurl).build();
 				} finally {
 					response2.close();
 				}
@@ -346,7 +346,7 @@ public class BrokerResource {
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("addServiceBroker hit exception-> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerIP)
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerurl)
 					.build();
 		}
 	}
@@ -357,7 +357,7 @@ public class BrokerResource {
 		return name;
 	}
 
-	private String extractIP(String reqBodyStr) {
+	private String extractURL(String reqBodyStr) {
 		JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
 		JsonObject spec = reqBodyJson.getAsJsonObject().getAsJsonObject("spec");
 		return spec.get("url").getAsString();
