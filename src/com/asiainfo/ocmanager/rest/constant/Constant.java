@@ -58,6 +58,7 @@ public class Constant {
 	// request utf-8
 	public static final String CHARSET_EQUAL_UTF_8 = "charset=utf-8";
 	public static final String SEMICOLON = ";";
+	public static final String COMMA = ",";
 
 	// prefix for parameters
 	public static final String ATTRIBUTES = "ATTR_";
@@ -65,6 +66,10 @@ public class Constant {
 	// service and tool
 	public static final String SERVICE = "service";
 	public static final String TOOL = "tool";
+
+	// service types which have permission
+	public static final List<String> serviceTypes = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
+			"kafka");
 
 	/*****************************************************************/
 	/******************* authentication const ************************/

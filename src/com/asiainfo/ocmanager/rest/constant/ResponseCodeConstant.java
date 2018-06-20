@@ -41,6 +41,7 @@ public class ResponseCodeConstant {
 	// service
 	public final static int SERVICE_PLAN_NOT_FOUND = 4042;
 	public final static int USER_NOT_FOUND = 4043;
+	public final static int SERVICE_NOT_FOUND = 4046;
 	// krb5
 	public final static int CAN_NOT_FIND_KRB5_CONF_FILE = 4044;
 	public final static int CAN_NOT_FIND_EXTERNAL_FILE = 4045;

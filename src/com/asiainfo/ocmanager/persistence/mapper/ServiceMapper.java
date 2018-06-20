@@ -2,6 +2,8 @@ package com.asiainfo.ocmanager.persistence.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.asiainfo.ocmanager.persistence.model.Service;
 
 /**
@@ -17,21 +19,46 @@ public interface ServiceMapper {
 	 * @return
 	 */
 	public List<Service> selectAllServices();
-	
-	
+
+	/**
+	 * 
+	 * @param originList
+	 * @return
+	 */
+	public List<Service> selectServicesByOrigin(@Param("originList") List<String> originList);
+
+	/**
+	 * 
+	 * @param serviceType
+	 * @return
+	 */
+	public List<Service> selectServicesByServiceType(@Param("serviceTypes") List<String> serviceTypes);
+
 	/**
 	 * 
 	 * @param serviceId
 	 * @return
 	 */
 	public Service selectServiceById(String serviceId);
-	
-	
+
 	/**
 	 * 
 	 * @param service
 	 * @return
 	 */
 	public void insertService(Service service);
-	
+
+	/**
+	 * 
+	 * @param service
+	 */
+	public void updateService(Service service);
+
+	/**
+	 * 
+	 * @param servicename
+	 * @return
+	 */
+	public Service selectServiceByName(@Param("servicename") String servicename);
+
 }

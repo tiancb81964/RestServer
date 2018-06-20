@@ -1,5 +1,7 @@
 package com.asiainfo.ocmanager.persistence.test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -30,6 +32,24 @@ public class TestService {
 			System.out.println(service.getDescription());
 
 			session.commit();
+
+			List<String> originList = new ArrayList<String>();
+			originList.add("cluster2");
+			originList.add("cluster61");
+			List<Service> services1 = mapper.selectServicesByOrigin(originList);
+			for (Service s : services1) {
+				System.out.println(s.getId());
+				System.out.println(s.getServicename());
+				System.out.println(s.getDescription());
+			}
+
+			List<Service> services2 = mapper
+					.selectServicesByServiceType(Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark", "kafka"));
+			for (Service s : services2) {
+				System.out.println(s.getId());
+				System.out.println(s.getServicename());
+				System.out.println(s.getDescription());
+			}
 
 		} catch (Exception e) {
 			session.rollback();

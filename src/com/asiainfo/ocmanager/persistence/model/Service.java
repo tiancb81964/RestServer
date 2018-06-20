@@ -1,5 +1,7 @@
 package com.asiainfo.ocmanager.persistence.model;
 
+import java.util.Objects;
+
 /**
  * 
  * @author zhaoyim
@@ -81,6 +83,32 @@ public class Service {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Service other = (Service) obj;
+
+		// if the service name are the same, the Service obj is equal
+		return Objects.equals(servicename, other.servicename);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(servicename);
 	}
 
 }

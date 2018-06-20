@@ -41,6 +41,7 @@ import com.asiainfo.ocmanager.persistence.model.ServiceInstance;
 import com.asiainfo.ocmanager.persistence.model.Tenant;
 import com.asiainfo.ocmanager.persistence.model.TenantUserRoleAssignment;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
+import com.asiainfo.ocmanager.rest.bean.AccessedClusterBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.bean.TenantBeanV2;
 import com.asiainfo.ocmanager.rest.bean.TenantQuotaResponse;
@@ -1270,6 +1271,41 @@ public class TenantResource {
 	private List<ServiceInstance> getInstances(String tenantId) {
 		List<ServiceInstance> instances = ServiceInstancePersistenceWrapper.getServiceInstancesInTenant(tenantId);
 		return instances;
+	}
+
+	@GET
+	@Path("{tenantId}/access/clusters")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.CLUSTERS)
+	public Response getTenantCanAccessedClusters(@PathParam("tenantId") String tenantId) {
+		String accessClusters = "";
+		try {
+			AccessedClusterBean AccessedClusterBean = new AccessedClusterBean();
+			Tenant parentTenant = TenantPersistenceWrapper.getParent(tenantId);
+
+			if (parentTenant == null) {
+				Tenant rootTenant = TenantPersistenceWrapper.getTenantById(tenantId);
+				accessClusters = rootTenant.getClusters();
+			} else {
+				accessClusters = parentTenant.getClusters();
+			}
+
+			List<String> accessClustersList = Arrays.asList(accessClusters.split(Constant.COMMA));
+			List<String> origin = new ArrayList<String>();
+			for (String s : accessClustersList) {
+				origin.add(s.trim());
+			}
+
+			AccessedClusterBean.setAccessedCluster(origin);
+
+			return Response.ok().entity(AccessedClusterBean).tag(tenantId).build();
+		} catch (Exception e) {
+			// system out the exception into the console log
+			logger.info("{} : {} hit exception", "TenantResource", "getTenantCanAccessedServices");
+			ResponseExceptionBean ex = new ResponseExceptionBean();
+			ex.setException(e.toString());
+			return Response.status(Status.BAD_REQUEST).entity(ex).tag(tenantId).build();
+		}
 	}
 
 }
