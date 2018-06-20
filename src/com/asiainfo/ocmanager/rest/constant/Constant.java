@@ -67,6 +67,10 @@ public class Constant {
 	public static final String SERVICE = "service";
 	public static final String TOOL = "tool";
 
+	// service types which have permission
+	public static final List<String> serviceTypes = Arrays.asList("hdfs", "hbase", "hive", "mapreduce", "spark",
+			"kafka");
+
 	/*****************************************************************/
 	/******************* authentication const ************************/
 	/*****************************************************************/

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +44,6 @@ import com.asiainfo.ocmanager.rest.resource.persistence.ServiceInstancePersisten
 import com.asiainfo.ocmanager.rest.resource.persistence.ServicePersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
-import com.asiainfo.ocmanager.utils.Catalog;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -74,44 +72,6 @@ public class ServiceResource {
 	public Response getServices() {
 
 		try {
-			// TODO should call df service api and compare with adapter db
-			// service data, insert the data which is not in the adapter db
-			// every time when call the get all services api it will symnc the
-			// adapter db with df services data
-			// this is not a good solution should be enhance in future
-			List<Service> servicesInDB = ServicePersistenceWrapper.getAllServices();
-
-			// get all the services in the adapter db
-			List<String> dbServiceNameList = new ArrayList<String>();
-			for (Service s : servicesInDB) {
-				dbServiceNameList.add(s.getServicename().toLowerCase());
-			}
-
-			String servicesFromDf = ServiceResource.callDFToGetAllServices();
-			JsonObject servicesFromDfJson = new JsonParser().parse(servicesFromDf).getAsJsonObject();
-			JsonArray items = servicesFromDfJson.getAsJsonArray("items");
-
-			if (items != null) {
-				for (int i = 0; i < items.size(); i++) {
-					String name = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("name").getAsString();
-					String id = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("id").getAsString();
-					String description = items.get(i).getAsJsonObject().getAsJsonObject("spec").get("description")
-							.getAsString();
-					String origin = items.get(i).getAsJsonObject().getAsJsonObject("metadata").getAsJsonObject("labels")
-							.get("asiainfo.io/servicebroker").getAsString();
-
-					if (servicesInDB.size() == 0) {
-						ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
-								Catalog.getInstance().getServiceType(name).toLowerCase()));
-					} else {
-						if (!dbServiceNameList.contains(name.toLowerCase())) {
-							ServicePersistenceWrapper.addService(new Service(id, name, description, origin,
-									Catalog.getInstance().getServiceType(name).toLowerCase()));
-						}
-					}
-
-				}
-			}
 
 			List<Service> services = ServicePersistenceWrapper.getAllServices();
 
