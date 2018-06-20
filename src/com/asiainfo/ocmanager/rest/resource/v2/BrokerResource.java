@@ -270,6 +270,21 @@ public class BrokerResource {
 		}
 	}
 
+	@GET
+	@Path("/{name}")
+	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
+	@Audit(action = Action.GET, targetType = TargetType.BROKER)
+	public Response getBroker(@PathParam("name") String name) {
+		try {
+			Broker broker = BrokerPersistenceWrapper.getBrokerByName(name);
+			return Response.ok().entity(broker).tag(name).build();
+		} catch (Exception e) {
+			logger.error("getBrokers hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(name)
+					.build();
+		}
+	}
+
 	public static void main(String[] args) {
 		BrokerPersistenceWrapper.updateStatus("ocdp", BrokerStatus.CATALOG_INITIALIZED.name());
 		System.out.println(">>> end of main");
