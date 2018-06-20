@@ -280,15 +280,19 @@ public class BrokerResource {
 	 * @param request
 	 * @return
 	 */
-	@PUT
-	@Path("/{id}/dc/instantiate")
+	@POST
+	@Path("/{name}/dc/instantiate")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.INSTANTIATE, targetType = TargetType.BROKER_DC)
-	public Response instantiateBrokerDC(@Context HttpServletRequest request) {
+	public Response instantiateBrokerDC(@PathParam("name") String brokerName, @Context HttpServletRequest request) {
 		// TODO:
-		String brokerName = "";
-		BrokerPersistenceWrapper.updateStatus(brokerName, BrokerStatus.DC_INSTANTIATED.name());
-		return Response.ok().entity(getDCConfig()).build();
+		try {
+			BrokerPersistenceWrapper.updateStatus(brokerName, BrokerStatus.DC_INSTANTIATED.name());
+			return Response.ok().entity(getDCConfig()).build();
+		} catch (Exception e) {
+			logger.error("instantiateBrokerDC hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).build();
+		}
 	}
 
 	public static void main(String[] args) {

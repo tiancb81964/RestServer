@@ -330,10 +330,10 @@ __response:__
 }
 ```
 
-### 4实例化broker dc（/ocmanager/v2/api/brokers/{id}/dc/instantiate） 
+### 4实例化broker dc（/ocmanager/v2/api/brokers/{name}/dc/instantiate） 
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/brokers/123456/dc/instantiate
-    请求方式：PUT
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/brokers/myname/dc/instantiate
+    请求方式：POST
 
 #### 4.1请求参数
 
@@ -541,9 +541,9 @@ __response:__
 }
 ```
 
-### 6更新Service broker dc（/ocmanager/v2/api/brokers/{id}/dc） 
+### 6更新Service broker dc（/ocmanager/v2/api/brokers/{name}/dc） 
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/brokers/123456/dc
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/service/brokers/myname/dc
     请求方式：PUT
 
 #### 6.1请求参数
@@ -882,11 +882,11 @@ __response:__
 ]
 ```
 
-### 9获取broker dc（/ocmanager/v2/api/brokers/{id}/dc） 
+### 9获取broker dc（/ocmanager/v2/api/brokers/{name}/dc） 
 
 NOTE： 删除服务,服务是注册在service broker 里面的,因此会删除service broker 中注册的所有服务
 
-	示例：http://127.0.0.1:8080/ocmanager/v2/api/brokers/123456/dc
+	示例：http://127.0.0.1:8080/ocmanager/v2/api/brokers/myname/dc
     请求方式：GET
 
 #### 9.1请求参数
