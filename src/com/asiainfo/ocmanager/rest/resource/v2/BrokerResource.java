@@ -3,6 +3,7 @@ package com.asiainfo.ocmanager.rest.resource.v2;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -47,7 +48,8 @@ import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerAdaptorUtils;
 import com.asiainfo.ocmanager.utils.DFTemplate;
-import com.asiainfo.ocmanager.service.client.etcdClient;
+import com.asiainfo.ocmanager.utils.EtcdJson;
+import com.asiainfo.ocmanager.service.client.CmEtcdClient;
 import com.asiainfo.ocmanager.utils.OsClusterIni;
 import com.asiainfo.ocmanager.utils.ServicesIni;
 import com.google.common.base.Preconditions;
@@ -57,7 +59,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonArray;
+
 
 /**
  *
@@ -413,50 +415,30 @@ public class BrokerResource {
 	@POST
 	@Path("/broker/catalog/{name}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.CREATE, targetType = TargetType.BROKER)
+	@Audit(action = Action.CREATE, targetType = TargetType.CATALOG)
 	public Response initEtcd (@PathParam("name") String serviceBrokerName) {
-		//get file path
-		File inFile = null;
-		String path = null;
-		try {
-			String base = ServicesIni.class.getResource("/").getPath() + ".." + File.separator;
-			path = base + "conf" + File.separator + "initEtcd.json";
-			inFile = new File(path);
-			if (!inFile.exists()) {
-				logger.error("File not found: " + path);
-				throw new RuntimeException("File not found: " + path);
-			}
-		} catch(Exception e) {
-			logger.error("fail to get file path", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
-		}
 		//get jsonArray from file
-		JsonArray actionList = null;
+		JsonArray serviceList = null;
 		try {
-			String input = FileUtils.readFileToString(inFile, "UTF-8");
-			JsonElement jsoninfile = new JsonParser().parse(input);
-			actionList = jsoninfile.getAsJsonArray();
-		} catch (Exception e) {
-			logger.error("fail to get jsonArray from file: " + path, e);
+			serviceList = EtcdJson.getJsonArray();
+		} catch(Exception e) {
+			logger.error("fail to get jsonArray from file", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
 		}
 		//init etcd client
 		try {
-			etcdClient etcd_client = etcdClient.getInstance();
+			CmEtcdClient etcd_client = CmEtcdClient.getInstance();
 			etcd_client.check(serviceBrokerName);
-			if (actionList != null) {
-				for (int actionNum = 0; actionNum < actionList.size(); actionNum++) {
-					JsonObject action = actionList.get(actionNum).getAsJsonObject();
-					switch (action.get("action").getAsString()) {
-					case "createDir" :
-						etcd_client.createDir(action.get("key").getAsString(), serviceBrokerName);
-						break;
-					case "write" :
-						etcd_client.write(action.get("key").getAsString(), action.get("value").getAsString(), serviceBrokerName);
-						break;
-					default :
-						logger.error("error action when init etcd");
-						throw new RuntimeException("unexpect action : " + action);
+			if (serviceList != null) {
+				for (int serviceNum = 0; serviceNum < serviceList.size(); serviceNum++) {
+					JsonObject serviceAction = serviceList.get(serviceNum).getAsJsonObject();
+					JsonArray actionList = serviceAction.get("action-list").getAsJsonArray();
+					String uuid = UUID.randomUUID().toString();
+					for (int actionNum = 0; actionNum < actionList.size(); actionNum++ ) {
+						JsonObject action = actionList.get(actionNum).getAsJsonObject();
+						action.addProperty("key", action.get("key").getAsString().replace("${broker-id}", serviceBrokerName));
+						action.addProperty("key", action.get("key").getAsString().replace("${catalog-id}", uuid));
+						execAction(action);
 					}
 				}
 			}
@@ -464,6 +446,23 @@ public class BrokerResource {
 			logger.error("fail to init etcd", e);
 			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(serviceBrokerName).build();
 		}
-		return Response.ok().entity(actionList.getAsString()).tag(serviceBrokerName).build();
+		BrokerPersistenceWrapper.insert(new Broker(serviceBrokerName));
+		return Response.ok().entity(serviceList.getAsString()).tag(serviceBrokerName).build();
+	}
+	private void execAction(JsonObject action) {
+		
+		CmEtcdClient etcd_client = CmEtcdClient.getInstance();
+		
+		switch (action.get("action").getAsString()) {
+		case "createDir" :
+			etcd_client.createDir(action.get("key").getAsString());
+			break;
+		case "write" :
+			etcd_client.write(action.get("key").getAsString(), action.get("value").getAsString());
+			break;
+		default :
+			logger.error("error action when init etcd");
+			throw new RuntimeException("unexpect action : " + action);
+		}
 	}
 }
