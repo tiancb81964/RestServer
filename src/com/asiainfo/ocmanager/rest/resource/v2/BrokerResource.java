@@ -1,7 +1,9 @@
 package com.asiainfo.ocmanager.rest.resource.v2;
 
-import java.io.File;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,18 +37,22 @@ import com.asiainfo.ocmanager.audit.Audit.Action;
 import com.asiainfo.ocmanager.audit.Audit.TargetType;
 import com.asiainfo.ocmanager.auth.utils.TokenPaserUtils;
 import com.asiainfo.ocmanager.persistence.model.Broker;
+import com.asiainfo.ocmanager.persistence.model.Broker.BrokerStatus;
 import com.asiainfo.ocmanager.persistence.model.Cluster;
 import com.asiainfo.ocmanager.persistence.model.UserRoleView;
 import com.asiainfo.ocmanager.rest.bean.CustomEvnBean;
 import com.asiainfo.ocmanager.rest.bean.ResourceResponseBean;
 import com.asiainfo.ocmanager.rest.constant.Constant;
 import com.asiainfo.ocmanager.rest.constant.ResponseCodeConstant;
+import com.asiainfo.ocmanager.rest.resource.exception.bean.ResponseExceptionBean;
 import com.asiainfo.ocmanager.rest.resource.persistence.BrokerPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.ClusterPersistenceWrapper;
 import com.asiainfo.ocmanager.rest.resource.persistence.UserRoleViewPersistenceWrapper;
+import com.asiainfo.ocmanager.rest.resource.utils.model.DFRestResponse;
 import com.asiainfo.ocmanager.rest.utils.SSLSocketIgnoreCA;
 import com.asiainfo.ocmanager.service.broker.BrokerAdapterInterface;
 import com.asiainfo.ocmanager.service.broker.utils.BrokerAdaptorUtils;
+import com.asiainfo.ocmanager.service.client.DFRestClient;
 import com.asiainfo.ocmanager.utils.DFTemplate;
 import com.asiainfo.ocmanager.utils.EtcdJson;
 import com.asiainfo.ocmanager.service.client.CmEtcdClient;
@@ -79,34 +85,41 @@ public class BrokerResource {
 		String clustername = null;
 		try {
 			List<CustomEvnBean> cusEnvs = customEnvs(requestBody);
-			Preconditions.checkArgument(Strings.isNullOrEmpty(clustername));
 			clustername = request.getParameter("clustername");
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(clustername));
 			Cluster cluster = ClusterPersistenceWrapper.getClusterByName(clustername);
+			if (cluster == null) {
+				logger.error("Cluster not found by name: " + clustername);
+			}
 			BrokerAdapterInterface adapter = BrokerAdaptorUtils.getAdapter(cluster, cusEnvs);
 			String dcreq = DFTemplate.Create_DC.assembleString(adapter);
-			CloseableHttpResponse rsp = createdc(dcreq);
+			DFRestResponse rsp = createdc(dcreq);
 			if (success(rsp)) {
 				String clusterName = adapter.getCluster().getCluster_name().toLowerCase();
-				BrokerPersistenceWrapper.insert(new Broker(clusterName, adapter.getImage(), clusterName, clusterName));
-				return Response.ok().entity(rsp).tag(clustername).build();
+				BrokerPersistenceWrapper.insert(
+						new Broker(clusterName, adapter.getImage(), clusterName, clusterName, BrokerStatus.DC_CREATED));
+				return Response.ok().entity(rsp.getEntity()).tag(clustername).build();
 			}
-			logger.error("Response failed: " + rsp.getStatusLine().getStatusCode());
-			return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(clustername)
-					.build();
+			logger.error("Response failed: " + rsp);
+			return Response.status(Status.BAD_REQUEST).entity(rsp).tag(clustername).build();
 		} catch (Exception e) {
 			logger.error("createBrokerDC hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(clustername).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(clustername)
+					.build();
 		}
 	}
 
-	private boolean success(CloseableHttpResponse rsp) {
-		// TODO Auto-generated method stub
-		return true;
+	private boolean success(DFRestResponse rsp) {
+		return rsp.getStatus() == 201;
 	}
 
 	private List<CustomEvnBean> customEnvs(String requestBody) {
 		JsonObject json = new JsonParser().parse(requestBody).getAsJsonObject();
 		JsonArray kvs = json.getAsJsonArray("env");
+		if (kvs == null) {
+			logger.debug("Create dc request does not has any customized environments: " + requestBody);
+			return Lists.newArrayList();
+		}
 		List<CustomEvnBean> list = Lists.newArrayList();
 		kvs.forEach(kv -> {
 			JsonObject obj = kv.getAsJsonObject();
@@ -123,24 +136,21 @@ public class BrokerResource {
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_SVC)
 	public Response createBrokerSVC(@Context HttpServletRequest request) {
 		String dcName = request.getParameter("dcname");
-		Preconditions.checkArgument(Strings.isNullOrEmpty(dcName));
 		try {
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(dcName));
 			String svcreq = DFTemplate.Create_SVC.assembleString(dcName);
-			CloseableHttpResponse rsp = createsvc(svcreq);
+			DFRestResponse rsp = createsvc(svcreq);
 			if (!success(rsp)) {
-				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
-				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(dcName)
-						.build();
+				logger.error("Response return code not 201: " + rsp);
+				return Response.status(Status.BAD_REQUEST).entity(rsp).tag(dcName).build();
 			}
-			return Response.ok().entity(getSVCConfig()).tag(dcName).build();
+			BrokerPersistenceWrapper.updateStatus(brokerName(dcName), BrokerStatus.SVC_CREATED.name());
+			return Response.ok().entity(rsp.getEntity()).tag(dcName).build();
 		} catch (Exception e) {
 			logger.error("createBrokerSVC hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(dcName).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(dcName)
+					.build();
 		}
-	}
-
-	private String getSVCConfig() {
-		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Service\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"clustermanager\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"labels\": {             \"app\": \"cm-broker\"         },         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9194792\",         \"selfLink\": \"\\/api\\/v1\\/namespaces\\/southbase\\/services\\/cm-broker\",         \"uid\": \"cb7f1b68-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"clusterIP\": \"172.25.247.231\",         \"ports\": [             {                 \"name\": \"9000-tcp\",                 \"port\": 9000,                 \"protocol\": \"TCP\",                 \"targetPort\": 9000             }         ],         \"selector\": {             \"app\": \"cm-broker\",             \"deploymentconfig\": \"cm-broker\"         },         \"sessionAffinity\": \"None\",         \"type\": \"ClusterIP\"     },     \"status\": {         \"loadBalancer\": {}     } } ";
 	}
 
 	@POST
@@ -149,20 +159,21 @@ public class BrokerResource {
 	@Audit(action = Action.CREATE, targetType = TargetType.BROKER_ROUTER)
 	public Response createBrokerRouter(@Context HttpServletRequest request) {
 		String svcname = request.getParameter("svcname");
-		Preconditions.checkArgument(Strings.isNullOrEmpty(svcname));
 		try {
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(svcname));
 			String svcreq = DFTemplate.Create_Router.assembleString(svcname);
-			CloseableHttpResponse rsp = createrouter(svcreq);
+			DFRestResponse rsp = createrouter(svcreq);
 			if (!success(rsp)) {
-				logger.error("Response return code not 200: " + rsp.getStatusLine().getReasonPhrase());
-				return Response.status(Status.BAD_REQUEST).entity(rsp.getStatusLine().getReasonPhrase()).tag(svcreq)
-						.build();
+				logger.error("Response return code not 201: " + rsp);
+				return Response.status(Status.BAD_REQUEST).entity(rsp).tag(svcreq).build();
 			}
 			BrokerPersistenceWrapper.updateURL(brokerName(svcname), svcname + DFTemplate.Create_Router.HOST_POSTFIX);
-			return Response.ok().entity(getRouterConfig()).tag(svcname).build();
+			BrokerPersistenceWrapper.updateStatus(brokerName(svcname), BrokerStatus.ROUTER_CREATED.name());
+			return Response.ok().entity(rsp.getEntity()).tag(svcname).build();
 		} catch (Exception e) {
 			logger.error("createBrokerRouter hit exception -> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(svcname).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(svcname)
+					.build();
 		}
 	}
 
@@ -170,23 +181,34 @@ public class BrokerResource {
 		return svcname;
 	}
 
-	private String getRouterConfig() {
-		return "{     \"apiVersion\": \"v1\",     \"kind\": \"Route\",     \"metadata\": {         \"creationTimestamp\": \"2018-06-05T02:35:50Z\",         \"name\": \"cm-broker\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9195063\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/routes\\/cm-broker\",         \"uid\": \"28f36555-6869-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"host\": \"cm.southbase.prd.dataos.io\",         \"port\": {             \"targetPort\": \"9000-tcp\"         },         \"tls\": {             \"insecureEdgeTerminationPolicy\": \"Redirect\",             \"termination\": \"edge\"         },         \"to\": {             \"kind\": \"Service\",             \"name\": \"cm-broker\",             \"weight\": 50         },         \"wildcardPolicy\": \"None\"     },     \"status\": {         \"ingress\": [             {                 \"conditions\": [                     {                         \"lastTransitionTime\": \"2018-06-05T02:35:50Z\",                         \"status\": \"True\",                         \"type\": \"Admitted\"                     }                 ],                 \"host\": \"cm.southbase.prd.dataos.io\",                 \"routerName\": \"router\",                 \"wildcardPolicy\": \"None\"             }         ]     } } ";
+	private DFRestResponse createsvc(String svcreq) {
+		try {
+			DFRestResponse rsp = new DFRestClient().sendPost("/api/v1/namespaces/dp-brokers/services", svcreq);
+			return rsp;
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+			logger.error("Exception while create svc: ", e);
+			throw new RuntimeException("Exception while create svc: ", e);
+		}
 	}
 
-	private CloseableHttpResponse createsvc(String svcreq) {
-		// TODO Auto-generated method stub
-		return null;
+	private DFRestResponse createdc(String dcreq) {
+		try {
+			DFRestResponse rsp = new DFRestClient().sendPost("/oapi/v1/namespaces/dp-brokers/deploymentconfigs", dcreq);
+			return rsp;
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+			logger.error("Exception while create dc: ", e);
+			throw new RuntimeException("Exception while create dc: ", e);
+		}
 	}
 
-	private CloseableHttpResponse createdc(String dcreq) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private CloseableHttpResponse createrouter(String reqBody) {
-		// TODO Auto-generated method stub
-		return null;
+	private DFRestResponse createrouter(String reqBody) {
+		try {
+			DFRestResponse rsp = new DFRestClient().sendPost("/oapi/v1/namespaces/dp-brokers/routes", reqBody);
+			return rsp;
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+			logger.error("Exception while create router: ", e);
+			throw new RuntimeException("Exception while create router: ", e);
+		}
 	}
 
 	/**
@@ -196,16 +218,29 @@ public class BrokerResource {
 	 * @return
 	 */
 	@GET
-	@Path("/{id}/dc")
+	@Path("/{name}/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.BROKER_DC)
-	public Response getBrokerDC(@PathParam("id") String brokerid) {
-		// TODO:
-		return Response.ok().entity(getDCConfig()).build();
+	public Response getBrokerDC(@PathParam("name") String brokerName) {
+		try {
+			Broker broker = BrokerPersistenceWrapper.getBrokerByName(brokerName);
+			if (broker == null) {
+				logger.error("Broker not found by name: " + brokerName);
+				return Response.status(Status.BAD_REQUEST).entity("Broker not found by name: " + brokerName)
+						.tag(brokerName).build();
+			}
+			String dcName = broker.getDc_name();
+			DFRestResponse rsp = new DFRestClient().sendGet(dcURI(dcName), null);
+			return Response.ok().entity(rsp).build();
+		} catch (Exception e) {
+			logger.error("getBrokerDC hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerName)
+					.build();
+		}
 	}
 
-	private String getDCConfig() {
-		return "{     \"apiVersion\": \"v1\",     \"kind\": \"DeploymentConfig\",     \"metadata\": {         \"annotations\": {             \"dadafoundry.io\\/create-by\": \"chaizs\",             \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"         },         \"creationTimestamp\": \"2018-06-05T02:33:13Z\",         \"generation\": 3,         \"labels\": {             \"app\": \"cm-console\"         },         \"name\": \"cm-console\",         \"namespace\": \"southbase\",         \"resourceVersion\": \"9200111\",         \"selfLink\": \"\\/oapi\\/v1\\/namespaces\\/southbase\\/deploymentconfigs\\/cm-console\",         \"uid\": \"cb8ea774-6868-11e8-ae4e-fa163ef134de\"     },     \"spec\": {         \"replicas\": 1,         \"selector\": {             \"app\": \"cm-console\",             \"deploymentconfig\": \"cm-console\"         },         \"strategy\": {             \"activeDeadlineSeconds\": 21600,             \"resources\": {},             \"rollingParams\": {                 \"intervalSeconds\": 1,                 \"maxSurge\": \"25%\",                 \"maxUnavailable\": \"25%\",                 \"timeoutSeconds\": 600,                 \"updatePeriodSeconds\": 1             },             \"type\": \"Rolling\"         },         \"template\": {             \"metadata\": {                 \"annotations\": {                     \"openshift.io\\/generated-by\": \"OpenShiftWebConsole\"                 },                 \"creationTimestamp\": null,                 \"labels\": {                     \"app\": \"cm-console\",                     \"deploymentconfig\": \"cm-console\"                 }             },             \"spec\": {                 \"containers\": [                     {                         \"env\": [                             {                                 \"name\": \"ADAPTER_API_SERVER\",                                 \"value\": \"http:\\/\\/10.1.236.60:9090\"                             },                             {                                 \"name\": \"SVCAMOUNT_API_SERVER\",                                 \"value\": \"http:\\/\\/svc-amount2.cloud.prd.asiainfo.com\"                             }                         ],                         \"image\": \"docker-registry.default.svc:5000\\/southbase\\/cm-console@sha256:8f0b437a91bed1ab44cfdda6b989debc078dfba8a2013ef38e5a824dff42afd7\",                         \"imagePullPolicy\": \"IfNotPresent\",                         \"name\": \"cm-console\",                         \"ports\": [                             {                                 \"containerPort\": 9000,                                 \"protocol\": \"TCP\"                             }                         ],                         \"resources\": {},                         \"terminationMessagePath\": \"\\/dev\\/termination-log\",                         \"terminationMessagePolicy\": \"File\"                     }                 ],                 \"dnsPolicy\": \"ClusterFirst\",                 \"restartPolicy\": \"Always\",                 \"schedulerName\": \"default-scheduler\",                 \"securityContext\": {},                 \"terminationGracePeriodSeconds\": 30             }         },         \"test\": false,         \"triggers\": [             {                 \"type\": \"ConfigChange\"             }         ]     },     \"status\": {         \"availableReplicas\": 1,         \"conditions\": [             {                 \"lastTransitionTime\": \"2018-06-05T02:34:59Z\",                 \"lastUpdateTime\": \"2018-06-05T02:34:59Z\",                 \"message\": \"Deployment config has minimum availability.\",                 \"status\": \"True\",                 \"type\": \"Available\"             },             {                 \"lastTransitionTime\": \"2018-06-05T03:28:27Z\",                 \"lastUpdateTime\": \"2018-06-05T03:28:29Z\",                 \"message\": \"replication controller \'cm-console-2\' successfully rolled out\",                 \"reason\": \"NewReplicationControllerAvailable\",                 \"status\": \"True\",                 \"type\": \"Progressing\"             }         ],         \"details\": {             \"causes\": [                 {                     \"type\": \"ConfigChange\"                 }             ],             \"message\": \"config change\"         },         \"latestVersion\": 2,         \"observedGeneration\": 3,         \"readyReplicas\": 1,         \"replicas\": 1,         \"unavailableReplicas\": 0,         \"updatedReplicas\": 1     } } ";
+	private String dcURI(String dcName) {
+		return "/oapi/v1/namespaces/dp-brokers/deploymentconfigs/" + dcName;
 	}
 
 	/**
@@ -215,39 +250,51 @@ public class BrokerResource {
 	 * @return
 	 */
 	@PUT
-	@Path("/{id}/dc")
+	@Path("/{name}/dc")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.UPDATE, targetType = TargetType.BROKER_DC)
-	public Response updateBrokerDC(@Context HttpServletRequest request) {
-		// TODO:
-		return Response.ok().entity(getDCConfig()).build();
+	public Response updateBrokerDC(@PathParam("name") String brokerName, String requestBody) {
+		try {
+			DFRestResponse rsp = new DFRestClient().sendPut(dcURI(brokerName), requestBody);
+			return Response.ok().entity(rsp).tag(brokerName).build();
+		} catch (Exception e) {
+			logger.error("updateBrokerDC hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerName)
+					.build();
+		}
 	}
 
 	@GET
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.GET, targetType = TargetType.BROKER)
-	public Response getBrokers(@Context HttpServletRequest request) {
-		String dcName = request.getParameter("clustername");
-		// TODO:
-		List<Broker> list = Lists.newArrayList();
-		list.add(new Broker("1", "broker1", "http://myimage.com", "https://mybroker.com", "cluster1",
-				"cm-broker-123456"));
-		return Response.ok().entity(list).build();
+	public Response getBrokers() {
+		try {
+			List<Broker> brokers = BrokerPersistenceWrapper.getBrokers();
+			return Response.ok().entity(brokers).build();
+		} catch (Exception e) {
+			logger.error("getBrokers hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).build();
+		}
 	}
 
-	/**
-	 * instantiate a broker
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@PUT
-	@Path("/{id}/dc/instantiate")
+	@GET
+	@Path("/{name}")
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
-	@Audit(action = Action.INSTANTIATE, targetType = TargetType.BROKER_DC)
-	public Response instantiateBrokerDC(@Context HttpServletRequest request) {
-		// TODO:
-		return Response.ok().entity(getDCConfig()).build();
+	@Audit(action = Action.GET, targetType = TargetType.BROKER)
+	public Response getBroker(@PathParam("name") String name) {
+		try {
+			Broker broker = BrokerPersistenceWrapper.getBrokerByName(name);
+			return Response.ok().entity(broker).tag(name).build();
+		} catch (Exception e) {
+			logger.error("getBrokers hit exception -> ", e);
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(name)
+					.build();
+		}
+	}
+
+	public static void main(String[] args) {
+		BrokerPersistenceWrapper.updateStatus("ocdp", BrokerStatus.CATALOG_INITIALIZED.name());
+		System.out.println(">>> end of main");
 	}
 
 	/**
@@ -260,7 +307,7 @@ public class BrokerResource {
 	@Produces((MediaType.APPLICATION_JSON + Constant.SEMICOLON + Constant.CHARSET_EQUAL_UTF_8))
 	@Audit(action = Action.REGISTER, targetType = TargetType.BROKER)
 	public Response registerServiceBroker(String reqBodyStr, @Context HttpServletRequest request) {
-		String brokerIP = extractIP(reqBodyStr);
+		String brokerurl = extractURL(reqBodyStr);
 		try {
 
 			String adToken = request.getHeader("token");
@@ -269,7 +316,7 @@ public class BrokerResource {
 						.entity(new ResourceResponseBean("add service broker failed",
 								"token is null or empty, please check the token in request header.",
 								ResponseCodeConstant.EMPTY_TOKEN))
-						.tag(brokerIP).build();
+						.tag(brokerurl).build();
 			}
 
 			String loginUser = TokenPaserUtils.paserUserName(adToken);
@@ -283,7 +330,7 @@ public class BrokerResource {
 						.entity(new ResourceResponseBean("add service broker failed",
 								"the user is not system admin role, does NOT have the add service broker permission.",
 								ResponseCodeConstant.NO_ADD_SERVICE_BROKER_PERMISSION))
-						.tag(brokerIP).build();
+						.tag(brokerurl).build();
 			}
 
 			String url = OsClusterIni.getConf().get(Constant.SERVICE_CLUSTER).getProperty(Constant.OS_URL);
@@ -310,23 +357,29 @@ public class BrokerResource {
 					// int statusCode =
 					// response2.getStatusLine().getStatusCode();
 					String bodyStr = EntityUtils.toString(response2.getEntity());
-
-					return Response.ok().entity(bodyStr).tag(brokerIP).build();
+					BrokerPersistenceWrapper.updateStatus(extractName(reqBodyJson), BrokerStatus.REGISTERED.name());
+					return Response.ok().entity(bodyStr).tag(brokerurl).build();
 				} finally {
 					response2.close();
 				}
 			} finally {
 				httpclient.close();
 			}
-			// TODO: update binded_cluster colume of CM_BROKERS table
 		} catch (Exception e) {
 			// system out the exception into the console log
 			logger.error("addServiceBroker hit exception-> ", e);
-			return Response.status(Status.BAD_REQUEST).entity(e.toString()).tag(brokerIP).build();
+			return Response.status(Status.BAD_REQUEST).entity(new ResponseExceptionBean(e.toString())).tag(brokerurl)
+					.build();
 		}
 	}
 
-	private String extractIP(String reqBodyStr) {
+	private String extractName(JsonElement reqBodyJson) {
+		JsonObject meta = reqBodyJson.getAsJsonObject().getAsJsonObject("metadata");
+		String name = meta.getAsJsonPrimitive("name").getAsString();
+		return name;
+	}
+
+	private String extractURL(String reqBodyStr) {
 		JsonElement reqBodyJson = new JsonParser().parse(reqBodyStr);
 		JsonObject spec = reqBodyJson.getAsJsonObject().getAsJsonObject("spec");
 		return spec.get("url").getAsString();

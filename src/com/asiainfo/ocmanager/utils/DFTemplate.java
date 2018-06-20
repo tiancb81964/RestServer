@@ -70,6 +70,11 @@ public class DFTemplate {
 	private static String envToJson(Map<String, String> env) {
 		JsonArray array = new JsonArray();
 		for (Entry<String, String> en : env.entrySet()) {
+			if (en.getValue() == null) {
+				LOG.warn("Environment kv value is null: " + en.toString());
+				array.add(en.getKey(), "");
+				continue;
+			}
 			array.add(en.getKey(), en.getValue());
 		}
 		return array.toString();
@@ -88,7 +93,7 @@ public class DFTemplate {
 			return sb.build().toString();
 		}
 	}
-
+	
 	private static String parseTemplate(String filename) {
 		BufferedReader br = null;
 		try {
